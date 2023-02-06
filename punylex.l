@@ -17,7 +17,10 @@ int firsttime;
 #define yylex real_yylex			
 %}
 
-strlit      (\"\"\"([^\"]*|([^\"]+\"{0,2}[^\"]+)*)\"\"\")|(\'\'\'([^\']*|([^\']+\'{0,2}[^\']+)*)\'\'\')|(\"[^\"\n]*\")|(\'[^\'\n]*\')
+multiline_double_quotes     \"\"\"([^\"]*|([^\"]+\"{0,2}[^\"]+)*)\"\"\"
+multiline_single_quotes     \'\'\'([^\']*|([^\']+\'{0,2}[^\']+)*)\'\'\'
+double_quotes               \"[^\"\n]*\"
+single_quotes               \'[^\'\n]*\'
 %%
 
 #.*\n						{ ; }
@@ -136,7 +139,7 @@ strlit      (\"\"\"([^\"]*|([^\"]+\"{0,2}[^\"]+)*)\"\"\")|(\'\'\'([^\']*|([^\']+
 [0-9]+                 { column += strlen(yytext); return INTLIT; }
 [A-Za-z0-9]+	{column += strlen(yytext); words++; return NAME;}
 [0-9]*"."[0-9]*([eE][+-]?[0-9]+)? { column += strlen(yytext); return FLOATLIT; }
-{strlit}    {
+{multiline_double_quotes}|{multiline_single_quotes}|{single_quotes}|{double_quotes}    {
                 int len = strlen(yytext);
                 char c;
                 for(int i = 0; i < len; i++) {

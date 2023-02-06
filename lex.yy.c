@@ -865,7 +865,7 @@ YY_DECL
 		}
 
 	{
-#line 21 "punylex.l"
+#line 24 "punylex.l"
 
 
 #line 872 "lex.yy.c"
@@ -929,34 +929,34 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 /* rule 1 can match eol */
 YY_RULE_SETUP
-#line 23 "punylex.l"
+#line 26 "punylex.l"
 { ; }
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
-#line 24 "punylex.l"
+#line 27 "punylex.l"
 { if (firsttime++ == 0) return ENDMARKER; else return -1; }
 	YY_BREAK
 case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
-#line 25 "punylex.l"
+#line 28 "punylex.l"
 { rows++; column=1; }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 26 "punylex.l"
+#line 29 "punylex.l"
 { ; }
 	YY_BREAK
 case 4:
 /* rule 4 can match eol */
 YY_RULE_SETUP
-#line 27 "punylex.l"
+#line 30 "punylex.l"
 { rows++; }
 	YY_BREAK
 case 5:
 /* rule 5 can match eol */
 YY_RULE_SETUP
-#line 28 "punylex.l"
+#line 31 "punylex.l"
 { 	int il = indentlevel(yytext+1);
 				rows++; column=il+1;
 				if (il > dentstack[top]) {
@@ -985,433 +985,433 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 54 "punylex.l"
+#line 57 "punylex.l"
 { column += strlen(yytext); words++; return PYFALSE; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 55 "punylex.l"
+#line 58 "punylex.l"
 { column += strlen(yytext);words++; return PYDEF; } 
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 56 "punylex.l"
+#line 59 "punylex.l"
 { column += strlen(yytext);words++; return IF; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 57 "punylex.l"
+#line 60 "punylex.l"
 { column += strlen(yytext);words++; return RAISE; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 58 "punylex.l"
+#line 61 "punylex.l"
 { column += strlen(yytext);words++; return NONE; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 59 "punylex.l"
+#line 62 "punylex.l"
 { column += strlen(yytext);words++; return DEL; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 60 "punylex.l"
+#line 63 "punylex.l"
 { column += strlen(yytext);words++; return IMPORT; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 61 "punylex.l"
+#line 64 "punylex.l"
 { column += strlen(yytext);words++; return RETURN; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 62 "punylex.l"
+#line 65 "punylex.l"
 { column += strlen(yytext);words++; return PYTRUE; }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 63 "punylex.l"
+#line 66 "punylex.l"
 { column += strlen(yytext);words++; return ELIF; }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 64 "punylex.l"
+#line 67 "punylex.l"
 { column += strlen(yytext);words++; return IN; }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 65 "punylex.l"
+#line 68 "punylex.l"
 { column += strlen(yytext);words++; return TRY; }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 66 "punylex.l"
+#line 69 "punylex.l"
 { column += strlen(yytext);words++; return AND; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 67 "punylex.l"
+#line 70 "punylex.l"
 { column += strlen(yytext);words++; return ELSE; }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 68 "punylex.l"
+#line 71 "punylex.l"
 { column += strlen(yytext);words++; return IS; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 69 "punylex.l"
+#line 72 "punylex.l"
 { column += strlen(yytext);words++; return WHILE; }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 70 "punylex.l"
+#line 73 "punylex.l"
 { column += strlen(yytext);words++; return AS; }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 71 "punylex.l"
+#line 74 "punylex.l"
 { column += strlen(yytext);words++; return EXCEPT; }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 72 "punylex.l"
+#line 75 "punylex.l"
 { column += strlen(yytext);words++; return LAMBDA; }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 73 "punylex.l"
+#line 76 "punylex.l"
 { column += strlen(yytext);words++; return WITH; }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 74 "punylex.l"
+#line 77 "punylex.l"
 { column += strlen(yytext);words++; return ASSERT; }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 75 "punylex.l"
+#line 78 "punylex.l"
 { column += strlen(yytext);words++; return FINALLY; }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 76 "punylex.l"
+#line 79 "punylex.l"
 { column += strlen(yytext);words++; return NONLOCAL; }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 77 "punylex.l"
+#line 80 "punylex.l"
 { column += strlen(yytext);words++; return YIELD; }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 78 "punylex.l"
+#line 81 "punylex.l"
 { column += strlen(yytext);words++; return BREAK; }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 79 "punylex.l"
+#line 82 "punylex.l"
 { column += strlen(yytext);words++; return FOR; }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 80 "punylex.l"
+#line 83 "punylex.l"
 { column += strlen(yytext);words++; return NOT; }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 81 "punylex.l"
+#line 84 "punylex.l"
 { column += strlen(yytext);words++; return CLASS; }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 82 "punylex.l"
+#line 85 "punylex.l"
 { column += strlen(yytext);words++; return FROM; }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 83 "punylex.l"
+#line 86 "punylex.l"
 { column += strlen(yytext);words++; return OR; }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 84 "punylex.l"
+#line 87 "punylex.l"
 { column += strlen(yytext);words++; return CONTINUE; }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 85 "punylex.l"
+#line 88 "punylex.l"
 { column += strlen(yytext);words++; return GLOBAL; }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 86 "punylex.l"
+#line 89 "punylex.l"
 { column += strlen(yytext);words++; return PASS; }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 87 "punylex.l"
+#line 90 "punylex.l"
 { column += strlen(yytext); return LPAR; }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 88 "punylex.l"
+#line 91 "punylex.l"
 { column += strlen(yytext); return RPAR; }					                     
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 89 "punylex.l"
+#line 92 "punylex.l"
 { column += strlen(yytext); return LSQB; }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 90 "punylex.l"
+#line 93 "punylex.l"
 { column += strlen(yytext); return RSQB; }
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 91 "punylex.l"
+#line 94 "punylex.l"
 { column += strlen(yytext); return COLON; }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 92 "punylex.l"
+#line 95 "punylex.l"
 { column += strlen(yytext); return COMMA; }
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 93 "punylex.l"
+#line 96 "punylex.l"
 { column += strlen(yytext); return SEMI; }
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 94 "punylex.l"
+#line 97 "punylex.l"
 { column += strlen(yytext); return PLUS; }
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 95 "punylex.l"
+#line 98 "punylex.l"
 { column += strlen(yytext); return MINUS; }
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 96 "punylex.l"
+#line 99 "punylex.l"
 { column += strlen(yytext); return STAR; }
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 97 "punylex.l"
+#line 100 "punylex.l"
 { column += strlen(yytext); return SLASH; }
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 98 "punylex.l"
+#line 101 "punylex.l"
 { column += strlen(yytext); return VBAR; }
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 99 "punylex.l"
+#line 102 "punylex.l"
 { column += strlen(yytext); return AMPER; }
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 100 "punylex.l"
+#line 103 "punylex.l"
 { column += strlen(yytext); return LESS; }
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 101 "punylex.l"
+#line 104 "punylex.l"
 { column += strlen(yytext); return GREATER; }
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 102 "punylex.l"
+#line 105 "punylex.l"
 { column += strlen(yytext); return EQUAL; }
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 103 "punylex.l"
+#line 106 "punylex.l"
 { column += strlen(yytext); return DOT; }
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
-#line 104 "punylex.l"
+#line 107 "punylex.l"
 { column += strlen(yytext); return PERCENT; }
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 105 "punylex.l"
+#line 108 "punylex.l"
 { column += strlen(yytext); return LBRACE; }
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 106 "punylex.l"
+#line 109 "punylex.l"
 { column += strlen(yytext); return RBRACE; }
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
-#line 107 "punylex.l"
+#line 110 "punylex.l"
 { column += strlen(yytext); return EQEQUAL; }
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 108 "punylex.l"
+#line 111 "punylex.l"
 { column += strlen(yytext); return NOTEQUAL; }
 	YY_BREAK
 case 61:
 YY_RULE_SETUP
-#line 109 "punylex.l"
+#line 112 "punylex.l"
 { column += strlen(yytext); return LESSEQUAL; }
 	YY_BREAK
 case 62:
 YY_RULE_SETUP
-#line 110 "punylex.l"
+#line 113 "punylex.l"
 { column += strlen(yytext); return GREATEREQUAL; }
 	YY_BREAK
 case 63:
 YY_RULE_SETUP
-#line 111 "punylex.l"
+#line 114 "punylex.l"
 { column += strlen(yytext); return TILDE; }
 	YY_BREAK
 case 64:
 YY_RULE_SETUP
-#line 112 "punylex.l"
+#line 115 "punylex.l"
 { column += strlen(yytext); return CIRCUMFLEX; }
 	YY_BREAK
 case 65:
 YY_RULE_SETUP
-#line 113 "punylex.l"
+#line 116 "punylex.l"
 { column += strlen(yytext); return LEFTSHIFT; }
 	YY_BREAK
 case 66:
 YY_RULE_SETUP
-#line 114 "punylex.l"
+#line 117 "punylex.l"
 { column += strlen(yytext); return RIGHTSHIFT; }
 	YY_BREAK
 case 67:
 YY_RULE_SETUP
-#line 115 "punylex.l"
+#line 118 "punylex.l"
 { column += strlen(yytext); return DOUBLESTAR; }
 	YY_BREAK
 case 68:
 YY_RULE_SETUP
-#line 116 "punylex.l"
+#line 119 "punylex.l"
 { column += strlen(yytext); return PLUSEQUAL; }
 	YY_BREAK
 case 69:
 YY_RULE_SETUP
-#line 117 "punylex.l"
+#line 120 "punylex.l"
 { column += strlen(yytext); return MINEQUAL; }
 	YY_BREAK
 case 70:
 YY_RULE_SETUP
-#line 118 "punylex.l"
+#line 121 "punylex.l"
 { column += strlen(yytext); return STAREQUAL; }
 	YY_BREAK
 case 71:
 YY_RULE_SETUP
-#line 119 "punylex.l"
+#line 122 "punylex.l"
 { column += strlen(yytext); return SLASHEQUAL; }
 	YY_BREAK
 case 72:
 YY_RULE_SETUP
-#line 120 "punylex.l"
+#line 123 "punylex.l"
 { column += strlen(yytext); return PERCENTEQUAL; }
 	YY_BREAK
 case 73:
 YY_RULE_SETUP
-#line 121 "punylex.l"
+#line 124 "punylex.l"
 { column += strlen(yytext); return AMPEREQUAL; }
 	YY_BREAK
 case 74:
 YY_RULE_SETUP
-#line 122 "punylex.l"
+#line 125 "punylex.l"
 { column += strlen(yytext); return VBAREQUAL; }
 	YY_BREAK
 case 75:
 YY_RULE_SETUP
-#line 123 "punylex.l"
+#line 126 "punylex.l"
 { column += strlen(yytext); return CIRCUMFLEXEQUAL; }
 	YY_BREAK
 case 76:
 YY_RULE_SETUP
-#line 124 "punylex.l"
+#line 127 "punylex.l"
 { column += strlen(yytext); return LEFTSHIFTEQUAL; }
 	YY_BREAK
 case 77:
 YY_RULE_SETUP
-#line 125 "punylex.l"
+#line 128 "punylex.l"
 { column += strlen(yytext); return RIGHTSHIFTEQUAL; }
 	YY_BREAK
 case 78:
 YY_RULE_SETUP
-#line 126 "punylex.l"
+#line 129 "punylex.l"
 { column += strlen(yytext); return DOUBLESTAREQUAL; }
 	YY_BREAK
 case 79:
 YY_RULE_SETUP
-#line 127 "punylex.l"
+#line 130 "punylex.l"
 { column += strlen(yytext); return DOUBLESLASH; }
 	YY_BREAK
 case 80:
 YY_RULE_SETUP
-#line 128 "punylex.l"
+#line 131 "punylex.l"
 { column += strlen(yytext); return DOUBLESLASHEQUAL; }
 	YY_BREAK
 case 81:
 YY_RULE_SETUP
-#line 129 "punylex.l"
+#line 132 "punylex.l"
 { column += strlen(yytext); return AT; }
 	YY_BREAK
 case 82:
 YY_RULE_SETUP
-#line 130 "punylex.l"
+#line 133 "punylex.l"
 { column += strlen(yytext); return ATEQUAL; }
 	YY_BREAK
 case 83:
 YY_RULE_SETUP
-#line 131 "punylex.l"
+#line 134 "punylex.l"
 { column += strlen(yytext); return RARROW; }
 	YY_BREAK
 case 84:
 YY_RULE_SETUP
-#line 132 "punylex.l"
+#line 135 "punylex.l"
 { column += strlen(yytext); return ELLIPSIS; }
 	YY_BREAK
 case 85:
 YY_RULE_SETUP
-#line 133 "punylex.l"
+#line 136 "punylex.l"
 { column += strlen(yytext); return COLONEQUAL; }
 	YY_BREAK
 case 86:
 YY_RULE_SETUP
-#line 134 "punylex.l"
+#line 137 "punylex.l"
 { return INDENT; }
 	YY_BREAK
 case 87:
 YY_RULE_SETUP
-#line 135 "punylex.l"
+#line 138 "punylex.l"
 { column += strlen(yytext); return NAME; }
 	YY_BREAK
 case 88:
 YY_RULE_SETUP
-#line 136 "punylex.l"
+#line 139 "punylex.l"
 { column += strlen(yytext); return INTLIT; }
 	YY_BREAK
 case 89:
 YY_RULE_SETUP
-#line 137 "punylex.l"
+#line 140 "punylex.l"
 {column += strlen(yytext); words++; return NAME;}
 	YY_BREAK
 case 90:
 YY_RULE_SETUP
-#line 138 "punylex.l"
+#line 141 "punylex.l"
 { column += strlen(yytext); return FLOATLIT; }
 	YY_BREAK
 case 91:
 /* rule 91 can match eol */
 YY_RULE_SETUP
-#line 139 "punylex.l"
+#line 142 "punylex.l"
 {
                 int len = strlen(yytext);
                 char c;
@@ -1428,12 +1428,12 @@ YY_RULE_SETUP
 	YY_BREAK
 case 92:
 YY_RULE_SETUP
-#line 152 "punylex.l"
+#line 155 "punylex.l"
 {column++;}
 	YY_BREAK
 case 93:
 YY_RULE_SETUP
-#line 153 "punylex.l"
+#line 156 "punylex.l"
 ECHO;
 	YY_BREAK
 #line 1440 "lex.yy.c"
@@ -2405,7 +2405,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 153 "punylex.l"
+#line 156 "punylex.l"
 
 
 

@@ -28,7 +28,7 @@ int insert_node(tokenlist_t *l, double dval, char *sval, int ival, char *text, i
     new_node -> t = malloc(sizeof(token_t));
 
     printf("text: %s\n", text);
-    new_node -> t -> text = calloc(strlen(text), sizeof(char) + 1);
+    new_node -> t -> text = calloc(strlen(text) + 1, sizeof(char));
     
     strncpy(new_node -> t -> text, text, strlen(text));
 	new_node->t -> dval = dval;
@@ -36,10 +36,10 @@ int insert_node(tokenlist_t *l, double dval, char *sval, int ival, char *text, i
 	new_node->t -> category = cat;
 	new_node->t -> lineno = rows;
     if(cat == STRINGLIT) {
-        new_node -> t -> sval = calloc(strlen(sval), sizeof(char) + 1);
+        new_node -> t -> sval = calloc(strlen(sval) + 1, sizeof(char));
         strncpy(new_node -> t -> sval, sval, strlen(sval));
     }
-    new_node -> t -> filename = calloc(strlen(filename), sizeof(char) + 1);
+    new_node -> t -> filename = calloc(strlen(filename) + 1, sizeof(char));
 	strncpy(new_node -> t -> filename, filename, strlen(filename));
     l = insert_tail_node(l, new_node);
 	return 0;

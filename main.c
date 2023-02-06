@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <stdlib.h> 
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include "token.h"
@@ -19,77 +19,60 @@ void print_list(tokenlist_t *l);
 void dealloc_list(tokenlist_t *l);
 
 
-       
-
 int main(int argc, char *argv[]) {
-	
 
-	int ret = 0;
-	
+    int ret = 0;
     char *sval = NULL;
     char *text;
     int ival = 0;
     double dval = 0.0;
 
-    for(int i = 1; i < argc; i++)
-	{	
-        if(access(argv[i], F_OK) == 0) { // Check if file exists
+    for (int i = 1; i < argc; i++) {
+        if (access(argv[i], F_OK) == 0 && strstr(argv[i], ".py")) { // Check if file exists and has .py extension
             yyin = fopen(argv[i], "r");
-            if(yyin == NULL) { // Check that file is opened correctly
-                fprintf(stderr, "File cannot be opened\n");
+            if (yyin == NULL) { // Check that file is opened correctly
+                fprintf(stderr, "File %s cannot be opened\n", argv[i]);
                 continue;
             }
-        }
-        else {
+        } else {
+            fprintf(stderr, "Skipping %s. Not a .py file or does not exist\n", argv[i]);
             continue;
         }
 
-		printf("DRAFT OF OUTPUT\n");
-		tokenlist_t *list_head = NULL;
-		list_head = malloc(sizeof(tokenlist_t));
-		list_head->next = NULL;
-		
-		while((ret = yylex()) >0 ){
+        printf("DRAFT OF OUTPUT\n");
+        tokenlist_t *list_head = NULL;
+        list_head = malloc(sizeof(tokenlist_t));
+        list_head->next = NULL;
 
-			switch(ret)
-			{
-				case STRINGLIT:
+        while ((ret = yylex()) > 0) {
+            switch (ret) {
+                case STRINGLIT:
+                    sval = extract_string(yytext);
+                    break;
 
-					sval = extract_string(yytext);
-					break;
+                case INTLIT:
+                    ival = extract_int(yytext);
+                    break;
 
-				case INTLIT:
-					ival = extract_int(yytext);
-					break;
+                case FLOATLIT:
+                    dval = extract_float(yytext);
+                    break;
+            }
 
-				case FLOATLIT:
-					dval = extract_float(yytext);
-					break;
+            text = malloc(sizeof(char) * strlen(yytext));
+            strcpy(text, yytext);
 
-			}
-			
-			//printf("%s\t%d\t%f\t%d\t%s\t\n", yytext, ret, dval, ival, sval);
-			text = malloc(sizeof(char) * strlen(yytext));
-			strcpy(text, yytext);
+            insert_node(list_head, dval, sval, ival, text, ret, rows, column, argv[i]);
 
-			insert_node(list_head, dval, sval, ival, text, ret, rows, column, argv[i]);
-			//printf("%f %s %d %s %d %d %s \n", dval, sval, ival, yytext, ret, rows, argv[i]);
-
-			//printf("%s %s  \n", rev_token(ret), yytext);
-			free(text);
-            if(ret == STRINGLIT)
+            free(text);
+            if (ret == STRINGLIT)
                 free(sval);
-		}
-	
-		//printf("PRINTING LIST BACKWARD AFTER BUILDING\n");
-		print_list(list_head);
-		dealloc_list(list_head);
-		fclose(yyin);
+        }
 
-	}
-	
-	
-	//printf("\t%d\t%d\t%d\n", rows, words, chars);
-	return 0;
+        print_list(list_head);
+        dealloc_list(list_head);
+        fclose(yyin);
+    }
+
+    return 0;
 }
-
