@@ -3,7 +3,7 @@
 #include <string.h>
 #include "utils.c"
 #include "token.h"
-#include "lists.c"
+#include "token.c"
 
 
 

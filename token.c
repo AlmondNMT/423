@@ -1,4 +1,8 @@
-int insert_node(tokenlist_t **l, double dval, char *sval, int ival, char *text, int cat, int rows, char *filename){
+#include <stdio.h>
+#include <stdlib.h>
+#include "token.h"
+
+int insert_node(tokenlist_t **l, double dval, char *sval, int ival, char *text, int cat, int rows, int column, char *filename){
 	
 
 	tokenlist_t *new_head = NULL;

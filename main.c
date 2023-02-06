@@ -1,21 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h> 
 #include <string.h>
-#include "utils.c"
+#include <unistd.h>
 #include "token.h"
-#include "lists.c"
 #include "defs.h"
-#include "back.c"
+#include "utils.h"
 
 extern int rows, column, chars;
 extern FILE * yyin;
 extern int yylex();
 extern char *yytext;
+extern char *rev_token(int cat);
 //void dealloc_list(struct tokenlist *l);
 
 
 void print_list(tokenlist_t *l);
-int insert_node(tokenlist_t **l, double dval, char *sval, int ival, char *text, int cat, int rows, char *filename);
+//int insert_node(tokenlist_t **l, double dval, char *sval, int ival, char *text, int cat, int rows, char *filename);
 void dealloc_list(tokenlist_t *l);
 
 
@@ -25,11 +25,24 @@ int main(int argc, char *argv[]) {
 	
 
 	int ret = 0;
-	int i = 1;
 	
-	while(i < argc)
+    char *sval;
+    char *text;
+    int ival = 0;
+    double dval = 0.0;
+
+    for(int i = 1; i < argc; i++)
 	{	
-		yyin = fopen(argv[i], "r");
+        if(access(argv[i], F_OK) == 0) { // Check if file exists
+            yyin = fopen(argv[i], "r");
+            if(yyin == NULL) { // Check that file is opened correctly
+                fprintf(stderr, "File cannot be opened\n");
+                continue;
+            }
+        }
+        else {
+            continue;
+        }
 
 		printf("DRAFT OF OUTPUT\n");
 		tokenlist_t *list_head = NULL;
@@ -37,10 +50,6 @@ int main(int argc, char *argv[]) {
 		list_head->next = NULL;
 		
 		while((ret = yylex()) >0 ){
-
-			char *sval = "";
-			int ival = 0;
-			double dval = 0.0;
 
 			switch(ret)
 			{
@@ -58,17 +67,17 @@ int main(int argc, char *argv[]) {
 					break;
 
 			}
-
-			
 			
 			//printf("%s\t%d\t%f\t%d\t%s\t\n", yytext, ret, dval, ival, sval);
-			char *text = malloc(sizeof('a')*strlen(yytext));
+			text = malloc(sizeof('a') * strlen(yytext));
 			strcpy(text, yytext);
-			insert_node(&list_head, dval, sval, ival, text, ret, rows, argv[i]);
+			insert_node(&list_head, dval, sval, ival, text, ret, rows, column, argv[i]);
 			//printf("%f %s %d %s %d %d %s \n", dval, sval, ival, yytext, ret, rows, argv[i]);
 
 			printf("%s %s  \n", rev_token(ret), yytext);
-			
+			free(text);
+            if(ret == STRINGLIT)
+                free(sval);
 		}
 	
 		printf("PRINTING LIST BACKWARD AFTER BUILDING\n");

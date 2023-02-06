@@ -1,4 +1,6 @@
-
+#include <stdlib.h>
+#include <string.h>
+#include "utils.h"
 
 //WARNING: UNSAFE helper, need to pre-check your strlen(), or this crashes
 char *substring(char *s, int start, int end)

@@ -40,6 +40,7 @@ class KrakenCurrencyTableParser(HTMLParser):
         self.ignore_currencies = ["USD", "EUR", "CAD", "JPY", "GBP", "CHF", 
                                 "AUD", "USDT"]
         self.current = False
+
     def handle_starttag(self, tag, attrs):
         if tag == "strong":
             self.current = True
@@ -48,10 +49,17 @@ class KrakenCurrencyTableParser(HTMLParser):
     def handle_data(self, data):
         if bool(re.search(r"[A-Z][A-Z][A-Z][A-Z]*", data)) and self.current \
                 and data not in self.ignore_currencies:
+
+
+
+
+
             self.coins.append(data)
         self.current = False
     def get_coins(self):
         return self.coins
+
+
 
 class CMCCurrencyTableParser(KrakenCurrencyTableParser):
     """
@@ -260,7 +268,7 @@ class Kraken(APIInterface):
         response = requests.get(url)
         data = response.json()
         assert len(data['error']) == 0, "Kraken server returned {}.".format(data['error'][0])
-        return np.array(data['result'][list(data['result'])[0]], dtype = np.float64)
+        return np.array(data['result'][list(data['result'])[-1]], dtype = np.float64)
     def get_opening_price(self, id: str, vs_currency: str, days: int, interval: int) -> List[float]:
         """
         Get the daily opening price
@@ -398,6 +406,8 @@ class CoinGecko(APIInterface):
         except Exception as e:
             response = requests.get(alt_url)
             data = response.json()
+            print('Warning: {days} days is more than the allowed amount for this'
+            ' api. Processing wil continue with {len(data)} as this is the max.')
         assert isinstance(data, list), "data instance type error"
         return np.array(data)
     def get_opening_price(self, id: str, vs_currency: str, days: int) -> np.ndarray:
@@ -480,4 +490,3 @@ def pull_CMC_scraper_data(cryptocurrency_name: str) -> np.ndarray:
 
 def get_x_and_y(ohlc: pd.DataFrame):
     pass
-

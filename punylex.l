@@ -34,17 +34,18 @@ int firsttime;
 					dedentcount=0;
 					/* count how many */
 					while (top>0 && dentstack[top]>il) {
-						dedentcount++; top--; }
+						dedentcount++; top--; 
+                    }
 					if (dentstack[top] != il) {
-					fprintf(stderr, "Python indent error line %d\n", rows);
-					fflush(stderr); exit(1);
+                        fprintf(stderr, "Python indent error line %d\n", rows);
+                        fflush(stderr); exit(1);
 					}
 					/* need to dedent by dedentcount, but returning NEWLINE */
 				}
 				else {
 					/* still at ILEVEL il, no INDENT or DEDENT */
 				
-				rows++; column++;}
+                }
 				return NEWLINE; }
 
 "False"                { column += strlen(yytext); words++; return PYFALSE; }
