@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
 
 	int ret = 0;
 	
-    char *sval;
+    char *sval = NULL;
     char *text;
     int ival = 0;
     double dval = 0.0;
@@ -71,6 +71,7 @@ int main(int argc, char *argv[]) {
 			//printf("%s\t%d\t%f\t%d\t%s\t\n", yytext, ret, dval, ival, sval);
 			text = malloc(sizeof(char) * strlen(yytext));
 			strcpy(text, yytext);
+
 			insert_node(list_head, dval, sval, ival, text, ret, rows, column, argv[i]);
 			//printf("%f %s %d %s %d %d %s \n", dval, sval, ival, yytext, ret, rows, argv[i]);
 

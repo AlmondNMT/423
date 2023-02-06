@@ -32,13 +32,13 @@ int insert_node(tokenlist_t *l, double dval, char *sval, int ival, char *text, i
     
     strncpy(new_node -> t -> text, text, strlen(text));
 	new_node->t -> dval = dval;
-    new_node -> t -> sval = calloc(strlen(sval), sizeof(char) + 1);
-
-    strncpy(new_node -> t -> sval, sval, strlen(sval));
 	new_node->t -> ival = ival;
 	new_node->t -> category = cat;
 	new_node->t -> lineno = rows;
-
+    if(cat == STRINGLIT) {
+        new_node -> t -> sval = calloc(strlen(sval), sizeof(char) + 1);
+        strncpy(new_node -> t -> sval, sval, strlen(sval));
+    }
     new_node -> t -> filename = calloc(strlen(filename), sizeof(char) + 1);
 	strncpy(new_node -> t -> filename, filename, strlen(filename));
     l = insert_tail_node(l, new_node);
@@ -73,7 +73,8 @@ void dealloc_list(tokenlist_t *l){
     {
        tmp = l;
        free(l -> t -> text);
-       free(l -> t -> sval);
+       if(l -> t -> category == STRINGLIT)
+           free(l -> t -> sval);
        free(l -> t -> filename);
        free(l -> t);
        l = l -> next;
@@ -99,19 +100,19 @@ void print_list(tokenlist_t *l)
 	}
 }
 
-void print_token(token_t *node)
+void print_token(token_t *t)
 {
-    if(node == NULL) {
+    if(t == NULL) {
         printf("what the fuck???\n");
         return;
     }
-    printf("%s\t\t%s\t\t%d\t\t%d\t\t%s\t\t", rev_token(node -> category), node -> text, node -> lineno, node -> column, node -> filename);
-    if(node -> category == INTLIT)
-        printf("%d\n", node -> ival);
-    else if(node -> category == FLOATLIT)
-        printf("%f\n", node -> dval);
-    else if(node -> category == STRINGLIT)
-        printf("%s\n", node -> sval);
+    printf("%s\t\t%s\t\t%d\t\t%d\t\t%s\t\t", rev_token(t -> category), t -> text, t -> lineno, t -> column, t -> filename);
+    if(t -> category == INTLIT)
+        printf("%d\n", t -> ival);
+    else if(t -> category == FLOATLIT)
+        printf("%f\n", t -> dval);
+    else if(t -> category == STRINGLIT)
+        printf("%s\n", t -> sval);
     else
         printf("\n");
 }
