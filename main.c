@@ -69,19 +69,19 @@ int main(int argc, char *argv[]) {
 			}
 			
 			//printf("%s\t%d\t%f\t%d\t%s\t\n", yytext, ret, dval, ival, sval);
-			text = malloc(sizeof('a') * strlen(yytext));
+			text = malloc(sizeof(char) * strlen(yytext));
 			strcpy(text, yytext);
-			insert_node(&list_head, dval, sval, ival, text, ret, rows, column, argv[i]);
+			insert_node(list_head, dval, sval, ival, text, ret, rows, column, argv[i]);
 			//printf("%f %s %d %s %d %d %s \n", dval, sval, ival, yytext, ret, rows, argv[i]);
 
-			printf("%s %s  \n", rev_token(ret), yytext);
+			//printf("%s %s  \n", rev_token(ret), yytext);
 			free(text);
             if(ret == STRINGLIT)
                 free(sval);
 		}
 	
 		printf("PRINTING LIST BACKWARD AFTER BUILDING\n");
-		//print_list(list_head);
+		print_list(list_head);
 		dealloc_list(list_head);
 		fclose(yyin);
 
