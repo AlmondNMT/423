@@ -82,8 +82,7 @@ int main(int argc, char *argv[]) {
 	
 		printf("PRINTING LIST BACKWARD AFTER BUILDING\n");
 		//print_list(list_head);
-		//dealloc_list(list_head);
-		i++;
+		dealloc_list(list_head);
 		fclose(yyin);
 
 	}
@@ -92,18 +91,4 @@ int main(int argc, char *argv[]) {
 	//printf("\t%d\t%d\t%d\n", rows, words, chars);
 	return 0;
 }
-
-void dealloc_list(tokenlist_t *l){
-
-  tokenlist_t* tmp;
-
-   while (l != NULL)
-    {
-       tmp = l;
-       l = l->next;
-       free(tmp);
-    }
-}
-
-
 

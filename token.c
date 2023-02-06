@@ -47,3 +47,15 @@ void print_list(tokenlist_t *l){
 		}
 	}
 }
+
+void dealloc_list(tokenlist_t *l){
+
+  tokenlist_t* tmp;
+
+   while (l != NULL)
+    {
+       tmp = l;
+       l = l->next;
+       free(tmp);
+    }
+}

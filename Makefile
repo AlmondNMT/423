@@ -16,8 +16,8 @@ link: lex.yy.o utils.o main.o back.o token.o
 tests: tests.c
 	gcc -Wall -g tests.c -o tests
 
-clean:
-	rm main.o lex.yy.c lex.yy.o puny tests
+clean: 
+	rm -f main.o lex.yy.c lex.yy.o back.o token.o utils.o puny 
 
 zip: punylex.l main.c utils.c back.c token.c defs.h token.h utils.h Makefile
 	zip hw2.zip punylex.l main.c utils.c back.c token.c defs.h token.h utils.h Makefile

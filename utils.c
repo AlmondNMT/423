@@ -57,13 +57,19 @@ char *strip_underscores(char *s)
 
 int extract_int(char *s)
 {   
-    return atoi(strip_underscores(s));
+    char *stripped = strip_underscores(s);
+    int ret = strtoul(stripped, NULL, 0);
+    free(stripped);
+    return ret;
 }
 
 //NOTE: if the number encoded in the string is too big, this will currently overlow the double.
 //depending on whether checking this is a job of the scanner, parser or this function, this can be adjusted
 double extract_float(char *s)
 {   
-    return atof(strip_underscores(s));
+    char *stripped = strip_underscores(s);
+    double ret = strtod(stripped, NULL);
+    free(stripped);
+    return ret;
 }
 
