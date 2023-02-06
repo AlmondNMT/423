@@ -6,7 +6,7 @@
 char *substring(char *s, int start, int end)
 {	
 	int i = 0;
-	char *ret = malloc(sizeof('a') * strlen(s));
+	char *ret = malloc(sizeof(char) * strlen(s));
 	while((i+start) < end)
 	{
 		ret[i] = s[i+start];
@@ -23,7 +23,7 @@ char *extract_string(char *s)
 	//otherwise we have 'something' or "something"
 	//NOTE: only true if regexes for the three variants really work.
 
-	if(s[1] == '"')
+	if(s[1] == '"' || s[1] == ''')
 		return substring(s, 3, strlen(s)-3);
 	else
 		return substring(s, 1, strlen(s)-1);;
@@ -33,7 +33,7 @@ char *extract_string(char *s)
 
 char *strip_underscores(char *s)
 {   
-    char *temp = malloc(sizeof('a') * strlen(s));
+    char *temp = malloc(sizeof(char) * strlen(s));
     int temp_index = 0;
     int s_index = 0;
 
