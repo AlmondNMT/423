@@ -13,8 +13,11 @@ int indentlevel(char *s);
 int rows = 1, words = 0, column=0;
 int dedentcount;
 int firsttime;
+
 #define yylex real_yylex			
 %}
+
+strlit      (\"\"\"([^\"]*|([^\"]+\"{0,2}[^\"]+)*)\"\"\")|(\'\'\'([^\']*|([^\']+\'{0,2}[^\']+)*)\'\'\')|(\"[^\"\n]*\")|(\'[^\'\n]*\')
 %%
 
 #.*\n						{ ; }
@@ -133,9 +136,19 @@ int firsttime;
 [0-9]+                 { column += strlen(yytext); return INTLIT; }
 [A-Za-z0-9]+	{column += strlen(yytext); words++; return NAME;}
 [0-9]*"."[0-9]*([eE][+-]?[0-9]+)? { column += strlen(yytext); return FLOATLIT; }
-\"[^\"\n]*\"     { column += strlen(yytext); return STRINGLIT; }
-\'[^\'\n]*\'     { column += strlen(yytext); return STRINGLIT; }
-\"\"\"[^\"]*\"\"\"     { column += strlen(yytext); return STRINGLIT; }
+{strlit}    {
+                int len = strlen(yytext);
+                char c;
+                for(int i = 0; i < len; i++) {
+                    c = *(yytext + i);
+                    column++;
+                    if(c == '\n') {
+                        rows++;
+                        column = 1;
+                    }
+                }
+                return STRINGLIT;
+            }
 .		{column++;}
 %%
 
