@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
                 free(sval);
 		}
 	
-		printf("PRINTING LIST BACKWARD AFTER BUILDING\n");
+		//printf("PRINTING LIST BACKWARD AFTER BUILDING\n");
 		print_list(list_head);
 		dealloc_list(list_head);
 		fclose(yyin);

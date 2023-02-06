@@ -9,13 +9,13 @@ extern char *rev_token(int cat);
 int insert_node(tokenlist_t *l, double dval, char *sval, int ival, char *text, int cat, int rows, int column, char *filename){
 
 
-	tokenlist_t *new_head = NULL;
+	tokenlist_t *new_node = NULL;
     if(l -> t == NULL) {
-        new_head = l;
+        new_node = l;
     }
     else {
-        new_head = malloc(sizeof(tokenlist_t));
-        if(new_head == NULL)
+        new_node = malloc(sizeof(tokenlist_t));
+        if(new_node == NULL)
         {
             printf("malloc failed in insert_node()");
             return -2;
@@ -25,22 +25,29 @@ int insert_node(tokenlist_t *l, double dval, char *sval, int ival, char *text, i
 
         }
     }
-    new_head -> t = malloc(sizeof(token_t));
+    new_node -> t = malloc(sizeof(token_t));
 
     printf("text: %s\n", text);
-    new_head -> t -> text = calloc(strlen(text), sizeof(char) + 1);
+    new_node -> t -> text = calloc(strlen(text), sizeof(char) + 1);
     
-    strncpy(new_head -> t -> text, text, strlen(text));
-	new_head->t -> dval = dval;
-    new_head -> t -> sval = calloc(strlen(sval), sizeof(char) + 1);
+    strncpy(new_node -> t -> text, text, strlen(text));
+	new_node->t -> dval = dval;
+    new_node -> t -> sval = calloc(strlen(sval), sizeof(char) + 1);
 
-    strncpy(new_head -> t -> sval, sval, strlen(sval));
-	new_head->t -> ival = ival;
-	new_head->t -> category = cat;
-	new_head->t -> lineno = rows;
+    strncpy(new_node -> t -> sval, sval, strlen(sval));
+	new_node->t -> ival = ival;
+	new_node->t -> category = cat;
+	new_node->t -> lineno = rows;
 
-    new_head -> t -> filename = calloc(strlen(filename), sizeof(char) + 1);
-	strncpy(new_head -> t -> filename, filename, strlen(filename));
+    new_node -> t -> filename = calloc(strlen(filename), sizeof(char) + 1);
+	strncpy(new_node -> t -> filename, filename, strlen(filename));
+    l = insert_tail_node(l, new_node);
+	return 0;
+}
+
+
+tokenlist_t *insert_tail_node(tokenlist_t *l, tokenlist_t *node)
+{
 
     tokenlist_t *curr = l;
     if(curr == NULL) {
@@ -48,14 +55,14 @@ int insert_node(tokenlist_t *l, double dval, char *sval, int ival, char *text, i
         exit(1);
     }
     while(curr -> next != NULL) {
-        if(curr == new_head) {
-            return 0;
+        if(curr == node) {
+            return curr;
         }
         curr = curr -> next;
     }
-    curr -> next = new_head;
-    new_head -> next = NULL;
-	return 0;
+    curr -> next = node;
+    node -> next = NULL;
+    return l;
 }
 
 void dealloc_list(tokenlist_t *l){
