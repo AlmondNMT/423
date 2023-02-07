@@ -37,12 +37,6 @@ int insert_node(tokenlist_t *l, double dval, char *sval, int ival, char *text, i
 	new_node -> t -> category = cat;
 	new_node -> t -> lineno = get_lineno(text, rows);
     new_node -> t -> column = get_column(text, column);
-    if(column < text_len) { // This means there are newlines in the text
-        new_node -> t -> column = column - 1;
-    }
-    else {
-        new_node -> t -> column = column - text_len;
-    }
     if(cat == STRINGLIT) {
         new_node -> t -> sval = calloc(strlen(sval) + 1, sizeof(char));
         strcpy(new_node -> t -> sval, sval);
