@@ -39,8 +39,10 @@ int main(int argc, char *argv[]) {
             fprintf(stderr, "Skipping %s. Not a .py file or does not exist\n", argv[i]);
             continue;
         }
+        rows = 1;
+        column = 1;
 
-        printf("DRAFT OF OUTPUT\n");
+        //printf("DRAFT OF OUTPUT\n");
         list_head = calloc(1, sizeof(tokenlist_t));
         list_head->next = NULL;
 
