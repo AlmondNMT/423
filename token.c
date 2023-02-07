@@ -3,6 +3,7 @@
 #include <string.h>
 #include "defs.h"
 #include "token.h"
+#include "utils.h"
 
 extern char *rev_token(int cat);
 
@@ -107,13 +108,18 @@ void print_token(token_t *t)
         fprintf(stderr, "Tokent 't' is null\n");
         return;
     }
-    printf("%s\t\t%s\t\t%d\t\t%d\t\t%s\t\t", rev_token(t -> category), t -> text, t -> lineno, t -> column, t -> filename);
+    char truncated_text[TEXT_TRUNCATION_LEVEL+1];
+    truncate_str(truncated_text, t -> text, TEXT_TRUNCATION_LEVEL);
+    char truncated_str[TEXT_TRUNCATION_LEVEL+1];
+    printf("%s\t\t%s\t\t%d\t\t%d\t\t%s\t\t", rev_token(t -> category), truncated_text, t -> lineno, t -> column, t -> filename);
     if(t -> category == INTLIT)
         printf("%d\n", t -> ival);
     else if(t -> category == FLOATLIT)
         printf("%f\n", t -> dval);
-    else if(t -> category == STRINGLIT)
-        printf("%s\n", t -> sval);
+    else if(t -> category == STRINGLIT) {
+        truncate_str(truncated_str, t -> sval, TEXT_TRUNCATION_LEVEL);
+        printf("%s\n", truncated_str);
+    }
     else
         printf("\n");
 }
@@ -125,3 +131,4 @@ void check_alloc(void *val, char *msg)
         exit(1);
     }
 }
+

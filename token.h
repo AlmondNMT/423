@@ -1,3 +1,5 @@
+#define TEXT_TRUNCATION_LEVEL 10
+
 typedef struct token {
     int category;   /* the integer code returned by yylex */
     char *text;     /* the actual string (lexeme) matched */

@@ -47,6 +47,17 @@ char *strip_underscores(char *s)
     return temp;
 }
 
+void truncate_str(char *dest, char *src, int level)
+{
+    strncpy(dest, src, level);
+    int i;
+    for(i = 0; i < level - 3; i++) {
+        if(dest[i] == '\n')
+            dest[i] = ' ';
+    }
+    for(i = level - 3; i < level; i++) dest[i] = '.';
+}
+
 int extract_int(char *s)
 {
     char *stripped = strip_underscores(s);
