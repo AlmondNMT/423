@@ -23,11 +23,10 @@ double_quotes               \"[^\"\n]*\"
 single_quotes               \'[^\'\n]*\'
 %%
 
-#.*\n						{ ; }
+#.*\n						{ rows++; }
 <<EOF>>         { if (firsttime++ == 0) return ENDMARKER; else return -1; }
 \\\n		{ rows++; column=1; }
-[ \t\r\f]+                  { ; }
-\n[ \t]*\n					{ rows++; }
+\n[ \t]*\n					{ rows += 2; column = 1;}
 \n[ \t]*	{ 	int il = indentlevel(yytext+1);
 				rows++; column=il+1;
 				if (il > dentstack[top]) {
@@ -53,6 +52,17 @@ single_quotes               \'[^\'\n]*\'
 				
                 }
 				return NEWLINE; }
+
+^[\t ]+ {
+            if(rows == 1) { // Nonzero indent level on line 1
+                fprintf(stderr, "Unexpected indent on line %d\n", rows);
+                exit(1);
+            }
+            else {
+                
+            }
+            column += strlen(yytext);
+        }
 
 "False"                { column += strlen(yytext); words++; return PYFALSE; }
 "def"       	       { column += strlen(yytext);words++; return PYDEF; } 

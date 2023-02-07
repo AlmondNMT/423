@@ -26,10 +26,11 @@ int main(int argc, char *argv[]) {
     char *text;
     int ival = 0;
     double dval = 0.0;
+    tokenlist_t *list_head = NULL;
 
     for (int i = 1; i < argc; i++) {
         if (access(argv[i], F_OK) == 0 && strstr(argv[i], ".py")) { // Check if file exists and has .py extension
-            yyin = fopen(argv[i], "r");
+            yyin = fopen(argv[i], "rb");
             if (yyin == NULL) { // Check that file is opened correctly
                 fprintf(stderr, "File %s cannot be opened\n", argv[i]);
                 continue;
@@ -40,8 +41,7 @@ int main(int argc, char *argv[]) {
         }
 
         printf("DRAFT OF OUTPUT\n");
-        tokenlist_t *list_head = NULL;
-        list_head = malloc(sizeof(tokenlist_t));
+        list_head = calloc(1, sizeof(tokenlist_t));
         list_head->next = NULL;
 
         while ((ret = yylex()) > 0) {
