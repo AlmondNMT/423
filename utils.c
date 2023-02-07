@@ -23,7 +23,7 @@ char *extract_string(char *s)
 	//otherwise we have 'something' or "something"
 	//NOTE: only true if regexes for the three variants really work.
 
-	if(s[1] == '"' || s[1] == ''')
+	if(s[1] == '"' || s[1] == '\'')
 		return substring(s, 3, strlen(s)-3);
 	else
 		return substring(s, 1, strlen(s)-1);;

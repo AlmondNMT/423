@@ -103,7 +103,7 @@ void print_list(tokenlist_t *l)
 void print_token(token_t *t)
 {
     if(t == NULL) {
-        printf("what the fuck???\n");
+        fprintf(stderr, "Tokent 't' is null\n");
         return;
     }
     printf("%s\t\t%s\t\t%d\t\t%d\t\t%s\t\t", rev_token(t -> category), t -> text, t -> lineno, t -> column, t -> filename);
