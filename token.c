@@ -27,14 +27,15 @@ int insert_node(tokenlist_t *l, double dval, char *sval, int ival, char *text, i
     }
     new_node -> t = malloc(sizeof(token_t));
 
-    new_node -> t -> text = calloc(strlen(text) + 1, sizeof(char));
+    int text_len = strlen(text);
+    new_node -> t -> text = calloc(text_len + 1, sizeof(char));
     
     strcpy(new_node -> t -> text, text);
 	new_node -> t -> dval = dval;
 	new_node -> t -> ival = ival;
 	new_node -> t -> category = cat;
 	new_node -> t -> lineno = rows;
-    new_node -> t -> column = column;
+    new_node -> t -> column = column - text_len;
     if(cat == STRINGLIT) {
         new_node -> t -> sval = calloc(strlen(sval) + 1, sizeof(char));
         strcpy(new_node -> t -> sval, sval);

@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
 
     int ret = 0;
     char *sval = NULL;
-    char *text;
+    char *text = NULL;
     int ival = 0;
     double dval = 0.0;
     tokenlist_t *list_head = NULL;
@@ -59,7 +59,8 @@ int main(int argc, char *argv[]) {
                     break;
             }
 
-            text = malloc(sizeof(char) * strlen(yytext));
+//            text = malloc(sizeof(char) * strlen(yytext));
+            text = malloc(strlen(yytext) + 1);
             strcpy(text, yytext);
 
             insert_node(list_head, dval, sval, ival, text, ret, rows, column, argv[i]);
