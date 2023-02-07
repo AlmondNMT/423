@@ -35,11 +35,14 @@ int insert_node(tokenlist_t *l, double dval, char *sval, int ival, char *text, i
 	new_node -> t -> dval = dval;
 	new_node -> t -> ival = ival;
 	new_node -> t -> category = cat;
-	new_node -> t -> lineno = rows;
+	new_node -> t -> lineno = get_lineno(text, rows);
+    new_node -> t -> column = get_column(text, column);
     if(column < text_len) { // This means there are newlines in the text
         new_node -> t -> column = column - 1;
     }
-    new_node -> t -> column = column - text_len;
+    else {
+        new_node -> t -> column = column - text_len;
+    }
     if(cat == STRINGLIT) {
         new_node -> t -> sval = calloc(strlen(sval) + 1, sizeof(char));
         strcpy(new_node -> t -> sval, sval);
@@ -51,6 +54,40 @@ int insert_node(tokenlist_t *l, double dval, char *sval, int ival, char *text, i
 }
 
 
+/** Find the row the token starts on
+ */ 
+int get_lineno(char *text, int rows)
+{
+    int newlines = 0;
+    int len = strlen(text);
+    for(int i = 0; i < len; i++) {
+        if(text[i] == '\n')
+            newlines++;
+    }
+    return rows - newlines;
+}
+
+
+/** Get column token starts on 
+ */
+int get_column(char *text, int column)
+{
+    int charcount = 0;
+    int len = strlen(text);
+    for(int i = len - 1; i >= 0; i--) {
+        if(text[i] == '\n')
+            break;
+        else
+            charcount++;
+    }
+    return column - charcount;
+}
+
+
+/** Add tokenlist_t node to end of l
+ * @param l head of list
+ * @param node tokenlist_t to append
+ */
 tokenlist_t *insert_tail_node(tokenlist_t *l, tokenlist_t *node)
 {
 
@@ -92,7 +129,7 @@ void print_list(tokenlist_t *l)
 	tokenlist_t *curr = l;
     printf("\n");
     if(l != NULL) {
-        printf("Category\tText\tLineno\tColumn\tFilename\tIval/Sval\n");
+        printf("Category\t\tText\tLineno\tColumn\tFilename\tIval/Sval\n");
         for(int i = 0; i < 80; i++) printf("-");
         printf("\n");
     }
@@ -113,7 +150,7 @@ void print_token(token_t *t)
     }
     char truncated_text[TEXT_TRUNCATION_LEVEL+1] = "";
     truncate_str(truncated_text, t -> text, TEXT_TRUNCATION_LEVEL);
-    printf("%s\t\t%s\t\t%d\t\t%d\t\t%s\t\t", rev_token(t -> category), truncated_text, t -> lineno, t -> column, t -> filename);
+    printf("%s\t\t\t%s\t\t%d\t\t%d\t\t%s\t\t", rev_token(t -> category), truncated_text, t -> lineno, t -> column, t -> filename);
     if(t -> category == INTLIT)
         printf("%d\n", t -> ival);
     else if(t -> category == FLOATLIT)
