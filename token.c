@@ -108,15 +108,15 @@ void print_token(token_t *t)
         fprintf(stderr, "Tokent 't' is null\n");
         return;
     }
-    char truncated_text[TEXT_TRUNCATION_LEVEL+1];
+    char truncated_text[TEXT_TRUNCATION_LEVEL+1] = "";
     truncate_str(truncated_text, t -> text, TEXT_TRUNCATION_LEVEL);
-    char truncated_str[TEXT_TRUNCATION_LEVEL+1];
     printf("%s\t\t%s\t\t%d\t\t%d\t\t%s\t\t", rev_token(t -> category), truncated_text, t -> lineno, t -> column, t -> filename);
     if(t -> category == INTLIT)
         printf("%d\n", t -> ival);
     else if(t -> category == FLOATLIT)
         printf("%f\n", t -> dval);
     else if(t -> category == STRINGLIT) {
+        char truncated_str[TEXT_TRUNCATION_LEVEL+1] = "";
         truncate_str(truncated_str, t -> sval, TEXT_TRUNCATION_LEVEL);
         printf("%s\n", truncated_str);
     }
