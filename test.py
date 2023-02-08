@@ -1,5 +1,5 @@
 def get_datagen(dims=(100, 100), batch_size=32):
-    a = 0.003e12
+
     datagen = ImageDataGenerator(
         rescale=1. / 255,
         shear_range=0.2,
@@ -11,7 +11,7 @@ def get_datagen(dims=(100, 100), batch_size=32):
         samplewise_center=False,
         zca_whitening=False,
     )
-
+    a = 0.003e12
     return datagen
 
 b___ = array([-4.92095085e+11, -1.07121220e+12, -2.58952667e+11,  6.80621667e+11,

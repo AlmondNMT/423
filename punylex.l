@@ -7,6 +7,7 @@
 %{
 #include "token.h"
 #include "defs.h"
+#include "utils.h"
 int dentstack[100]={0};
 int top=0;
 int indentlevel(char *s);		
@@ -52,7 +53,8 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
                                 }
                                 if (dentstack[top] != il) {
                                     fprintf(stderr, "Python indent error line %d\n", rows);
-                                    fflush(stderr); exit(1);
+                                    fflush(stderr); 
+                                    return SCAN_ERROR;
                                 }
                                 /* need to dedent by dedentcount, but returning NEWLINE */
                             }
@@ -65,7 +67,7 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
 ^[ \t]+                 {
                             if(rows == 1) {
                                 fprintf(stderr, "Unexpected indent on line 1\n");
-                                exit(1);
+                                return SCAN_ERROR;
                             }
                             column += strlen(yytext);
                         }

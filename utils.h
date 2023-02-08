@@ -1,3 +1,6 @@
+#define SCAN_ERROR -3
+#define PANIC -4
+
 char *substring(char *s, int start, int end);
 char *extract_string(char *s);
 char *strip_underscores(char *s);

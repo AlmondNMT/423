@@ -51,7 +51,7 @@ int get_ascii(char c)
 void panic(char *errmsg)
 {
 	printf("%s",errmsg);
-	exit(-1);
+    exit(PANIC);
 }
 
 char *deescape(char *s)
