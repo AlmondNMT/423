@@ -31,14 +31,14 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
 #.*\n					{ rows++; }
 <<EOF>>                 { if (firsttime++ == 0) return ENDMARKER; else return -1; }
 \\\n		            { rows++; column=1; }
-\n[ \t]+	            { 	
+\n[ \t]*	            { 	
                             int il = indentlevel(yytext+1);
                             rows++; column=il+1;
                             if (il > dentstack[top]) {
                                 dentstack[++top] = il;
                                 /* return an INDENT token, except NEWLINE first */
                                 dedentcount = -1;
-                                for(int i = 0; i < strlen(yytext); i++) printf("%d ", yytext[i]);
+                                for(int i = 0; i < strlen(yytext); i++) printf("%x ", yytext[i]);
                                 printf(": indent generated on line %d\n", rows);
                             }
                             else if (il < dentstack[top]) {
@@ -47,7 +47,7 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
                                 /* count how many */
                                 while (top>0 && dentstack[top]>il) {
                                     dedentcount++; top--; 
-                                    for(int i = 0; i < strlen(yytext); i++) printf("%d ", yytext[i]);
+                                    for(int i = 0; i < strlen(yytext); i++) printf("%x ", yytext[i]);
                                     printf(": dedent generated on line %d\n", rows);
                                 }
                                 if (dentstack[top] != il) {
@@ -67,6 +67,7 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
                                 fprintf(stderr, "Unexpected indent on line 1\n");
                                 exit(1);
                             }
+                            column += strlen(yytext);
                         }
 
 \n[ \t]*\n/[ \t]+\n				{ rows += 2; printf("nihil: %d?\n", rows); column = 1;}

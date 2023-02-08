@@ -1,4 +1,4 @@
-#define TEXT_TRUNCATION_LEVEL 10
+#define TEXT_TRUNCATION_LEVEL 20
 
 typedef struct token {
     int category;   /* the integer code returned by yylex */
