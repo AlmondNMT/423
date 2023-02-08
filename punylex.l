@@ -25,43 +25,51 @@ int_dec                     [1-9](_?[0-9])*
 int_hex                     0x_?([0-9a-fA-F](_[0-9a-fA-F])*)*
 integer                     {int_dec}|{int_hex}|0+
 float_noexp                 ([0-9]+(_?[0-9])*\.[0-9]*(_?[0-9])*)|([0-9]*(_?[0-9])*\.[0-9]+(_?[0-9])*)
-float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))e[+-]?[0-9]+(_?[0-9])*)
+float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE][+-]?[0-9]+(_?[0-9])*)
 %%
 
-#.*\n						{ rows++; }
-<<EOF>>         { if (firsttime++ == 0) return ENDMARKER; else return -1; }
-\n[ \t]*\n					{ rows += 2; printf("nihil: %d?\n", rows); column = 1;}
-\\\n		{ rows++; column=1; }
-\n[ \t]*	{ 	int il = indentlevel(yytext+1);
-                if(rows == 1) {
-                    fprintf(stderr, "Unexpected indent on line %d\n", rows);
-                    exit(1);
-                }
-				rows++; column=il+1;
-				if (il > dentstack[top]) {
-					dentstack[++top] = il;
-					/* return an INDENT token, except NEWLINE first */
-					dedentcount = -1;
-				}
-				else if (il < dentstack[top]) {
-					/* return one or more DEDENT tokens */
-					dedentcount=0;
-					/* count how many */
-					while (top>0 && dentstack[top]>il) {
-						dedentcount++; top--; 
-                    }
-					if (dentstack[top] != il) {
-                        fprintf(stderr, "Python indent error line %d\n", rows);
-                        fflush(stderr); exit(1);
-					}
-					/* need to dedent by dedentcount, but returning NEWLINE */
-				}
-				else {
-					/* still at ILEVEL il, no INDENT or DEDENT */
-				
-                }
-				return NEWLINE; }
+#.*\n					{ rows++; }
+<<EOF>>                 { if (firsttime++ == 0) return ENDMARKER; else return -1; }
+\\\n		            { rows++; column=1; }
+\n[ \t]+	            { 	
+                            int il = indentlevel(yytext+1);
+                            rows++; column=il+1;
+                            if (il > dentstack[top]) {
+                                dentstack[++top] = il;
+                                /* return an INDENT token, except NEWLINE first */
+                                dedentcount = -1;
+                                for(int i = 0; i < strlen(yytext); i++) printf("%d ", yytext[i]);
+                                printf(": indent generated on line %d\n", rows);
+                            }
+                            else if (il < dentstack[top]) {
+                                /* return one or more DEDENT tokens */
+                                dedentcount=0;
+                                /* count how many */
+                                while (top>0 && dentstack[top]>il) {
+                                    dedentcount++; top--; 
+                                    for(int i = 0; i < strlen(yytext); i++) printf("%d ", yytext[i]);
+                                    printf(": dedent generated on line %d\n", rows);
+                                }
+                                if (dentstack[top] != il) {
+                                    fprintf(stderr, "Python indent error line %d\n", rows);
+                                    fflush(stderr); exit(1);
+                                }
+                                /* need to dedent by dedentcount, but returning NEWLINE */
+                            }
+                            else {
+                                /* still at ILEVEL il, no INDENT or DEDENT */
+                            
+                            }
+                            return NEWLINE; 
+                        }
+^[ \t]+                 {
+                            if(rows == 1) {
+                                fprintf(stderr, "Unexpected indent on line 1\n");
+                                exit(1);
+                            }
+                        }
 
+\n[ \t]*\n/[ \t]+\n				{ rows += 2; printf("nihil: %d?\n", rows); column = 1;}
 
 "False"                { column += strlen(yytext); words++; return PYFALSE; }
 "def"       	       { column += strlen(yytext);words++; return PYDEF; } 
@@ -144,7 +152,7 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))e[+
 "..."					{ column += strlen(yytext); return ELLIPSIS; }
 ":="					{ column += strlen(yytext); return COLONEQUAL; }
 [a-zA-Z_][a-zA-Z0-9_]* { column += strlen(yytext); return NAME; }
-[0-9]+                 { column += strlen(yytext); return INTLIT; }
+{integer}                 { column += strlen(yytext); return INTLIT; }
 [A-Za-z0-9]+	{column += strlen(yytext); words++; return NAME;}
 [0-9]*"."[0-9]*([eE][+-]?[0-9]+)? { column += strlen(yytext); return FLOATLIT; }
 {multiline_double_quotes}|{multiline_single_quotes}|{single_quotes}|{double_quotes}    {
