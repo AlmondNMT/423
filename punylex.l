@@ -151,6 +151,7 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
 "->"					{ column += strlen(yytext); return RARROW; }
 "..."					{ column += strlen(yytext); return ELLIPSIS; }
 ":="					{ column += strlen(yytext); return COLONEQUAL; }
+
 [a-zA-Z_][a-zA-Z0-9_]* { column += strlen(yytext); return NAME; }
 {integer}                 { column += strlen(yytext); return INTLIT; }
 [A-Za-z0-9]+	{column += strlen(yytext); words++; return NAME;}
@@ -175,12 +176,11 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
 int indentlevel(char *s)
 {      
    int column = 1;
-   while(*s != '\0') {
+   while(*s == '\t' || *s == ' ') {
       if (*s == '\t') {
          while ((column % 8) != 0) column++;
       }
       else if (*s == ' ') column++;
-      else { column++; printf("but wtf is %c\n", *s);}
       s++;
    }
    return column-1;

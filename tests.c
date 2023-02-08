@@ -10,7 +10,8 @@
 
 
 void test_ext_str()
-{
+{   
+    printf("\n\nTEST: test_ext_str()\n");
     char *s = malloc(4);
     s[0] ='\"';
     s[1] ='5';
@@ -32,22 +33,24 @@ void test_ext_str()
 }
 void test_ext_int()
 {
-
+    printf("\n\nTEST: test_ext_int()\n");
     char *s = malloc(4);
     s[0] ='2';
     s[1] ='_';
     s[2] ='1';
     s[3] ='_';
+    printf("before extract int: %s\n", s);
 
     int i = extract_int(s);
     free(s);
-    printf("%d", i);
+    printf("after extract int: %d\n", i);
 
 
 }
 
 void test_deesc()
 {
+    printf("\n\nTEST: test_deesc()\n");
     char *s = malloc(sizeof(char)*5);
     s[0] = '5';
     s[1] = '5';
@@ -68,6 +71,6 @@ void test_deesc()
 int main()
 {   
     test_ext_str();
-    //test_deesc();
-    //test_ext_int();
+    test_deesc();
+    test_ext_int();
 }
