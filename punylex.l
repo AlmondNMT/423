@@ -154,7 +154,7 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
 [a-zA-Z_][a-zA-Z0-9_]* { column += strlen(yytext); return NAME; }
 {integer}                 { column += strlen(yytext); return INTLIT; }
 [A-Za-z0-9]+	{column += strlen(yytext); words++; return NAME;}
-[0-9]*"."[0-9]*([eE][+-]?[0-9]+)? { column += strlen(yytext); return FLOATLIT; }
+{float} { column += strlen(yytext); return FLOATLIT; }
 {multiline_double_quotes}|{multiline_single_quotes}|{single_quotes}|{double_quotes}    {
                 int len = strlen(yytext);
                 char c;
