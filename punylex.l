@@ -151,7 +151,7 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
 "->"					{ column += strlen(yytext); return RARROW; }
 "..."					{ column += strlen(yytext); return ELLIPSIS; }
 ":="					{ column += strlen(yytext); return COLONEQUAL; }
-^[\t ]*				{ return INDENT; }
+
 [a-zA-Z_][a-zA-Z0-9_]* { column += strlen(yytext); return NAME; }
 {integer}                 { column += strlen(yytext); return INTLIT; }
 [A-Za-z0-9]+	{column += strlen(yytext); words++; return NAME;}
