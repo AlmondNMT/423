@@ -21,22 +21,13 @@ multiline_double_quotes     \"\"\"([^\"]*|([^\"]+\"{0,2}[^\"]+)*)\"\"\"
 multiline_single_quotes     \'\'\'([^\']*|([^\']+\'{0,2}[^\']+)*)\'\'\'
 double_quotes               \"[^\"\n]*\"
 single_quotes               \'[^\'\n]*\'
-int_dec                     [1-9](_?[0-9])*
-int_hex                     0x_?([0-9a-fA-F](_[0-9a-fA-F])*)*
-integer                     {int_dec}|{int_hex}|0+
-float_noexp                 ([0-9]+(_?[0-9])*\.[0-9]*(_?[0-9])*)|([0-9]*(_?[0-9])*\.[0-9]+(_?[0-9])*)
-float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))e[+-]?[0-9]+(_?[0-9])*)
 %%
 
 #.*\n						{ rows++; }
 <<EOF>>         { if (firsttime++ == 0) return ENDMARKER; else return -1; }
-\n[ \t]*\n					{ rows += 2; printf("nihil: %d?\n", rows); column = 1;}
 \\\n		{ rows++; column=1; }
-\n[ \t]*	{ 	int il = indentlevel(yytext+1);
-                if(rows == 1) {
-                    fprintf(stderr, "Unexpected indent on line %d\n", rows);
-                    exit(1);
-                }
+
+\n[ \t]*[^ \t]+	{ 	int il = indentlevel(yytext+1);
 				rows++; column=il+1;
 				if (il > dentstack[top]) {
 					dentstack[++top] = il;
@@ -62,6 +53,16 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))e[+
                 }
 				return NEWLINE; }
 
+^[\t ]+ {
+            if(rows == 1) { // Nonzero indent level on line 1
+                fprintf(stderr, "Unexpected indent on line %d\n", rows);
+                exit(1);
+            }
+            else {
+                //do nothing because we are just skipping an empty line
+            }
+            column += strlen(yytext);
+        }
 
 "False"                { column += strlen(yytext); words++; return PYFALSE; }
 "def"       	       { column += strlen(yytext);words++; return PYDEF; } 
@@ -143,6 +144,7 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))e[+
 "->"					{ column += strlen(yytext); return RARROW; }
 "..."					{ column += strlen(yytext); return ELLIPSIS; }
 ":="					{ column += strlen(yytext); return COLONEQUAL; }
+^[\t ]*				{ return INDENT; }
 [a-zA-Z_][a-zA-Z0-9_]* { column += strlen(yytext); return NAME; }
 [0-9]+                 { column += strlen(yytext); return INTLIT; }
 [A-Za-z0-9]+	{column += strlen(yytext); words++; return NAME;}
@@ -167,12 +169,11 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))e[+
 int indentlevel(char *s)
 {      
    int column = 1;
-   while(*s != '\0') {
+   while(*s == '\t' || *s == ' ') {
       if (*s == '\t') {
          while ((column % 8) != 0) column++;
       }
       else if (*s == ' ') column++;
-      else { column++; printf("but wtf is %c\n", *s);}
       s++;
    }
    return column-1;
