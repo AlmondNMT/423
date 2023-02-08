@@ -175,6 +175,9 @@ char *strip_underscores(char *s)
     return temp;
 }
 
+/** Generate a string with three dots at the end to indicate truncation
+ * at the specified level
+ */
 void truncate_str(char *dest, char *src, int level)
 {
     strncpy(dest, src, level);
@@ -184,6 +187,15 @@ void truncate_str(char *dest, char *src, int level)
             dest[i] = ' ';
     }
     for(i = level - 3; i < level; i++) dest[i] = '.';
+}
+
+int get_quote_count(char *text, int len)
+{
+    char quote_char = text[0];
+    if(text[1] != quote_char || len == 2) {
+        return 1;
+    }
+    return 3;
 }
 
 int extract_int(char *s)

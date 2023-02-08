@@ -6,6 +6,7 @@
 #include "utils.h"
 
 extern char *rev_token(int cat);
+extern char *yytext;
 
 int insert_node(tokenlist_t *l, double dval, char *sval, int ival, char *text, int cat, int rows, int column, char *filename){
 
@@ -78,44 +79,94 @@ int get_column(char *text, int column)
 }
 
 
+/** Create token in tokenlist
+ * @param list
+ * @param category type of token
+ */
+void create_token(tokenlist_t *list, int category, char *yytext, int rows, int column, char *filename)
+{
+    token_t *t = calloc(1, sizeof(token_t));
+    int token_length = strlen(yytext);
+    int fname_length = strlen(filename);
+    t -> category = category;
+    t -> text = calloc(token_length + 1, sizeof(char));
+    strcpy(t -> text, yytext);
+    t -> lineno = get_lineno(t -> text, rows);
+    t -> column = get_column(t -> text, column);
+    t -> filename = calloc(fname_length + 1, sizeof(char));
+    strcpy(t -> filename, filename);
+    if(category == INTLIT) {
+        t -> ival = extract_int(yytext);
+    }
+    else if(category == FLOATLIT) {
+        t -> dval = extract_float(yytext);
+    }
+    else if(category == STRINGLIT) {
+        int quote_count = get_quote_count(t -> text, token_length);
+        t -> sval = calloc(token_length + 1 - 2 * quote_count, sizeof(char));
+        int index = 0;
+        for(int i = quote_count; i < token_length - quote_count; i++) {
+            t -> sval[index++] = t -> text[i];
+        }
+        
+    }
+    if(list -> t != NULL) {
+        tokenlist_t *l = calloc(1, sizeof(tokenlist_t));
+        l -> t = t;
+        list = insert_tail_node(list, l);
+    }
+    else {
+        list -> t = t;
+    }
+}
+
+
 /** Add tokenlist_t node to end of l
  * @param l head of list
  * @param node tokenlist_t to append
  */
-tokenlist_t *insert_tail_node(tokenlist_t *l, tokenlist_t *node)
+tokenlist_t *insert_tail_node(tokenlist_t *head, tokenlist_t *node)
 {
 
-    tokenlist_t *curr = l;
-    if(curr == NULL) {
+    if(head == NULL)
+        return node;
+    tokenlist_t *current = head;
+    if(current == NULL) {
         fprintf(stderr, "NULL???\n");
         exit(1);
     }
-    while(curr -> next != NULL) {
-        if(curr == node) {
-            return curr;
+    while(current -> next != NULL) {
+        if(current == node) {
+            return head;
         }
-        curr = curr -> next;
+        current = current -> next;
     }
-    curr -> next = node;
+    current -> next = node;
     node -> next = NULL;
-    return l;
+    return head;
 }
 
-void dealloc_list(tokenlist_t *l){
+void dealloc_list(tokenlist_t *list){
 
-  tokenlist_t *tmp;
-
-   while (l != NULL)
+    tokenlist_t *current = list;
+    tokenlist_t *prev = NULL;
+    while (current != NULL)
     {
-       tmp = l;
-       free(l -> t -> text);
-       if(l -> t -> category == STRINGLIT)
-           free(l -> t -> sval);
-       free(l -> t -> filename);
-       free(l -> t);
-       l = l -> next;
-       free(tmp);
+        prev = current;
+        current = current -> next;
+
+        free_token(prev -> t);
+        free(prev);
     }
+}
+
+void free_token(token_t *t)
+{
+    free(t -> text);
+    free(t -> filename);
+    if(t -> category == STRINGLIT)
+        free(t -> sval);
+    free(t);
 }
 
 void print_list(tokenlist_t *l)

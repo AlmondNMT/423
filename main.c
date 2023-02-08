@@ -21,11 +21,7 @@ void dealloc_list(tokenlist_t *l);
 
 int main(int argc, char *argv[]) {
 
-    int ret = 0;
-    char *sval = NULL;
-    char *text = NULL;
-    int ival = 0;
-    double dval = 0.0;
+    int category = 0;
     tokenlist_t *list_head = NULL;
 
     for (int i = 1; i < argc; i++) {
@@ -42,34 +38,11 @@ int main(int argc, char *argv[]) {
         rows = 1;
         column = 1;
 
-        //printf("DRAFT OF OUTPUT\n");
         list_head = calloc(1, sizeof(tokenlist_t));
         list_head->next = NULL;
 
-        while ((ret = yylex()) > 0) {
-            switch (ret) {
-                case STRINGLIT:
-                    sval = extract_string(yytext);
-                    break;
-
-                case INTLIT:
-                    ival = extract_int(yytext);
-                    break;
-
-                case FLOATLIT:
-                    dval = extract_float(yytext);
-                    break;
-            }
-
-//            text = malloc(sizeof(char) * strlen(yytext));
-            text = malloc(strlen(yytext) + 1);
-            strcpy(text, yytext);
-
-            insert_node(list_head, dval, sval, ival, text, ret, rows, column, argv[i]);
-
-            free(text);
-            if (ret == STRINGLIT)
-                free(sval);
+        while ((category = yylex()) > 0) {
+            create_token(list_head, category, yytext, rows, column, argv[i]);
         }
 
         print_list(list_head);

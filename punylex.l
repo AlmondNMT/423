@@ -38,8 +38,8 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
                                 dentstack[++top] = il;
                                 /* return an INDENT token, except NEWLINE first */
                                 dedentcount = -1;
-                                for(int i = 0; i < strlen(yytext); i++) printf("%x ", yytext[i]);
-                                printf(": indent generated on line %d\n", rows);
+                                //for(int i = 0; i < strlen(yytext); i++) printf("%x ", yytext[i]);
+                                //printf(": indent generated on line %d\n", rows);
                             }
                             else if (il < dentstack[top]) {
                                 /* return one or more DEDENT tokens */
@@ -47,8 +47,8 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
                                 /* count how many */
                                 while (top>0 && dentstack[top]>il) {
                                     dedentcount++; top--; 
-                                    for(int i = 0; i < strlen(yytext); i++) printf("%x ", yytext[i]);
-                                    printf(": dedent generated on line %d\n", rows);
+                                    //for(int i = 0; i < strlen(yytext); i++) printf("%x ", yytext[i]);
+                                    //printf(": dedent generated on line %d\n", rows);
                                 }
                                 if (dentstack[top] != il) {
                                     fprintf(stderr, "Python indent error line %d\n", rows);
@@ -70,7 +70,7 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
                             column += strlen(yytext);
                         }
 
-\n[ \t]*\n/[ \t]+\n				{ rows += 2; printf("nihil: %d?\n", rows); column = 1;}
+\n[ \t]*\n				{ rows += 2; printf("nihil: %d?\n", rows); column = 1;}
 
 "False"                { column += strlen(yytext); words++; return PYFALSE; }
 "def"       	       { column += strlen(yytext);words++; return PYDEF; } 

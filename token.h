@@ -19,9 +19,11 @@ typedef struct tokenlist {
 } tokenlist_t;
 
 // Token/List function prototypes
+void create_token(tokenlist_t *list, int category, char *yytext, int rows, int column, char *filename);
 int insert_node(tokenlist_t *l, double dval, char *sval, int ival, char *text, int cat, int rows, int column, char *filename);
 void print_list(tokenlist_t *l);
 void dealloc_list(tokenlist_t *l);
+void free_token(token_t *t);
 void print_token(token_t *node);
 void check_alloc(void *val, char *msg);
 tokenlist_t *insert_tail_node(tokenlist_t *l, tokenlist_t *node);
