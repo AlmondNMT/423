@@ -67,47 +67,47 @@ int deescape(char *dest, char *s)
         {
             s_index++;
             if(!isdigit(s[s_index]))
-            {	
-            	if((temp[temp_index] = get_ascii(s[s_index])) > 0)
-            	{	
-            		temp_index++;
-            		s_index++;
-            		continue;
-            	}
-            	else
-            	{
-            		return panic("error in deescape, invalid escape character\n");	
-            	}
+            {   
+                if((temp[temp_index] = get_ascii(s[s_index])) > 0)
+                {   
+                    temp_index++;
+                    s_index++;
+                    continue;
+                }
+                else
+                {
+                    printf("error in deescape, invalid escape character\n");
+                    return -1;   
+                }
             }
             else
             {
-            	if((s_index + 2) < strlen(s) && (isdigit(s[s_index+1])) && isdigit(s[s_index+2]))
-            	{
-            		//build value on the spot, rather quick and dirty
+                if((s_index + 2) < strlen(s) && (isdigit(s[s_index+1])) && isdigit(s[s_index+2]))
+                {
+                    //build value on the spot, rather quick and dirty
 
-            		int d3 = s[s_index]-48; //'0' has ascii value 48, so subtract that to get numerical val
-            		int d2 = s[s_index+1]-48;
-            		int d1 = s[s_index+2]-48;
+                    int d3 = s[s_index]-48; //'0' has ascii value 48, so subtract that to get numerical val
+                    int d2 = s[s_index+1]-48;
+                    int d1 = s[s_index+2]-48;
 
-					printf("OCTAL DIGITS %d %d %d\n", d3, d2, d1);
+                    if(d3<8 && d2 <8 && d1<8){
+                        temp[temp_index] = d3*8*8 + d2*8 + d1;
+                        s_index += 3;
+                        temp_index++;
+                        continue;
+                        }
+                    else
+                    {
+                        printf("possibly invalid octal in de-escape\n");
+                        return -1;
+                    }   
 
-            		if(d3<8 && d2 <8 && d1<8){
-            			temp[temp_index] = d3*8*8 + d2*8 + d1;
-            			s_index += 3;
-            			temp_index++;
-            			continue;
-            			}
-            		else
-            		{
-            			return panic("possibly invalid octal in de-escape\n");
-            		}	
-
-            	}
-            	else
-            	{
-            		return panic("ERROR de-escaping character\n");
-
-            	}
+                }
+                else
+                {
+                    printf("ERROR de-escaping character\n");
+                    return -1;
+                }
             }
         }
 
@@ -118,10 +118,10 @@ int deescape(char *dest, char *s)
     }
     temp[temp_index] = '\0';
 
-    return temp;
+    strcpy(dest, temp);
+    free(temp);
+    return 0;
 }
-
-
 char *substring(char *s, int start, int end)
 {	
     int i = 0;
@@ -136,30 +136,34 @@ char *substring(char *s, int start, int end)
 }
 
 char *extract_string(char *s)
-{	
-	//check if empty string, then return such
-	if(strcmp(s, "\"\"") == 0 || strcmp(s, "\'\'") == 0) 
-	{
-		char * ret = malloc(1);
-		ret[0] = '\0';
-		return ret;
-	}
+{
+    //check if empty string, then return such
+    if(strcmp(s, "\"\"") == 0 || strcmp(s, "\'\'") == 0)
+    {
+        char * ret = malloc(1);
+        ret[0] = '\0';
+        return ret;
+    }
 
     int start = 0;
     int end = strlen(s);
     if (s[1] == '"') {
-        start = 3;
-        end = end - 3;
+        start = 2;
+        end = end - 2;
     } else if (s[1] == '\'') {
-        start = 3;
-        end = end - 3;
+        start = 2;
+        end = end - 2;
     } else {
         start = 1;
         end = end - 1;
     }
-	
+
     char *temp =  substring(s, start, end);
-	return deescape(temp);
+    int len = strlen(temp);
+    char *result = malloc(sizeof(char) * len + 1);
+    deescape(result, temp);
+    free(temp);
+    return result;
 }
 
 char *strip_underscores(char *s)
