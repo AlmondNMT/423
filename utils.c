@@ -56,9 +56,12 @@ int panic(char *errmsg)
     return PANIC;
 }
 
+/** Accepts string buffer to be written to. 
+ * @return an integer that is 0 if everything executes properly. Return nonzero 
+ * to indicate failure. This gives the process a chance to deallocate the list
+ */
 int deescape(char *dest, char *s)
 {   
-    char *temp = malloc(sizeof(char) * strlen(s));
     int temp_index = 0;
     int s_index = 0;
     while(s[s_index] != '\0')
@@ -68,7 +71,7 @@ int deescape(char *dest, char *s)
             s_index++;
             if(!isdigit(s[s_index]))
             {	
-            	if((temp[temp_index] = get_ascii(s[s_index])) > 0)
+            	if((dest[temp_index] = get_ascii(s[s_index])) > 0)
             	{	
             		temp_index++;
             		s_index++;
@@ -92,7 +95,7 @@ int deescape(char *dest, char *s)
 					printf("OCTAL DIGITS %d %d %d\n", d3, d2, d1);
 
             		if(d3<8 && d2 <8 && d1<8){
-            			temp[temp_index] = d3*8*8 + d2*8 + d1;
+            			dest[temp_index] = d3*8*8 + d2*8 + d1;
             			s_index += 3;
             			temp_index++;
             			continue;
@@ -111,14 +114,14 @@ int deescape(char *dest, char *s)
             }
         }
 
-        temp[temp_index] = s[s_index];
+        dest[temp_index] = s[s_index];
 
         temp_index++;
         s_index++;
     }
-    temp[temp_index] = '\0';
+    dest[temp_index] = '\0';
 
-    return temp;
+    return 0;
 }
 
 
@@ -135,13 +138,13 @@ char *substring(char *s, int start, int end)
     return ret;
 }
 
-char *extract_string(char *s)
+int extract_string(char *dest, char *s)
 {	
 	//check if empty string, then return such
+    int ret = 0;
 	if(strcmp(s, "\"\"") == 0 || strcmp(s, "\'\'") == 0) 
 	{
-		char * ret = malloc(1);
-		ret[0] = '\0';
+		dest[0] = '\0';
 		return ret;
 	}
 
@@ -159,7 +162,7 @@ char *extract_string(char *s)
     }
 	
     char *temp =  substring(s, start, end);
-	return deescape(temp);
+	return deescape(dest, temp);
 }
 
 char *strip_underscores(char *s)

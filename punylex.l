@@ -24,6 +24,7 @@ double_quotes               \"[^\"\n]*\"
 single_quotes               \'[^\'\n]*\'
 int_dec                     [1-9](_?[0-9])*
 int_hex                     0x_?([0-9a-fA-F](_[0-9a-fA-F])*)*
+int_octal                   0o[0-7]+
 integer                     {int_dec}|{int_hex}|0+
 float_noexp                 ([0-9]+(_?[0-9])*\.[0-9]*(_?[0-9])*)|([0-9]*(_?[0-9])*\.[0-9]+(_?[0-9])*)
 float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE][+-]?[0-9]+(_?[0-9])*)

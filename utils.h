@@ -2,7 +2,7 @@
 #define PANIC -4
 
 char *substring(char *s, int start, int end);
-char *extract_string(char *s);
+int extract_string(char *dest, char *s);
 char *strip_underscores(char *s);
 int extract_int(char *s);
 double extract_float(char *s);

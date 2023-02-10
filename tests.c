@@ -31,6 +31,9 @@ void test_ext_str()
     printf("after extract string: %s\n", t); 
     free(t);
 }
+
+/** Test integer extraction
+ */
 void test_ext_int()
 {
     printf("\n\nTEST: test_ext_int()\n");
@@ -41,11 +44,20 @@ void test_ext_int()
     s[3] ='_';
     printf("before extract int: %s\n", s);
 
+    // Hexadecimal cases
+    char t = malloc(5);
+    t[0] = '0';
+    t[1] = 'x';
+    t[2] = '0';
+    t[3] = '9';
+    t[4] = 'a';
+
     int i = extract_int(s);
-    free(s);
+    int j = extract_int(t)
     printf("after extract int: %d\n", i);
 
-
+    free(s);
+    free(t);
 }
 
 void test_deesc()
