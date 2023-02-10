@@ -1,4 +1,5 @@
 puny
 tests
 err.txt
+lex.yy.c
 *.o
