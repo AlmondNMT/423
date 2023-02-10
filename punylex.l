@@ -32,7 +32,8 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
 #.*\n					{ rows++; }
 <<EOF>>                 { if (firsttime++ == 0) return ENDMARKER; else return -1; }
 \\\n		            { rows++; column=1; }
-\n[ \t]*	            { 	
+"\n"                    { rows++; column=1; }
+^[ \t]*	            { 	
                             int il = indentlevel(yytext+1);
                             rows++; column=il+1;
                             if (il > dentstack[top]) {
@@ -64,11 +65,7 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
                             }
                             return NEWLINE; 
                         }
-^[ \t]+                 {
-                            if(rows == 1) {
-                                fprintf(stderr, "Unexpected indent on line 1\n");
-                                return SCAN_ERROR;
-                            }
+[ \t]+                  {
                             column += strlen(yytext);
                         }
 

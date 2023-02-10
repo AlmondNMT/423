@@ -48,13 +48,15 @@ int get_ascii(char c)
 		}
 }
 
-void panic(char *errmsg)
+/** Return error code
+ */
+int panic(char *errmsg)
 {
 	printf("%s",errmsg);
-    exit(PANIC);
+    return PANIC;
 }
 
-char *deescape(char *s)
+int deescape(char *dest, char *s)
 {   
     char *temp = malloc(sizeof(char) * strlen(s));
     int temp_index = 0;
@@ -74,7 +76,7 @@ char *deescape(char *s)
             	}
             	else
             	{
-            		panic("error in deescape, invalid escape character\n");	
+            		return panic("error in deescape, invalid escape character\n");	
             	}
             }
             else
@@ -97,13 +99,13 @@ char *deescape(char *s)
             			}
             		else
             		{
-            			panic("possibly invalid octal in de-escape\n");
+            			return panic("possibly invalid octal in de-escape\n");
             		}	
 
             	}
             	else
             	{
-            		panic("ERROR de-escaping character\n");
+            		return panic("ERROR de-escaping character\n");
 
             	}
             }

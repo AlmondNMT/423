@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
     int category = 0;
     tokenlist_t *list_head = NULL;
 
-    for (int i = 1; i < argc; i++) {
+    for(int i = 1; i < argc; i++) {
         if (access(argv[i], F_OK) == 0 && strstr(argv[i], ".py")) { // Check if file exists and has .py extension
             yyin = fopen(argv[i], "rb");
             if (yyin == NULL) { // Check that file is opened correctly
