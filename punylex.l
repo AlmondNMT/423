@@ -32,7 +32,7 @@ float_noexp                 ([0-9]+(_?[0-9])*\.[0-9]*(_?[0-9])*)|([0-9]*(_?[0-9]
 float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE][+-]?[0-9]+(_?[0-9])*)
 %%
 
-#+[^\n]*			{ rows++; }
+#+[^\n]*			{ column += strlen(yytext); }
 <<EOF>>             { 
                         if (firsttime++ == 0) {
                             int il = 0;
