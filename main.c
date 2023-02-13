@@ -11,6 +11,10 @@ extern FILE * yyin;
 extern int yylex();
 extern char *yytext;
 extern char *rev_token(int cat);
+extern int paren_nesting, sqbr_nesting, cbr_nesting;
+extern int firsttime;
+// For debugging
+extern int indent_count, dedent_count;
 //void dealloc_list(struct tokenlist *l);
 
 
@@ -35,8 +39,12 @@ int main(int argc, char *argv[]) {
             fprintf(stderr, "Skipping %s. Not a .py file or does not exist\n", argv[i]);
             continue;
         }
+        // Reset global variables at the beginning of each file
         rows = 1;
         column = 1;
+        paren_nesting = sqbr_nesting = cbr_nesting = 0;
+        firsttime = 0;
+        indent_count = dedent_count = 0;
 
         list_head = calloc(1, sizeof(tokenlist_t));
         list_head->next = NULL;
@@ -44,13 +52,9 @@ int main(int argc, char *argv[]) {
         while ((category = yylex()) > 0) {
             create_token(list_head, category, yytext, rows, column, argv[i]);
         }
-        if(category < -1) {
-            dealloc_list(list_head);
-            fclose(yyin);
-            exit(category);
-        }
 
         print_list(list_head);
+        printf("Nesting:\n\tParen: %d\n\tSquare: %d\n\tCurly: %d\n", paren_nesting, sqbr_nesting, cbr_nesting);
         dealloc_list(list_head);
         fclose(yyin);
     }

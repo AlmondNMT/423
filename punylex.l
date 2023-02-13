@@ -14,14 +14,14 @@ int indentlevel(char *s);
 int rows = 1, words = 0, column=0;
 int dedentcount;
 int firsttime;
-int enclosed = 0; // Are the indents inside parentheses or brackets?
-int paren_nesting = 0, sqbr_nesting = 0, cbr_nesting = 0;
+// Are the indent/dedents inside of brackets or parentheses?
+int paren_nesting = 0, sqbr_nesting = 0, cbr_nesting = 0; 
 
 #define yylex real_yylex			
 %}
 
-multiline_double_quotes     \"\"\"([^\"]*|([^\"]+\"{0,2}[^\"]+)*)\"\"\"
-multiline_single_quotes     \'\'\'([^\']*|([^\']+\'{0,2}[^\']+)*)\'\'\'
+multiline_double_quotes     \"\"\"((\\\")|([^"])|([^"]\"{0,2})|(\"{0,2}[^"]))*\"\"\"
+multiline_single_quotes     \'\'\'((\\\')|([^'])|([^']\'{0,2})|(\'{0,2}[^']))*\'\'\'
 double_quotes               \"[^\"\n]*\"
 single_quotes               \'[^\'\n]*\'
 int_dec                     [1-9](_?[0-9])*
@@ -32,7 +32,7 @@ float_noexp                 ([0-9]+(_?[0-9])*\.[0-9]*(_?[0-9])*)|([0-9]*(_?[0-9]
 float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE][+-]?[0-9]+(_?[0-9])*)
 %%
 
-#.*\n				{ rows++; }
+#+[^\n]*			{ rows++; }
 <<EOF>>             { 
                         if (firsttime++ == 0) {
                             int il = 0;
@@ -55,6 +55,7 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
                                  return SCAN_ERROR;
                              }
                         }
+                        return NEWLINE;
                     }
 \n[ \t]+/[^ \t\n]   { 	
                         rows++; 
@@ -65,8 +66,6 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
                                 dentstack[++top] = il;
                                 /* return an INDENT token, except NEWLINE first */
                                 dedentcount = -1;
-                                //for(int i = 0; i < strlen(yytext); i++) printf("%x ", yytext[i]);
-                                //printf(": indent generated on line %d\n", rows);
                             }
                             else if (il < dentstack[top]) {
                                 /* return one or more DEDENT tokens */
@@ -92,7 +91,7 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
                             column += strlen(yytext);
                         }
 
-\n[ \t]*/\n				{ rows++; printf("nihil: %d?\n", rows); column = 1;}
+\n[ \t]*/\n				{ rows++; column = 1; return NEWLINE;}
 
 "False"                { column += strlen(yytext); words++; return PYFALSE; }
 "def"       	       { column += strlen(yytext);words++; return PYDEF; } 

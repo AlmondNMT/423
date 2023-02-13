@@ -307,7 +307,7 @@ def euler_approximation(diff, x0, y0, h=.01, linecolor="r"):
 def plot_contour(C):
     return plt.contour(x, y, (F - G(C)))
 
-""" def solution_curves(func,interval=(-1,1),color="r",linewidth=2,resolution=.1):
+""" def solution_curves(func,interval=(-1,1),color="ar",linewidth=2,resolution=.1):
     domain  = np.arange(interval[0],interval[1],.001)
     C = interval[0]
     lines = []
