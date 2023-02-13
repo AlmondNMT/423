@@ -44,10 +44,10 @@ int main(int argc, char *argv[]) {
         while ((category = yylex()) > 0) {
             create_token(list_head, category, yytext, rows, column, argv[i]);
         }
-        if(category == SCAN_ERROR) {
+        if(category < -1) {
             dealloc_list(list_head);
             fclose(yyin);
-            exit(SCAN_ERROR);
+            exit(category);
         }
 
         print_list(list_head);

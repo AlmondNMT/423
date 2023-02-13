@@ -1,3 +1,4 @@
+import numpy as np
 def get_datagen(dims=(100, 100), batch_size=32):
 
     datagen = ImageDataGenerator(
@@ -9,11 +10,11 @@ def get_datagen(dims=(100, 100), batch_size=32):
         vertical_flip=True,
         featurewise_center=False,
         samplewise_center=False,
-        zca_whitening=False,
+      zca_whitening=False,
     )
     a = 0.003e12
     return datagen
 
-b___ = array([-4.92095085e+11, -1.07121220e+12, -2.58952667e+11,  6.80621667e+11,
+b___ = np.array([-4.92095085e+11, -1.07121220e+12, -2.58952667e+11,  6.80621667e+11,
        -1.42886732e+12,  1.44890253e+12, -1.38716336e+12, -1.22090225e+12,
        -1.83645007e+12, -1.10038934e+12])

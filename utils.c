@@ -4,9 +4,6 @@
 #include <ctype.h>
 #include "utils.h"
 
-
-
-
 int get_ascii(char c)
 {
 
@@ -111,6 +108,17 @@ int deescape(char *dest, char *s)
             		return panic("ERROR de-escaping character\n");
 
             	}
+                if((dest[temp_index] = get_ascii(s[s_index])) > 0)
+                {   
+                    temp_index++;
+                    s_index++;
+                    continue;
+                }
+                else
+                {
+                    printf("error in deescape, invalid escape character\n");
+                    return -1;   
+                }
             }
         }
 
@@ -123,8 +131,6 @@ int deescape(char *dest, char *s)
 
     return 0;
 }
-
-
 char *substring(char *s, int start, int end)
 {	
     int i = 0;
@@ -147,20 +153,19 @@ int extract_string(char *dest, char *s)
 		dest[0] = '\0';
 		return ret;
 	}
-
     int start = 0;
     int end = strlen(s);
     if (s[1] == '"') {
-        start = 3;
-        end = end - 3;
+        start = 2;
+        end = end - 2;
     } else if (s[1] == '\'') {
-        start = 3;
-        end = end - 3;
+        start = 2;
+        end = end - 2;
     } else {
         start = 1;
         end = end - 1;
     }
-	
+
     char *temp =  substring(s, start, end);
 	return deescape(dest, temp);
 }
@@ -217,4 +222,35 @@ double extract_float(char *s)
     double ret = strtod(stripped, NULL);
     free(stripped);
     return ret;
+}
+
+/** Count dedent function used for two regexes.
+ * Return SCAN error if something goes wrong, which will signal an error in 
+ * punylex.l
+ * @param top pointer to top variable in punylex
+ * @param dentstack the indentation stack
+ * @param indent_level the calculated indentation level
+ * @param rows the current row count
+ * @return number of dedents
+ */
+int count_dedents(int *top, int dentstack[], int indent_level, int rows) 
+{
+    int dedents = 0;
+    while(*top > 0 && dentstack[*top] > indent_level) {
+        dedents++; (*top)--;
+    }
+    if(dentstack[*top] != indent_level) {
+        fprintf(stderr, "Python indent error line %d\n", rows);
+        fflush(stderr);
+        return -1;
+    }
+    return dedents;
+}
+
+/** Determine whether the scanner is inside of brackets
+ * @return 
+ */
+int is_enclosed(int p, int sq, int cb, int rows)
+{
+    return (p > 0) || (sq > 0) || (cb > 0);
 }

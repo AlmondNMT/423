@@ -8,6 +8,12 @@
 extern char *rev_token(int cat);
 extern char *yytext;
 
+// ### DEBUGGING ### //
+int indentation_level = 0; 
+int max_indent = 0;
+int indent_count = 0;
+int dedent_count = 0;
+
 int insert_node(tokenlist_t *l, double dval, char *sval, int ival, char *text, int cat, int rows, int column, char *filename){
 
 
@@ -207,6 +213,23 @@ void print_token(token_t *t)
     }
     else
         printf("\n");
+    if(t -> category == INDENT) {
+        indentation_level++;
+        indent_count++;
+        if(indentation_level > max_indent) {
+            max_indent = indentation_level;
+        }
+        printf("\tINDENTATION LEVEL: %d\n", indentation_level);
+        printf("\tINDENT COUNT: %d\tDEDENT COUNT: %d\n", indent_count, dedent_count);
+        printf("\tMAX INDENT: %d\n", max_indent);
+    }
+    else if(t -> category == DEDENT) {
+        dedent_count++;
+        indentation_level--;
+        printf("\tINDENTATION LEVEL: %d\n", indentation_level);
+        printf("\tINDENT COUNT: %d\tDEDENT COUNT: %d\n", indent_count, dedent_count);
+        printf("\tMAX INDENT: %d\n", max_indent);
+    }
 }
 
 void check_alloc(void *val, char *msg)
@@ -216,4 +239,3 @@ void check_alloc(void *val, char *msg)
         exit(1);
     }
 }
-

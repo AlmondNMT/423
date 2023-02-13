@@ -17,7 +17,8 @@ import time
 from typing import List
 
 url_prefixes = {"coingecko": "https://api.coingecko.com/api/v3/{}", 
-                "kraken" : "https://api.kraken.com/0/public/{}"}
+             "kraken" : "https://api.kraken.com/0/public/{}",
+             "fifa": "foofa"}
 sources_list = ["coingecko", "kraken", "cmc"]
 max_api_timeout = 10
 

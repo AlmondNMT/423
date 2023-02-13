@@ -1,5 +1,7 @@
+a.out
 puny
 tests
 err.txt
 lex.yy.c
+test.c
 *.o

@@ -14,6 +14,8 @@ int indentlevel(char *s);
 int rows = 1, words = 0, column=0;
 int dedentcount;
 int firsttime;
+int enclosed = 0; // Are the indents inside parentheses or brackets?
+int paren_nesting = 0, sqbr_nesting = 0, cbr_nesting = 0;
 
 #define yylex real_yylex			
 %}
@@ -30,13 +32,35 @@ float_noexp                 ([0-9]+(_?[0-9])*\.[0-9]*(_?[0-9])*)|([0-9]*(_?[0-9]
 float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE][+-]?[0-9]+(_?[0-9])*)
 %%
 
-#.*\n					{ rows++; }
-<<EOF>>                 { if (firsttime++ == 0) return ENDMARKER; else return -1; }
-\\\n		            { rows++; column=1; }
-"\n"                    { rows++; column=1; }
-^[ \t]*	            { 	
-                            int il = indentlevel(yytext+1);
-                            rows++; column=il+1;
+#.*\n				{ rows++; }
+<<EOF>>             { 
+                        if (firsttime++ == 0) {
+                            int il = 0;
+                            dedentcount = count_dedents(&top, dentstack, il, rows);
+                            if(dedentcount == SCAN_ERROR) {
+                                return SCAN_ERROR;
+                            }
+                            return ENDMARKER; 
+                        }
+                        else 
+                            return -1; 
+                    }
+\\\n		        { rows++; column=1; }
+\n/[^ \t\n]         { 
+                        rows++; column=1; 
+                        int il = 0;
+                        if(il < dentstack[top]) {
+                             dedentcount = count_dedents(&top, dentstack, il, rows);
+                             if(dedentcount == SCAN_ERROR && !is_enclosed(paren_nesting, sqbr_nesting, cbr_nesting, rows)) {
+                                 return SCAN_ERROR;
+                             }
+                        }
+                    }
+\n[ \t]+/[^ \t\n]   { 	
+                        rows++; 
+                        int il = indentlevel(yytext+1);
+                        column=il+1;
+                        if(!is_enclosed(paren_nesting, sqbr_nesting, cbr_nesting, rows)) {
                             if (il > dentstack[top]) {
                                 dentstack[++top] = il;
                                 /* return an INDENT token, except NEWLINE first */
@@ -46,16 +70,8 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
                             }
                             else if (il < dentstack[top]) {
                                 /* return one or more DEDENT tokens */
-                                dedentcount=0;
-                                /* count how many */
-                                while (top>0 && dentstack[top]>il) {
-                                    dedentcount++; top--; 
-                                    //for(int i = 0; i < strlen(yytext); i++) printf("%x ", yytext[i]);
-                                    //printf(": dedent generated on line %d\n", rows);
-                                }
-                                if (dentstack[top] != il) {
-                                    fprintf(stderr, "Python indent error line %d\n", rows);
-                                    fflush(stderr); 
+                                dedentcount = count_dedents(&top, dentstack, il, rows);
+                                if(dedentcount == SCAN_ERROR) {
                                     return SCAN_ERROR;
                                 }
                                 /* need to dedent by dedentcount, but returning NEWLINE */
@@ -64,13 +80,19 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
                                 /* still at ILEVEL il, no INDENT or DEDENT */
                             
                             }
-                            return NEWLINE; 
                         }
-[ \t]+                  {
+                        return NEWLINE; 
+                    }
+^[ \t]+                 {
+                            if(rows == 1) {
+                                fprintf(stderr, "Indent on line 1\n");
+                                fflush(stderr);
+                                return SCAN_ERROR;
+                            }
                             column += strlen(yytext);
                         }
 
-\n[ \t]*\n				{ rows += 2; printf("nihil: %d?\n", rows); column = 1;}
+\n[ \t]*/\n				{ rows++; printf("nihil: %d?\n", rows); column = 1;}
 
 "False"                { column += strlen(yytext); words++; return PYFALSE; }
 "def"       	       { column += strlen(yytext);words++; return PYDEF; } 
@@ -105,10 +127,26 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
 "continue"             { column += strlen(yytext);words++; return CONTINUE; }
 "global"               { column += strlen(yytext);words++; return GLOBAL; }
 "pass"                 { column += strlen(yytext);words++; return PASS; }
-"("					   	{ column += strlen(yytext); return LPAR; }
-")"						{ column += strlen(yytext); return RPAR; }					                     
-"["						{ column += strlen(yytext); return LSQB; }
-"]"						{ column += strlen(yytext); return RSQB; }
+"("					   	{ column += strlen(yytext); paren_nesting++; return LPAR; }
+")"						{ 
+                            column += strlen(yytext); 
+                            paren_nesting--; 
+                            if(paren_nesting < 0) {
+                                fprintf(stderr, "Unmatched ')' on line %d\n", rows);
+                                return BRACKET_ERROR;
+                            }
+                            return RPAR; 
+                        }
+"["						{ column += strlen(yytext); sqbr_nesting++; return LSQB; }
+"]"						{ 
+                            column += strlen(yytext); 
+                            sqbr_nesting--; 
+                            if(sqbr_nesting < 0) {
+                                fprintf(stderr, "Unmatched ']' on line %d\n", rows);
+                                return BRACKET_ERROR; 
+                            }
+                            return RSQB; 
+                        }
 ":"						{ column += strlen(yytext); return COLON; }
 ","						{ column += strlen(yytext); return COMMA; }
 ";"						{ column += strlen(yytext); return SEMI; }
@@ -123,8 +161,16 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
 "="						{ column += strlen(yytext); return EQUAL; }
 "."						{ column += strlen(yytext); return DOT; }
 "%"						{ column += strlen(yytext); return PERCENT; }
-"{"						{ column += strlen(yytext); return LBRACE; }
-"}"						{ column += strlen(yytext); return RBRACE; }
+"{"						{ column += strlen(yytext); cbr_nesting++; return LBRACE; }
+"}"						{ 
+                            column += strlen(yytext); 
+                            cbr_nesting--; 
+                            if(cbr_nesting < 0) { 
+                                fprintf(stderr, "Unmatched '}' on line %d\n", rows);
+                                return BRACKET_ERROR; 
+                            }
+                            return RBRACE; 
+                        }
 "=="					{ column += strlen(yytext); return EQEQUAL; }
 "!="					{ column += strlen(yytext); return NOTEQUAL; }
 "<="					{ column += strlen(yytext); return LESSEQUAL; }
