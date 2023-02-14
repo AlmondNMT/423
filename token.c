@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "defs.h"
+#include "punygram.tab.h"
 #include "token.h"
 #include "utils.h"
 
@@ -168,11 +168,13 @@ void dealloc_list(tokenlist_t *list){
 
 void free_token(token_t *t)
 {
-    free(t -> text);
-    free(t -> filename);
-    if(t -> category == STRINGLIT)
-        free(t -> sval);
-    free(t);
+    if(t != NULL) {
+        free(t -> text);
+        free(t -> filename);
+        if(t -> category == STRINGLIT)
+            free(t -> sval);
+        free(t);
+    }
 }
 
 void print_list(tokenlist_t *l)
@@ -188,16 +190,21 @@ void print_list(tokenlist_t *l)
         printf("Token list is empty.\n");
     }
 	while(curr != NULL) { //TODO: make dynamic, probably while(1)
-        print_token(curr -> t);
-		curr = curr -> next;
+        if(print_token(curr -> t) == 0)
+            curr = curr -> next;
+        else
+            break;
 	}
 }
 
-void print_token(token_t *t)
+/**
+ * @return zero if everything executes correctly or nonzero if error printing
+ */
+int print_token(token_t *t)
 {
     if(t == NULL) {
-        fprintf(stderr, "Tokent 't' is null\n");
-        return;
+        fprintf(stderr, "Token 't' is null\n");
+        return 1;
     }
     char truncated_text[TEXT_TRUNCATION_LEVEL+1] = "";
     truncate_str(truncated_text, t -> text, TEXT_TRUNCATION_LEVEL);
@@ -230,6 +237,7 @@ void print_token(token_t *t)
         printf("\tINDENT COUNT: %d\tDEDENT COUNT: %d\n", indent_count, dedent_count);
         printf("\tMAX INDENT: %d\n", max_indent);
     }
+    return 0;
 }
 
 void check_alloc(void *val, char *msg)

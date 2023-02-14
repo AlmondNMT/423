@@ -24,7 +24,7 @@ int insert_node(tokenlist_t *l, double dval, char *sval, int ival, char *text, i
 void print_list(tokenlist_t *l);
 void dealloc_list(tokenlist_t *l);
 void free_token(token_t *t);
-void print_token(token_t *node);
+int print_token(token_t *node);
 void check_alloc(void *val, char *msg);
 tokenlist_t *insert_tail_node(tokenlist_t *l, tokenlist_t *node);
 int get_lineno(char *text, int rows);

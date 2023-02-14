@@ -6,7 +6,7 @@
 
 %{
 #include "token.h"
-#include "defs.h"
+#include "punygram.tab.h"
 #include "utils.h"
 int dentstack[100]={0};
 int top=0;
@@ -40,6 +40,10 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
                             if(dedentcount == SCAN_ERROR) {
                                 return SCAN_ERROR;
                             }
+                            if(is_enclosed(paren_nesting, sqbr_nesting, cbr_nesting)) {
+                                fprintf(stderr, "SyntaxError: Unexpected EOF at line %d\n", rows);
+                                return EOF_ERROR;
+                            }
                             return ENDMARKER; 
                         }
                         else 
@@ -51,7 +55,7 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
                         int il = 0;
                         if(il < dentstack[top]) {
                              dedentcount = count_dedents(&top, dentstack, il, rows);
-                             if(dedentcount == SCAN_ERROR && !is_enclosed(paren_nesting, sqbr_nesting, cbr_nesting, rows)) {
+                             if(dedentcount == SCAN_ERROR && !is_enclosed(paren_nesting, sqbr_nesting, cbr_nesting)) {
                                  return SCAN_ERROR;
                              }
                         }
@@ -61,7 +65,7 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
                         rows++; 
                         int il = indentlevel(yytext+1);
                         column=il+1;
-                        if(!is_enclosed(paren_nesting, sqbr_nesting, cbr_nesting, rows)) {
+                        if(!is_enclosed(paren_nesting, sqbr_nesting, cbr_nesting)) {
                             if (il > dentstack[top]) {
                                 dentstack[++top] = il;
                                 /* return an INDENT token, except NEWLINE first */
@@ -91,7 +95,12 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
                             column += strlen(yytext);
                         }
 
-\n[ \t]*/\n				{ rows++; column = 1; return NEWLINE;}
+\n[ \t]*/\n				{ 
+                            int len = strlen(yytext); 
+                            rows++; 
+                            column = len > 1 ? len - 1 : 1; 
+                            return NEWLINE;
+                        }
 
 "False"                { column += strlen(yytext); words++; return PYFALSE; }
 "def"       	       { column += strlen(yytext);words++; return PYDEF; } 

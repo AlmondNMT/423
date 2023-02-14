@@ -3,12 +3,13 @@
 #include <string.h>
 #include <unistd.h>
 #include "token.h"
-#include "defs.h"
+#include "punygram.tab.h"
 #include "utils.h"
 
 extern int rows, column, chars;
 extern FILE * yyin;
 extern int yylex();
+extern int yyparse();
 extern char *yytext;
 extern char *rev_token(int cat);
 extern int paren_nesting, sqbr_nesting, cbr_nesting;
@@ -27,6 +28,7 @@ int main(int argc, char *argv[]) {
 
     int category = 0;
     tokenlist_t *list_head = NULL;
+    int parse_ret;
 
     for(int i = 1; i < argc; i++) {
         if (access(argv[i], F_OK) == 0 && strstr(argv[i], ".py")) { // Check if file exists and has .py extension
@@ -49,7 +51,10 @@ int main(int argc, char *argv[]) {
         list_head = calloc(1, sizeof(tokenlist_t));
         list_head->next = NULL;
 
+        //parse_ret = yyparse();
         while ((category = yylex()) > 0) {
+            printf("Category: %d\nyytext: ", category);
+            for(int i = 0 ; i < strlen(yytext); i++) printf("%d ", yytext[i]);
             create_token(list_head, category, yytext, rows, column, argv[i]);
         }
 

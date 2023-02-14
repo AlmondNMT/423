@@ -1,4 +1,4 @@
-#include "defs.h"
+#include "punygram.tab.h"
 
 //returns name of category for category integer. may prove handy in the future.
 

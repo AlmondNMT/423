@@ -248,9 +248,17 @@ int count_dedents(int *top, int dentstack[], int indent_level, int rows)
 }
 
 /** Determine whether the scanner is inside of brackets
- * @return 
+ * @return whether there are unclosed parentheses or brackets
  */
-int is_enclosed(int p, int sq, int cb, int rows)
+int is_enclosed(int p, int sq, int cb)
 {
     return (p > 0) || (sq > 0) || (cb > 0);
+}
+
+/** Error printing
+ */
+int yyerror(char *s)
+{
+    fprintf(stderr, "%s\n", s);
+    exit(1);
 }
