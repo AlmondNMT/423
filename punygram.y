@@ -5,102 +5,106 @@
     extern char *yytext;
 %}
 
-%token FLOATLIT
-%token ENDMARKER
-%token NAME
-%token INTLIT
-%token STRINGLIT
-%token NEWLINE
-%token INDENT
-%token DEDENT
-%token LPAR
-%token RPAR
-%token LSQB
-%token RSQB
-%token COLON
-%token COMMA
-%token SEMI
-%token PLUS
-%token MINUS
-%token STAR
-%token SLASH
-%token VBAR
-%token AMPER
-%token LESS
-%token GREATER
-%token EQUAL
-%token DOT
-%token PERCENT
-%token LBRACE
-%token RBRACE
-%token EQEQUAL
-%token NOTEQUAL
-%token LESSEQUAL
-%token GREATEREQUAL
-%token TILDE
-%token CIRCUMFLEX
-%token LEFTSHIFT
-%token RIGHTSHIFT
-%token DOUBLESTAR
-%token PLUSEQUAL
-%token MINEQUAL
-%token STAREQUAL
-%token SLASHEQUAL
-%token PERCENTEQUAL
-%token AMPEREQUAL
-%token VBAREQUAL
-%token CIRCUMFLEXEQUAL
-%token LEFTSHIFTEQUAL
-%token RIGHTSHIFTEQUAL
-%token DOUBLESTAREQUAL
-%token DOUBLESLASH
-%token DOUBLESLASHEQUAL
-%token AT
-%token ATEQUAL
-%token RARROW
-%token ELLIPSIS
-%token COLONEQUAL
-%token PYFALSE
-%token PYDEF
-%token IF
-%token RAISE
-%token NONE
-%token DEL
-%token IMPORT
-%token RETURN
-%token PYTRUE
-%token ELIF
-%token IN
-%token TRY
-%token AND
-%token ELSE
-%token IS
-%token WHILE
-%token AS
-%token EXCEPT
-%token LAMBDA
-%token WITH
-%token ASSERT
-%token FINALLY
-%token NONLOCAL
-%token YIELD
-%token BREAK
-%token FOR
-%token NOT
-%token CLASS
-%token FROM
-%token OR
-%token CONTINUE
-%token GLOBAL
-%token PASS
-%token OP
-%token AWAIT
-%token ASYNC
-%token TYPE_IGNORE
-%token TYPE_COMMENT
-%token ERRORTOKEN
-%token COMMENT
-%token ENCODING
+%union {
+    struct tree *treeptr;
+}
+
+%token <treeptr> FLOATLIT
+%token <treeptr> ENDMARKER
+%token <treeptr> NAME
+%token <treeptr> INTLIT
+%token <treeptr> STRINGLIT
+%token <treeptr> NEWLINE
+%token <treeptr> INDENT
+%token <treeptr> DEDENT
+%token <treeptr> LPAR
+%token <treeptr> RPAR
+%token <treeptr> LSQB
+%token <treeptr> RSQB
+%token <treeptr> COLON
+%token <treeptr> COMMA
+%token <treeptr> SEMI
+%token <treeptr> PLUS
+%token <treeptr> MINUS
+%token <treeptr> STAR
+%token <treeptr> SLASH
+%token <treeptr> VBAR
+%token <treeptr> AMPER
+%token <treeptr> LESS
+%token <treeptr> GREATER
+%token <treeptr> EQUAL
+%token <treeptr> DOT
+%token <treeptr> PERCENT
+%token <treeptr> LBRACE
+%token <treeptr> RBRACE
+%token <treeptr> EQEQUAL
+%token <treeptr> NOTEQUAL
+%token <treeptr> LESSEQUAL
+%token <treeptr> GREATEREQUAL
+%token <treeptr> TILDE
+%token <treeptr> CIRCUMFLEX
+%token <treeptr> LEFTSHIFT
+%token <treeptr> RIGHTSHIFT
+%token <treeptr> DOUBLESTAR
+%token <treeptr> PLUSEQUAL
+%token <treeptr> MINEQUAL
+%token <treeptr> STAREQUAL
+%token <treeptr> SLASHEQUAL
+%token <treeptr> PERCENTEQUAL
+%token <treeptr> AMPEREQUAL
+%token <treeptr> VBAREQUAL
+%token <treeptr> CIRCUMFLEXEQUAL
+%token <treeptr> LEFTSHIFTEQUAL
+%token <treeptr> RIGHTSHIFTEQUAL
+%token <treeptr> DOUBLESTAREQUAL
+%token <treeptr> DOUBLESLASH
+%token <treeptr> DOUBLESLASHEQUAL
+%token <treeptr> AT
+%token <treeptr> ATEQUAL
+%token <treeptr> RARROW
+%token <treeptr> ELLIPSIS
+%token <treeptr> COLONEQUAL
+%token <treeptr> PYFALSE
+%token <treeptr> PYDEF
+%token <treeptr> IF
+%token <treeptr> RAISE
+%token <treeptr> NONE
+%token <treeptr> DEL
+%token <treeptr> IMPORT
+%token <treeptr> RETURN
+%token <treeptr> PYTRUE
+%token <treeptr> ELIF
+%token <treeptr> IN
+%token <treeptr> TRY
+%token <treeptr> AND
+%token <treeptr> ELSE
+%token <treeptr> IS
+%token <treeptr> WHILE
+%token <treeptr> AS
+%token <treeptr> EXCEPT
+%token <treeptr> LAMBDA
+%token <treeptr> WITH
+%token <treeptr> ASSERT
+%token <treeptr> FINALLY
+%token <treeptr> NONLOCAL
+%token <treeptr> YIELD
+%token <treeptr> BREAK
+%token <treeptr> FOR
+%token <treeptr> NOT
+%token <treeptr> CLASS
+%token <treeptr> FROM
+%token <treeptr> OR
+%token <treeptr> CONTINUE
+%token <treeptr> GLOBAL
+%token <treeptr> PASS
+%token <treeptr> OP
+%token <treeptr> AWAIT
+%token <treeptr> ASYNC
+%token <treeptr> TYPE_IGNORE
+%token <treeptr> TYPE_COMMENT
+%token <treeptr> ERRORTOKEN
+%token <treeptr> COMMENT
+%token <treeptr> ENCODING
 
 %start program
 

@@ -222,7 +222,16 @@ extern int yydebug;
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
+union YYSTYPE
+{
+#line 8 "punygram.y"
+
+    struct tree *treeptr;
+
+#line 232 "punygram.tab.c"
+
+};
+typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
 #endif
@@ -604,7 +613,7 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,   109,   109,   110,   110,   112,   112,   114
+       0,   113,   113,   114,   114,   116,   116,   118
 };
 #endif
 
@@ -1415,7 +1424,7 @@ yyreduce:
   switch (yyn)
     {
 
-#line 1419 "punygram.tab.c"
+#line 1428 "punygram.tab.c"
 
       default: break;
     }

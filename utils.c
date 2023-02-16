@@ -262,3 +262,15 @@ int yyerror(char *s)
     fprintf(stderr, "%s\n", s);
     exit(1);
 }
+
+/** Prints error message and exits if given object is null
+ * @param obj pointer to some data
+ * @param msg message
+ */
+void check_alloc(void *obj, char *msg)
+{
+    if(obj == NULL) {
+        fprintf(stderr, "Could not allocate memory for '%s'", msg);
+        exit(1);
+    }
+}

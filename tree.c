@@ -7,53 +7,13 @@
 
 extern char *rev_token(int cat);
 extern char *yytext;
+extern YYSTYPE yylval;
 
 // ### DEBUGGING ### //
 int indentation_level = 0; 
 int max_indent = 0;
 int indent_count = 0;
 int dedent_count = 0;
-
-int insert_node(tokenlist_t *l, double dval, char *sval, int ival, char *text, int cat, int rows, int column, char *filename){
-
-
-	tokenlist_t *new_node = NULL;
-    if(l -> t == NULL) {
-        new_node = l;
-    }
-    else {
-        new_node = malloc(sizeof(tokenlist_t));
-        if(new_node == NULL)
-        {
-            printf("malloc failed in insert_node()");
-            return -2;
-            //-2 is returned because in other places -1 is
-            //returned but DOESNT mean an error
-            //so I don't know what to do with my life anymore.
-
-        }
-    }
-    new_node -> t = malloc(sizeof(token_t));
-
-    int text_len = strlen(text);
-    new_node -> t -> text = calloc(text_len + 1, sizeof(char));
-    
-    strcpy(new_node -> t -> text, text);
-	new_node -> t -> dval = dval;
-	new_node -> t -> ival = ival;
-	new_node -> t -> category = cat;
-	new_node -> t -> lineno = get_lineno(text, rows);
-    new_node -> t -> column = get_column(text, column);
-    if(cat == STRINGLIT) {
-        new_node -> t -> sval = calloc(strlen(sval) + 1, sizeof(char));
-        strcpy(new_node -> t -> sval, sval);
-    }
-    new_node -> t -> filename = calloc(strlen(filename) + 1, sizeof(char));
-	strcpy(new_node -> t -> filename, filename);
-    l = insert_tail_node(l, new_node);
-	return 0;
-}
-
 
 /** Find the row the token starts on
  */ 
@@ -84,6 +44,20 @@ int get_column(char *text, int column)
     return column - charcount;
 }
 
+/** Allocate token that will eventually be placed into the syntax tree
+ */
+int alctoken(int category)
+{
+    yylval.treeptr = malloc(sizeof(tree_t));
+    check_alloc(yylval.treeptr, "yylval.treeptr");
+    yylval.treeptr -> prodrule = category;
+    yylval.treeptr -> nkids = 0;
+    yylval.treeptr -> leaf = malloc(sizeof(token_t));
+    check_alloc(yylval.treeptr -> leaf, "yylval.treeptr -> leaf");
+    yylval.treeptr -> leaf -> category = category;
+    return category;
+}
+
 
 /** Create token in tokenlist
  * @param list
@@ -92,14 +66,17 @@ int get_column(char *text, int column)
 void create_token(tokenlist_t *list, int category, char *yytext, int rows, int column, char *filename)
 {
     token_t *t = calloc(1, sizeof(token_t));
+    check_alloc(t, "token");
     int token_length = strlen(yytext);
     int fname_length = strlen(filename);
     t -> category = category;
     t -> text = calloc(token_length + 1, sizeof(char));
+    check_alloc(t -> text, "token text");
     strcpy(t -> text, yytext);
     t -> lineno = get_lineno(t -> text, rows);
     t -> column = get_column(t -> text, column);
     t -> filename = calloc(fname_length + 1, sizeof(char));
+    check_alloc(t -> filename, "token filename");
     strcpy(t -> filename, filename);
     if(category == INTLIT) {
         t -> ival = extract_int(yytext);
@@ -110,6 +87,7 @@ void create_token(tokenlist_t *list, int category, char *yytext, int rows, int c
     else if(category == STRINGLIT) {
         int quote_count = get_quote_count(t -> text, token_length);
         t -> sval = calloc(token_length + 1 - 2 * quote_count, sizeof(char));
+        check_alloc(t -> sval, "token sval");
         int index = 0;
         for(int i = quote_count; i < token_length - quote_count; i++) {
             t -> sval[index++] = t -> text[i];
@@ -118,6 +96,7 @@ void create_token(tokenlist_t *list, int category, char *yytext, int rows, int c
     }
     if(list -> t != NULL) {
         tokenlist_t *l = calloc(1, sizeof(tokenlist_t));
+        check_alloc(l, "list");
         l -> t = t;
         list = insert_tail_node(list, l);
     }
@@ -177,26 +156,6 @@ void free_token(token_t *t)
     }
 }
 
-void print_list(tokenlist_t *l)
-{
-	tokenlist_t *curr = l;
-    printf("\n");
-    if(l != NULL) {
-        printf("Category\t\tText\tLineno\tColumn\tFilename\tIval/Sval\n");
-        for(int i = 0; i < 80; i++) printf("-");
-        printf("\n");
-    }
-    else {
-        printf("Token list is empty.\n");
-    }
-	while(curr != NULL) { //TODO: make dynamic, probably while(1)
-        if(print_token(curr -> t) == 0)
-            curr = curr -> next;
-        else
-            break;
-	}
-}
-
 /**
  * @return zero if everything executes correctly or nonzero if error printing
  */
@@ -239,10 +198,60 @@ int print_token(token_t *t)
     return 0;
 }
 
-void check_alloc(void *val, char *msg)
-{
-    if(val == NULL) {
-        fprintf(stderr, "%s", msg);
-        exit(1);
+
+/** #### Linked List Stuff **/
+int insert_node(tokenlist_t *l, double dval, char *sval, int ival, char *text, int cat, int rows, int column, char *filename){
+	tokenlist_t *new_node = NULL;
+    if(l -> t == NULL) {
+        new_node = l;
     }
+    else {
+        new_node = malloc(sizeof(tokenlist_t));
+        check_alloc(new_node, "tokenlist");
+    }
+    new_node -> t = malloc(sizeof(token_t));
+    check_alloc(new_node -> t, "token");
+
+    int text_len = strlen(text);
+    new_node -> t -> text = calloc(text_len + 1, sizeof(char));
+    
+    strcpy(new_node -> t -> text, text);
+	new_node -> t -> dval = dval;
+	new_node -> t -> ival = ival;
+	new_node -> t -> category = cat;
+	new_node -> t -> lineno = get_lineno(text, rows);
+    new_node -> t -> column = get_column(text, column);
+    if(cat == STRINGLIT) {
+        new_node -> t -> sval = calloc(strlen(sval) + 1, sizeof(char));
+        strcpy(new_node -> t -> sval, sval);
+    }
+    new_node -> t -> filename = calloc(strlen(filename) + 1, sizeof(char));
+	strcpy(new_node -> t -> filename, filename);
+    l = insert_tail_node(l, new_node);
+	return 0;
 }
+
+
+/** Display list contents
+ * @param l the head of the list
+ */
+void print_list(tokenlist_t *l)
+{
+	tokenlist_t *curr = l;
+    printf("\n");
+    if(l != NULL) {
+        printf("Category\t\tText\tLineno\tColumn\tFilename\tIval/Sval\n");
+        for(int i = 0; i < 80; i++) printf("-");
+        printf("\n");
+    }
+    else {
+        printf("Token list is empty.\n");
+    }
+	while(curr != NULL) { //TODO: make dynamic, probably while(1)
+        if(print_token(curr -> t) == 0)
+            curr = curr -> next;
+        else
+            break;
+	}
+}
+

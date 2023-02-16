@@ -27,7 +27,7 @@ void dealloc_list(tokenlist_t *l);
 int main(int argc, char *argv[]) {
 
     //int category = 0;
-    tokenlist_t *list_head = NULL;
+    //tokenlist_t *list_head = NULL;
     int parse_ret;
 
     for(int i = 1; i < argc; i++) {
@@ -48,8 +48,8 @@ int main(int argc, char *argv[]) {
         firsttime = 0;
         indent_count = dedent_count = 0;
 
-        list_head = calloc(1, sizeof(tokenlist_t));
-        list_head->next = NULL;
+        //list_head = calloc(1, sizeof(tokenlist_t));
+        //list_head->next = NULL;
 
         /** Parse */
         parse_ret = yyparse();
@@ -60,8 +60,8 @@ int main(int argc, char *argv[]) {
         }
 
         print_list(list_head);
-        dealloc_list(list_head);
         */
+        //dealloc_list(list_head);
         printf("Nesting:\n\tParen: %d\n\tSquare: %d\n\tCurly: %d\n", paren_nesting, sqbr_nesting, cbr_nesting);
         fclose(yyin);
     }
