@@ -106,13 +106,18 @@
 %token <treeptr> COMMENT
 %token <treeptr> ENCODING
 
-%start program
+%start file_input
 
 %%
 
-program: single_input 
-single_input: NEWLINE | simple_stmt ;
-
-simple_stmt: small_stmt | small_stmt SEMI;
-
-small_stmt: LPAR RPAR ENDMARKER
+file_input: nl_or_stmt_opt ENDMARKER;
+nl_or_stmt_opt: %empty 
+               | nl_or_stmt_opt NEWLINE 
+               | nl_or_stmt_opt stmt;
+stmt: simple_stmt;
+simple_stmt: small_stmt semi_and_small_opt semi_opt NEWLINE;
+semi_and_small_opt: %empty
+                  | semi_and_small_opt SEMI small_stmt;
+semi_opt: %empty | SEMI;
+small_stmt: pass_stmt;
+pass_stmt: PASS;
