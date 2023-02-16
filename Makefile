@@ -25,7 +25,7 @@ tests: tests.c
 	gcc -Wall -g tests.c -o tests
 
 clean: 
-	rm -f lex.yy.c puny tests *.o a.out
+	rm -f lex.yy.c puny tests *.o a.out punygram.tab.*
 
 zip: punylex.l main.c utils.c back.c tree.c defs.h tree.h utils.h Makefile
 	zip hw2.zip punylex.l main.c utils.c back.c tree.c defs.h tree.h utils.h Makefile
