@@ -144,8 +144,7 @@ extern int yydebug;
     TYPE_COMMENT = 350,
     ERRORTOKEN = 351,
     COMMENT = 352,
-    NL = 353,
-    ENCODING = 354
+    ENCODING = 353
   };
 #endif
 

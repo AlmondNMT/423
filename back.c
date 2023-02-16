@@ -103,7 +103,6 @@ char *rev_token(int cat){
         case   ERRORTOKEN: return "ERRORTOKEN";        
 
         case   COMMENT: return "COMMENT";           
-        case   NL: return "NL";                
         case   ENCODING: return "ENCODING"; 
     }
     return "ERROR UNKNOWN CASE IN back.c, rev_token()";  

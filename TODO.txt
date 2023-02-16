@@ -1,3 +1,4 @@
 ☐ Fix extract_string segfault
-☐ Finish popping dedents after reaching EOF
+☑ Finish popping dedents after reaching EOF
+☐ Grammar 
 ☐ Further general testing for INDENT/DEDENT functionality

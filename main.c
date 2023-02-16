@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include "token.h"
+#include "tree.h"
 #include "punygram.tab.h"
 #include "utils.h"
 
@@ -26,7 +26,7 @@ void dealloc_list(tokenlist_t *l);
 
 int main(int argc, char *argv[]) {
 
-    int category = 0;
+    //int category = 0;
     tokenlist_t *list_head = NULL;
     int parse_ret;
 
@@ -51,16 +51,18 @@ int main(int argc, char *argv[]) {
         list_head = calloc(1, sizeof(tokenlist_t));
         list_head->next = NULL;
 
-        //parse_ret = yyparse();
-        while ((category = yylex()) > 0) {
-            printf("Category: %d\nyytext: ", category);
-            for(int i = 0 ; i < strlen(yytext); i++) printf("%d ", yytext[i]);
+        /** Parse */
+        parse_ret = yyparse();
+
+        printf("yyparse returns: %d\n", parse_ret);
+        /*while ((category = yylex()) > 0) {
             create_token(list_head, category, yytext, rows, column, argv[i]);
         }
 
         print_list(list_head);
-        printf("Nesting:\n\tParen: %d\n\tSquare: %d\n\tCurly: %d\n", paren_nesting, sqbr_nesting, cbr_nesting);
         dealloc_list(list_head);
+        */
+        printf("Nesting:\n\tParen: %d\n\tSquare: %d\n\tCurly: %d\n", paren_nesting, sqbr_nesting, cbr_nesting);
         fclose(yyin);
     }
 

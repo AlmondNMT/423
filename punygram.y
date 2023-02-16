@@ -1,6 +1,8 @@
 %{
+    #include <stdio.h>
     extern int yylex();
     extern int yyerror(char *);
+    extern char *yytext;
 %}
 
 %token FLOATLIT
@@ -98,9 +100,15 @@
 %token TYPE_COMMENT
 %token ERRORTOKEN
 %token COMMENT
-%token NL
 %token ENCODING
+
+%start program
 
 %%
 
-single_input: NEWLINE;
+program: single_input 
+single_input: NEWLINE | simple_stmt ;
+
+simple_stmt: small_stmt | small_stmt SEMI;
+
+small_stmt: LPAR RPAR ENDMARKER

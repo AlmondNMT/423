@@ -7,25 +7,25 @@ bison: punygram.y
 	bison punygram.y
 	bison -d punygram.y
 
-flex: punylex.l punygram.tab.h token.h utils.h
+flex: punylex.l punygram.tab.h tree.h utils.h
 	flex punylex.l
 
-compile: lex.yy.c punygram.tab.c utils.c main.c back.c token.c utils.h
+compile: lex.yy.c punygram.tab.c utils.c main.c back.c tree.c utils.h
 	$(CC) $(CFLAGS) punygram.tab.c
 	$(CC) $(CFLAGS) lex.yy.c 
 	$(CC) $(CFLAGS) utils.c
 	$(CC) $(CFLAGS) main.c
 	$(CC) $(CFLAGS) back.c
-	$(CC) $(CFLAGS) token.c
+	$(CC) $(CFLAGS) tree.c
 
-link: lex.yy.o utils.o main.o back.o token.o punygram.tab.o
-	gcc -g -Wall lex.yy.o punygram.tab.o utils.o token.o main.o back.o -o puny
+link: lex.yy.o utils.o main.o back.o tree.o punygram.tab.o
+	gcc -g -Wall lex.yy.o punygram.tab.o utils.o tree.o main.o back.o -o puny
 
 tests: tests.c
 	gcc -Wall -g tests.c -o tests
 
 clean: 
-	rm -f lex.yy.c puny tests *.o 
+	rm -f lex.yy.c puny tests *.o a.out
 
-zip: punylex.l main.c utils.c back.c token.c defs.h token.h utils.h Makefile
-	zip hw2.zip punylex.l main.c utils.c back.c token.c defs.h token.h utils.h Makefile
+zip: punylex.l main.c utils.c back.c tree.c defs.h tree.h utils.h Makefile
+	zip hw2.zip punylex.l main.c utils.c back.c tree.c defs.h tree.h utils.h Makefile

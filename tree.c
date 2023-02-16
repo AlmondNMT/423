@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "punygram.tab.h"
-#include "token.h"
+#include "tree.h"
 #include "utils.h"
 
 extern char *rev_token(int cat);
@@ -203,7 +203,6 @@ void print_list(tokenlist_t *l)
 int print_token(token_t *t)
 {
     if(t == NULL) {
-        fprintf(stderr, "Token 't' is null\n");
         return 1;
     }
     char truncated_text[TEXT_TRUNCATION_LEVEL+1] = "";
