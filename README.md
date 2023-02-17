@@ -16,5 +16,8 @@ NIHILISM
 - [ ] file\_input
     - [ ] stmt
         - [ ] simple\_statement
+            - [ ] small_stmt
+                - [ ] assert_stmt
+    - [ ] exprlist
 - [ ] single\_input
 - [ ] eval\_input
