@@ -4,6 +4,10 @@
 #include <ctype.h>
 #include "utils.h"
 
+extern char *yyfilename;
+extern int yylineno;
+extern char *yytext;
+
 int get_ascii(char c)
 {
 
@@ -259,7 +263,7 @@ int is_enclosed(int p, int sq, int cb)
  */
 int yyerror(char *s)
 {
-    fprintf(stderr, "%s\n", s);
+    fprintf(stderr, "%s:%d: %s before '%s' token\n", yyfilename, yylineno, yytext, s);
     exit(1);
 }
 

@@ -18,7 +18,7 @@ extern int firsttime;
 extern int indent_count, dedent_count;
 //void dealloc_list(struct tokenlist *l);
 
-
+char yyfilename[PATHMAX];
 void print_list(tokenlist_t *l);
 //int insert_node(tokenlist_t **l, double dval, char *sval, int ival, char *text, int cat, int rows, char *filename);
 void dealloc_list(tokenlist_t *l);
@@ -33,6 +33,7 @@ int main(int argc, char *argv[]) {
     for(int i = 1; i < argc; i++) {
         if (access(argv[i], F_OK) == 0 && strstr(argv[i], ".py")) { // Check if file exists and has .py extension
             yyin = fopen(argv[i], "rb");
+            strcpy(yyfilename, argv[i]);
             if (yyin == NULL) { // Check that file is opened correctly
                 fprintf(stderr, "File %s cannot be opened\n", argv[i]);
                 continue;
@@ -62,7 +63,6 @@ int main(int argc, char *argv[]) {
         print_list(list_head);
         */
         //dealloc_list(list_head);
-        printf("Nesting:\n\tParen: %d\n\tSquare: %d\n\tCurly: %d\n", paren_nesting, sqbr_nesting, cbr_nesting);
         fclose(yyin);
     }
 
