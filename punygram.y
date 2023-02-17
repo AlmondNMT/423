@@ -131,6 +131,7 @@ small_stmt: del_stmt
           | expr_stmt;
 del_stmt: DEL exprlist;
 pass_stmt: PASS;
+<<<<<<< HEAD
 flow_stmt: break_stmt
          | continue_stmt
          | return_stmt
