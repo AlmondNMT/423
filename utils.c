@@ -4,7 +4,7 @@
 #include <ctype.h>
 #include "utils.h"
 
-extern char *yyfilename;
+extern char yyfilename[];
 extern int yylineno;
 extern char *yytext;
 

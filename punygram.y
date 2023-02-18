@@ -128,7 +128,8 @@ small_stmt: del_stmt
           | global_stmt 
           | flow_stmt 
           | nonlocal_stmt 
-          | expr_stmt;
+          | expr_stmt
+          | assert_stmt;
 del_stmt: DEL exprlist;
 pass_stmt: PASS;
 flow_stmt: break_stmt
@@ -137,6 +138,9 @@ flow_stmt: break_stmt
          | raise_stmt
          | yield_stmt;
 nonlocal_stmt: NONLOCAL NAME comma_name.rep;
+assert_stmt: ASSERT test comma_test_opt;
+comma_test_opt: %empty
+              | COMMA test;
 expr_stmt: testlist_star_expr assign_disjunct;
 assign_disjunct: yield_test_type.opt
               | annassign

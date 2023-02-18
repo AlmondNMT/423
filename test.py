@@ -1,1 +1,2 @@
-def ff(): return 12
+def ff(): 
+    return 12

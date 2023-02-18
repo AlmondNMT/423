@@ -127,7 +127,7 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
 "nonlocal"             { column += strlen(yytext);words++; return NONLOCAL; }
 "yield"                { column += strlen(yytext);words++; return YIELD; }
 "break"                { column += strlen(yytext);words++; return BREAK; }
-"for"                  { column += strlen(yytext);words++; printf("FUCKING FOR"); return FOR; }
+"for"                  { column += strlen(yytext);words++; return FOR; }
 "not"                  { column += strlen(yytext);words++; return NOT; }
 "class"                { column += strlen(yytext);words++; return CLASS; }
 "from"                 { column += strlen(yytext);words++; return FROM; }
