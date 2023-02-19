@@ -15,6 +15,9 @@ int max_indent = 0;
 int indent_count = 0;
 int dedent_count = 0;
 
+// Current filename
+char yyfilename[PATHMAX];
+
 /** Find the row the token starts on
  */ 
 int get_lineno(char *text, int rows)

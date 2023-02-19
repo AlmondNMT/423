@@ -18,7 +18,7 @@ extern int firsttime;
 extern int indent_count, dedent_count;
 //void dealloc_list(struct tokenlist *l);
 
-char yyfilename[PATHMAX];
+extern char yyfilename[PATHMAX];
 void print_list(tokenlist_t *l);
 //int insert_node(tokenlist_t **l, double dval, char *sval, int ival, char *text, int cat, int rows, char *filename);
 void dealloc_list(tokenlist_t *l);

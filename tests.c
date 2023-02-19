@@ -1,18 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h> 
 #include <string.h>
-//#include "utils.h"
-#include "utils.c"
-//#include "tree.h"
-#include "tree.c"
-#include "back.c"
+#include "punygram.tab.h"
+#include "tree.h"
+#include "utils.h"
 
-
+extern char *rev_token(int cat);
+extern YYSTYPE yylsval;
 
 void test_ext_str()
 {   
     printf("\n\nTEST: test_ext_str()\n");
-    char *s = malloc(4);
+    char *dest = malloc(4);
+    char *s = malloc(4 * sizeof(char));
     s[0] ='\"';
     s[1] ='5';
     s[2] ='\\';
@@ -26,10 +26,10 @@ void test_ext_str()
     s[10] = '\"';
 
     printf("before extract string: %s\n", s); 
-    char * t = extract_string(s);
-    //free(s);
-    printf("after extract string: %s\n", t); 
-    free(t);
+    int retval = extract_string(dest, s);
+    free(s);
+    printf("after extract string: %s\n", dest); 
+    free(dest);
 }
 
 /** Test integer extraction
@@ -45,7 +45,7 @@ void test_ext_int()
     printf("before extract int: %s\n", s);
 
     // Hexadecimal cases
-    char t = malloc(5);
+    char *t = malloc(5);
     t[0] = '0';
     t[1] = 'x';
     t[2] = '0';
@@ -53,7 +53,7 @@ void test_ext_int()
     t[4] = 'a';
 
     int i = extract_int(s);
-    int j = extract_int(t)
+    int j = extract_int(t);
     printf("after extract int: %d\n", i);
 
     free(s);
@@ -70,7 +70,8 @@ void test_deesc()
     s[3] = 'n';
     s[4] = '5';
     printf("before deescape: %s\n",s);
-    char *temp = deescape(s);
+    char *temp = malloc(sizeof(char) * 5);
+    int retval = deescape(temp, s);
     free(s);
     printf("after deescape: %s", temp);
     free(temp);
