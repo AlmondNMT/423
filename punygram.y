@@ -111,8 +111,30 @@
 
 %%
 
-file_input: nl_or_stmt.rep  ENDMARKER;
-nl_or_stmt.rep: atom_expr;
+file_input: nl_OR_stmt.rep ENDMARKER; 
+nl_OR_stmt.rep: %empty
+              | nl_OR_stmt.rep nl_OR_stmt; 
+/**
+ *  nl_OR_stmt should either go to %empty or recursively generate nl_or_stmt
+ */
+nl_OR_stmt: NEWLINE
+          | stmt;
+stmt: simple_stmt;
+simple_stmt: small_stmt semi_small_stmt.rep semi.opt nl.opt;
+small_stmt: expr_stmt;
+semi_small_stmt.rep: %empty
+                   | semi_small_stmt.rep semi_small_stmt;
+semi_small_stmt: SEMI small_stmt;
+semi.opt: %empty
+        | SEMI;
+nl.opt: %empty
+      | NEWLINE;
+expr_stmt: testlist_star_expr;
+testlist_star_expr: test_OR_star_expr comma_test_OR_star_expr.rep comma.opt;
+test_OR_star_expr: test
+                 | star_expr;
+comma_test_OR_star_expr.rep: %empty
+                           | comma_test_OR_star_expr.rep COMMA test_OR_star_expr;
 atom_expr: await.opt atom trailer.rep;
 await.opt: %empty
          | AWAIT;
@@ -176,7 +198,7 @@ lshift_OR_rshift: LEFTSHIFT | RIGHTSHIFT;
 arith_expr: term pm_term.rep;
 pm_term.rep: %empty
            | pm_term.rep plus_OR_minus term;
-plus_OR_minus: PLUS
+plus_OR_minus: PLUS 
              | MINUS;
 term: factor factop_factor.rep;
 factop_factor.rep: %empty
@@ -190,9 +212,9 @@ factor: pmt.opt factor | power;
 pmt.opt: PLUS
        | MINUS
        | TILDE;
-power: atom_expr dstar_factor.opt;
+power: atom_expr dstar_factor.opt ;
 dstar_factor.opt: %empty
-               | DOUBLESTAR factor;
+               | DOUBLESTAR factor ;
 
 atom: NAME 
     | INTLIT 

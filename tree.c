@@ -55,6 +55,19 @@ int alctoken(int category)
     yylval.treeptr -> leaf = malloc(sizeof(token_t));
     check_alloc(yylval.treeptr -> leaf, "yylval.treeptr -> leaf");
     yylval.treeptr -> leaf -> category = category;
+    if(category == INTLIT) {
+        yylval.treeptr->leaf->ival = extract_int(yytext);
+    }
+    else if(category == FLOATLIT) {
+        yylval.treeptr->leaf->ival = extract_float(yytext);
+    }
+    else if(category == STRINGLIT) {
+        yylval.treeptr->leaf->sval = calloc(strlen(yytext), sizeof(char));
+        int retval = extract_string(yylval.treeptr->leaf->sval, yytext);
+        if(retval < 0) {
+            return retval;
+        }
+    }
     return category;
 }
 
@@ -85,14 +98,8 @@ void create_token(tokenlist_t *list, int category, char *yytext, int rows, int c
         t -> dval = extract_float(yytext);
     }
     else if(category == STRINGLIT) {
-        int quote_count = get_quote_count(t -> text, token_length);
-        t -> sval = calloc(token_length + 1 - 2 * quote_count, sizeof(char));
-        check_alloc(t -> sval, "token sval");
-        int index = 0;
-        for(int i = quote_count; i < token_length - quote_count; i++) {
-            t -> sval[index++] = t -> text[i];
-        }
-        
+        t -> sval = calloc(token_length, sizeof(char));
+        extract_string(t -> sval, yytext);
     }
     if(list -> t != NULL) {
         tokenlist_t *l = calloc(1, sizeof(tokenlist_t));

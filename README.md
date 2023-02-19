@@ -9,14 +9,16 @@ NIHILISM
 - [ ] Fix string deescaping and add tests
 
 ### tree.c
-- [ ] Finish writing alctoken
+- [x] Finish writing alctoken (I think this is done)
 - [ ] alctree
 
 ### GRAMMAR
 - [ ] file\_input
-    - [ ] stmt
+- [ ] stmt
         - [ ] simple\_statement
             - [ ] small_stmt
+                - [ ] expr_stmt 
+            - [ ] compound_stmt
                 - [ ] assert_stmt
     - [ ] exprlist
 - [ ] single\_input
