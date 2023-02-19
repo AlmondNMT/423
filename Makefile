@@ -4,7 +4,7 @@ CFLAGS=-g -Wall -c
 all: bison flex compile link
 
 bison: punygram.y
-	bison punygram.y
+	bison punygram.y -Wconflicts-rr -Wcounterexamples
 	bison -d punygram.y
 
 flex: punylex.l punygram.tab.h tree.h utils.h
@@ -20,6 +20,7 @@ compile: lex.yy.c punygram.tab.c utils.c main.c back.c tree.c utils.h
 
 link: lex.yy.o utils.o main.o back.o tree.o punygram.tab.o
 	gcc -g -Wall lex.yy.o punygram.tab.o utils.o tree.o main.o back.o -o puny
+	./puny test.py
 
 tests: tests.c
 	gcc -Wall -g tests.c -o tests

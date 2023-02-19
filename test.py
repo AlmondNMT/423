@@ -1,2 +1,1 @@
-def ff(): 
-    return 12
+a | b
