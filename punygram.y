@@ -187,8 +187,7 @@ factops: STAR
        | PERCENT
        | DOUBLESLASH;
 factor: pmt.opt factor | power;
-pmt.opt: %empty
-       | PLUS
+pmt.opt: PLUS
        | MINUS
        | TILDE;
 power: atom_expr dstar_factor.opt;

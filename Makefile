@@ -4,7 +4,7 @@ CFLAGS=-g -Wall -c
 all: bison flex compile link
 
 bison: punygram.y
-	bison punygram.y -Wconflicts-rr -Wcounterexamples
+	bison punygram.y -Wconflicts-rr 
 	bison -d punygram.y
 
 flex: punylex.l punygram.tab.h tree.h utils.h
