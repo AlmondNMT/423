@@ -260,11 +260,12 @@ int is_enclosed(int p, int sq, int cb)
 }
 
 /** Error printing
+ * TODO: Make better error handling
  */
 int yyerror(char *s)
 {
     fprintf(stderr, "%s:%d: %s before '%s' token\n", yyfilename, yylineno, s, yytext);
-    exit(1);
+    return -1;
 }
 
 /** Prints error message and exits if given object is null
