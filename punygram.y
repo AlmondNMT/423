@@ -126,8 +126,72 @@ semi.opt: %empty
         | SEMI;
 semi_simple_stmts.rep: %empty
                      | semi_simple_stmts.rep SEMI simple_stmt;
-simple_stmt: return_stmt
+simple_stmt: assignment
+           | return_stmt
            | star_expressions;
+assignment: NAME COLON expression equal_annotated_rhs.opt
+          | single_target_OR_ssat COLON expression equal_annotated_rhs.opt;
+single_target_OR_ssat: LPAR single_target RPAR 
+                     | single_subscript_attribute_target;
+single_target: single_subscript_attribute_target
+             | NAME
+             | LPAR single_target RPAR;
+single_subscript_attribute_target: t_primary DOT NAME
+                                 | t_primary LSQB slices RSQB;
+t_primary: t_primary DOT NAME
+         | t_primary LSQB slices RSQB
+         | t_primary genexp
+         | t_primary LPAR arguments.opt RPAR 
+         | atom;
+arguments.opt: %empty
+             | arguments;
+arguments: args comma.opt; // &')'
+args: kwargs;
+kwargs: comma_kwarg_or_starred.rep COMMA comma_kwarg_or_double_starred.rep;
+comma_kwarg_or_starred.rep: kwarg_or_starred
+                          | comma_kwarg_or_starred.rep COMMA kwarg_or_starred;
+comma_kwarg_or_double_starred.rep: kwarg_or_double_starred
+                                 | comma_kwarg_or_double_starred.rep COMMA kwarg_or_double_starred;
+kwarg_or_starred: NAME EQUAL expression
+                | starred_expression;
+kwarg_or_double_starred: NAME EQUAL expression
+                       | DOUBLESTAR expression;
+
+genexp: LPAR ass_expr_OR_expr for_if_clauses RPAR;
+ass_expr_OR_expr: assignment_expression
+                | expression // !':='
+assignment_expression: NAME COLONEQUAL // TILDE 
+slices: slice
+      |  comma_slice_OR_starred_expr.rep comma.opt;
+comma_slice_OR_starred_expr.rep: slice_OR_starred_expr
+                               | comma_slice_OR_starred_expr.rep COMMA slice_OR_starred_expr;
+slice_OR_starred_expr: slice
+                     | starred_expression;
+slice: expression.opt COLON expression.opt colon_expression.opt;
+starred_expression: STAR expression;
+for_if_clauses: for_if_clause.rep;
+for_if_clause.rep: for_if_clause
+                 | for_if_clause.rep for_if_clause;
+for_if_clause: ASYNC FOR star_targets IN disjunction if_disjunction.rep;
+star_targets: star_target // !','
+            | star_target comma_star_target.rep comma.opt;
+comma_star_target.rep: %empty
+                     | comma_star_target.rep COMMA star_target;
+star_target: target_with_star_atom;
+target_with_star_atom: t_primary DOT NAME // !t_lookahead
+                     | t_primary LSQB slices RSQB // !t_lookahead
+if_disjunction.rep: %empty
+                  | if_disjunction.rep IF disjunction;
+expression.opt: %empty
+              | expression;
+colon_expression.opt: %empty
+                    | COLON expression.opt;
+
+equal_annotated_rhs.opt: %empty
+                       | EQUAL annotated_rhs;
+annotated_rhs: yield_expr | star_expressions;
+yield_expr: YIELD FROM expression
+          | YIELD star_expressions.opt
 return_stmt: RETURN star_expressions.opt;
 star_expressions.opt: %empty
                     | star_expressions;
@@ -181,7 +245,10 @@ star_named_expressions: star_named_expression comma_sne.rep comma.opt;
 comma_sne.rep: %empty
              | comma_sne.rep COMMA star_named_expression;
 
-star_named_expression: STAR bitwise_or;
+star_named_expression: STAR bitwise_or
+                     | named_expression;
+named_expression: assignment_expression
+                | expression; // !':='
 bitwise_or: bitwise_or VBAR bitwise_xor
           | bitwise_xor;
 bitwise_xor: bitwise_xor CIRCUMFLEX bitwise_and
