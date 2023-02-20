@@ -2,7 +2,7 @@ CC=gcc
 CFLAGS=-g -Wall -c
 CFILES=punygram.tab.c lex.yy.c utils.c main.c back.c tree.c
 
-all: bison flex compile link
+all: bison flex compile link 
 
 bison: punygram.y
 	bison punygram.y -Wconflicts-rr 
@@ -19,8 +19,11 @@ link: lex.yy.o utils.o main.o back.o tree.o punygram.tab.o
 	./puny test.py
 
 tests: tests.c
+	$(bison)
+	$(flex)
 	$(compile)
 	gcc -Wall -g lex.yy.o utils.o back.o tree.o punygram.tab.o tests.c -o tests
+	./tests
 
 clean: 
 	rm -f lex.yy.c puny tests *.o a.out punygram.tab.*

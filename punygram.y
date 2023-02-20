@@ -111,116 +111,86 @@
 
 %%
 
-file_input: nl_OR_stmt.rep ENDMARKER; 
-nl_OR_stmt.rep: %empty
-              | nl_OR_stmt.rep nl_OR_stmt; 
-/**
- *  nl_OR_stmt should either go to %empty or recursively generate nl_or_stmt
- */
-nl_OR_stmt: NEWLINE
-          | stmt;
-stmt: simple_stmt;
-simple_stmt: small_stmt semi_small_stmt.rep semi.opt nl.opt;
-small_stmt: expr_stmt;
-semi_small_stmt.rep: %empty
-                   | semi_small_stmt.rep semi_small_stmt;
-semi_small_stmt: SEMI small_stmt;
+file_input: statements.opt endmarker.opt; 
+statements.opt: %empty
+              | statements;
+endmarker.opt: %empty
+             | ENDMARKER;
+statements: statement
+          | statements statement;
+statement: simple_stmts;
+simple_stmts: simple_stmt semi_simple_stmts.rep semi.opt nl_OR_endmarker;
+nl_OR_endmarker: NEWLINE
+               | ENDMARKER;
 semi.opt: %empty
         | SEMI;
-nl.opt: %empty
-      | NEWLINE;
-expr_stmt: testlist_star_expr;
-testlist_star_expr: test_OR_star_expr comma_test_OR_star_expr.rep comma.opt;
-test_OR_star_expr: test
-                 | star_expr;
-comma_test_OR_star_expr.rep: %empty
-                           | comma_test_OR_star_expr.rep COMMA test_OR_star_expr;
-atom_expr: await.opt atom trailer.rep;
-await.opt: %empty
-         | AWAIT;
-trailer.rep: %empty
-           | trailer.rep trailer;
-trailer: LPAR arglist.opt RPAR;
-arglist.opt: %empty
-           | arglist;
-arglist: argument comma_argument.rep comma.opt;
-argument: test comp_for.opt;
-comp_for.opt: %empty
-            | comp_for;
-comp_for: async.opt sync_comp_for;
-async.opt: %empty
-         | ASYNC;
-sync_comp_for: FOR exprlist IN or_test comp_iter.opt;
-exprlist: expr_OR_star_expr comma_expr_OR_star_expr.rep comma.opt;
-expr_OR_star_expr: expr
-                 | star_expr;
-star_expr: STAR expr;
-comma_expr_OR_star_expr.rep: %empty
-                           | comma_expr_OR_star_expr.rep COMMA expr_OR_star_expr;
-comp_iter.opt: %empty
-             | comp_iter;
-comp_iter: comp_for | comp_if;
-comp_if: IF test_nocond comp_iter.opt;
-test_nocond: or_test;
-comma_argument.rep: %empty
-                  | comma_argument.rep COMMA argument;
+semi_simple_stmts.rep: %empty
+                     | semi_simple_stmts.rep SEMI simple_stmt;
+simple_stmt: return_stmt
+           | star_expressions;
+return_stmt: RETURN star_expressions.opt;
+star_expressions.opt: %empty
+                    | star_expressions;
+star_expressions: star_expression;
+star_expression: STAR bitwise_or
+               | expression;
+expression: disjunction;
+disjunction: conjunction or_conjunction.rep
+           | conjunction;
+or_conjunction.rep: OR conjunction
+                  | or_conjunction.rep OR conjunction;
+conjunction: inversion and_inversion.rep
+           | inversion;
+and_inversion.rep: AND inversion
+                 | and_inversion.rep AND inversion;
+inversion: NOT inversion
+         | comparison;
+comparison: bitwise_or;
+atom: NAME
+    | PYTRUE
+    | PYFALSE
+    | NONE
+    | strings
+    | INTLIT
+    | FLOATLIT
+    | list;
+strings: STRINGLIT
+       | strings STRINGLIT;
+list: LSQB star_named_expressions.opt RSQB;
+star_named_expressions.opt: %empty
+                          | star_named_expressions;
 comma.opt: %empty
          | COMMA;
-test: or_test if_or_test_else_test.opt;
-or_test: and_test or_and_test.rep;
-and_test: not_test and_not_test.rep;
-not_test: NOT not_test
-        | comparison;
-comparison: expr comp_op_expr.rep;
-if_or_test_else_test.opt: %empty
-                        | IF or_test ELSE test;
-or_and_test.rep: %empty
-               | or_and_test.rep OR and_test;
-and_not_test.rep: %empty
-                | and_not_test.rep AND not_test;
-comp_op_expr.rep: %empty
-                | comp_op_expr.rep comp_op;
-comp_op: LESS 
-       | GREATER;
-expr: xor_expr vertical_xor_expr.rep;
-vertical_xor_expr.rep: %empty
-                     | vertical_xor_expr.rep VBAR xor_expr;
-xor_expr: and_expr caret_and_expr.rep;
-caret_and_expr.rep: %empty
-                  | caret_and_expr.rep CIRCUMFLEX and_expr;
-and_expr: shift_expr amp_shift_expr.rep;
-amp_shift_expr.rep: %empty
-                  | amp_shift_expr.rep AMPER shift_expr;
-shift_expr: arith_expr bshift_arith_expr.rep;
-bshift_arith_expr.rep: %empty
-                     | lshift_OR_rshift arith_expr;
-lshift_OR_rshift: LEFTSHIFT | RIGHTSHIFT;
-arith_expr: term pm_term.rep;
-pm_term.rep: %empty
-           | pm_term.rep plus_OR_minus term;
-plus_OR_minus: PLUS 
-             | MINUS;
-term: factor factop_factor.rep;
-factop_factor.rep: %empty
-                 | factop_factor.rep factops factor;
-factops: STAR
-       | AT
-       | SLASH
-       | PERCENT
-       | DOUBLESLASH;
-factor: pmt.opt factor | power;
-pmt.opt: PLUS
-       | MINUS
-       | TILDE;
-power: atom_expr dstar_factor.opt ;
-dstar_factor.opt: %empty
-               | DOUBLESTAR factor ;
+star_named_expressions: star_named_expression comma_sne.rep comma.opt;
+comma_sne.rep: %empty
+             | comma_sne.rep COMMA star_named_expression;
 
-atom: NAME 
-    | INTLIT 
-    | FLOATLIT 
-    | STRINGLIT 
-    | NONE 
-    | PYTRUE 
-    | PYFALSE 
-    | ELLIPSIS;
+star_named_expression: STAR bitwise_or;
+bitwise_or: bitwise_or VBAR bitwise_xor
+          | bitwise_xor;
+bitwise_xor: bitwise_xor CIRCUMFLEX bitwise_and
+           | bitwise_and;
+bitwise_and: bitwise_and AMPER shift_expr
+           | shift_expr;
+shift_expr: shift_expr LEFTSHIFT sum
+          | shift_expr RIGHTSHIFT sum
+          | sum;
+sum: sum PLUS term
+   | sum MINUS term
+   | term;
+term: term STAR factor
+    | term SLASH factor
+    | term DOUBLESLASH factor
+    | term PERCENT factor
+    | term AT factor
+    | factor;
+factor: PLUS factor
+      | MINUS factor
+      | TILDE factor
+      | power;
+power: await_primary DOUBLESTAR factor
+     | await_primary;
+await_primary: AWAIT primary
+             | primary;
+primary: primary DOT NAME
+       | atom;
