@@ -118,8 +118,10 @@ endmarker.opt: %empty
              | ENDMARKER;
 statements: statement
           | statements statement;
-statement: simple_stmts;
-simple_stmts: semi_simple_stmts.rep semi.opt nl_OR_endmarker;
+statement: simple_stmts 
+         | compound_stmt;
+simple_stmts: semi_simple_stmts.rep semi.opt nl_OR_endmarker
+            | NEWLINE;
 nl_OR_endmarker: NEWLINE
                | ENDMARKER;
 semi.opt: %empty
