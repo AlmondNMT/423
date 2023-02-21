@@ -11,11 +11,12 @@
 int dentstack[100]={0};
 int top=0;
 int indentlevel(char *s);		
-int rows = 1, words = 0, column=0;
+int words = 0, column=0;
 int dedentcount;
 int firsttime;
 // Are the indent/dedents inside of brackets or parentheses?
 int paren_nesting = 0, sqbr_nesting = 0, cbr_nesting = 0; 
+extern int yylineno;
 
 #define yylex real_yylex			
 %}
@@ -36,12 +37,12 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
 <<EOF>>             { 
                         if (firsttime++ == 0) {
                             int il = 0;
-                            dedentcount = count_dedents(&top, dentstack, il, rows);
+                            dedentcount = count_dedents(&top, dentstack, il, yylineno);
                             if(dedentcount == SCAN_ERROR) {
                                 return SCAN_ERROR;
                             }
                             if(is_enclosed(paren_nesting, sqbr_nesting, cbr_nesting)) {
-                                fprintf(stderr, "SyntaxError: Unexpected EOF at line %d\n", rows);
+                                fprintf(stderr, "SyntaxError: Unexpected EOF at line %d\n", yylineno);
                                 return EOF_ERROR;
                             }
                             return ENDMARKER; 
@@ -49,20 +50,21 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
                         else 
                             return -1; 
                     }
-\\\n		        { rows++; column=1; }
+\\\n		        { yylineno++; column=1; }
 \n/[^ \t\n]         { 
-                        rows++; column=1; 
+                        yylineno++; column=1; 
                         int il = 0;
                         if(il < dentstack[top]) {
-                             dedentcount = count_dedents(&top, dentstack, il, rows);
+                             dedentcount = count_dedents(&top, dentstack, il, yylineno);
                              if(dedentcount == SCAN_ERROR && !is_enclosed(paren_nesting, sqbr_nesting, cbr_nesting)) {
                                  return SCAN_ERROR;
                              }
                         }
-                        return NEWLINE;
+                        if(!is_enclosed(paren_nesting, sqbr_nesting, cbr_nesting)) // 
+                            return NEWLINE; // Only returning newlines not enclosed within braces, curlies, or parentheses
                     }
 \n[ \t]+/[^ \t\n]   { 	
-                        rows++; 
+                        yylineno++; 
                         int il = indentlevel(yytext+1);
                         column=il+1;
                         if(!is_enclosed(paren_nesting, sqbr_nesting, cbr_nesting)) {
@@ -73,7 +75,7 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
                             }
                             else if (il < dentstack[top]) {
                                 /* return one or more DEDENT tokens */
-                                dedentcount = count_dedents(&top, dentstack, il, rows);
+                                dedentcount = count_dedents(&top, dentstack, il, yylineno);
                                 if(dedentcount == SCAN_ERROR) {
                                     return SCAN_ERROR;
                                 }
@@ -83,11 +85,11 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
                                 /* still at ILEVEL il, no INDENT or DEDENT */
                             
                             }
+                            return NEWLINE; 
                         }
-                        return NEWLINE; 
                     }
 ^[ \t]+                 {
-                            if(rows == 1) {
+                            if(yylineno == 1) {
                                 fprintf(stderr, "Indent on line 1\n");
                                 fflush(stderr);
                                 return SCAN_ERROR;
@@ -97,9 +99,10 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
 
 \n[ \t]*/\n				{ 
                             int len = strlen(yytext); 
-                            rows++; 
+                            yylineno++; 
                             column = len > 1 ? len - 1 : 1; 
-                            return NEWLINE;
+                            if(!is_enclosed(paren_nesting, sqbr_nesting, cbr_nesting))
+                                return NEWLINE;
                         }
 
 "False"                { column += strlen(yytext); words++; return PYFALSE; }
@@ -140,7 +143,7 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
                             column += strlen(yytext); 
                             paren_nesting--; 
                             if(paren_nesting < 0) {
-                                fprintf(stderr, "Unmatched ')' on line %d\n", rows);
+                                fprintf(stderr, "Unmatched ')' on line %d\n", yylineno);
                                 return BRACKET_ERROR;
                             }
                             return RPAR; 
@@ -150,7 +153,7 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
                             column += strlen(yytext); 
                             sqbr_nesting--; 
                             if(sqbr_nesting < 0) {
-                                fprintf(stderr, "Unmatched ']' on line %d\n", rows);
+                                fprintf(stderr, "Unmatched ']' on line %d\n", yylineno);
                                 return BRACKET_ERROR; 
                             }
                             return RSQB; 
@@ -174,7 +177,7 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
                             column += strlen(yytext); 
                             cbr_nesting--; 
                             if(cbr_nesting < 0) { 
-                                fprintf(stderr, "Unmatched '}' on line %d\n", rows);
+                                fprintf(stderr, "Unmatched '}' on line %d\n", yylineno);
                                 return BRACKET_ERROR; 
                             }
                             return RBRACE; 
@@ -218,7 +221,7 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
                     c = *(yytext + i);
                     column++;
                     if(c == '\n') {
-                        rows++;
+                        yylineno++;
                         column = 1;
                     }
                 }

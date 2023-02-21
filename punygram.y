@@ -119,12 +119,12 @@ endmarker.opt: %empty
 statements: statement
           | statements statement;
 statement: simple_stmts;
-simple_stmts: simple_stmt semi_simple_stmts.rep semi.opt nl_OR_endmarker;
+simple_stmts: semi_simple_stmts.rep semi.opt nl_OR_endmarker;
 nl_OR_endmarker: NEWLINE
                | ENDMARKER;
 semi.opt: %empty
         | SEMI;
-semi_simple_stmts.rep: %empty
+semi_simple_stmts.rep: simple_stmt
                      | semi_simple_stmts.rep SEMI simple_stmt;
 simple_stmt: assignment
            | return_stmt

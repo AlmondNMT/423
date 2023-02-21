@@ -6,7 +6,7 @@
 #include "punygram.tab.h"
 #include "utils.h"
 
-extern int rows, column, chars;
+extern int yylineno, column, chars;
 extern FILE * yyin;
 extern int yylex();
 extern int yyparse();
@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
             continue;
         }
         // Reset global variables at the beginning of each file
-        rows = 1;
+        yylineno = 1;
         column = 1;
         paren_nesting = sqbr_nesting = cbr_nesting = 0;
         firsttime = 0;
@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
 
         printf("yyparse returns: %d\n", parse_ret);
         /*while ((category = yylex()) > 0) {
-            create_token(list_head, category, yytext, rows, column, argv[i]);
+            create_token(list_head, category, yytext, yylineno, column, argv[i]);
         }
 
         print_list(list_head);
