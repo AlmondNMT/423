@@ -279,3 +279,68 @@ await_primary: AWAIT primary
              | primary;
 primary: primary DOT NAME
        | atom;
+
+compound_stmt: if_stmt
+             | while_stmt
+             | for_stmt
+             | try_stmt
+             | with_stmt
+             | match_stmt
+             | funcdef
+             | classdef
+             | async_with_stmt
+             | async_for_stmt
+             | async_funcdef
+
+suite: stmt_list NEWLINE
+     | NEWLINE INDENT statement_list DEDENT
+
+statement: stmt_list NEWLINE
+         | compound_stmt
+
+stmt_list: simple_stmt
+         | simple_stmt ';' stmt_list
+         | simple_stmt ';'
+         
+if_stmt: IF test ':' suite elif_clause else_clause
+
+elif_clause: ELIF test ':' suite
+           | elif_clause ELIF test ':' suite
+
+else_clause: ELSE ':' suite
+            | empty
+
+while_stmt: WHILE test ':' suite
+
+for_stmt: FOR exprlist IN testlist ':' suite
+
+try_stmt: TRY ':' suite (except_clause ':' suite)+ ['else' ':' suite] ['finally' ':' suite]
+
+with_stmt: WITH with_item (',' with_item)*  ':' suite
+
+with_item: test ['as' expr]
+
+match_stmt: MATCH test ':' '{' (match_case ':' suite)+ '}'
+
+match_case: pattern ['if' test]
+
+funcdef: DEF NAME parameters ':' suite
+
+parameters: '(' [typedargslist] ')'
+
+typedargslist: typedarg (',' typedarg)* [',' [VAR_POSITIONAL '=' test] [',' [KEYWORD_ONLY '=' test] [',' VAR_KEYWORD '=' test]]]
+
+typedarg: NAME [':' test]
+
+classdef: CLASS NAME ['(' [arglist] ')'] ':' suite
+
+arglist: argument (',' argument)*  [',']
+
+argument: (test [comp_for]) | (test '=' test)
+
+async_with_stmt: ASYNC_WITH with_item (',' with_item)* ':' suite
+
+async_for_stmt: ASYNC_FOR exprlist IN testlist ':' suite
+
+async_funcdef: ASYNC_DEF NAME parameters ':' suite
+
