@@ -1,4 +1,3 @@
-%{
     #include <stdio.h>
     extern int yylex();
     extern int yyerror(char *);
@@ -106,6 +105,11 @@
 %token <treeptr> COMMENT
 %token <treeptr> ENCODING
 %token <treeptr> EMPTY
+
+%token <treeptr> MATCH
+%token <treeptr> FUNCDEF
+%token <treeptr> CLASSDEF
+%token <treeptr> ASSIGNMENT
 
 %start file_input
 
@@ -278,22 +282,65 @@ await_primary: AWAIT primary
 primary: primary DOT NAME
        | atom;
 
-statement: compound_stmt
-         | stmt_list NEWLINE
-         | compound_stmt NEWLINE
-         | NEWLINE
-         | suite
 
-compound_stmt: if_stmt
-              | while_stmt
-              | for_stmt
-              | try_stmt
-              | with_stmt
-              | match_stmt
-              | funcdef
-              | classdef
-              | async_with_stmt
-              | async_for_stmt
-              | async_funcdef
+statement: compound_stmt
+         | simple_stmts;
+
+statement_newline: compound_stmt NEWLINE
+                 | simple_stmts
+                 | NEWLINE
+                 | ENDMARKER;
+
+simple_stmt: assignment
+           | star_expressions
+           | return_stmt
+           | imprt_stmnt
+           | raise_stmt
+           | PASS
+           | del_stmt
+           | yield_stmt
+           | assert_stmt
+           | BREAK
+           | CONTINUE
+           | global_stmt
+           | nonlocal_stmt;
+
+compound_stmt: FUNCDEF
+              | IF
+              | CLASSDEF
+              | WITH
+              | FOR
+              | TRY
+              | WHILE
+              | MATCH;
+
+import_stmt: IMPORT dotted_as_names
+           | FROM dotted_name IMPORT STAR
+           | FROM dotted_name IMPORT LPAREN import_as_names RPAREN
+           | FROM dotted_name IMPORT import_as_names
+;
+
+test: or_test
+    | or_test IF or_test ELSE test;
+
+or_test: and_test
+       | and_test OR or_test;
+
+and_test: not_test
+        | not_test AND not_test;
+
+not_test: NOT not_test
+        | comparison;
+
+comparison: expr
+          | expr comp_op expr;
+
+comp_op: LESS
+       | GREATER
+       | EQEQUAL
+       | GREATEREQUAL
+       | LESSEQUAL
+       | NOTEQUAL
+
 
 
