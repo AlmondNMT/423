@@ -1,13 +1,3 @@
-    #include <stdio.h>
-    extern int yylex();
-    extern int yyerror(char *);
-    extern char *yytext;
-%}
-
-%union {
-    struct tree *treeptr;
-}
-
 %token <treeptr> FLOATLIT
 %token <treeptr> ENDMARKER
 %token <treeptr> NAME
@@ -105,7 +95,6 @@
 %token <treeptr> COMMENT
 %token <treeptr> ENCODING
 %token <treeptr> EMPTY
-
 %token <treeptr> MATCH
 %token <treeptr> FUNCDEF
 %token <treeptr> CLASSDEF
@@ -122,7 +111,8 @@ endmarker.opt: %empty
              | ENDMARKER;
 statements: statement
           | statements statement;
-statement: simple_stmts;
+statement: simple_stmts
+         | compound_stmt;
 simple_stmts: semi_simple_stmts.rep semi.opt nl_OR_endmarker;
 nl_OR_endmarker: NEWLINE
                | ENDMARKER;
@@ -164,38 +154,11 @@ kwarg_or_double_starred: NAME EQUAL expression
 genexp: LPAR ass_expr_OR_expr for_if_clauses RPAR;
 ass_expr_OR_expr: assignment_expression
                 | expression // !':='
-assignment_expression: NAME COLONEQUAL // TILDE 
-slices: slice
-      |  comma_slice_OR_starred_expr.rep comma.opt;
-comma_slice_OR_starred_expr.rep: slice_OR_starred_expr
-                               | comma_slice_OR_starred_expr.rep COMMA slice_OR_starred_expr;
-slice_OR_starred_expr: slice
-                     | starred_expression;
-slice: expression.opt COLON expression.opt colon_expression.opt;
-starred_expression: STAR expression;
-for_if_clauses: for_if_clause.rep;
-for_if_clause.rep: for_if_clause
-                 | for_if_clause.rep for_if_clause;
-for_if_clause: ASYNC FOR star_targets IN disjunction if_disjunction.rep;
-star_targets: star_target // !','
-            | star_target comma_star_target.rep comma.opt;
-comma_star_target.rep: %empty
-                     | comma_star_target.rep COMMA star_target;
-star_target: target_with_star_atom;
-target_with_star_atom: t_primary DOT NAME // !t_lookahead
-                     | t_primary LSQB slices RSQB // !t_lookahead
-if_disjunction.rep: %empty
-                  | if_disjunction.rep IF disjunction;
-expression.opt: %empty
-              | expression;
-colon_expression.opt: %empty
-                    | COLON expression.opt;
-
-equal_annotated_rhs.opt: %empty
-                       | EQUAL annotated_rhs;
-annotated_rhs: yield_expr | star_expressions;
+assignment_expression: NAME COLONEQUAL TILDE expression
+                     | NAME COLONEQUAL expression
+                     | yield_expr;
 yield_expr: YIELD FROM expression
-          | YIELD star_expressions.opt
+          | YIELD star_expressions.opt;
 return_stmt: RETURN star_expressions.opt;
 star_expressions.opt: %empty
                     | star_expressions;
@@ -282,65 +245,19 @@ await_primary: AWAIT primary
 primary: primary DOT NAME
        | atom;
 
-
-statement: compound_stmt
-         | simple_stmts;
-
-statement_newline: compound_stmt NEWLINE
-                 | simple_stmts
-                 | NEWLINE
-                 | ENDMARKER;
-
-simple_stmt: assignment
-           | star_expressions
-           | return_stmt
-           | imprt_stmnt
-           | raise_stmt
-           | PASS
-           | del_stmt
-           | yield_stmt
-           | assert_stmt
-           | BREAK
-           | CONTINUE
-           | global_stmt
-           | nonlocal_stmt;
-
-compound_stmt: FUNCDEF
-              | IF
-              | CLASSDEF
-              | WITH
-              | FOR
-              | TRY
-              | WHILE
-              | MATCH;
-
-import_stmt: IMPORT dotted_as_names
-           | FROM dotted_name IMPORT STAR
-           | FROM dotted_name IMPORT LPAREN import_as_names RPAREN
-           | FROM dotted_name IMPORT import_as_names
-;
-
-test: or_test
-    | or_test IF or_test ELSE test;
-
-or_test: and_test
-       | and_test OR or_test;
-
-and_test: not_test
-        | not_test AND not_test;
-
-not_test: NOT not_test
-        | comparison;
-
-comparison: expr
-          | expr comp_op expr;
-
-comp_op: LESS
-       | GREATER
-       | EQEQUAL
-       | GREATEREQUAL
-       | LESSEQUAL
-       | NOTEQUAL
-
-
-
+// Compound statements
+// -------------------
+compound_stmt: if_stmt
+             | while_stmt
+             | for_stmt
+             | funcdef
+             | classdef;
+if_stmt: IF expression COLON suite elif_blocks.opt else_block.opt;
+elif_blocks.opt: %empty
+                | elif_blocks;
+else_block.opt: %empty
+              | ELSE COLON suite;
+elif_blocks: ELIF expression COLON suite elif_blocks.opt;
+while_stmt: WHILE expression COLON suite else_block.opt;
+for_stmt: FOR star_targets IN disjunction COLON suite else_block.opt;
+suite: NEWLINE INDENT statements DEDENT;
