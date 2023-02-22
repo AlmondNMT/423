@@ -250,8 +250,8 @@ primary: primary DOT NAME
 compound_stmt: if_stmt
              | while_stmt
              | for_stmt
-             | funcdef
-             | classdef;
+             | FUNCDEF
+             | CLASSDEF;
 if_stmt: IF expression COLON suite elif_blocks.opt else_block.opt;
 elif_blocks.opt: %empty
                 | elif_blocks;
