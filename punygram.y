@@ -1,14 +1,3 @@
-%{
-    #include <stdio.h>
-    extern int yylex();
-    extern int yyerror(char *);
-    extern char *yytext;
-%}
-
-%union {
-    struct tree *treeptr;
-}
-
 %token <treeptr> FLOATLIT
 %token <treeptr> ENDMARKER
 %token <treeptr> NAME
@@ -106,6 +95,10 @@
 %token <treeptr> COMMENT
 %token <treeptr> ENCODING
 %token <treeptr> EMPTY
+%token <treeptr> MATCH
+%token <treeptr> FUNCDEF
+%token <treeptr> CLASSDEF
+%token <treeptr> ASSIGNMENT
 
 %start file_input
 
@@ -118,10 +111,9 @@ endmarker.opt: %empty
              | ENDMARKER;
 statements: statement
           | statements statement;
-statement: simple_stmts 
+statement: simple_stmts
          | compound_stmt;
-simple_stmts: semi_simple_stmts.rep semi.opt nl_OR_endmarker
-            | NEWLINE;
+simple_stmts: semi_simple_stmts.rep semi.opt nl_OR_endmarker;
 nl_OR_endmarker: NEWLINE
                | ENDMARKER;
 semi.opt: %empty
@@ -162,38 +154,11 @@ kwarg_or_double_starred: NAME EQUAL expression
 genexp: LPAR ass_expr_OR_expr for_if_clauses RPAR;
 ass_expr_OR_expr: assignment_expression
                 | expression // !':='
-assignment_expression: NAME COLONEQUAL // TILDE 
-slices: slice
-      |  comma_slice_OR_starred_expr.rep comma.opt;
-comma_slice_OR_starred_expr.rep: slice_OR_starred_expr
-                               | comma_slice_OR_starred_expr.rep COMMA slice_OR_starred_expr;
-slice_OR_starred_expr: slice
-                     | starred_expression;
-slice: expression.opt COLON expression.opt colon_expression.opt;
-starred_expression: STAR expression;
-for_if_clauses: for_if_clause.rep;
-for_if_clause.rep: for_if_clause
-                 | for_if_clause.rep for_if_clause;
-for_if_clause: ASYNC FOR star_targets IN disjunction if_disjunction.rep;
-star_targets: star_target // !','
-            | star_target comma_star_target.rep comma.opt;
-comma_star_target.rep: %empty
-                     | comma_star_target.rep COMMA star_target;
-star_target: target_with_star_atom;
-target_with_star_atom: t_primary DOT NAME // !t_lookahead
-                     | t_primary LSQB slices RSQB // !t_lookahead
-if_disjunction.rep: %empty
-                  | if_disjunction.rep IF disjunction;
-expression.opt: %empty
-              | expression;
-colon_expression.opt: %empty
-                    | COLON expression.opt;
-
-equal_annotated_rhs.opt: %empty
-                       | EQUAL annotated_rhs;
-annotated_rhs: yield_expr | star_expressions;
+assignment_expression: NAME COLONEQUAL TILDE expression
+                     | NAME COLONEQUAL expression
+                     | yield_expr;
 yield_expr: YIELD FROM expression
-          | YIELD star_expressions.opt
+          | YIELD star_expressions.opt;
 return_stmt: RETURN star_expressions.opt;
 star_expressions.opt: %empty
                     | star_expressions;
@@ -205,17 +170,7 @@ comma_star_expr.rep: COMMA star_expression
 star_expression: STAR bitwise_or
                | expression;
 expression: disjunction IF disjunction ELSE expression
-          | disjunction
-          | lambdef;
-
-// Lambda functions
-// ---------------
-lambdef: LAMBDA lambda_params.opt COLON expression;
-lambda_params.opt: %empty
-                 | lambda_params comma.opt;
-lambda_params: NAME 
-             | lambda_params COMMA NAME;
-//
+          | disjunction;
 
 disjunction: conjunction or_conjunction.rep
            | conjunction;
@@ -280,67 +235,19 @@ await_primary: AWAIT primary
 primary: primary DOT NAME
        | atom;
 
+// Compound statements
+// -------------------
 compound_stmt: if_stmt
              | while_stmt
              | for_stmt
-             | try_stmt
-             | with_stmt
-             | match_stmt
-             | funcdef
-             | classdef
-             | async_with_stmt
-             | async_for_stmt
-             | async_funcdef
-
-suite: stmt_list NEWLINE
-     | NEWLINE INDENT statement_list DEDENT
-
-statement: stmt_list NEWLINE
-         | compound_stmt
-
-stmt_list: simple_stmt
-         | simple_stmt ';' stmt_list
-         | simple_stmt ';'
-         
-if_stmt: IF test ':' suite elif_clause else_clause
-
-elif_clause: ELIF test ':' suite
-           | elif_clause ELIF test ':' suite
-
-else_clause: ELSE ':' suite
-            | empty
-
-while_stmt: WHILE test ':' suite
-
-for_stmt: FOR exprlist IN testlist ':' suite
-
-try_stmt: TRY ':' suite (except_clause ':' suite)+ ['else' ':' suite] ['finally' ':' suite]
-
-with_stmt: WITH with_item (',' with_item)*  ':' suite
-
-with_item: test ['as' expr]
-
-match_stmt: MATCH test ':' '{' (match_case ':' suite)+ '}'
-
-match_case: pattern ['if' test]
-
-funcdef: DEF NAME parameters ':' suite
-
-parameters: '(' [typedargslist] ')'
-
-typedargslist: typedarg (',' typedarg)* [',' [VAR_POSITIONAL '=' test] [',' [KEYWORD_ONLY '=' test] [',' VAR_KEYWORD '=' test]]]
-
-typedarg: NAME [':' test]
-
-classdef: CLASS NAME ['(' [arglist] ')'] ':' suite
-
-arglist: argument (',' argument)*  [',']
-
-argument: (test [comp_for]) | (test '=' test)
-
-async_with_stmt: ASYNC_WITH with_item (',' with_item)* ':' suite
-
-async_for_stmt: ASYNC_FOR exprlist IN testlist ':' suite
-
-async_funcdef: ASYNC_DEF NAME parameters ':' suite
-
+             | FUNCDEF
+             | CLASSDEF;
+if_stmt: IF expression COLON suite elif_blocks.opt else_block.opt;
+elif_blocks.opt: %empty
+                | elif_blocks;
+else_block.opt: %empty
+              | ELSE COLON suite;
+elif_blocks: ELIF expression COLON suite elif_blocks.opt;
+while_stmt: WHILE expression COLON suite else_block.opt;
+for_stmt: FOR star_targets IN disjunction COLON suite else_block.opt;
+suite: NEWLINE INDENT statements DEDENT;
