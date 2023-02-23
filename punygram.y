@@ -99,6 +99,7 @@
 %token <treeptr> FUNCDEF
 %token <treeptr> CLASSDEF
 %token <treeptr> ASSIGNMENT
+%token <treeptr> DECORATOR
 
 %start file_input
 
@@ -252,12 +253,72 @@ compound_stmt: if_stmt
              | for_stmt
              | FUNCDEF
              | CLASSDEF;
-if_stmt: IF expression COLON suite elif_blocks.opt else_block.opt;
-elif_blocks.opt: %empty
-                | elif_blocks;
-else_block.opt: %empty
-              | ELSE COLON suite;
-elif_blocks: ELIF expression COLON suite elif_blocks.opt;
-while_stmt: WHILE expression COLON suite else_block.opt;
-for_stmt: FOR star_targets IN disjunction COLON suite else_block.opt;
-suite: NEWLINE INDENT statements DEDENT;
+
+CLASSDEF:
+    | DECORATOR CLASSDEFRAW 
+    | CLASSDEFRAW
+    ;
+
+CLASSDEFRAW:
+    | 'class' NAME '(' arguments ')' COLON block 
+    ;
+
+FUNCDEF:
+    | decorators FUNCDEFRAW 
+    | FUNCDEFRAW
+    ;
+
+FUNCDEFRAW:
+    | 'def' NAME '(' params ')' ARROW expression COLON func_type_comment block 
+    | ASYNC 'def' NAME '(' params ')' ARROW expression COLON func_type_comment block 
+    ;
+
+decorators:
+    | DECORATOR
+    | decorators DECORATOR
+    ;
+
+arguments:
+    | params
+    | 
+    ;
+
+block:
+    | LBRACE RBRACE
+    | LBRACE statements RBRACE
+    ;
+
+statements:
+    | statement
+    | statements statement
+    ;
+
+statement:
+    | block
+    | expression_statement
+    | if_statement
+    | for_statement
+    | while_statement
+    | return_statement
+    ;
+
+expression_statement:
+    | expression
+    ;
+
+if_statement:
+    | IF expression COLON block
+    | IF expression COLON block ELSE COLON block
+    ;
+
+for_statement:
+    | FOR NAME IN expression COLON block
+    ;
+
+while_statement:
+    | WHILE expression COLON block
+    ;
+
+return_statement:
+    | RETURN expression
+    ;
