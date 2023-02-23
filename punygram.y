@@ -171,17 +171,7 @@ comma_star_expr.rep: COMMA star_expression
 star_expression: STAR bitwise_or
                | expression;
 expression: disjunction IF disjunction ELSE expression
-          | disjunction
-          | lambdef;
-
-// Lambda functions
-// ---------------
-lambdef: LAMBDA lambda_params.opt COLON expression;
-lambda_params.opt: %empty
-                 | lambda_params comma.opt;
-lambda_params: NAME 
-             | lambda_params COMMA NAME;
-//
+          | disjunction;
 
 disjunction: conjunction or_conjunction.rep
            | conjunction;
