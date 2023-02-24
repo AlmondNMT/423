@@ -1,39 +1,9 @@
 Terminals unused in grammar
 
-    FLOATLIT
-    NAME
-    INTLIT
-    STRINGLIT
     INDENT
     DEDENT
-    LPAR
-    RPAR
-    LSQB
-    RSQB
-    COLON
-    COMMA
-    PLUS
-    MINUS
-    STAR
-    SLASH
-    VBAR
-    AMPER
-    LESS
-    GREATER
-    EQUAL
-    DOT
-    PERCENT
     LBRACE
     RBRACE
-    EQEQUAL
-    NOTEQUAL
-    LESSEQUAL
-    GREATEREQUAL
-    TILDE
-    CIRCUMFLEX
-    LEFTSHIFT
-    RIGHTSHIFT
-    DOUBLESTAR
     PLUSEQUAL
     MINEQUAL
     STAREQUAL
@@ -45,28 +15,20 @@ Terminals unused in grammar
     LEFTSHIFTEQUAL
     RIGHTSHIFTEQUAL
     DOUBLESTAREQUAL
-    DOUBLESLASH
     DOUBLESLASHEQUAL
     AT
     ATEQUAL
     RARROW
-    ELLIPSIS
     COLONEQUAL
     PYFALSE
     PYDEF
-    IF
     RAISE
     NONE
-    DEL
     IMPORT
     RETURN
     PYTRUE
     ELIF
-    IN
     TRY
-    AND
-    ELSE
-    IS
     WHILE
     AS
     EXCEPT
@@ -77,11 +39,8 @@ Terminals unused in grammar
     NONLOCAL
     YIELD
     BREAK
-    FOR
-    NOT
     CLASS
     FROM
-    OR
     CONTINUE
     GLOBAL
     OP
@@ -119,51 +78,213 @@ Grammar
    10         | SEMI
 
    11 small_stmt: pass_stmt
+   12           | del_stmt
 
-   12 pass_stmt: PASS
+   13 pass_stmt: PASS
+
+   14 del_stmt: DEL exprlist
+
+   15 exprlist: expr comma_expr_rep comma_opt
+
+   16 comma_expr_rep: ε
+   17               | comma_expr_rep COMMA expr
+
+   18 comma_opt: ε
+   19          | COMMA
+
+   20 expr: xor_expr vbar_xor_expr_rep
+
+   21 vbar_xor_expr_rep: ε
+   22                  | vbar_xor_expr_rep VBAR xor_expr
+
+   23 xor_expr: and_expr caret_and_expr_rep
+
+   24 caret_and_expr_rep: ε
+   25                   | caret_and_expr_rep CIRCUMFLEX and_expr
+
+   26 and_expr: shift_expr amper_shift_expr_rep
+
+   27 amper_shift_expr_rep: ε
+   28                     | amper_shift_expr_rep AMPER shift_expr
+
+   29 shift_expr: arith_expr shift_arith_expr_rep
+
+   30 shift_arith_expr_rep: ε
+   31                     | shift_arith_expr_rep shift arith_expr
+
+   32 shift: LEFTSHIFT
+   33      | RIGHTSHIFT
+
+   34 arith_expr: term pm_term_rep
+
+   35 pm_term_rep: ε
+   36            | pm_term_rep plus_OR_minus term
+
+   37 plus_OR_minus: PLUS
+   38              | MINUS
+
+   39 term: factor factops_factor_rep
+
+   40 factops_factor_rep: ε
+   41                   | factops_factor_rep factops factor
+
+   42 factops: STAR
+   43        | SLASH
+   44        | PERCENT
+   45        | DOUBLESLASH
+
+   46 factor: pmt factor
+   47       | power
+
+   48 pmt: PLUS
+   49    | MINUS
+   50    | TILDE
+
+   51 power: atom trailer_rep dstar_factor_opt
+
+   52 trailer_rep: ε
+   53            | trailer_rep trailer
+
+   54 trailer: LPAR arglist_opt RPAR
+   55        | LSQB subscriptlist RSQB
+   56        | DOT NAME
+
+   57 arglist_opt: ε
+   58            | arglist
+
+   59 arglist: arg_comma_rep arg_ORS
+
+   60 arg_comma_rep: ε
+   61              | arg_comma_rep argument COMMA
+
+   62 arg_ORS: argument comma_opt
+   63        | STAR test comma_arg_rep comma_dstar_test_opt
+   64        | DOUBLESTAR test
+
+   65 comma_arg_rep: ε
+   66              | comma_arg_rep COMMA argument
+
+   67 comma_dstar_test_opt: ε
+   68                     | COMMA DOUBLESTAR test
+
+   69 argument: test comp_for_opt
+   70         | test EQUAL test
+
+   71 comp_for_opt: ε
+   72             | comp_for
+
+   73 comp_for: FOR exprlist IN or_test comp_iter_opt
+
+   74 comp_iter_opt: ε
+   75              | comp_iter
+
+   76 comp_iter: comp_for
+
+   77 subscriptlist: subscript comma_subscript_rep comma_opt
+
+   78 comma_subscript_rep: ε
+   79                    | comma_subscript_rep COMMA subscript
+
+   80 subscript: ELLIPSIS
+   81          | test
+   82          | test_opt COLON test_opt sliceop_opt
+
+   83 sliceop_opt: ε
+   84            | sliceop
+
+   85 sliceop: COLON test_opt
+
+   86 test_opt: ε
+   87         | test
+
+   88 test: or_test if_or_test_else_test_opt
+
+   89 if_or_test_else_test_opt: ε
+   90                         | IF or_test ELSE test
+
+   91 or_test: and_test or_and_test_rep
+
+   92 or_and_test_rep: ε
+   93                | or_and_test_rep OR and_test
+
+   94 and_test: not_test and_not_test_rep
+
+   95 and_not_test_rep: ε
+   96                 | and_not_test_rep AND not_test
+
+   97 not_test: NOT not_test
+   98         | comparison
+
+   99 comparison: expr comp_op_expr_rep
+
+  100 comp_op_expr_rep: ε
+  101                 | comp_op_expr_rep comp_op expr
+
+  102 comp_op: LESS
+  103        | GREATER
+  104        | EQEQUAL
+  105        | GREATEREQUAL
+  106        | LESSEQUAL
+  107        | NOTEQUAL
+  108        | IN
+  109        | not_in
+  110        | IS
+  111        | is_not
+
+  112 not_in: NOT IN
+
+  113 is_not: IS NOT
+
+  114 dstar_factor_opt: ε
+  115                 | DOUBLESTAR factor
+
+  116 atom: NAME
+  117     | INTLIT
+  118     | FLOATLIT
+  119     | STRINGLIT
 
 
 Terminals, with rules where they appear
 
     $end (0) 0
     error (256)
-    FLOATLIT <treeptr> (258)
+    FLOATLIT <treeptr> (258) 118
     ENDMARKER <treeptr> (259) 1
-    NAME <treeptr> (260)
-    INTLIT <treeptr> (261)
-    STRINGLIT <treeptr> (262)
+    NAME <treeptr> (260) 56 116
+    INTLIT <treeptr> (261) 117
+    STRINGLIT <treeptr> (262) 119
     NEWLINE <treeptr> (263) 3 6
     INDENT <treeptr> (264)
     DEDENT <treeptr> (265)
-    LPAR <treeptr> (266)
-    RPAR <treeptr> (267)
-    LSQB <treeptr> (268)
-    RSQB <treeptr> (269)
-    COLON <treeptr> (270)
-    COMMA <treeptr> (271)
+    LPAR <treeptr> (266) 54
+    RPAR <treeptr> (267) 54
+    LSQB <treeptr> (268) 55
+    RSQB <treeptr> (269) 55
+    COLON <treeptr> (270) 82 85
+    COMMA <treeptr> (271) 17 19 61 66 68 79
     SEMI <treeptr> (272) 8 10
-    PLUS <treeptr> (273)
-    MINUS <treeptr> (274)
-    STAR <treeptr> (275)
-    SLASH <treeptr> (276)
-    VBAR <treeptr> (277)
-    AMPER <treeptr> (278)
-    LESS <treeptr> (279)
-    GREATER <treeptr> (280)
-    EQUAL <treeptr> (281)
-    DOT <treeptr> (282)
-    PERCENT <treeptr> (283)
+    PLUS <treeptr> (273) 37 48
+    MINUS <treeptr> (274) 38 49
+    STAR <treeptr> (275) 42 63
+    SLASH <treeptr> (276) 43
+    VBAR <treeptr> (277) 22
+    AMPER <treeptr> (278) 28
+    LESS <treeptr> (279) 102
+    GREATER <treeptr> (280) 103
+    EQUAL <treeptr> (281) 70
+    DOT <treeptr> (282) 56
+    PERCENT <treeptr> (283) 44
     LBRACE <treeptr> (284)
     RBRACE <treeptr> (285)
-    EQEQUAL <treeptr> (286)
-    NOTEQUAL <treeptr> (287)
-    LESSEQUAL <treeptr> (288)
-    GREATEREQUAL <treeptr> (289)
-    TILDE <treeptr> (290)
-    CIRCUMFLEX <treeptr> (291)
-    LEFTSHIFT <treeptr> (292)
-    RIGHTSHIFT <treeptr> (293)
-    DOUBLESTAR <treeptr> (294)
+    EQEQUAL <treeptr> (286) 104
+    NOTEQUAL <treeptr> (287) 107
+    LESSEQUAL <treeptr> (288) 106
+    GREATEREQUAL <treeptr> (289) 105
+    TILDE <treeptr> (290) 50
+    CIRCUMFLEX <treeptr> (291) 25
+    LEFTSHIFT <treeptr> (292) 32
+    RIGHTSHIFT <treeptr> (293) 33
+    DOUBLESTAR <treeptr> (294) 64 68 115
     PLUSEQUAL <treeptr> (295)
     MINEQUAL <treeptr> (296)
     STAREQUAL <treeptr> (297)
@@ -175,28 +296,28 @@ Terminals, with rules where they appear
     LEFTSHIFTEQUAL <treeptr> (303)
     RIGHTSHIFTEQUAL <treeptr> (304)
     DOUBLESTAREQUAL <treeptr> (305)
-    DOUBLESLASH <treeptr> (306)
+    DOUBLESLASH <treeptr> (306) 45
     DOUBLESLASHEQUAL <treeptr> (307)
     AT <treeptr> (308)
     ATEQUAL <treeptr> (309)
     RARROW <treeptr> (310)
-    ELLIPSIS <treeptr> (311)
+    ELLIPSIS <treeptr> (311) 80
     COLONEQUAL <treeptr> (312)
     PYFALSE <treeptr> (313)
     PYDEF <treeptr> (314)
-    IF <treeptr> (315)
+    IF <treeptr> (315) 90
     RAISE <treeptr> (316)
     NONE <treeptr> (317)
-    DEL <treeptr> (318)
+    DEL <treeptr> (318) 14
     IMPORT <treeptr> (319)
     RETURN <treeptr> (320)
     PYTRUE <treeptr> (321)
     ELIF <treeptr> (322)
-    IN <treeptr> (323)
+    IN <treeptr> (323) 73 108 112
     TRY <treeptr> (324)
-    AND <treeptr> (325)
-    ELSE <treeptr> (326)
-    IS <treeptr> (327)
+    AND <treeptr> (325) 96
+    ELSE <treeptr> (326) 90
+    IS <treeptr> (327) 110 113
     WHILE <treeptr> (328)
     AS <treeptr> (329)
     EXCEPT <treeptr> (330)
@@ -207,14 +328,14 @@ Terminals, with rules where they appear
     NONLOCAL <treeptr> (335)
     YIELD <treeptr> (336)
     BREAK <treeptr> (337)
-    FOR <treeptr> (338)
-    NOT <treeptr> (339)
+    FOR <treeptr> (338) 73
+    NOT <treeptr> (339) 97 112 113
     CLASS <treeptr> (340)
     FROM <treeptr> (341)
-    OR <treeptr> (342)
+    OR <treeptr> (342) 93
     CONTINUE <treeptr> (343)
     GLOBAL <treeptr> (344)
-    PASS <treeptr> (345) 12
+    PASS <treeptr> (345) 13
     OP <treeptr> (346)
     AWAIT <treeptr> (347)
     ASYNC <treeptr> (348)
@@ -252,11 +373,176 @@ Nonterminals, with rules where they appear
         on left: 9 10
         on right: 6
     small_stmt (110)
-        on left: 11
+        on left: 11 12
         on right: 6 8
     pass_stmt (111)
-        on left: 12
+        on left: 13
         on right: 11
+    del_stmt (112)
+        on left: 14
+        on right: 12
+    exprlist (113)
+        on left: 15
+        on right: 14 73
+    comma_expr_rep (114)
+        on left: 16 17
+        on right: 15 17
+    comma_opt (115)
+        on left: 18 19
+        on right: 15 62 77
+    expr (116)
+        on left: 20
+        on right: 15 17 99 101
+    vbar_xor_expr_rep (117)
+        on left: 21 22
+        on right: 20 22
+    xor_expr (118)
+        on left: 23
+        on right: 20 22
+    caret_and_expr_rep (119)
+        on left: 24 25
+        on right: 23 25
+    and_expr (120)
+        on left: 26
+        on right: 23 25
+    amper_shift_expr_rep (121)
+        on left: 27 28
+        on right: 26 28
+    shift_expr (122)
+        on left: 29
+        on right: 26 28
+    shift_arith_expr_rep (123)
+        on left: 30 31
+        on right: 29 31
+    shift (124)
+        on left: 32 33
+        on right: 31
+    arith_expr (125)
+        on left: 34
+        on right: 29 31
+    pm_term_rep (126)
+        on left: 35 36
+        on right: 34 36
+    plus_OR_minus (127)
+        on left: 37 38
+        on right: 36
+    term (128)
+        on left: 39
+        on right: 34 36
+    factops_factor_rep (129)
+        on left: 40 41
+        on right: 39 41
+    factops (130)
+        on left: 42 43 44 45
+        on right: 41
+    factor (131)
+        on left: 46 47
+        on right: 39 41 46 115
+    pmt (132)
+        on left: 48 49 50
+        on right: 46
+    power (133)
+        on left: 51
+        on right: 47
+    trailer_rep (134)
+        on left: 52 53
+        on right: 51 53
+    trailer (135)
+        on left: 54 55 56
+        on right: 53
+    arglist_opt (136)
+        on left: 57 58
+        on right: 54
+    arglist (137)
+        on left: 59
+        on right: 58
+    arg_comma_rep (138)
+        on left: 60 61
+        on right: 59 61
+    arg_ORS (139)
+        on left: 62 63 64
+        on right: 59
+    comma_arg_rep (140)
+        on left: 65 66
+        on right: 63 66
+    comma_dstar_test_opt (141)
+        on left: 67 68
+        on right: 63
+    argument (142)
+        on left: 69 70
+        on right: 61 62 66
+    comp_for_opt (143)
+        on left: 71 72
+        on right: 69
+    comp_for (144)
+        on left: 73
+        on right: 72 76
+    comp_iter_opt (145)
+        on left: 74 75
+        on right: 73
+    comp_iter (146)
+        on left: 76
+        on right: 75
+    subscriptlist (147)
+        on left: 77
+        on right: 55
+    comma_subscript_rep (148)
+        on left: 78 79
+        on right: 77 79
+    subscript (149)
+        on left: 80 81 82
+        on right: 77 79
+    sliceop_opt (150)
+        on left: 83 84
+        on right: 82
+    sliceop (151)
+        on left: 85
+        on right: 84
+    test_opt (152)
+        on left: 86 87
+        on right: 82 85
+    test (153)
+        on left: 88
+        on right: 63 64 68 69 70 81 87 90
+    if_or_test_else_test_opt (154)
+        on left: 89 90
+        on right: 88
+    or_test (155)
+        on left: 91
+        on right: 73 88 90
+    or_and_test_rep (156)
+        on left: 92 93
+        on right: 91 93
+    and_test (157)
+        on left: 94
+        on right: 91 93
+    and_not_test_rep (158)
+        on left: 95 96
+        on right: 94 96
+    not_test (159)
+        on left: 97 98
+        on right: 94 96 97
+    comparison (160)
+        on left: 99
+        on right: 98
+    comp_op_expr_rep (161)
+        on left: 100 101
+        on right: 99 101
+    comp_op (162)
+        on left: 102 103 104 105 106 107 108 109 110 111
+        on right: 101
+    not_in (163)
+        on left: 112
+        on right: 109
+    is_not (164)
+        on left: 113
+        on right: 111
+    dstar_factor_opt (165)
+        on left: 114 115
+        on right: 51
+    atom (166)
+        on left: 116 117 118 119
+        on right: 51
 
 
 State 0
@@ -284,12 +570,14 @@ State 2
 
     ENDMARKER  shift, and go to state 4
     NEWLINE    shift, and go to state 5
-    PASS       shift, and go to state 6
+    DEL        shift, and go to state 6
+    PASS       shift, and go to state 7
 
-    stmt         go to state 7
-    simple_stmt  go to state 8
-    small_stmt   go to state 9
-    pass_stmt    go to state 10
+    stmt         go to state 8
+    simple_stmt  go to state 9
+    small_stmt   go to state 10
+    pass_stmt    go to state 11
+    del_stmt     go to state 12
 
 
 State 3
@@ -315,82 +603,1771 @@ State 5
 
 State 6
 
-   12 pass_stmt: PASS •
+   14 del_stmt: DEL • exprlist
 
-    $default  reduce using rule 12 (pass_stmt)
+    FLOATLIT   shift, and go to state 13
+    NAME       shift, and go to state 14
+    INTLIT     shift, and go to state 15
+    STRINGLIT  shift, and go to state 16
+    PLUS       shift, and go to state 17
+    MINUS      shift, and go to state 18
+    TILDE      shift, and go to state 19
+
+    exprlist    go to state 20
+    expr        go to state 21
+    xor_expr    go to state 22
+    and_expr    go to state 23
+    shift_expr  go to state 24
+    arith_expr  go to state 25
+    term        go to state 26
+    factor      go to state 27
+    pmt         go to state 28
+    power       go to state 29
+    atom        go to state 30
 
 
 State 7
+
+   13 pass_stmt: PASS •
+
+    $default  reduce using rule 13 (pass_stmt)
+
+
+State 8
 
     4 nl_OR_stmt_rep: nl_OR_stmt_rep stmt •
 
     $default  reduce using rule 4 (nl_OR_stmt_rep)
 
 
-State 8
+State 9
 
     5 stmt: simple_stmt •
 
     $default  reduce using rule 5 (stmt)
 
 
-State 9
+State 10
 
     6 simple_stmt: small_stmt • semi_small_stmt_rep semi_opt NEWLINE
 
     $default  reduce using rule 7 (semi_small_stmt_rep)
 
-    semi_small_stmt_rep  go to state 11
+    semi_small_stmt_rep  go to state 31
 
 
-State 10
+State 11
 
    11 small_stmt: pass_stmt •
 
     $default  reduce using rule 11 (small_stmt)
 
 
-State 11
-
-    6 simple_stmt: small_stmt semi_small_stmt_rep • semi_opt NEWLINE
-    8 semi_small_stmt_rep: semi_small_stmt_rep • SEMI small_stmt
-
-    SEMI  shift, and go to state 12
-
-    $default  reduce using rule 9 (semi_opt)
-
-    semi_opt  go to state 13
-
-
 State 12
 
-    8 semi_small_stmt_rep: semi_small_stmt_rep SEMI • small_stmt
-   10 semi_opt: SEMI •
+   12 small_stmt: del_stmt •
 
-    PASS  shift, and go to state 6
-
-    $default  reduce using rule 10 (semi_opt)
-
-    small_stmt  go to state 14
-    pass_stmt   go to state 10
+    $default  reduce using rule 12 (small_stmt)
 
 
 State 13
 
-    6 simple_stmt: small_stmt semi_small_stmt_rep semi_opt • NEWLINE
+  118 atom: FLOATLIT •
 
-    NEWLINE  shift, and go to state 15
+    $default  reduce using rule 118 (atom)
 
 
 State 14
+
+  116 atom: NAME •
+
+    $default  reduce using rule 116 (atom)
+
+
+State 15
+
+  117 atom: INTLIT •
+
+    $default  reduce using rule 117 (atom)
+
+
+State 16
+
+  119 atom: STRINGLIT •
+
+    $default  reduce using rule 119 (atom)
+
+
+State 17
+
+   48 pmt: PLUS •
+
+    $default  reduce using rule 48 (pmt)
+
+
+State 18
+
+   49 pmt: MINUS •
+
+    $default  reduce using rule 49 (pmt)
+
+
+State 19
+
+   50 pmt: TILDE •
+
+    $default  reduce using rule 50 (pmt)
+
+
+State 20
+
+   14 del_stmt: DEL exprlist •
+
+    $default  reduce using rule 14 (del_stmt)
+
+
+State 21
+
+   15 exprlist: expr • comma_expr_rep comma_opt
+
+    $default  reduce using rule 16 (comma_expr_rep)
+
+    comma_expr_rep  go to state 32
+
+
+State 22
+
+   20 expr: xor_expr • vbar_xor_expr_rep
+
+    $default  reduce using rule 21 (vbar_xor_expr_rep)
+
+    vbar_xor_expr_rep  go to state 33
+
+
+State 23
+
+   23 xor_expr: and_expr • caret_and_expr_rep
+
+    $default  reduce using rule 24 (caret_and_expr_rep)
+
+    caret_and_expr_rep  go to state 34
+
+
+State 24
+
+   26 and_expr: shift_expr • amper_shift_expr_rep
+
+    $default  reduce using rule 27 (amper_shift_expr_rep)
+
+    amper_shift_expr_rep  go to state 35
+
+
+State 25
+
+   29 shift_expr: arith_expr • shift_arith_expr_rep
+
+    $default  reduce using rule 30 (shift_arith_expr_rep)
+
+    shift_arith_expr_rep  go to state 36
+
+
+State 26
+
+   34 arith_expr: term • pm_term_rep
+
+    $default  reduce using rule 35 (pm_term_rep)
+
+    pm_term_rep  go to state 37
+
+
+State 27
+
+   39 term: factor • factops_factor_rep
+
+    $default  reduce using rule 40 (factops_factor_rep)
+
+    factops_factor_rep  go to state 38
+
+
+State 28
+
+   46 factor: pmt • factor
+
+    FLOATLIT   shift, and go to state 13
+    NAME       shift, and go to state 14
+    INTLIT     shift, and go to state 15
+    STRINGLIT  shift, and go to state 16
+    PLUS       shift, and go to state 17
+    MINUS      shift, and go to state 18
+    TILDE      shift, and go to state 19
+
+    factor  go to state 39
+    pmt     go to state 28
+    power   go to state 29
+    atom    go to state 30
+
+
+State 29
+
+   47 factor: power •
+
+    $default  reduce using rule 47 (factor)
+
+
+State 30
+
+   51 power: atom • trailer_rep dstar_factor_opt
+
+    $default  reduce using rule 52 (trailer_rep)
+
+    trailer_rep  go to state 40
+
+
+State 31
+
+    6 simple_stmt: small_stmt semi_small_stmt_rep • semi_opt NEWLINE
+    8 semi_small_stmt_rep: semi_small_stmt_rep • SEMI small_stmt
+
+    SEMI  shift, and go to state 41
+
+    $default  reduce using rule 9 (semi_opt)
+
+    semi_opt  go to state 42
+
+
+State 32
+
+   15 exprlist: expr comma_expr_rep • comma_opt
+   17 comma_expr_rep: comma_expr_rep • COMMA expr
+
+    COMMA  shift, and go to state 43
+
+    $default  reduce using rule 18 (comma_opt)
+
+    comma_opt  go to state 44
+
+
+State 33
+
+   20 expr: xor_expr vbar_xor_expr_rep •
+   22 vbar_xor_expr_rep: vbar_xor_expr_rep • VBAR xor_expr
+
+    VBAR  shift, and go to state 45
+
+    $default  reduce using rule 20 (expr)
+
+
+State 34
+
+   23 xor_expr: and_expr caret_and_expr_rep •
+   25 caret_and_expr_rep: caret_and_expr_rep • CIRCUMFLEX and_expr
+
+    CIRCUMFLEX  shift, and go to state 46
+
+    $default  reduce using rule 23 (xor_expr)
+
+
+State 35
+
+   26 and_expr: shift_expr amper_shift_expr_rep •
+   28 amper_shift_expr_rep: amper_shift_expr_rep • AMPER shift_expr
+
+    AMPER  shift, and go to state 47
+
+    $default  reduce using rule 26 (and_expr)
+
+
+State 36
+
+   29 shift_expr: arith_expr shift_arith_expr_rep •
+   31 shift_arith_expr_rep: shift_arith_expr_rep • shift arith_expr
+
+    LEFTSHIFT   shift, and go to state 48
+    RIGHTSHIFT  shift, and go to state 49
+
+    $default  reduce using rule 29 (shift_expr)
+
+    shift  go to state 50
+
+
+State 37
+
+   34 arith_expr: term pm_term_rep •
+   36 pm_term_rep: pm_term_rep • plus_OR_minus term
+
+    PLUS   shift, and go to state 51
+    MINUS  shift, and go to state 52
+
+    $default  reduce using rule 34 (arith_expr)
+
+    plus_OR_minus  go to state 53
+
+
+State 38
+
+   39 term: factor factops_factor_rep •
+   41 factops_factor_rep: factops_factor_rep • factops factor
+
+    STAR         shift, and go to state 54
+    SLASH        shift, and go to state 55
+    PERCENT      shift, and go to state 56
+    DOUBLESLASH  shift, and go to state 57
+
+    $default  reduce using rule 39 (term)
+
+    factops  go to state 58
+
+
+State 39
+
+   46 factor: pmt factor •
+
+    $default  reduce using rule 46 (factor)
+
+
+State 40
+
+   51 power: atom trailer_rep • dstar_factor_opt
+   53 trailer_rep: trailer_rep • trailer
+
+    LPAR        shift, and go to state 59
+    LSQB        shift, and go to state 60
+    DOT         shift, and go to state 61
+    DOUBLESTAR  shift, and go to state 62
+
+    $default  reduce using rule 114 (dstar_factor_opt)
+
+    trailer           go to state 63
+    dstar_factor_opt  go to state 64
+
+
+State 41
+
+    8 semi_small_stmt_rep: semi_small_stmt_rep SEMI • small_stmt
+   10 semi_opt: SEMI •
+
+    DEL   shift, and go to state 6
+    PASS  shift, and go to state 7
+
+    $default  reduce using rule 10 (semi_opt)
+
+    small_stmt  go to state 65
+    pass_stmt   go to state 11
+    del_stmt    go to state 12
+
+
+State 42
+
+    6 simple_stmt: small_stmt semi_small_stmt_rep semi_opt • NEWLINE
+
+    NEWLINE  shift, and go to state 66
+
+
+State 43
+
+   17 comma_expr_rep: comma_expr_rep COMMA • expr
+   19 comma_opt: COMMA •
+
+    FLOATLIT   shift, and go to state 13
+    NAME       shift, and go to state 14
+    INTLIT     shift, and go to state 15
+    STRINGLIT  shift, and go to state 16
+    PLUS       shift, and go to state 17
+    MINUS      shift, and go to state 18
+    TILDE      shift, and go to state 19
+
+    $default  reduce using rule 19 (comma_opt)
+
+    expr        go to state 67
+    xor_expr    go to state 22
+    and_expr    go to state 23
+    shift_expr  go to state 24
+    arith_expr  go to state 25
+    term        go to state 26
+    factor      go to state 27
+    pmt         go to state 28
+    power       go to state 29
+    atom        go to state 30
+
+
+State 44
+
+   15 exprlist: expr comma_expr_rep comma_opt •
+
+    $default  reduce using rule 15 (exprlist)
+
+
+State 45
+
+   22 vbar_xor_expr_rep: vbar_xor_expr_rep VBAR • xor_expr
+
+    FLOATLIT   shift, and go to state 13
+    NAME       shift, and go to state 14
+    INTLIT     shift, and go to state 15
+    STRINGLIT  shift, and go to state 16
+    PLUS       shift, and go to state 17
+    MINUS      shift, and go to state 18
+    TILDE      shift, and go to state 19
+
+    xor_expr    go to state 68
+    and_expr    go to state 23
+    shift_expr  go to state 24
+    arith_expr  go to state 25
+    term        go to state 26
+    factor      go to state 27
+    pmt         go to state 28
+    power       go to state 29
+    atom        go to state 30
+
+
+State 46
+
+   25 caret_and_expr_rep: caret_and_expr_rep CIRCUMFLEX • and_expr
+
+    FLOATLIT   shift, and go to state 13
+    NAME       shift, and go to state 14
+    INTLIT     shift, and go to state 15
+    STRINGLIT  shift, and go to state 16
+    PLUS       shift, and go to state 17
+    MINUS      shift, and go to state 18
+    TILDE      shift, and go to state 19
+
+    and_expr    go to state 69
+    shift_expr  go to state 24
+    arith_expr  go to state 25
+    term        go to state 26
+    factor      go to state 27
+    pmt         go to state 28
+    power       go to state 29
+    atom        go to state 30
+
+
+State 47
+
+   28 amper_shift_expr_rep: amper_shift_expr_rep AMPER • shift_expr
+
+    FLOATLIT   shift, and go to state 13
+    NAME       shift, and go to state 14
+    INTLIT     shift, and go to state 15
+    STRINGLIT  shift, and go to state 16
+    PLUS       shift, and go to state 17
+    MINUS      shift, and go to state 18
+    TILDE      shift, and go to state 19
+
+    shift_expr  go to state 70
+    arith_expr  go to state 25
+    term        go to state 26
+    factor      go to state 27
+    pmt         go to state 28
+    power       go to state 29
+    atom        go to state 30
+
+
+State 48
+
+   32 shift: LEFTSHIFT •
+
+    $default  reduce using rule 32 (shift)
+
+
+State 49
+
+   33 shift: RIGHTSHIFT •
+
+    $default  reduce using rule 33 (shift)
+
+
+State 50
+
+   31 shift_arith_expr_rep: shift_arith_expr_rep shift • arith_expr
+
+    FLOATLIT   shift, and go to state 13
+    NAME       shift, and go to state 14
+    INTLIT     shift, and go to state 15
+    STRINGLIT  shift, and go to state 16
+    PLUS       shift, and go to state 17
+    MINUS      shift, and go to state 18
+    TILDE      shift, and go to state 19
+
+    arith_expr  go to state 71
+    term        go to state 26
+    factor      go to state 27
+    pmt         go to state 28
+    power       go to state 29
+    atom        go to state 30
+
+
+State 51
+
+   37 plus_OR_minus: PLUS •
+
+    $default  reduce using rule 37 (plus_OR_minus)
+
+
+State 52
+
+   38 plus_OR_minus: MINUS •
+
+    $default  reduce using rule 38 (plus_OR_minus)
+
+
+State 53
+
+   36 pm_term_rep: pm_term_rep plus_OR_minus • term
+
+    FLOATLIT   shift, and go to state 13
+    NAME       shift, and go to state 14
+    INTLIT     shift, and go to state 15
+    STRINGLIT  shift, and go to state 16
+    PLUS       shift, and go to state 17
+    MINUS      shift, and go to state 18
+    TILDE      shift, and go to state 19
+
+    term    go to state 72
+    factor  go to state 27
+    pmt     go to state 28
+    power   go to state 29
+    atom    go to state 30
+
+
+State 54
+
+   42 factops: STAR •
+
+    $default  reduce using rule 42 (factops)
+
+
+State 55
+
+   43 factops: SLASH •
+
+    $default  reduce using rule 43 (factops)
+
+
+State 56
+
+   44 factops: PERCENT •
+
+    $default  reduce using rule 44 (factops)
+
+
+State 57
+
+   45 factops: DOUBLESLASH •
+
+    $default  reduce using rule 45 (factops)
+
+
+State 58
+
+   41 factops_factor_rep: factops_factor_rep factops • factor
+
+    FLOATLIT   shift, and go to state 13
+    NAME       shift, and go to state 14
+    INTLIT     shift, and go to state 15
+    STRINGLIT  shift, and go to state 16
+    PLUS       shift, and go to state 17
+    MINUS      shift, and go to state 18
+    TILDE      shift, and go to state 19
+
+    factor  go to state 73
+    pmt     go to state 28
+    power   go to state 29
+    atom    go to state 30
+
+
+State 59
+
+   54 trailer: LPAR • arglist_opt RPAR
+
+    RPAR      reduce using rule 57 (arglist_opt)
+    $default  reduce using rule 60 (arg_comma_rep)
+
+    arglist_opt    go to state 74
+    arglist        go to state 75
+    arg_comma_rep  go to state 76
+
+
+State 60
+
+   55 trailer: LSQB • subscriptlist RSQB
+
+    FLOATLIT   shift, and go to state 13
+    NAME       shift, and go to state 14
+    INTLIT     shift, and go to state 15
+    STRINGLIT  shift, and go to state 16
+    PLUS       shift, and go to state 17
+    MINUS      shift, and go to state 18
+    TILDE      shift, and go to state 19
+    ELLIPSIS   shift, and go to state 77
+    NOT        shift, and go to state 78
+
+    $default  reduce using rule 86 (test_opt)
+
+    expr           go to state 79
+    xor_expr       go to state 22
+    and_expr       go to state 23
+    shift_expr     go to state 24
+    arith_expr     go to state 25
+    term           go to state 26
+    factor         go to state 27
+    pmt            go to state 28
+    power          go to state 29
+    subscriptlist  go to state 80
+    subscript      go to state 81
+    test_opt       go to state 82
+    test           go to state 83
+    or_test        go to state 84
+    and_test       go to state 85
+    not_test       go to state 86
+    comparison     go to state 87
+    atom           go to state 30
+
+
+State 61
+
+   56 trailer: DOT • NAME
+
+    NAME  shift, and go to state 88
+
+
+State 62
+
+  115 dstar_factor_opt: DOUBLESTAR • factor
+
+    FLOATLIT   shift, and go to state 13
+    NAME       shift, and go to state 14
+    INTLIT     shift, and go to state 15
+    STRINGLIT  shift, and go to state 16
+    PLUS       shift, and go to state 17
+    MINUS      shift, and go to state 18
+    TILDE      shift, and go to state 19
+
+    factor  go to state 89
+    pmt     go to state 28
+    power   go to state 29
+    atom    go to state 30
+
+
+State 63
+
+   53 trailer_rep: trailer_rep trailer •
+
+    $default  reduce using rule 53 (trailer_rep)
+
+
+State 64
+
+   51 power: atom trailer_rep dstar_factor_opt •
+
+    $default  reduce using rule 51 (power)
+
+
+State 65
 
     8 semi_small_stmt_rep: semi_small_stmt_rep SEMI small_stmt •
 
     $default  reduce using rule 8 (semi_small_stmt_rep)
 
 
-State 15
+State 66
 
     6 simple_stmt: small_stmt semi_small_stmt_rep semi_opt NEWLINE •
 
     $default  reduce using rule 6 (simple_stmt)
+
+
+State 67
+
+   17 comma_expr_rep: comma_expr_rep COMMA expr •
+
+    $default  reduce using rule 17 (comma_expr_rep)
+
+
+State 68
+
+   22 vbar_xor_expr_rep: vbar_xor_expr_rep VBAR xor_expr •
+
+    $default  reduce using rule 22 (vbar_xor_expr_rep)
+
+
+State 69
+
+   25 caret_and_expr_rep: caret_and_expr_rep CIRCUMFLEX and_expr •
+
+    $default  reduce using rule 25 (caret_and_expr_rep)
+
+
+State 70
+
+   28 amper_shift_expr_rep: amper_shift_expr_rep AMPER shift_expr •
+
+    $default  reduce using rule 28 (amper_shift_expr_rep)
+
+
+State 71
+
+   31 shift_arith_expr_rep: shift_arith_expr_rep shift arith_expr •
+
+    $default  reduce using rule 31 (shift_arith_expr_rep)
+
+
+State 72
+
+   36 pm_term_rep: pm_term_rep plus_OR_minus term •
+
+    $default  reduce using rule 36 (pm_term_rep)
+
+
+State 73
+
+   41 factops_factor_rep: factops_factor_rep factops factor •
+
+    $default  reduce using rule 41 (factops_factor_rep)
+
+
+State 74
+
+   54 trailer: LPAR arglist_opt • RPAR
+
+    RPAR  shift, and go to state 90
+
+
+State 75
+
+   58 arglist_opt: arglist •
+
+    $default  reduce using rule 58 (arglist_opt)
+
+
+State 76
+
+   59 arglist: arg_comma_rep • arg_ORS
+   61 arg_comma_rep: arg_comma_rep • argument COMMA
+
+    FLOATLIT    shift, and go to state 13
+    NAME        shift, and go to state 14
+    INTLIT      shift, and go to state 15
+    STRINGLIT   shift, and go to state 16
+    PLUS        shift, and go to state 17
+    MINUS       shift, and go to state 18
+    STAR        shift, and go to state 91
+    TILDE       shift, and go to state 19
+    DOUBLESTAR  shift, and go to state 92
+    NOT         shift, and go to state 78
+
+    expr        go to state 79
+    xor_expr    go to state 22
+    and_expr    go to state 23
+    shift_expr  go to state 24
+    arith_expr  go to state 25
+    term        go to state 26
+    factor      go to state 27
+    pmt         go to state 28
+    power       go to state 29
+    arg_ORS     go to state 93
+    argument    go to state 94
+    test        go to state 95
+    or_test     go to state 84
+    and_test    go to state 85
+    not_test    go to state 86
+    comparison  go to state 87
+    atom        go to state 30
+
+
+State 77
+
+   80 subscript: ELLIPSIS •
+
+    $default  reduce using rule 80 (subscript)
+
+
+State 78
+
+   97 not_test: NOT • not_test
+
+    FLOATLIT   shift, and go to state 13
+    NAME       shift, and go to state 14
+    INTLIT     shift, and go to state 15
+    STRINGLIT  shift, and go to state 16
+    PLUS       shift, and go to state 17
+    MINUS      shift, and go to state 18
+    TILDE      shift, and go to state 19
+    NOT        shift, and go to state 78
+
+    expr        go to state 79
+    xor_expr    go to state 22
+    and_expr    go to state 23
+    shift_expr  go to state 24
+    arith_expr  go to state 25
+    term        go to state 26
+    factor      go to state 27
+    pmt         go to state 28
+    power       go to state 29
+    not_test    go to state 96
+    comparison  go to state 87
+    atom        go to state 30
+
+
+State 79
+
+   99 comparison: expr • comp_op_expr_rep
+
+    $default  reduce using rule 100 (comp_op_expr_rep)
+
+    comp_op_expr_rep  go to state 97
+
+
+State 80
+
+   55 trailer: LSQB subscriptlist • RSQB
+
+    RSQB  shift, and go to state 98
+
+
+State 81
+
+   77 subscriptlist: subscript • comma_subscript_rep comma_opt
+
+    $default  reduce using rule 78 (comma_subscript_rep)
+
+    comma_subscript_rep  go to state 99
+
+
+State 82
+
+   82 subscript: test_opt • COLON test_opt sliceop_opt
+
+    COLON  shift, and go to state 100
+
+
+State 83
+
+   81 subscript: test •
+   87 test_opt: test •
+
+    COLON     reduce using rule 87 (test_opt)
+    $default  reduce using rule 81 (subscript)
+
+
+State 84
+
+   88 test: or_test • if_or_test_else_test_opt
+
+    IF  shift, and go to state 101
+
+    $default  reduce using rule 89 (if_or_test_else_test_opt)
+
+    if_or_test_else_test_opt  go to state 102
+
+
+State 85
+
+   91 or_test: and_test • or_and_test_rep
+
+    $default  reduce using rule 92 (or_and_test_rep)
+
+    or_and_test_rep  go to state 103
+
+
+State 86
+
+   94 and_test: not_test • and_not_test_rep
+
+    $default  reduce using rule 95 (and_not_test_rep)
+
+    and_not_test_rep  go to state 104
+
+
+State 87
+
+   98 not_test: comparison •
+
+    $default  reduce using rule 98 (not_test)
+
+
+State 88
+
+   56 trailer: DOT NAME •
+
+    $default  reduce using rule 56 (trailer)
+
+
+State 89
+
+  115 dstar_factor_opt: DOUBLESTAR factor •
+
+    $default  reduce using rule 115 (dstar_factor_opt)
+
+
+State 90
+
+   54 trailer: LPAR arglist_opt RPAR •
+
+    $default  reduce using rule 54 (trailer)
+
+
+State 91
+
+   63 arg_ORS: STAR • test comma_arg_rep comma_dstar_test_opt
+
+    FLOATLIT   shift, and go to state 13
+    NAME       shift, and go to state 14
+    INTLIT     shift, and go to state 15
+    STRINGLIT  shift, and go to state 16
+    PLUS       shift, and go to state 17
+    MINUS      shift, and go to state 18
+    TILDE      shift, and go to state 19
+    NOT        shift, and go to state 78
+
+    expr        go to state 79
+    xor_expr    go to state 22
+    and_expr    go to state 23
+    shift_expr  go to state 24
+    arith_expr  go to state 25
+    term        go to state 26
+    factor      go to state 27
+    pmt         go to state 28
+    power       go to state 29
+    test        go to state 105
+    or_test     go to state 84
+    and_test    go to state 85
+    not_test    go to state 86
+    comparison  go to state 87
+    atom        go to state 30
+
+
+State 92
+
+   64 arg_ORS: DOUBLESTAR • test
+
+    FLOATLIT   shift, and go to state 13
+    NAME       shift, and go to state 14
+    INTLIT     shift, and go to state 15
+    STRINGLIT  shift, and go to state 16
+    PLUS       shift, and go to state 17
+    MINUS      shift, and go to state 18
+    TILDE      shift, and go to state 19
+    NOT        shift, and go to state 78
+
+    expr        go to state 79
+    xor_expr    go to state 22
+    and_expr    go to state 23
+    shift_expr  go to state 24
+    arith_expr  go to state 25
+    term        go to state 26
+    factor      go to state 27
+    pmt         go to state 28
+    power       go to state 29
+    test        go to state 106
+    or_test     go to state 84
+    and_test    go to state 85
+    not_test    go to state 86
+    comparison  go to state 87
+    atom        go to state 30
+
+
+State 93
+
+   59 arglist: arg_comma_rep arg_ORS •
+
+    $default  reduce using rule 59 (arglist)
+
+
+State 94
+
+   61 arg_comma_rep: arg_comma_rep argument • COMMA
+   62 arg_ORS: argument • comma_opt
+
+    COMMA  shift, and go to state 107
+
+    $default  reduce using rule 18 (comma_opt)
+
+    comma_opt  go to state 108
+
+
+State 95
+
+   69 argument: test • comp_for_opt
+   70         | test • EQUAL test
+
+    EQUAL  shift, and go to state 109
+    FOR    shift, and go to state 110
+
+    $default  reduce using rule 71 (comp_for_opt)
+
+    comp_for_opt  go to state 111
+    comp_for      go to state 112
+
+
+State 96
+
+   97 not_test: NOT not_test •
+
+    $default  reduce using rule 97 (not_test)
+
+
+State 97
+
+   99 comparison: expr comp_op_expr_rep •
+  101 comp_op_expr_rep: comp_op_expr_rep • comp_op expr
+
+    LESS          shift, and go to state 113
+    GREATER       shift, and go to state 114
+    EQEQUAL       shift, and go to state 115
+    NOTEQUAL      shift, and go to state 116
+    LESSEQUAL     shift, and go to state 117
+    GREATEREQUAL  shift, and go to state 118
+    IN            shift, and go to state 119
+    IS            shift, and go to state 120
+    NOT           shift, and go to state 121
+
+    $default  reduce using rule 99 (comparison)
+
+    comp_op  go to state 122
+    not_in   go to state 123
+    is_not   go to state 124
+
+
+State 98
+
+   55 trailer: LSQB subscriptlist RSQB •
+
+    $default  reduce using rule 55 (trailer)
+
+
+State 99
+
+   77 subscriptlist: subscript comma_subscript_rep • comma_opt
+   79 comma_subscript_rep: comma_subscript_rep • COMMA subscript
+
+    COMMA  shift, and go to state 125
+
+    $default  reduce using rule 18 (comma_opt)
+
+    comma_opt  go to state 126
+
+
+State 100
+
+   82 subscript: test_opt COLON • test_opt sliceop_opt
+
+    FLOATLIT   shift, and go to state 13
+    NAME       shift, and go to state 14
+    INTLIT     shift, and go to state 15
+    STRINGLIT  shift, and go to state 16
+    PLUS       shift, and go to state 17
+    MINUS      shift, and go to state 18
+    TILDE      shift, and go to state 19
+    NOT        shift, and go to state 78
+
+    $default  reduce using rule 86 (test_opt)
+
+    expr        go to state 79
+    xor_expr    go to state 22
+    and_expr    go to state 23
+    shift_expr  go to state 24
+    arith_expr  go to state 25
+    term        go to state 26
+    factor      go to state 27
+    pmt         go to state 28
+    power       go to state 29
+    test_opt    go to state 127
+    test        go to state 128
+    or_test     go to state 84
+    and_test    go to state 85
+    not_test    go to state 86
+    comparison  go to state 87
+    atom        go to state 30
+
+
+State 101
+
+   90 if_or_test_else_test_opt: IF • or_test ELSE test
+
+    FLOATLIT   shift, and go to state 13
+    NAME       shift, and go to state 14
+    INTLIT     shift, and go to state 15
+    STRINGLIT  shift, and go to state 16
+    PLUS       shift, and go to state 17
+    MINUS      shift, and go to state 18
+    TILDE      shift, and go to state 19
+    NOT        shift, and go to state 78
+
+    expr        go to state 79
+    xor_expr    go to state 22
+    and_expr    go to state 23
+    shift_expr  go to state 24
+    arith_expr  go to state 25
+    term        go to state 26
+    factor      go to state 27
+    pmt         go to state 28
+    power       go to state 29
+    or_test     go to state 129
+    and_test    go to state 85
+    not_test    go to state 86
+    comparison  go to state 87
+    atom        go to state 30
+
+
+State 102
+
+   88 test: or_test if_or_test_else_test_opt •
+
+    $default  reduce using rule 88 (test)
+
+
+State 103
+
+   91 or_test: and_test or_and_test_rep •
+   93 or_and_test_rep: or_and_test_rep • OR and_test
+
+    OR  shift, and go to state 130
+
+    $default  reduce using rule 91 (or_test)
+
+
+State 104
+
+   94 and_test: not_test and_not_test_rep •
+   96 and_not_test_rep: and_not_test_rep • AND not_test
+
+    AND  shift, and go to state 131
+
+    $default  reduce using rule 94 (and_test)
+
+
+State 105
+
+   63 arg_ORS: STAR test • comma_arg_rep comma_dstar_test_opt
+
+    $default  reduce using rule 65 (comma_arg_rep)
+
+    comma_arg_rep  go to state 132
+
+
+State 106
+
+   64 arg_ORS: DOUBLESTAR test •
+
+    $default  reduce using rule 64 (arg_ORS)
+
+
+State 107
+
+   19 comma_opt: COMMA •
+   61 arg_comma_rep: arg_comma_rep argument COMMA •
+
+    RPAR      reduce using rule 19 (comma_opt)
+    $default  reduce using rule 61 (arg_comma_rep)
+
+
+State 108
+
+   62 arg_ORS: argument comma_opt •
+
+    $default  reduce using rule 62 (arg_ORS)
+
+
+State 109
+
+   70 argument: test EQUAL • test
+
+    FLOATLIT   shift, and go to state 13
+    NAME       shift, and go to state 14
+    INTLIT     shift, and go to state 15
+    STRINGLIT  shift, and go to state 16
+    PLUS       shift, and go to state 17
+    MINUS      shift, and go to state 18
+    TILDE      shift, and go to state 19
+    NOT        shift, and go to state 78
+
+    expr        go to state 79
+    xor_expr    go to state 22
+    and_expr    go to state 23
+    shift_expr  go to state 24
+    arith_expr  go to state 25
+    term        go to state 26
+    factor      go to state 27
+    pmt         go to state 28
+    power       go to state 29
+    test        go to state 133
+    or_test     go to state 84
+    and_test    go to state 85
+    not_test    go to state 86
+    comparison  go to state 87
+    atom        go to state 30
+
+
+State 110
+
+   73 comp_for: FOR • exprlist IN or_test comp_iter_opt
+
+    FLOATLIT   shift, and go to state 13
+    NAME       shift, and go to state 14
+    INTLIT     shift, and go to state 15
+    STRINGLIT  shift, and go to state 16
+    PLUS       shift, and go to state 17
+    MINUS      shift, and go to state 18
+    TILDE      shift, and go to state 19
+
+    exprlist    go to state 134
+    expr        go to state 21
+    xor_expr    go to state 22
+    and_expr    go to state 23
+    shift_expr  go to state 24
+    arith_expr  go to state 25
+    term        go to state 26
+    factor      go to state 27
+    pmt         go to state 28
+    power       go to state 29
+    atom        go to state 30
+
+
+State 111
+
+   69 argument: test comp_for_opt •
+
+    $default  reduce using rule 69 (argument)
+
+
+State 112
+
+   72 comp_for_opt: comp_for •
+
+    $default  reduce using rule 72 (comp_for_opt)
+
+
+State 113
+
+  102 comp_op: LESS •
+
+    $default  reduce using rule 102 (comp_op)
+
+
+State 114
+
+  103 comp_op: GREATER •
+
+    $default  reduce using rule 103 (comp_op)
+
+
+State 115
+
+  104 comp_op: EQEQUAL •
+
+    $default  reduce using rule 104 (comp_op)
+
+
+State 116
+
+  107 comp_op: NOTEQUAL •
+
+    $default  reduce using rule 107 (comp_op)
+
+
+State 117
+
+  106 comp_op: LESSEQUAL •
+
+    $default  reduce using rule 106 (comp_op)
+
+
+State 118
+
+  105 comp_op: GREATEREQUAL •
+
+    $default  reduce using rule 105 (comp_op)
+
+
+State 119
+
+  108 comp_op: IN •
+
+    $default  reduce using rule 108 (comp_op)
+
+
+State 120
+
+  110 comp_op: IS •
+  113 is_not: IS • NOT
+
+    NOT  shift, and go to state 135
+
+    $default  reduce using rule 110 (comp_op)
+
+
+State 121
+
+  112 not_in: NOT • IN
+
+    IN  shift, and go to state 136
+
+
+State 122
+
+  101 comp_op_expr_rep: comp_op_expr_rep comp_op • expr
+
+    FLOATLIT   shift, and go to state 13
+    NAME       shift, and go to state 14
+    INTLIT     shift, and go to state 15
+    STRINGLIT  shift, and go to state 16
+    PLUS       shift, and go to state 17
+    MINUS      shift, and go to state 18
+    TILDE      shift, and go to state 19
+
+    expr        go to state 137
+    xor_expr    go to state 22
+    and_expr    go to state 23
+    shift_expr  go to state 24
+    arith_expr  go to state 25
+    term        go to state 26
+    factor      go to state 27
+    pmt         go to state 28
+    power       go to state 29
+    atom        go to state 30
+
+
+State 123
+
+  109 comp_op: not_in •
+
+    $default  reduce using rule 109 (comp_op)
+
+
+State 124
+
+  111 comp_op: is_not •
+
+    $default  reduce using rule 111 (comp_op)
+
+
+State 125
+
+   19 comma_opt: COMMA •
+   79 comma_subscript_rep: comma_subscript_rep COMMA • subscript
+
+    FLOATLIT   shift, and go to state 13
+    NAME       shift, and go to state 14
+    INTLIT     shift, and go to state 15
+    STRINGLIT  shift, and go to state 16
+    PLUS       shift, and go to state 17
+    MINUS      shift, and go to state 18
+    TILDE      shift, and go to state 19
+    ELLIPSIS   shift, and go to state 77
+    NOT        shift, and go to state 78
+
+    COLON     reduce using rule 86 (test_opt)
+    $default  reduce using rule 19 (comma_opt)
+
+    expr        go to state 79
+    xor_expr    go to state 22
+    and_expr    go to state 23
+    shift_expr  go to state 24
+    arith_expr  go to state 25
+    term        go to state 26
+    factor      go to state 27
+    pmt         go to state 28
+    power       go to state 29
+    subscript   go to state 138
+    test_opt    go to state 82
+    test        go to state 83
+    or_test     go to state 84
+    and_test    go to state 85
+    not_test    go to state 86
+    comparison  go to state 87
+    atom        go to state 30
+
+
+State 126
+
+   77 subscriptlist: subscript comma_subscript_rep comma_opt •
+
+    $default  reduce using rule 77 (subscriptlist)
+
+
+State 127
+
+   82 subscript: test_opt COLON test_opt • sliceop_opt
+
+    COLON  shift, and go to state 139
+
+    $default  reduce using rule 83 (sliceop_opt)
+
+    sliceop_opt  go to state 140
+    sliceop      go to state 141
+
+
+State 128
+
+   87 test_opt: test •
+
+    $default  reduce using rule 87 (test_opt)
+
+
+State 129
+
+   90 if_or_test_else_test_opt: IF or_test • ELSE test
+
+    ELSE  shift, and go to state 142
+
+
+State 130
+
+   93 or_and_test_rep: or_and_test_rep OR • and_test
+
+    FLOATLIT   shift, and go to state 13
+    NAME       shift, and go to state 14
+    INTLIT     shift, and go to state 15
+    STRINGLIT  shift, and go to state 16
+    PLUS       shift, and go to state 17
+    MINUS      shift, and go to state 18
+    TILDE      shift, and go to state 19
+    NOT        shift, and go to state 78
+
+    expr        go to state 79
+    xor_expr    go to state 22
+    and_expr    go to state 23
+    shift_expr  go to state 24
+    arith_expr  go to state 25
+    term        go to state 26
+    factor      go to state 27
+    pmt         go to state 28
+    power       go to state 29
+    and_test    go to state 143
+    not_test    go to state 86
+    comparison  go to state 87
+    atom        go to state 30
+
+
+State 131
+
+   96 and_not_test_rep: and_not_test_rep AND • not_test
+
+    FLOATLIT   shift, and go to state 13
+    NAME       shift, and go to state 14
+    INTLIT     shift, and go to state 15
+    STRINGLIT  shift, and go to state 16
+    PLUS       shift, and go to state 17
+    MINUS      shift, and go to state 18
+    TILDE      shift, and go to state 19
+    NOT        shift, and go to state 78
+
+    expr        go to state 79
+    xor_expr    go to state 22
+    and_expr    go to state 23
+    shift_expr  go to state 24
+    arith_expr  go to state 25
+    term        go to state 26
+    factor      go to state 27
+    pmt         go to state 28
+    power       go to state 29
+    not_test    go to state 144
+    comparison  go to state 87
+    atom        go to state 30
+
+
+State 132
+
+   63 arg_ORS: STAR test comma_arg_rep • comma_dstar_test_opt
+   66 comma_arg_rep: comma_arg_rep • COMMA argument
+
+    COMMA  shift, and go to state 145
+
+    $default  reduce using rule 67 (comma_dstar_test_opt)
+
+    comma_dstar_test_opt  go to state 146
+
+
+State 133
+
+   70 argument: test EQUAL test •
+
+    $default  reduce using rule 70 (argument)
+
+
+State 134
+
+   73 comp_for: FOR exprlist • IN or_test comp_iter_opt
+
+    IN  shift, and go to state 147
+
+
+State 135
+
+  113 is_not: IS NOT •
+
+    $default  reduce using rule 113 (is_not)
+
+
+State 136
+
+  112 not_in: NOT IN •
+
+    $default  reduce using rule 112 (not_in)
+
+
+State 137
+
+  101 comp_op_expr_rep: comp_op_expr_rep comp_op expr •
+
+    $default  reduce using rule 101 (comp_op_expr_rep)
+
+
+State 138
+
+   79 comma_subscript_rep: comma_subscript_rep COMMA subscript •
+
+    $default  reduce using rule 79 (comma_subscript_rep)
+
+
+State 139
+
+   85 sliceop: COLON • test_opt
+
+    FLOATLIT   shift, and go to state 13
+    NAME       shift, and go to state 14
+    INTLIT     shift, and go to state 15
+    STRINGLIT  shift, and go to state 16
+    PLUS       shift, and go to state 17
+    MINUS      shift, and go to state 18
+    TILDE      shift, and go to state 19
+    NOT        shift, and go to state 78
+
+    $default  reduce using rule 86 (test_opt)
+
+    expr        go to state 79
+    xor_expr    go to state 22
+    and_expr    go to state 23
+    shift_expr  go to state 24
+    arith_expr  go to state 25
+    term        go to state 26
+    factor      go to state 27
+    pmt         go to state 28
+    power       go to state 29
+    test_opt    go to state 148
+    test        go to state 128
+    or_test     go to state 84
+    and_test    go to state 85
+    not_test    go to state 86
+    comparison  go to state 87
+    atom        go to state 30
+
+
+State 140
+
+   82 subscript: test_opt COLON test_opt sliceop_opt •
+
+    $default  reduce using rule 82 (subscript)
+
+
+State 141
+
+   84 sliceop_opt: sliceop •
+
+    $default  reduce using rule 84 (sliceop_opt)
+
+
+State 142
+
+   90 if_or_test_else_test_opt: IF or_test ELSE • test
+
+    FLOATLIT   shift, and go to state 13
+    NAME       shift, and go to state 14
+    INTLIT     shift, and go to state 15
+    STRINGLIT  shift, and go to state 16
+    PLUS       shift, and go to state 17
+    MINUS      shift, and go to state 18
+    TILDE      shift, and go to state 19
+    NOT        shift, and go to state 78
+
+    expr        go to state 79
+    xor_expr    go to state 22
+    and_expr    go to state 23
+    shift_expr  go to state 24
+    arith_expr  go to state 25
+    term        go to state 26
+    factor      go to state 27
+    pmt         go to state 28
+    power       go to state 29
+    test        go to state 149
+    or_test     go to state 84
+    and_test    go to state 85
+    not_test    go to state 86
+    comparison  go to state 87
+    atom        go to state 30
+
+
+State 143
+
+   93 or_and_test_rep: or_and_test_rep OR and_test •
+
+    $default  reduce using rule 93 (or_and_test_rep)
+
+
+State 144
+
+   96 and_not_test_rep: and_not_test_rep AND not_test •
+
+    $default  reduce using rule 96 (and_not_test_rep)
+
+
+State 145
+
+   66 comma_arg_rep: comma_arg_rep COMMA • argument
+   68 comma_dstar_test_opt: COMMA • DOUBLESTAR test
+
+    FLOATLIT    shift, and go to state 13
+    NAME        shift, and go to state 14
+    INTLIT      shift, and go to state 15
+    STRINGLIT   shift, and go to state 16
+    PLUS        shift, and go to state 17
+    MINUS       shift, and go to state 18
+    TILDE       shift, and go to state 19
+    DOUBLESTAR  shift, and go to state 150
+    NOT         shift, and go to state 78
+
+    expr        go to state 79
+    xor_expr    go to state 22
+    and_expr    go to state 23
+    shift_expr  go to state 24
+    arith_expr  go to state 25
+    term        go to state 26
+    factor      go to state 27
+    pmt         go to state 28
+    power       go to state 29
+    argument    go to state 151
+    test        go to state 95
+    or_test     go to state 84
+    and_test    go to state 85
+    not_test    go to state 86
+    comparison  go to state 87
+    atom        go to state 30
+
+
+State 146
+
+   63 arg_ORS: STAR test comma_arg_rep comma_dstar_test_opt •
+
+    $default  reduce using rule 63 (arg_ORS)
+
+
+State 147
+
+   73 comp_for: FOR exprlist IN • or_test comp_iter_opt
+
+    FLOATLIT   shift, and go to state 13
+    NAME       shift, and go to state 14
+    INTLIT     shift, and go to state 15
+    STRINGLIT  shift, and go to state 16
+    PLUS       shift, and go to state 17
+    MINUS      shift, and go to state 18
+    TILDE      shift, and go to state 19
+    NOT        shift, and go to state 78
+
+    expr        go to state 79
+    xor_expr    go to state 22
+    and_expr    go to state 23
+    shift_expr  go to state 24
+    arith_expr  go to state 25
+    term        go to state 26
+    factor      go to state 27
+    pmt         go to state 28
+    power       go to state 29
+    or_test     go to state 152
+    and_test    go to state 85
+    not_test    go to state 86
+    comparison  go to state 87
+    atom        go to state 30
+
+
+State 148
+
+   85 sliceop: COLON test_opt •
+
+    $default  reduce using rule 85 (sliceop)
+
+
+State 149
+
+   90 if_or_test_else_test_opt: IF or_test ELSE test •
+
+    $default  reduce using rule 90 (if_or_test_else_test_opt)
+
+
+State 150
+
+   68 comma_dstar_test_opt: COMMA DOUBLESTAR • test
+
+    FLOATLIT   shift, and go to state 13
+    NAME       shift, and go to state 14
+    INTLIT     shift, and go to state 15
+    STRINGLIT  shift, and go to state 16
+    PLUS       shift, and go to state 17
+    MINUS      shift, and go to state 18
+    TILDE      shift, and go to state 19
+    NOT        shift, and go to state 78
+
+    expr        go to state 79
+    xor_expr    go to state 22
+    and_expr    go to state 23
+    shift_expr  go to state 24
+    arith_expr  go to state 25
+    term        go to state 26
+    factor      go to state 27
+    pmt         go to state 28
+    power       go to state 29
+    test        go to state 153
+    or_test     go to state 84
+    and_test    go to state 85
+    not_test    go to state 86
+    comparison  go to state 87
+    atom        go to state 30
+
+
+State 151
+
+   66 comma_arg_rep: comma_arg_rep COMMA argument •
+
+    $default  reduce using rule 66 (comma_arg_rep)
+
+
+State 152
+
+   73 comp_for: FOR exprlist IN or_test • comp_iter_opt
+
+    FOR  shift, and go to state 110
+
+    $default  reduce using rule 74 (comp_iter_opt)
+
+    comp_for       go to state 154
+    comp_iter_opt  go to state 155
+    comp_iter      go to state 156
+
+
+State 153
+
+   68 comma_dstar_test_opt: COMMA DOUBLESTAR test •
+
+    $default  reduce using rule 68 (comma_dstar_test_opt)
+
+
+State 154
+
+   76 comp_iter: comp_for •
+
+    $default  reduce using rule 76 (comp_iter)
+
+
+State 155
+
+   73 comp_for: FOR exprlist IN or_test comp_iter_opt •
+
+    $default  reduce using rule 73 (comp_for)
+
+
+State 156
+
+   75 comp_iter_opt: comp_iter •
+
+    $default  reduce using rule 75 (comp_iter_opt)
