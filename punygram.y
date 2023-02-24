@@ -124,10 +124,6 @@ statements_opt: %empty
     | statements
     ;
 
-endmarker_opt: %empty
-    | ENDMARKER
-    ;
-
 statements: statement
     | statements statement
     ;
@@ -182,24 +178,14 @@ star_targets: star_target // !','
     | star_target comma_star_target_rep comma_opt
     ;
 
-star_target: STAR err_star_star_target
-    | target_with_star_atom
-    ;
-
-err_star_star_target: err_star star_target
-    ;
-
-err_star: %empty
-    | STAR {yyerror("SyntaxError: there should not be a star here\n");}
+star_target: target_with_star_atom
     ;
 
 comma_star_target_rep: %empty
     | COMMA star_target
     ;
 
-target_with_star_atom: t_primary DOT NAME 
-    | t_primary LSQB slices RSQB { err_t_lookahead(yychar); }
-    | star_atom
+target_with_star_atom: star_atom
     ;
 
 // Targets for del statements
@@ -213,8 +199,16 @@ del_target_comma_rep: del_target
     | del_target_comma_rep COMMA del_target
     ;
 
-del_target: t_primary DOT NAME {err_t_lookahead(yychar);}
-          | 
+del_target: del_t_atom;
+
+del_t_atom: NAME
+    | LPAR del_target RPAR
+    | LPAR del_targets_opt RPAR
+    | LSQB del_targets_opt RSQB
+    ;
+
+del_targets_opt: %empty
+    | del_targets;
 
 star_atom: NAME
     | LPAR target_with_star_atom RPAR
@@ -246,10 +240,10 @@ single_subscript_attribute_target: t_primary DOT NAME
     | t_primary LSQB slices RSQB
     ;
 
-t_primary: t_primary DOT NAME {err_t_lookahead(yychar);}
-    | t_primary LSQB slices RSQB {err_t_lookahead(yychar);}
-    | t_primary genexp {err_t_lookahead(yychar);}
-    | t_primary LPAR arguments_opt RPAR {err_t_lookahead(yychar);}
+t_primary: t_primary DOT NAME 
+    | t_primary LSQB slices RSQB 
+    | t_primary genexp 
+    | t_primary LPAR arguments_opt RPAR
     | atom
     ;
 
