@@ -142,6 +142,18 @@ semi_opt: %empty
 
 small_stmt: pass_stmt
     | del_stmt
+    | flow_stmt
+    | import_stmt
+    | expr_stmt
+    | global_stmt
+    | assert_stmt {yyerror(puny_support_err); }
+    ;
+
+global_stmt: GLOBAL NAME comma_name_rep
+    ;
+
+comma_name_rep: %empty
+    | comma_name_rep COMMA NAME
     ;
 
 pass_stmt: PASS
@@ -149,6 +161,143 @@ pass_stmt: PASS
 
 del_stmt: DEL exprlist
     ; 
+
+flow_stmt: break_stmt
+    | continue_stmt
+    | return_stmt
+    | raise_stmt {yyerror(puny_support_err); }
+    | yield_stmt {yyerror(puny_support_err); }
+    ;
+
+assert_stmt: ASSERT test comma_test_opt
+    ;
+
+break_stmt: BREAK
+    ;
+
+continue_stmt: CONTINUE
+    ;
+
+return_stmt: RETURN testlist_opt
+    ;
+
+raise_stmt: RAISE test_triplet_opt 
+    ;
+
+yield_stmt: yield_expr
+    ;
+
+yield_expr: YIELD testlist_opt 
+    ;
+
+// Expressions
+expr_stmt: testlist expr_conjunct
+    ;
+
+expr_conjunct: augassign yield_OR_testlist
+    | equal_OR_yield_OR_testlist_rep
+    ;
+
+yield_OR_testlist: YIELD
+    | testlist
+    ;
+
+equal_OR_yield_OR_testlist_rep: %empty
+    | equal_OR_yield_OR_testlist_rep EQUAL yield_OR_testlist
+    ;
+
+augassign: PLUSEQUAL
+    | MINEQUAL
+    | STAREQUAL
+    | SLASHEQUAL
+    | PERCENTEQUAL
+    | AMPEREQUAL
+    | VBAREQUAL
+    | CIRCUMFLEXEQUAL
+    | LEFTSHIFTEQUAL
+    | RIGHTSHIFTEQUAL
+    | DOUBLESTAREQUAL
+    | DOUBLESLASHEQUAL
+    ;
+
+// Import Stmts
+import_stmt: import_name
+    | import_from
+    ;
+
+import_name: IMPORT dotted_as_names
+    ;
+
+import_from: FROM dot_OR_ellipsis_rep_opt dotted_name IMPORT import_from_targets
+    | FROM dot_OR_ellipsis_rep IMPORT import_from_targets
+    ;
+
+import_from_targets: LPAR import_from_as_names comma_opt RPAR
+    | import_from_as_names {err_lookahead(yychar, 1, "", COMMA);}
+    | STAR
+    ;
+
+import_from_as_names: import_from_as_name comma_import_from_as_name_rep
+    ;
+
+comma_import_from_as_name_rep: %empty
+    | comma_import_from_as_name_rep COMMA import_from_as_name
+    ;
+
+import_from_as_name: NAME as_name_opt
+    ;
+
+as_name_opt: %empty
+    | AS NAME {yyerror(puny_support_err);}
+    ;
+
+dotted_as_names: dotted_as_name comma_dotted_as_name_rep
+    ;
+
+comma_dotted_as_name_rep: %empty
+    | comma_dotted_as_name_rep COMMA dotted_as_name
+    ;
+
+dotted_as_name: dotted_name as_name_opt
+    ;
+
+dotted_name: dotted_name DOT NAME
+    | NAME
+    ;
+
+dot_OR_ellipsis_rep_opt: %empty
+    | dot_OR_ellipsis_rep
+    ;
+
+dot_OR_ellipsis_rep: dot_OR_ellipsis
+    | dot_OR_ellipsis_rep dot_OR_ellipsis;
+
+dot_OR_ellipsis: DOT
+    | ELLIPSIS
+    ;
+
+test_triplet_opt: %empty
+    | test test_doublet_opt
+    ;
+
+test_doublet_opt: %empty
+    | COMMA test comma_test_opt
+    ;
+
+comma_test_opt: %empty
+    | COMMA test
+    ;
+
+testlist_opt: %empty
+    | testlist
+    ;
+
+testlist: test comma_test_rep comma_opt
+    ;
+
+comma_test_rep: %empty
+    | comma_test_rep COMMA test 
+    ;
 
 exprlist: expr comma_expr_rep comma_opt
     ;
