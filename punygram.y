@@ -118,238 +118,30 @@
 
 %%
 
-file_input: statements_opt nl_opt ENDMARKER;
+file_input: nl_OR_stmt_rep ENDMARKER;
     ;
 
-nl_opt: %empty
-    | NEWLINE
+nl_OR_stmt_rep: %empty
+    | nl_OR_stmt_rep NEWLINE
+    | nl_OR_stmt_rep stmt
     ;
 
-statements_opt: %empty
-    | statements
+stmt: simple_stmt
     ;
 
-statements: statement
-    | statements statement
+simple_stmt: small_stmt semi_small_stmt_rep semi_opt NEWLINE
     ;
 
-statement: simple_stmts
-    ;
-
-simple_stmts: semi_simple_stmts_rep semi_opt NEWLINE
+semi_small_stmt_rep: %empty
+    | semi_small_stmt_rep SEMI small_stmt
     ;
 
 semi_opt: %empty
     | SEMI
     ;
 
-semi_simple_stmts_rep: simple_stmt
-    | semi_simple_stmts_rep SEMI simple_stmt
+small_stmt: pass_stmt
     ;
 
-simple_stmt: return_stmt
-    | star_expressions
-    | import_stmt
+pass_stmt: PASS
     ;
-
-// Import Stmts
-import_stmt: import_name 
-    | import_from
-    ; 
-
-import_name: IMPORT dotted_as_names
-    ;
-
-import_from: FROM dot_OR_ellipsis_rep_opt dotted_name IMPORT import_from_targets
-    | FROM dot_OR_ellipsis_rep IMPORT import_from_targets
-    ;
-
-import_from_targets: LPAR import_from_as_names comma_opt RPAR
-    | import_from_as_names {err_lookahead(yychar, 1, "", COMMA);}
-    | STAR
-    ;
-
-import_from_as_names: import_from_as_name comma_import_from_as_name_rep
-    ;
-
-comma_import_from_as_name_rep: %empty
-    | comma_import_from_as_name_rep COMMA import_from_as_name
-    ;
-
-import_from_as_name: NAME as_name_opt
-    ;
-
-as_name_opt: %empty
-    | AS NAME {yyerror(puny_support_err);}
-    ;
-
-dotted_as_names: dotted_as_name comma_dotted_as_name_rep
-    ;
-
-comma_dotted_as_name_rep: %empty
-    | comma_dotted_as_name_rep COMMA dotted_as_name
-    ;
-
-dotted_as_name: dotted_name as_name_opt
-    ;
-dotted_name: dotted_name DOT NAME
-    | NAME
-    ;
-
-
-dot_OR_ellipsis_rep_opt: %empty
-    | dot_OR_ellipsis_rep
-    ;
-
-dot_OR_ellipsis_rep: dot_OR_ellipsis
-    | dot_OR_ellipsis_rep dot_OR_ellipsis;
-
-dot_OR_ellipsis: DOT
-    | ELLIPSIS
-    ;
-
-
-
-//
-
-
-// Targets for del statements
-
-return_stmt: RETURN star_expressions_opt
-    ;
-
-star_expressions_opt: %empty
-    | star_expressions
-    ;
-star_expressions: star_expression comma_star_expr_rep comma_opt
-    | star_expression COMMA
-    | star_expression
-    ;
-comma_star_expr_rep: COMMA star_expression
-    | comma_star_expr_rep COMMA star_expression
-    ;
-star_expression: STAR bitwise_or
-    | expression
-    ;
-expression: disjunction IF disjunction ELSE expression
-    | disjunction
-    | lambdef
-    ;
-
-disjunction: conjunction or_conjunction_rep
-    | conjunction
-    ;
-or_conjunction_rep: OR conjunction
-    | or_conjunction_rep OR conjunction
-    ;
-conjunction: inversion and_inversion_rep
-    | inversion
-    ;
-and_inversion_rep: AND inversion
-    | and_inversion_rep AND inversion
-    ;
-inversion: NOT inversion
-    | comparison
-    ;
-comparison: bitwise_or
-    ;
-atom: NAME
-    | PYTRUE
-    | PYFALSE
-    | NONE
-    | strings
-    | INTLIT
-    | FLOATLIT
-    | list
-    ;
-
-strings: STRINGLIT
-    | strings STRINGLIT
-    ;
-
-list: LSQB star_named_expressions_opt RSQB
-    ;
-
-star_named_expressions_opt: %empty
-    | star_named_expressions
-    ;
-
-comma_opt: %empty
-    | COMMA
-    ;
-
-star_named_expressions: star_named_expression comma_sne_rep comma_opt
-    ;
-
-comma_sne_rep: %empty
-    | comma_sne_rep COMMA star_named_expression
-    ;
-
-star_named_expression: STAR bitwise_or
-    | expression   // Skipping assignment expression cuz it uses ':='
-    ;
-
-bitwise_or: bitwise_or VBAR bitwise_xor
-    | bitwise_xor
-    ;
-
-bitwise_xor: bitwise_xor CIRCUMFLEX bitwise_and
-    | bitwise_and
-    ;
-
-bitwise_and: bitwise_and AMPER shift_expr
-    | shift_expr
-    ;
-
-shift_expr: shift_expr LEFTSHIFT sum
-    | shift_expr RIGHTSHIFT sum
-    | sum
-    ;
-
-sum: sum PLUS term
-    | sum MINUS term
-    | term
-    ;
-
-term: term STAR factor
-    | term SLASH factor
-    | term DOUBLESLASH factor
-    | term PERCENT factor
-    | term AT factor
-    | factor
-    ;
-
-factor: PLUS factor
-    | MINUS factor
-    | TILDE factor
-    | power
-    ;
-
-power: await_primary DOUBLESTAR factor
-    | await_primary
-    ;
-
-await_primary: AWAIT primary {yyerror("PunY does not support 'await'\n");}
-    | primary
-    ;
-
-primary: primary DOT NAME
-    | atom
-    ;
-
-// Compound statements
-// -------------------
-
-// Lambda functions
-// ---------------
-lambdef: LAMBDA lambda_params_opt COLON expression
-    ;
-
-lambda_params_opt: %empty
-    | lambda_params comma_opt
-    ;
-
-lambda_params: NAME 
-    | lambda_params COMMA NAME
-    ;
-// ---------------
