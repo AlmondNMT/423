@@ -1,3 +1,4 @@
+#include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -8,6 +9,7 @@
 extern char yyfilename[];
 extern int yylineno;
 extern char *yytext;
+extern char *rev_token(int);
 
 int get_ascii(char c)
 {
@@ -289,4 +291,18 @@ void err_t_lookahead(int yychar)
         printf("t_primary forbidden lookahead\n");
         exit(1);
     }
+}
+
+void err_lookahead(int yychar, int count, const char *err_tokens, ...)
+{
+    va_list args;
+    va_start(args, err_tokens);
+    int token;
+    for(int i = 0; i < count; i++) {
+        token = va_arg(args, int);
+        if(yychar == token) {
+            fprintf(stderr, "Syntax error near '%s' token\n", rev_token(token));
+        }
+    }
+    va_end(args);
 }
