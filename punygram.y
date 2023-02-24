@@ -1,7 +1,9 @@
 %{
     #include <stdio.h>
+    #include <stdlib.h>
     extern int yylex();
     extern int yyerror(char *);
+    extern int yychar;
     extern char *yytext;
 %}
 
@@ -108,144 +110,286 @@
 %token <treeptr> EMPTY
 %token <treeptr> MATCH
 %token <treeptr> ASSIGNMENT
+%token <treeptr> DECORATOR
 
 %start file_input
 
 %%
 
-file_input: statements_opt endmarker_opt; 
+file_input: statements_opt endmarker_opt
+    ;
+
 statements_opt: %empty
-              | statements;
+    | statements
+    ;
+
 endmarker_opt: %empty
-             | ENDMARKER;
+    | ENDMARKER
+    ;
+
 statements: statement
-          | statements statement;
+    | statements statement
+    ;
+
 statement: simple_stmts
-         | compound_stmt;
-simple_stmts: semi_simple_stmts_rep semi_opt nl_OR_endmarker;
+    | compound_stmt
+    ;
+
+simple_stmts: semi_simple_stmts_rep semi_opt nl_OR_endmarker
+    ;
+
 nl_OR_endmarker: NEWLINE
-               | ENDMARKER;
+    | ENDMARKER
+    ;
+
 semi_opt: %empty
-        | SEMI;
+    | SEMI
+    ;
+
 semi_simple_stmts_rep: simple_stmt
-                     | semi_simple_stmts_rep SEMI simple_stmt;
+    | semi_simple_stmts_rep SEMI simple_stmt
+    ;
+
 simple_stmt: assignment
-           | return_stmt
-           | star_expressions;
+    | return_stmt
+    | star_expressions
+    ;
+
 assignment: star_targets_equal_rep yield_expr_OR_star_expressions err_equal type_comment_opt 
-          | single_target augassign yield_expr_OR_star_expressions; 
+    | single_target augassign yield_expr_OR_star_expressions
+    ;
+
 augassign: PLUSEQUAL
-         | MINEQUAL
-         | STAREQUAL
+    | MINEQUAL
+    | STAREQUAL
+    ;
+
 type_comment_opt: %empty
-                | TYPE_COMMENT;
+    | TYPE_COMMENT
+    ;
+
 err_equal: %empty
-             | EQUAL {yyerror("SyntaxError: cannot assign to operator\n"); };
+    | EQUAL {yyerror("SyntaxError: cannot assign to operator\n"); }
+    ;
 
 star_targets_equal_rep: star_targets EQUAL
-                      | star_targets_equal_rep star_targets EQUAL;
+    | star_targets_equal_rep star_targets EQUAL
+    ;
+
 yield_expr_OR_star_expressions: yield_expr
-                              | star_expressions;
+    | star_expressions
+    ;
+
 star_targets: star_target // !','
-            | star_target comma_star_target_rep comma_opt;
+    | star_target comma_star_target_rep comma_opt
+    ;
+
 star_target: STAR err_star_star_target
-           | target_with_star_atom;
-err_star_star_target: err_star star_target;
+    | target_with_star_atom
+    ;
+
+err_star_star_target: err_star star_target
+    ;
+
 err_star: %empty
-        | STAR {yyerror("SyntaxError: there should not be a star here\n");};
+    | STAR {yyerror("SyntaxError: there should not be a star here\n");}
+    ;
+
 comma_star_target_rep: %empty
-                     | COMMA star_target;
-target_with_star_atom: t_primary DOT NAME err_t_lookahead
-                     | t_primary LSQB slices RSQB err_t_lookahead
-                     | star_atom;
-err_t_lookahead: %empty
-               | t_lookahead {yyerror("SyntaxError: bad t_lookahead\n");};
+    | COMMA star_target
+    ;
+
+target_with_star_atom: t_primary DOT NAME 
+    | t_primary LSQB slices RSQB err_t_lookahead
+    | star_atom
+    ;
+
+err_t_lookahead:  %empty 
+                 {
+                    if(yychar == LPAR || yychar == LSQB || yychar == DOT) {
+                        printf("t_primary forbidden lookahead\n");
+                        exit(1);
+                    }
+                 }
+    ;
+
 amp_t_lookahead: %empty
-               | t_lookahead {printf("T lookahead\n");};
+    | t_lookahead {printf("T lookahead\n");}
+    ;
+
 t_lookahead: LPAR
-           | LSQB
-           | DOT;
+    | LSQB
+    | DOT
+    ;
                 
 star_atom: NAME
-         | LPAR target_with_star_atom RPAR
-         | LPAR star_targets_tuple_seq_opt RPAR
-         | LSQB star_targets_list_seq_opt RPAR;
+    | LPAR target_with_star_atom RPAR
+    | LPAR star_targets_tuple_seq_opt RPAR
+    | LSQB star_targets_list_seq_opt RPAR
+    ;
+
 star_targets_tuple_seq_opt: %empty
-                          | star_targets_tuple_seq;
+    | star_targets_tuple_seq
+    ;
+
 star_targets_tuple_seq: star_target comma_star_target_rep comma_opt
-                      | star_target COMMA;
+    | star_target COMMA
+    ;
+
 star_targets_list_seq_opt: %empty
-                         | star_targets_list_seq;
-star_targets_list_seq: star_target comma_star_target_rep comma_opt;
+    | star_targets_list_seq
+    ;
+
+star_targets_list_seq: star_target comma_star_target_rep comma_opt
+    ;
+
 single_target: single_subscript_attribute_target
-             | NAME
-             | LPAR single_target RPAR;
+    | NAME
+    | LPAR single_target RPAR
+    ;
+
 single_subscript_attribute_target: t_primary DOT NAME
-                                 | t_primary LSQB slices RSQB;
+    | t_primary LSQB slices RSQB
+    ;
+
 t_primary: t_primary DOT NAME amp_t_lookahead
-         | t_primary LSQB slices RSQB amp_t_lookahead
-         | t_primary genexp amp_t_lookahead
-         | t_primary LPAR arguments_opt RPAR amp_t_lookahead
-         | atom;
-slices: slice comma_slice_OR_starred_expression_rep comma_opt;
-comma_slice_OR_starred_expression_rep: COMMA
+    | t_primary LSQB slices RSQB amp_t_lookahead
+    | t_primary genexp amp_t_lookahead
+    | t_primary LPAR arguments_opt RPAR amp_t_lookahead
+    | atom
+    ;
+
+slices: slice comma_slice_OR_starred_expression_rep comma_opt
+    ;
+
+comma_slice_OR_starred_expression_rep: slice_OR_starred_expression
+    | comma_slice_OR_starred_expression_rep COMMA slice_OR_starred_expression
+    ;
+
+slice_OR_starred_expression: slice
+    | starred_expression
+    ; 
+
 arguments_opt: %empty
-             | arguments;
+    | arguments
+    ;
+
 slice: expression_opt COLON expression_opt colon_expression_opt_opt
-     | named_expression;
+    | named_expression
+    ;
+
 expression_opt: %empty
-              | expression;
+    | expression
+    ;
+
 colon_expression_opt_opt: %empty
-                        | COLON expression_opt;
-arguments: args comma_opt; // &')'
-args: kwargs;
-kwargs: comma_kwarg_or_starred_rep COMMA comma_kwarg_or_double_starred_rep;
+    | COLON expression_opt
+    ;
+
+arguments: args comma_opt amp_rparen // &')'
+    ; 
+
+amp_rparen: RPAR
+    ;
+
+args: kwargs
+    ;
+
+kwargs: comma_kwarg_or_starred_rep COMMA comma_kwarg_or_double_starred_rep
+    ;
+
 comma_kwarg_or_starred_rep: kwarg_or_starred
-                          | comma_kwarg_or_starred_rep COMMA kwarg_or_starred;
+    | comma_kwarg_or_starred_rep COMMA kwarg_or_starred
+    ;
+
 comma_kwarg_or_double_starred_rep: kwarg_or_double_starred
-                                 | comma_kwarg_or_double_starred_rep COMMA kwarg_or_double_starred;
+    | comma_kwarg_or_double_starred_rep COMMA kwarg_or_double_starred
+    ;
+
 kwarg_or_starred: NAME EQUAL expression
-                | starred_expression;
+    | starred_expression
+    ;
+
 kwarg_or_double_starred: NAME EQUAL expression
-                       | DOUBLESTAR expression;
-starred_expression: STAR expression;
-genexp: LPAR ass_expr_OR_expr for_if_clauses RPAR;
-for_if_clauses: for_if_clause_rep;
+    | DOUBLESTAR expression
+    ;
+
+starred_expression: STAR expression
+    ;
+
+genexp: LPAR ass_expr_OR_expr for_if_clauses RPAR
+    ;
+
+for_if_clauses: for_if_clause_rep
+    ;
+
 for_if_clause_rep: for_if_clause
-                 | for_if_clause_rep for_if_clause;
-for_if_clause: ASYNC FOR star_targets IN 
+    | for_if_clause_rep for_if_clause
+    ;
+
+for_if_clause: ASYNC FOR star_targets IN disjunction if_disjunction_rep
+    | FOR star_targets IN disjunction if_disjunction_rep
+    ;
+
+if_disjunction_rep: %empty
+    | if_disjunction_rep IF disjunction
+    ;
+
 ass_expr_OR_expr: assignment_expression
-                | expression // !':='
+    | expression err_colon_equal // !':='
+    ;
+
+err_colon_equal: %empty
+    | COLONEQUAL {yyerror("SyntaxError: Not supposed to be a colonequal right here\n");}
+    ;
+
 assignment_expression: NAME COLONEQUAL TILDE expression
-                     | NAME COLONEQUAL expression
-                     | yield_expr;
+    | NAME COLONEQUAL expression
+    | yield_expr
+    ;
+
 yield_expr: YIELD FROM expression
-          | YIELD star_expressions_opt;
-return_stmt: RETURN star_expressions_opt;
+    | YIELD star_expressions_opt
+    ;
+
+return_stmt: RETURN star_expressions_opt
+    ;
+
 star_expressions_opt: %empty
-                    | star_expressions;
+    | star_expressions
+    ;
 star_expressions: star_expression comma_star_expr_rep comma_opt
-                | star_expression COMMA
-                | star_expression;
+    | star_expression COMMA
+    | star_expression
+    ;
 comma_star_expr_rep: COMMA star_expression
-                   | comma_star_expr_rep COMMA star_expression;
+    | comma_star_expr_rep COMMA star_expression
+    ;
 star_expression: STAR bitwise_or
-               | expression;
+    | expression
+    ;
 expression: disjunction IF disjunction ELSE expression
-          | disjunction
-          | lambdef;
+    | disjunction
+    | lambdef
+    ;
 
 disjunction: conjunction or_conjunction_rep
-           | conjunction;
+    | conjunction
+    ;
 or_conjunction_rep: OR conjunction
-                  | or_conjunction_rep OR conjunction;
+    | or_conjunction_rep OR conjunction
+    ;
 conjunction: inversion and_inversion_rep
-           | inversion;
+    | inversion
+    ;
 and_inversion_rep: AND inversion
-                 | and_inversion_rep AND inversion;
+    | and_inversion_rep AND inversion
+    ;
 inversion: NOT inversion
-         | comparison;
-comparison: bitwise_or;
+    | comparison
+    ;
+comparison: bitwise_or
+    ;
 atom: NAME
     | PYTRUE
     | PYFALSE
@@ -253,70 +397,127 @@ atom: NAME
     | strings
     | INTLIT
     | FLOATLIT
-    | list;
+    | list
+    ;
+
 strings: STRINGLIT
-       | strings STRINGLIT;
-list: LSQB star_named_expressions_opt RSQB;
+    | strings STRINGLIT
+    ;
+
+list: LSQB star_named_expressions_opt RSQB
+    ;
+
 star_named_expressions_opt: %empty
-                          | star_named_expressions;
+    | star_named_expressions
+    ;
+
 comma_opt: %empty
-         | COMMA;
-star_named_expressions: star_named_expression comma_sne_rep comma_opt;
+    | COMMA
+    ;
+
+star_named_expressions: star_named_expression comma_sne_rep comma_opt
+    ;
+
 comma_sne_rep: %empty
-             | comma_sne_rep COMMA star_named_expression;
+    | comma_sne_rep COMMA star_named_expression
+    ;
 
 star_named_expression: STAR bitwise_or
-                     | named_expression;
+    | named_expression
+    ;
+
 named_expression: assignment_expression
-                | expression; // !':='
+    | expression
+    ; // !':='
+
 bitwise_or: bitwise_or VBAR bitwise_xor
-          | bitwise_xor;
+    | bitwise_xor
+    ;
+
 bitwise_xor: bitwise_xor CIRCUMFLEX bitwise_and
-           | bitwise_and;
+    | bitwise_and
+    ;
+
 bitwise_and: bitwise_and AMPER shift_expr
-           | shift_expr;
+    | shift_expr
+    ;
+
 shift_expr: shift_expr LEFTSHIFT sum
-          | shift_expr RIGHTSHIFT sum
-          | sum;
+    | shift_expr RIGHTSHIFT sum
+    | sum
+    ;
+
 sum: sum PLUS term
-   | sum MINUS term
-   | term;
+    | sum MINUS term
+    | term
+    ;
+
 term: term STAR factor
     | term SLASH factor
     | term DOUBLESLASH factor
     | term PERCENT factor
     | term AT factor
-    | factor;
+    | factor
+    ;
+
 factor: PLUS factor
-      | MINUS factor
-      | TILDE factor
-      | power;
+    | MINUS factor
+    | TILDE factor
+    | power
+    ;
+
 power: await_primary DOUBLESTAR factor
-     | await_primary;
+    | await_primary
+    ;
+
 await_primary: AWAIT primary
-             | primary;
+    | primary
+    ;
+
 primary: primary DOT NAME
-       | atom;
+    | atom
+    ;
 
 // Compound statements
 // -------------------
 compound_stmt: if_stmt
-             | while_stmt
-             | for_stmt;
-if_stmt: IF expression COLON suite elif_blocks_opt else_block_opt;
+    | while_stmt
+    | for_stmt
+    ;
+
+if_stmt: IF expression COLON suite elif_blocks_opt else_block_opt
+    ;
+
 elif_blocks_opt: %empty
-                | elif_blocks;
+    | elif_blocks
+    ;
+
 else_block_opt: %empty
-              | ELSE COLON suite;
-elif_blocks: ELIF expression COLON suite elif_blocks_opt;
-while_stmt: WHILE expression COLON suite else_block_opt;
-for_stmt: FOR star_targets IN disjunction COLON suite else_block_opt;
-suite: NEWLINE INDENT statements DEDENT;
+    | ELSE COLON suite
+    ;
+
+elif_blocks: ELIF expression COLON suite elif_blocks_opt
+    ;
+
+while_stmt: WHILE expression COLON suite else_block_opt
+    ;
+
+for_stmt: FOR star_targets IN disjunction COLON suite else_block_opt
+    ;
+
+suite: NEWLINE INDENT statements DEDENT
+    ;
+
 // Lambda functions
 // ---------------
-lambdef: LAMBDA lambda_params_opt COLON expression;
+lambdef: LAMBDA lambda_params_opt COLON expression
+    ;
+
 lambda_params_opt: %empty
-                 | lambda_params comma_opt;
+    | lambda_params comma_opt
+    ;
+
 lambda_params: NAME 
-             | lambda_params COMMA NAME;
-//
+    | lambda_params COMMA NAME
+    ;
+// ---------------

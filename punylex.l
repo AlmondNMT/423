@@ -25,6 +25,9 @@ multiline_double_quotes     \"\"\"((\\\")|([^"])|([^"]\"{0,2})|(\"{0,2}[^"]))*\"
 multiline_single_quotes     \'\'\'((\\\')|([^'])|([^']\'{0,2})|(\'{0,2}[^']))*\'\'\'
 double_quotes               \"[^\"\n]*\"
 single_quotes               \'[^\'\n]*\'
+stringlit                   {multiline_double_quotes}{multiline_single_quotes}{double_quotes}{single_quotes}
+fstring                     "f"{stringlit}
+rstring                     "r"{stringlit}
 int_dec                     [1-9](_?[0-9])*
 int_hex                     0x_?([0-9a-fA-F](_[0-9a-fA-F])*)*
 int_octal                   0o[0-7]+
@@ -214,7 +217,7 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
 {integer}                 { column += strlen(yytext); return INTLIT; }
 [A-Za-z0-9]+	{column += strlen(yytext); words++; return NAME;}
 {float} { column += strlen(yytext); return FLOATLIT; }
-{multiline_double_quotes}|{multiline_single_quotes}|{single_quotes}|{double_quotes}    {
+{stringlit} {
                 int len = strlen(yytext);
                 char c;
                 for(int i = 0; i < len; i++) {
@@ -227,6 +230,8 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
                 }
                 return STRINGLIT;
             }
+{fstring}   { }
+{rstring}   { }
 .		{column++;}
 %%
 
