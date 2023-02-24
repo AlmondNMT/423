@@ -1,1 +1,1 @@
-a + a + b * 23 + qwerty / 12
+from ass import poo

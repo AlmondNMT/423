@@ -2,8 +2,6 @@ Terminals unused in grammar
 
     INDENT
     DEDENT
-    LPAR
-    RPAR
     LESS
     GREATER
     EQUAL
@@ -27,18 +25,15 @@ Terminals unused in grammar
     DOUBLESLASHEQUAL
     ATEQUAL
     RARROW
-    ELLIPSIS
     COLONEQUAL
     PYDEF
     RAISE
     DEL
-    IMPORT
     ELIF
     IN
     TRY
     IS
     WHILE
-    AS
     EXCEPT
     WITH
     ASSERT
@@ -48,7 +43,6 @@ Terminals unused in grammar
     BREAK
     FOR
     CLASS
-    FROM
     CONTINUE
     GLOBAL
     PASS
@@ -63,6 +57,9 @@ Terminals unused in grammar
     MATCH
     ASSIGNMENT
     DECORATOR
+
+
+State 165 conflicts: 1 shift/reduce
 
 
 Grammar
@@ -92,159 +89,201 @@ Grammar
 
    14 simple_stmt: return_stmt
    15            | star_expressions
+   16            | import_stmt
 
-   16 return_stmt: RETURN star_expressions_opt
+   17 import_stmt: import_name
+   18            | import_from
 
-   17 star_expressions_opt: ε
-   18                     | star_expressions
+   19 import_name: IMPORT dotted_as_names
 
-   19 star_expressions: star_expression comma_star_expr_rep comma_opt
-   20                 | star_expression COMMA
-   21                 | star_expression
+   20 import_from: FROM dot_OR_ellipsis_rep_opt dotted_name IMPORT import_from_targets
+   21            | FROM dot_OR_ellipsis_rep IMPORT import_from_targets
 
-   22 comma_star_expr_rep: COMMA star_expression
-   23                    | comma_star_expr_rep COMMA star_expression
+   22 import_from_targets: LPAR import_from_as_names comma_opt RPAR
+   23                    | import_from_as_names
+   24                    | STAR
 
-   24 star_expression: STAR bitwise_or
-   25                | expression
+   25 import_from_as_names: import_from_as_name comma_import_from_as_name_rep
 
-   26 expression: disjunction IF disjunction ELSE expression
-   27           | disjunction
-   28           | lambdef
+   26 comma_import_from_as_name_rep: ε
+   27                              | comma_import_from_as_name_rep COMMA import_from_as_name
 
-   29 disjunction: conjunction or_conjunction_rep
-   30            | conjunction
+   28 import_from_as_name: NAME as_name_opt
 
-   31 or_conjunction_rep: OR conjunction
-   32                   | or_conjunction_rep OR conjunction
+   29 as_name_opt: ε
+   30            | AS NAME
 
-   33 conjunction: inversion and_inversion_rep
-   34            | inversion
+   31 dotted_as_names: dotted_as_name comma_dotted_as_name_rep
 
-   35 and_inversion_rep: AND inversion
-   36                  | and_inversion_rep AND inversion
+   32 comma_dotted_as_name_rep: ε
+   33                         | comma_dotted_as_name_rep COMMA dotted_as_name
 
-   37 inversion: NOT inversion
-   38          | comparison
+   34 dotted_as_name: dotted_name as_name_opt
 
-   39 comparison: bitwise_or
+   35 dotted_name: dotted_name DOT NAME
+   36            | NAME
 
-   40 atom: NAME
-   41     | PYTRUE
-   42     | PYFALSE
-   43     | NONE
-   44     | strings
-   45     | INTLIT
-   46     | FLOATLIT
-   47     | list
+   37 dot_OR_ellipsis_rep_opt: ε
+   38                        | dot_OR_ellipsis_rep
 
-   48 strings: STRINGLIT
-   49        | strings STRINGLIT
+   39 dot_OR_ellipsis_rep: dot_OR_ellipsis
+   40                    | dot_OR_ellipsis_rep dot_OR_ellipsis
 
-   50 list: LSQB star_named_expressions_opt RSQB
+   41 dot_OR_ellipsis: DOT
+   42                | ELLIPSIS
 
-   51 star_named_expressions_opt: ε
-   52                           | star_named_expressions
+   43 return_stmt: RETURN star_expressions_opt
 
-   53 comma_opt: ε
-   54          | COMMA
+   44 star_expressions_opt: ε
+   45                     | star_expressions
 
-   55 star_named_expressions: star_named_expression comma_sne_rep comma_opt
+   46 star_expressions: star_expression comma_star_expr_rep comma_opt
+   47                 | star_expression COMMA
+   48                 | star_expression
 
-   56 comma_sne_rep: ε
-   57              | comma_sne_rep COMMA star_named_expression
+   49 comma_star_expr_rep: COMMA star_expression
+   50                    | comma_star_expr_rep COMMA star_expression
 
-   58 star_named_expression: STAR bitwise_or
-   59                      | expression
+   51 star_expression: STAR bitwise_or
+   52                | expression
 
-   60 bitwise_or: bitwise_or VBAR bitwise_xor
-   61           | bitwise_xor
+   53 expression: disjunction IF disjunction ELSE expression
+   54           | disjunction
+   55           | lambdef
 
-   62 bitwise_xor: bitwise_xor CIRCUMFLEX bitwise_and
-   63            | bitwise_and
+   56 disjunction: conjunction or_conjunction_rep
+   57            | conjunction
 
-   64 bitwise_and: bitwise_and AMPER shift_expr
-   65            | shift_expr
+   58 or_conjunction_rep: OR conjunction
+   59                   | or_conjunction_rep OR conjunction
 
-   66 shift_expr: shift_expr LEFTSHIFT sum
-   67           | shift_expr RIGHTSHIFT sum
-   68           | sum
+   60 conjunction: inversion and_inversion_rep
+   61            | inversion
 
-   69 sum: sum PLUS term
-   70    | sum MINUS term
-   71    | term
+   62 and_inversion_rep: AND inversion
+   63                  | and_inversion_rep AND inversion
 
-   72 term: term STAR factor
-   73     | term SLASH factor
-   74     | term DOUBLESLASH factor
-   75     | term PERCENT factor
-   76     | term AT factor
-   77     | factor
+   64 inversion: NOT inversion
+   65          | comparison
 
-   78 factor: PLUS factor
-   79       | MINUS factor
-   80       | TILDE factor
-   81       | power
+   66 comparison: bitwise_or
 
-   82 power: await_primary DOUBLESTAR factor
-   83      | await_primary
+   67 atom: NAME
+   68     | PYTRUE
+   69     | PYFALSE
+   70     | NONE
+   71     | strings
+   72     | INTLIT
+   73     | FLOATLIT
+   74     | list
 
-   84 await_primary: AWAIT primary
-   85              | primary
+   75 strings: STRINGLIT
+   76        | strings STRINGLIT
 
-   86 primary: primary DOT NAME
-   87        | atom
+   77 list: LSQB star_named_expressions_opt RSQB
 
-   88 lambdef: LAMBDA lambda_params_opt COLON expression
+   78 star_named_expressions_opt: ε
+   79                           | star_named_expressions
 
-   89 lambda_params_opt: ε
-   90                  | lambda_params comma_opt
+   80 comma_opt: ε
+   81          | COMMA
 
-   91 lambda_params: NAME
-   92              | lambda_params COMMA NAME
+   82 star_named_expressions: star_named_expression comma_sne_rep comma_opt
+
+   83 comma_sne_rep: ε
+   84              | comma_sne_rep COMMA star_named_expression
+
+   85 star_named_expression: STAR bitwise_or
+   86                      | expression
+
+   87 bitwise_or: bitwise_or VBAR bitwise_xor
+   88           | bitwise_xor
+
+   89 bitwise_xor: bitwise_xor CIRCUMFLEX bitwise_and
+   90            | bitwise_and
+
+   91 bitwise_and: bitwise_and AMPER shift_expr
+   92            | shift_expr
+
+   93 shift_expr: shift_expr LEFTSHIFT sum
+   94           | shift_expr RIGHTSHIFT sum
+   95           | sum
+
+   96 sum: sum PLUS term
+   97    | sum MINUS term
+   98    | term
+
+   99 term: term STAR factor
+  100     | term SLASH factor
+  101     | term DOUBLESLASH factor
+  102     | term PERCENT factor
+  103     | term AT factor
+  104     | factor
+
+  105 factor: PLUS factor
+  106       | MINUS factor
+  107       | TILDE factor
+  108       | power
+
+  109 power: await_primary DOUBLESTAR factor
+  110      | await_primary
+
+  111 await_primary: AWAIT primary
+  112              | primary
+
+  113 primary: primary DOT NAME
+  114        | atom
+
+  115 lambdef: LAMBDA lambda_params_opt COLON expression
+
+  116 lambda_params_opt: ε
+  117                  | lambda_params comma_opt
+
+  118 lambda_params: NAME
+  119              | lambda_params COMMA NAME
 
 
 Terminals, with rules where they appear
 
     $end (0) 0
     error (256)
-    FLOATLIT <treeptr> (258) 46
+    FLOATLIT <treeptr> (258) 73
     ENDMARKER <treeptr> (259) 1
-    NAME <treeptr> (260) 40 86 91 92
-    INTLIT <treeptr> (261) 45
-    STRINGLIT <treeptr> (262) 48 49
+    NAME <treeptr> (260) 28 30 35 36 67 113 118 119
+    INTLIT <treeptr> (261) 72
+    STRINGLIT <treeptr> (262) 75 76
     NEWLINE <treeptr> (263) 3 9
     INDENT <treeptr> (264)
     DEDENT <treeptr> (265)
-    LPAR <treeptr> (266)
-    RPAR <treeptr> (267)
-    LSQB <treeptr> (268) 50
-    RSQB <treeptr> (269) 50
-    COLON <treeptr> (270) 88
-    COMMA <treeptr> (271) 20 22 23 54 57 92
+    LPAR <treeptr> (266) 22
+    RPAR <treeptr> (267) 22
+    LSQB <treeptr> (268) 77
+    RSQB <treeptr> (269) 77
+    COLON <treeptr> (270) 115
+    COMMA <treeptr> (271) 27 33 47 49 50 81 84 119
     SEMI <treeptr> (272) 11 13
-    PLUS <treeptr> (273) 69 78
-    MINUS <treeptr> (274) 70 79
-    STAR <treeptr> (275) 24 58 72
-    SLASH <treeptr> (276) 73
-    VBAR <treeptr> (277) 60
-    AMPER <treeptr> (278) 64
+    PLUS <treeptr> (273) 96 105
+    MINUS <treeptr> (274) 97 106
+    STAR <treeptr> (275) 24 51 85 99
+    SLASH <treeptr> (276) 100
+    VBAR <treeptr> (277) 87
+    AMPER <treeptr> (278) 91
     LESS <treeptr> (279)
     GREATER <treeptr> (280)
     EQUAL <treeptr> (281)
-    DOT <treeptr> (282) 86
-    PERCENT <treeptr> (283) 75
+    DOT <treeptr> (282) 35 41 113
+    PERCENT <treeptr> (283) 102
     LBRACE <treeptr> (284)
     RBRACE <treeptr> (285)
     EQEQUAL <treeptr> (286)
     NOTEQUAL <treeptr> (287)
     LESSEQUAL <treeptr> (288)
     GREATEREQUAL <treeptr> (289)
-    TILDE <treeptr> (290) 80
-    CIRCUMFLEX <treeptr> (291) 62
-    LEFTSHIFT <treeptr> (292) 66
-    RIGHTSHIFT <treeptr> (293) 67
-    DOUBLESTAR <treeptr> (294) 82
+    TILDE <treeptr> (290) 107
+    CIRCUMFLEX <treeptr> (291) 89
+    LEFTSHIFT <treeptr> (292) 93
+    RIGHTSHIFT <treeptr> (293) 94
+    DOUBLESTAR <treeptr> (294) 109
     PLUSEQUAL <treeptr> (295)
     MINEQUAL <treeptr> (296)
     STAREQUAL <treeptr> (297)
@@ -256,32 +295,32 @@ Terminals, with rules where they appear
     LEFTSHIFTEQUAL <treeptr> (303)
     RIGHTSHIFTEQUAL <treeptr> (304)
     DOUBLESTAREQUAL <treeptr> (305)
-    DOUBLESLASH <treeptr> (306) 74
+    DOUBLESLASH <treeptr> (306) 101
     DOUBLESLASHEQUAL <treeptr> (307)
-    AT <treeptr> (308) 76
+    AT <treeptr> (308) 103
     ATEQUAL <treeptr> (309)
     RARROW <treeptr> (310)
-    ELLIPSIS <treeptr> (311)
+    ELLIPSIS <treeptr> (311) 42
     COLONEQUAL <treeptr> (312)
-    PYFALSE <treeptr> (313) 42
+    PYFALSE <treeptr> (313) 69
     PYDEF <treeptr> (314)
-    IF <treeptr> (315) 26
+    IF <treeptr> (315) 53
     RAISE <treeptr> (316)
-    NONE <treeptr> (317) 43
+    NONE <treeptr> (317) 70
     DEL <treeptr> (318)
-    IMPORT <treeptr> (319)
-    RETURN <treeptr> (320) 16
-    PYTRUE <treeptr> (321) 41
+    IMPORT <treeptr> (319) 19 20 21
+    RETURN <treeptr> (320) 43
+    PYTRUE <treeptr> (321) 68
     ELIF <treeptr> (322)
     IN <treeptr> (323)
     TRY <treeptr> (324)
-    AND <treeptr> (325) 35 36
-    ELSE <treeptr> (326) 26
+    AND <treeptr> (325) 62 63
+    ELSE <treeptr> (326) 53
     IS <treeptr> (327)
     WHILE <treeptr> (328)
-    AS <treeptr> (329)
+    AS <treeptr> (329) 30
     EXCEPT <treeptr> (330)
-    LAMBDA <treeptr> (331) 88
+    LAMBDA <treeptr> (331) 115
     WITH <treeptr> (332)
     ASSERT <treeptr> (333)
     FINALLY <treeptr> (334)
@@ -289,15 +328,15 @@ Terminals, with rules where they appear
     YIELD <treeptr> (336)
     BREAK <treeptr> (337)
     FOR <treeptr> (338)
-    NOT <treeptr> (339) 37
+    NOT <treeptr> (339) 64
     CLASS <treeptr> (340)
-    FROM <treeptr> (341)
-    OR <treeptr> (342) 31 32
+    FROM <treeptr> (341) 20 21
+    OR <treeptr> (342) 58 59
     CONTINUE <treeptr> (343)
     GLOBAL <treeptr> (344)
     PASS <treeptr> (345)
     OP <treeptr> (346)
-    AWAIT <treeptr> (347) 84
+    AWAIT <treeptr> (347) 111
     ASYNC <treeptr> (348)
     TYPE_IGNORE <treeptr> (349)
     TYPE_COMMENT <treeptr> (350)
@@ -339,107 +378,152 @@ Nonterminals, with rules where they appear
         on left: 12 13
         on right: 9 13
     simple_stmt (112)
-        on left: 14 15
+        on left: 14 15 16
         on right: 12 13
-    return_stmt (113)
-        on left: 16
-        on right: 14
-    star_expressions_opt (114)
+    import_stmt (113)
         on left: 17 18
         on right: 16
-    star_expressions (115)
-        on left: 19 20 21
-        on right: 15 18
-    comma_star_expr_rep (116)
-        on left: 22 23
-        on right: 19 23
-    star_expression (117)
-        on left: 24 25
-        on right: 19 20 21 22 23
-    expression (118)
-        on left: 26 27 28
-        on right: 25 26 59 88
-    disjunction (119)
+    import_name (114)
+        on left: 19
+        on right: 17
+    import_from (115)
+        on left: 20 21
+        on right: 18
+    import_from_targets (116)
+        on left: 22 23 24
+        on right: 20 21
+    import_from_as_names (117)
+        on left: 25
+        on right: 22 23
+    comma_import_from_as_name_rep (118)
+        on left: 26 27
+        on right: 25 27
+    import_from_as_name (119)
+        on left: 28
+        on right: 25 27
+    as_name_opt (120)
         on left: 29 30
-        on right: 26 27
-    or_conjunction_rep (120)
-        on left: 31 32
-        on right: 29 32
-    conjunction (121)
-        on left: 33 34
-        on right: 29 30 31 32
-    and_inversion_rep (122)
+        on right: 28 34
+    dotted_as_names (121)
+        on left: 31
+        on right: 19
+    comma_dotted_as_name_rep (122)
+        on left: 32 33
+        on right: 31 33
+    dotted_as_name (123)
+        on left: 34
+        on right: 31 33
+    dotted_name (124)
         on left: 35 36
-        on right: 33 36
-    inversion (123)
+        on right: 20 34 35
+    dot_OR_ellipsis_rep_opt (125)
         on left: 37 38
-        on right: 33 34 35 36 37
-    comparison (124)
-        on left: 39
-        on right: 38
-    atom (125)
-        on left: 40 41 42 43 44 45 46 47
-        on right: 87
-    strings (126)
-        on left: 48 49
-        on right: 44 49
-    list (127)
-        on left: 50
-        on right: 47
-    star_named_expressions_opt (128)
+        on right: 20
+    dot_OR_ellipsis_rep (126)
+        on left: 39 40
+        on right: 21 38 40
+    dot_OR_ellipsis (127)
+        on left: 41 42
+        on right: 39 40
+    return_stmt (128)
+        on left: 43
+        on right: 14
+    star_expressions_opt (129)
+        on left: 44 45
+        on right: 43
+    star_expressions (130)
+        on left: 46 47 48
+        on right: 15 45
+    comma_star_expr_rep (131)
+        on left: 49 50
+        on right: 46 50
+    star_expression (132)
         on left: 51 52
-        on right: 50
-    comma_opt (129)
-        on left: 53 54
-        on right: 19 55 90
-    star_named_expressions (130)
-        on left: 55
-        on right: 52
-    comma_sne_rep (131)
+        on right: 46 47 48 49 50
+    expression (133)
+        on left: 53 54 55
+        on right: 52 53 86 115
+    disjunction (134)
         on left: 56 57
-        on right: 55 57
-    star_named_expression (132)
+        on right: 53 54
+    or_conjunction_rep (135)
         on left: 58 59
-        on right: 55 57
-    bitwise_or (133)
+        on right: 56 59
+    conjunction (136)
         on left: 60 61
-        on right: 24 39 58 60
-    bitwise_xor (134)
+        on right: 56 57 58 59
+    and_inversion_rep (137)
         on left: 62 63
-        on right: 60 61 62
-    bitwise_and (135)
+        on right: 60 63
+    inversion (138)
         on left: 64 65
-        on right: 62 63 64
-    shift_expr (136)
-        on left: 66 67 68
-        on right: 64 65 66 67
-    sum (137)
-        on left: 69 70 71
-        on right: 66 67 68 69 70
-    term (138)
-        on left: 72 73 74 75 76 77
-        on right: 69 70 71 72 73 74 75 76
-    factor (139)
-        on left: 78 79 80 81
-        on right: 72 73 74 75 76 77 78 79 80 82
-    power (140)
-        on left: 82 83
-        on right: 81
-    await_primary (141)
-        on left: 84 85
-        on right: 82 83
-    primary (142)
-        on left: 86 87
-        on right: 84 85 86
-    lambdef (143)
-        on left: 88
-        on right: 28
-    lambda_params_opt (144)
+        on right: 60 61 62 63 64
+    comparison (139)
+        on left: 66
+        on right: 65
+    atom (140)
+        on left: 67 68 69 70 71 72 73 74
+        on right: 114
+    strings (141)
+        on left: 75 76
+        on right: 71 76
+    list (142)
+        on left: 77
+        on right: 74
+    star_named_expressions_opt (143)
+        on left: 78 79
+        on right: 77
+    comma_opt (144)
+        on left: 80 81
+        on right: 22 46 82 117
+    star_named_expressions (145)
+        on left: 82
+        on right: 79
+    comma_sne_rep (146)
+        on left: 83 84
+        on right: 82 84
+    star_named_expression (147)
+        on left: 85 86
+        on right: 82 84
+    bitwise_or (148)
+        on left: 87 88
+        on right: 51 66 85 87
+    bitwise_xor (149)
         on left: 89 90
-        on right: 88
-    lambda_params (145)
+        on right: 87 88 89
+    bitwise_and (150)
         on left: 91 92
-        on right: 90 92
+        on right: 89 90 91
+    shift_expr (151)
+        on left: 93 94 95
+        on right: 91 92 93 94
+    sum (152)
+        on left: 96 97 98
+        on right: 93 94 95 96 97
+    term (153)
+        on left: 99 100 101 102 103 104
+        on right: 96 97 98 99 100 101 102 103
+    factor (154)
+        on left: 105 106 107 108
+        on right: 99 100 101 102 103 104 105 106 107 109
+    power (155)
+        on left: 109 110
+        on right: 108
+    await_primary (156)
+        on left: 111 112
+        on right: 109 110
+    primary (157)
+        on left: 113 114
+        on right: 111 112 113
+    lambdef (158)
+        on left: 115
+        on right: 55
+    lambda_params_opt (159)
+        on left: 116 117
+        on right: 115
+    lambda_params (160)
+        on left: 118 119
+        on right: 117 119
 
 
 State 0
@@ -457,76 +541,81 @@ State 0
     TILDE      shift, and go to state 9
     PYFALSE    shift, and go to state 10
     NONE       shift, and go to state 11
-    RETURN     shift, and go to state 12
-    PYTRUE     shift, and go to state 13
-    LAMBDA     shift, and go to state 14
-    NOT        shift, and go to state 15
-    AWAIT      shift, and go to state 16
+    IMPORT     shift, and go to state 12
+    RETURN     shift, and go to state 13
+    PYTRUE     shift, and go to state 14
+    LAMBDA     shift, and go to state 15
+    NOT        shift, and go to state 16
+    FROM       shift, and go to state 17
+    AWAIT      shift, and go to state 18
 
     $default  reduce using rule 4 (statements_opt)
 
-    file_input             go to state 17
-    statements_opt         go to state 18
-    statements             go to state 19
-    statement              go to state 20
-    simple_stmts           go to state 21
-    semi_simple_stmts_rep  go to state 22
-    simple_stmt            go to state 23
-    return_stmt            go to state 24
-    star_expressions       go to state 25
-    star_expression        go to state 26
-    expression             go to state 27
-    disjunction            go to state 28
-    conjunction            go to state 29
-    inversion              go to state 30
-    comparison             go to state 31
-    atom                   go to state 32
-    strings                go to state 33
-    list                   go to state 34
-    bitwise_or             go to state 35
-    bitwise_xor            go to state 36
-    bitwise_and            go to state 37
-    shift_expr             go to state 38
-    sum                    go to state 39
-    term                   go to state 40
-    factor                 go to state 41
-    power                  go to state 42
-    await_primary          go to state 43
-    primary                go to state 44
-    lambdef                go to state 45
+    file_input             go to state 19
+    statements_opt         go to state 20
+    statements             go to state 21
+    statement              go to state 22
+    simple_stmts           go to state 23
+    semi_simple_stmts_rep  go to state 24
+    simple_stmt            go to state 25
+    import_stmt            go to state 26
+    import_name            go to state 27
+    import_from            go to state 28
+    return_stmt            go to state 29
+    star_expressions       go to state 30
+    star_expression        go to state 31
+    expression             go to state 32
+    disjunction            go to state 33
+    conjunction            go to state 34
+    inversion              go to state 35
+    comparison             go to state 36
+    atom                   go to state 37
+    strings                go to state 38
+    list                   go to state 39
+    bitwise_or             go to state 40
+    bitwise_xor            go to state 41
+    bitwise_and            go to state 42
+    shift_expr             go to state 43
+    sum                    go to state 44
+    term                   go to state 45
+    factor                 go to state 46
+    power                  go to state 47
+    await_primary          go to state 48
+    primary                go to state 49
+    lambdef                go to state 50
 
 
 State 1
 
-   46 atom: FLOATLIT •
+   73 atom: FLOATLIT •
 
-    $default  reduce using rule 46 (atom)
+    $default  reduce using rule 73 (atom)
 
 
 State 2
 
-   40 atom: NAME •
+   67 atom: NAME •
 
-    $default  reduce using rule 40 (atom)
+    $default  reduce using rule 67 (atom)
 
 
 State 3
 
-   45 atom: INTLIT •
+   72 atom: INTLIT •
 
-    $default  reduce using rule 45 (atom)
+    $default  reduce using rule 72 (atom)
 
 
 State 4
 
-   48 strings: STRINGLIT •
+   75 strings: STRINGLIT •
 
-    $default  reduce using rule 48 (strings)
+    $default  reduce using rule 75 (strings)
 
 
 State 5
 
-   50 list: LSQB • star_named_expressions_opt RSQB
+   77 list: LSQB • star_named_expressions_opt RSQB
 
     FLOATLIT   shift, and go to state 1
     NAME       shift, and go to state 2
@@ -535,44 +624,44 @@ State 5
     LSQB       shift, and go to state 5
     PLUS       shift, and go to state 6
     MINUS      shift, and go to state 7
-    STAR       shift, and go to state 46
+    STAR       shift, and go to state 51
     TILDE      shift, and go to state 9
     PYFALSE    shift, and go to state 10
     NONE       shift, and go to state 11
-    PYTRUE     shift, and go to state 13
-    LAMBDA     shift, and go to state 14
-    NOT        shift, and go to state 15
-    AWAIT      shift, and go to state 16
+    PYTRUE     shift, and go to state 14
+    LAMBDA     shift, and go to state 15
+    NOT        shift, and go to state 16
+    AWAIT      shift, and go to state 18
 
-    $default  reduce using rule 51 (star_named_expressions_opt)
+    $default  reduce using rule 78 (star_named_expressions_opt)
 
-    expression                  go to state 47
-    disjunction                 go to state 28
-    conjunction                 go to state 29
-    inversion                   go to state 30
-    comparison                  go to state 31
-    atom                        go to state 32
-    strings                     go to state 33
-    list                        go to state 34
-    star_named_expressions_opt  go to state 48
-    star_named_expressions      go to state 49
-    star_named_expression       go to state 50
-    bitwise_or                  go to state 35
-    bitwise_xor                 go to state 36
-    bitwise_and                 go to state 37
-    shift_expr                  go to state 38
-    sum                         go to state 39
-    term                        go to state 40
-    factor                      go to state 41
-    power                       go to state 42
-    await_primary               go to state 43
-    primary                     go to state 44
-    lambdef                     go to state 45
+    expression                  go to state 52
+    disjunction                 go to state 33
+    conjunction                 go to state 34
+    inversion                   go to state 35
+    comparison                  go to state 36
+    atom                        go to state 37
+    strings                     go to state 38
+    list                        go to state 39
+    star_named_expressions_opt  go to state 53
+    star_named_expressions      go to state 54
+    star_named_expression       go to state 55
+    bitwise_or                  go to state 40
+    bitwise_xor                 go to state 41
+    bitwise_and                 go to state 42
+    shift_expr                  go to state 43
+    sum                         go to state 44
+    term                        go to state 45
+    factor                      go to state 46
+    power                       go to state 47
+    await_primary               go to state 48
+    primary                     go to state 49
+    lambdef                     go to state 50
 
 
 State 6
 
-   78 factor: PLUS • factor
+  105 factor: PLUS • factor
 
     FLOATLIT   shift, and go to state 1
     NAME       shift, and go to state 2
@@ -584,21 +673,21 @@ State 6
     TILDE      shift, and go to state 9
     PYFALSE    shift, and go to state 10
     NONE       shift, and go to state 11
-    PYTRUE     shift, and go to state 13
-    AWAIT      shift, and go to state 16
+    PYTRUE     shift, and go to state 14
+    AWAIT      shift, and go to state 18
 
-    atom           go to state 32
-    strings        go to state 33
-    list           go to state 34
-    factor         go to state 51
-    power          go to state 42
-    await_primary  go to state 43
-    primary        go to state 44
+    atom           go to state 37
+    strings        go to state 38
+    list           go to state 39
+    factor         go to state 56
+    power          go to state 47
+    await_primary  go to state 48
+    primary        go to state 49
 
 
 State 7
 
-   79 factor: MINUS • factor
+  106 factor: MINUS • factor
 
     FLOATLIT   shift, and go to state 1
     NAME       shift, and go to state 2
@@ -610,21 +699,21 @@ State 7
     TILDE      shift, and go to state 9
     PYFALSE    shift, and go to state 10
     NONE       shift, and go to state 11
-    PYTRUE     shift, and go to state 13
-    AWAIT      shift, and go to state 16
+    PYTRUE     shift, and go to state 14
+    AWAIT      shift, and go to state 18
 
-    atom           go to state 32
-    strings        go to state 33
-    list           go to state 34
-    factor         go to state 52
-    power          go to state 42
-    await_primary  go to state 43
-    primary        go to state 44
+    atom           go to state 37
+    strings        go to state 38
+    list           go to state 39
+    factor         go to state 57
+    power          go to state 47
+    await_primary  go to state 48
+    primary        go to state 49
 
 
 State 8
 
-   24 star_expression: STAR • bitwise_or
+   51 star_expression: STAR • bitwise_or
 
     FLOATLIT   shift, and go to state 1
     NAME       shift, and go to state 2
@@ -636,27 +725,27 @@ State 8
     TILDE      shift, and go to state 9
     PYFALSE    shift, and go to state 10
     NONE       shift, and go to state 11
-    PYTRUE     shift, and go to state 13
-    AWAIT      shift, and go to state 16
+    PYTRUE     shift, and go to state 14
+    AWAIT      shift, and go to state 18
 
-    atom           go to state 32
-    strings        go to state 33
-    list           go to state 34
-    bitwise_or     go to state 53
-    bitwise_xor    go to state 36
-    bitwise_and    go to state 37
-    shift_expr     go to state 38
-    sum            go to state 39
-    term           go to state 40
-    factor         go to state 41
-    power          go to state 42
-    await_primary  go to state 43
-    primary        go to state 44
+    atom           go to state 37
+    strings        go to state 38
+    list           go to state 39
+    bitwise_or     go to state 58
+    bitwise_xor    go to state 41
+    bitwise_and    go to state 42
+    shift_expr     go to state 43
+    sum            go to state 44
+    term           go to state 45
+    factor         go to state 46
+    power          go to state 47
+    await_primary  go to state 48
+    primary        go to state 49
 
 
 State 9
 
-   80 factor: TILDE • factor
+  107 factor: TILDE • factor
 
     FLOATLIT   shift, and go to state 1
     NAME       shift, and go to state 2
@@ -668,35 +757,46 @@ State 9
     TILDE      shift, and go to state 9
     PYFALSE    shift, and go to state 10
     NONE       shift, and go to state 11
-    PYTRUE     shift, and go to state 13
-    AWAIT      shift, and go to state 16
+    PYTRUE     shift, and go to state 14
+    AWAIT      shift, and go to state 18
 
-    atom           go to state 32
-    strings        go to state 33
-    list           go to state 34
-    factor         go to state 54
-    power          go to state 42
-    await_primary  go to state 43
-    primary        go to state 44
+    atom           go to state 37
+    strings        go to state 38
+    list           go to state 39
+    factor         go to state 59
+    power          go to state 47
+    await_primary  go to state 48
+    primary        go to state 49
 
 
 State 10
 
-   42 atom: PYFALSE •
+   69 atom: PYFALSE •
 
-    $default  reduce using rule 42 (atom)
+    $default  reduce using rule 69 (atom)
 
 
 State 11
 
-   43 atom: NONE •
+   70 atom: NONE •
 
-    $default  reduce using rule 43 (atom)
+    $default  reduce using rule 70 (atom)
 
 
 State 12
 
-   16 return_stmt: RETURN • star_expressions_opt
+   19 import_name: IMPORT • dotted_as_names
+
+    NAME  shift, and go to state 60
+
+    dotted_as_names  go to state 61
+    dotted_as_name   go to state 62
+    dotted_name      go to state 63
+
+
+State 13
+
+   43 return_stmt: RETURN • star_expressions_opt
 
     FLOATLIT   shift, and go to state 1
     NAME       shift, and go to state 2
@@ -709,59 +809,59 @@ State 12
     TILDE      shift, and go to state 9
     PYFALSE    shift, and go to state 10
     NONE       shift, and go to state 11
-    PYTRUE     shift, and go to state 13
-    LAMBDA     shift, and go to state 14
-    NOT        shift, and go to state 15
-    AWAIT      shift, and go to state 16
+    PYTRUE     shift, and go to state 14
+    LAMBDA     shift, and go to state 15
+    NOT        shift, and go to state 16
+    AWAIT      shift, and go to state 18
 
-    $default  reduce using rule 17 (star_expressions_opt)
+    $default  reduce using rule 44 (star_expressions_opt)
 
-    star_expressions_opt  go to state 55
-    star_expressions      go to state 56
-    star_expression       go to state 26
-    expression            go to state 27
-    disjunction           go to state 28
-    conjunction           go to state 29
-    inversion             go to state 30
-    comparison            go to state 31
-    atom                  go to state 32
-    strings               go to state 33
-    list                  go to state 34
-    bitwise_or            go to state 35
-    bitwise_xor           go to state 36
-    bitwise_and           go to state 37
-    shift_expr            go to state 38
-    sum                   go to state 39
-    term                  go to state 40
-    factor                go to state 41
-    power                 go to state 42
-    await_primary         go to state 43
-    primary               go to state 44
-    lambdef               go to state 45
-
-
-State 13
-
-   41 atom: PYTRUE •
-
-    $default  reduce using rule 41 (atom)
+    star_expressions_opt  go to state 64
+    star_expressions      go to state 65
+    star_expression       go to state 31
+    expression            go to state 32
+    disjunction           go to state 33
+    conjunction           go to state 34
+    inversion             go to state 35
+    comparison            go to state 36
+    atom                  go to state 37
+    strings               go to state 38
+    list                  go to state 39
+    bitwise_or            go to state 40
+    bitwise_xor           go to state 41
+    bitwise_and           go to state 42
+    shift_expr            go to state 43
+    sum                   go to state 44
+    term                  go to state 45
+    factor                go to state 46
+    power                 go to state 47
+    await_primary         go to state 48
+    primary               go to state 49
+    lambdef               go to state 50
 
 
 State 14
 
-   88 lambdef: LAMBDA • lambda_params_opt COLON expression
+   68 atom: PYTRUE •
 
-    NAME  shift, and go to state 57
-
-    $default  reduce using rule 89 (lambda_params_opt)
-
-    lambda_params_opt  go to state 58
-    lambda_params      go to state 59
+    $default  reduce using rule 68 (atom)
 
 
 State 15
 
-   37 inversion: NOT • inversion
+  115 lambdef: LAMBDA • lambda_params_opt COLON expression
+
+    NAME  shift, and go to state 66
+
+    $default  reduce using rule 116 (lambda_params_opt)
+
+    lambda_params_opt  go to state 67
+    lambda_params      go to state 68
+
+
+State 16
+
+   64 inversion: NOT • inversion
 
     FLOATLIT   shift, and go to state 1
     NAME       shift, and go to state 2
@@ -773,30 +873,45 @@ State 15
     TILDE      shift, and go to state 9
     PYFALSE    shift, and go to state 10
     NONE       shift, and go to state 11
-    PYTRUE     shift, and go to state 13
-    NOT        shift, and go to state 15
-    AWAIT      shift, and go to state 16
+    PYTRUE     shift, and go to state 14
+    NOT        shift, and go to state 16
+    AWAIT      shift, and go to state 18
 
-    inversion      go to state 60
-    comparison     go to state 31
-    atom           go to state 32
-    strings        go to state 33
-    list           go to state 34
-    bitwise_or     go to state 35
-    bitwise_xor    go to state 36
-    bitwise_and    go to state 37
-    shift_expr     go to state 38
-    sum            go to state 39
-    term           go to state 40
-    factor         go to state 41
-    power          go to state 42
-    await_primary  go to state 43
-    primary        go to state 44
+    inversion      go to state 69
+    comparison     go to state 36
+    atom           go to state 37
+    strings        go to state 38
+    list           go to state 39
+    bitwise_or     go to state 40
+    bitwise_xor    go to state 41
+    bitwise_and    go to state 42
+    shift_expr     go to state 43
+    sum            go to state 44
+    term           go to state 45
+    factor         go to state 46
+    power          go to state 47
+    await_primary  go to state 48
+    primary        go to state 49
 
 
-State 16
+State 17
 
-   84 await_primary: AWAIT • primary
+   20 import_from: FROM • dot_OR_ellipsis_rep_opt dotted_name IMPORT import_from_targets
+   21            | FROM • dot_OR_ellipsis_rep IMPORT import_from_targets
+
+    DOT       shift, and go to state 70
+    ELLIPSIS  shift, and go to state 71
+
+    $default  reduce using rule 37 (dot_OR_ellipsis_rep_opt)
+
+    dot_OR_ellipsis_rep_opt  go to state 72
+    dot_OR_ellipsis_rep      go to state 73
+    dot_OR_ellipsis          go to state 74
+
+
+State 18
+
+  111 await_primary: AWAIT • primary
 
     FLOATLIT   shift, and go to state 1
     NAME       shift, and go to state 2
@@ -805,33 +920,33 @@ State 16
     LSQB       shift, and go to state 5
     PYFALSE    shift, and go to state 10
     NONE       shift, and go to state 11
-    PYTRUE     shift, and go to state 13
+    PYTRUE     shift, and go to state 14
 
-    atom     go to state 32
-    strings  go to state 33
-    list     go to state 34
-    primary  go to state 61
-
-
-State 17
-
-    0 $accept: file_input • $end
-
-    $end  shift, and go to state 62
-
-
-State 18
-
-    1 file_input: statements_opt • nl_opt ENDMARKER
-
-    NEWLINE  shift, and go to state 63
-
-    $default  reduce using rule 2 (nl_opt)
-
-    nl_opt  go to state 64
+    atom     go to state 37
+    strings  go to state 38
+    list     go to state 39
+    primary  go to state 75
 
 
 State 19
+
+    0 $accept: file_input • $end
+
+    $end  shift, and go to state 76
+
+
+State 20
+
+    1 file_input: statements_opt • nl_opt ENDMARKER
+
+    NEWLINE  shift, and go to state 77
+
+    $default  reduce using rule 2 (nl_opt)
+
+    nl_opt  go to state 78
+
+
+State 21
 
     5 statements_opt: statements •
     7 statements: statements • statement
@@ -847,290 +962,316 @@ State 19
     TILDE      shift, and go to state 9
     PYFALSE    shift, and go to state 10
     NONE       shift, and go to state 11
-    RETURN     shift, and go to state 12
-    PYTRUE     shift, and go to state 13
-    LAMBDA     shift, and go to state 14
-    NOT        shift, and go to state 15
-    AWAIT      shift, and go to state 16
+    IMPORT     shift, and go to state 12
+    RETURN     shift, and go to state 13
+    PYTRUE     shift, and go to state 14
+    LAMBDA     shift, and go to state 15
+    NOT        shift, and go to state 16
+    FROM       shift, and go to state 17
+    AWAIT      shift, and go to state 18
 
     $default  reduce using rule 5 (statements_opt)
 
-    statement              go to state 65
-    simple_stmts           go to state 21
-    semi_simple_stmts_rep  go to state 22
-    simple_stmt            go to state 23
-    return_stmt            go to state 24
-    star_expressions       go to state 25
-    star_expression        go to state 26
-    expression             go to state 27
-    disjunction            go to state 28
-    conjunction            go to state 29
-    inversion              go to state 30
-    comparison             go to state 31
-    atom                   go to state 32
-    strings                go to state 33
-    list                   go to state 34
-    bitwise_or             go to state 35
-    bitwise_xor            go to state 36
-    bitwise_and            go to state 37
-    shift_expr             go to state 38
-    sum                    go to state 39
-    term                   go to state 40
-    factor                 go to state 41
-    power                  go to state 42
-    await_primary          go to state 43
-    primary                go to state 44
-    lambdef                go to state 45
+    statement              go to state 79
+    simple_stmts           go to state 23
+    semi_simple_stmts_rep  go to state 24
+    simple_stmt            go to state 25
+    import_stmt            go to state 26
+    import_name            go to state 27
+    import_from            go to state 28
+    return_stmt            go to state 29
+    star_expressions       go to state 30
+    star_expression        go to state 31
+    expression             go to state 32
+    disjunction            go to state 33
+    conjunction            go to state 34
+    inversion              go to state 35
+    comparison             go to state 36
+    atom                   go to state 37
+    strings                go to state 38
+    list                   go to state 39
+    bitwise_or             go to state 40
+    bitwise_xor            go to state 41
+    bitwise_and            go to state 42
+    shift_expr             go to state 43
+    sum                    go to state 44
+    term                   go to state 45
+    factor                 go to state 46
+    power                  go to state 47
+    await_primary          go to state 48
+    primary                go to state 49
+    lambdef                go to state 50
 
 
-State 20
+State 22
 
     6 statements: statement •
 
     $default  reduce using rule 6 (statements)
 
 
-State 21
+State 23
 
     8 statement: simple_stmts •
 
     $default  reduce using rule 8 (statement)
 
 
-State 22
+State 24
 
     9 simple_stmts: semi_simple_stmts_rep • semi_opt NEWLINE
    13 semi_simple_stmts_rep: semi_simple_stmts_rep • SEMI simple_stmt
 
-    SEMI  shift, and go to state 66
+    SEMI  shift, and go to state 80
 
     $default  reduce using rule 10 (semi_opt)
 
-    semi_opt  go to state 67
+    semi_opt  go to state 81
 
 
-State 23
+State 25
 
    12 semi_simple_stmts_rep: simple_stmt •
 
     $default  reduce using rule 12 (semi_simple_stmts_rep)
 
 
-State 24
+State 26
+
+   16 simple_stmt: import_stmt •
+
+    $default  reduce using rule 16 (simple_stmt)
+
+
+State 27
+
+   17 import_stmt: import_name •
+
+    $default  reduce using rule 17 (import_stmt)
+
+
+State 28
+
+   18 import_stmt: import_from •
+
+    $default  reduce using rule 18 (import_stmt)
+
+
+State 29
 
    14 simple_stmt: return_stmt •
 
     $default  reduce using rule 14 (simple_stmt)
 
 
-State 25
+State 30
 
    15 simple_stmt: star_expressions •
 
     $default  reduce using rule 15 (simple_stmt)
 
 
-State 26
-
-   19 star_expressions: star_expression • comma_star_expr_rep comma_opt
-   20                 | star_expression • COMMA
-   21                 | star_expression •
-
-    COMMA  shift, and go to state 68
-
-    $default  reduce using rule 21 (star_expressions)
-
-    comma_star_expr_rep  go to state 69
-
-
-State 27
-
-   25 star_expression: expression •
-
-    $default  reduce using rule 25 (star_expression)
-
-
-State 28
-
-   26 expression: disjunction • IF disjunction ELSE expression
-   27           | disjunction •
-
-    IF  shift, and go to state 70
-
-    $default  reduce using rule 27 (expression)
-
-
-State 29
-
-   29 disjunction: conjunction • or_conjunction_rep
-   30            | conjunction •
-
-    OR  shift, and go to state 71
-
-    $default  reduce using rule 30 (disjunction)
-
-    or_conjunction_rep  go to state 72
-
-
-State 30
-
-   33 conjunction: inversion • and_inversion_rep
-   34            | inversion •
-
-    AND  shift, and go to state 73
-
-    $default  reduce using rule 34 (conjunction)
-
-    and_inversion_rep  go to state 74
-
-
 State 31
 
-   38 inversion: comparison •
+   46 star_expressions: star_expression • comma_star_expr_rep comma_opt
+   47                 | star_expression • COMMA
+   48                 | star_expression •
 
-    $default  reduce using rule 38 (inversion)
+    COMMA  shift, and go to state 82
+
+    $default  reduce using rule 48 (star_expressions)
+
+    comma_star_expr_rep  go to state 83
 
 
 State 32
 
-   87 primary: atom •
+   52 star_expression: expression •
 
-    $default  reduce using rule 87 (primary)
+    $default  reduce using rule 52 (star_expression)
 
 
 State 33
 
-   44 atom: strings •
-   49 strings: strings • STRINGLIT
+   53 expression: disjunction • IF disjunction ELSE expression
+   54           | disjunction •
 
-    STRINGLIT  shift, and go to state 75
+    IF  shift, and go to state 84
 
-    $default  reduce using rule 44 (atom)
+    $default  reduce using rule 54 (expression)
 
 
 State 34
 
-   47 atom: list •
+   56 disjunction: conjunction • or_conjunction_rep
+   57            | conjunction •
 
-    $default  reduce using rule 47 (atom)
+    OR  shift, and go to state 85
+
+    $default  reduce using rule 57 (disjunction)
+
+    or_conjunction_rep  go to state 86
 
 
 State 35
 
-   39 comparison: bitwise_or •
-   60 bitwise_or: bitwise_or • VBAR bitwise_xor
+   60 conjunction: inversion • and_inversion_rep
+   61            | inversion •
 
-    VBAR  shift, and go to state 76
+    AND  shift, and go to state 87
 
-    $default  reduce using rule 39 (comparison)
+    $default  reduce using rule 61 (conjunction)
+
+    and_inversion_rep  go to state 88
 
 
 State 36
 
-   61 bitwise_or: bitwise_xor •
-   62 bitwise_xor: bitwise_xor • CIRCUMFLEX bitwise_and
+   65 inversion: comparison •
 
-    CIRCUMFLEX  shift, and go to state 77
-
-    $default  reduce using rule 61 (bitwise_or)
+    $default  reduce using rule 65 (inversion)
 
 
 State 37
 
-   63 bitwise_xor: bitwise_and •
-   64 bitwise_and: bitwise_and • AMPER shift_expr
+  114 primary: atom •
 
-    AMPER  shift, and go to state 78
-
-    $default  reduce using rule 63 (bitwise_xor)
+    $default  reduce using rule 114 (primary)
 
 
 State 38
 
-   65 bitwise_and: shift_expr •
-   66 shift_expr: shift_expr • LEFTSHIFT sum
-   67           | shift_expr • RIGHTSHIFT sum
+   71 atom: strings •
+   76 strings: strings • STRINGLIT
 
-    LEFTSHIFT   shift, and go to state 79
-    RIGHTSHIFT  shift, and go to state 80
+    STRINGLIT  shift, and go to state 89
 
-    $default  reduce using rule 65 (bitwise_and)
+    $default  reduce using rule 71 (atom)
 
 
 State 39
 
-   68 shift_expr: sum •
-   69 sum: sum • PLUS term
-   70    | sum • MINUS term
+   74 atom: list •
 
-    PLUS   shift, and go to state 81
-    MINUS  shift, and go to state 82
-
-    $default  reduce using rule 68 (shift_expr)
+    $default  reduce using rule 74 (atom)
 
 
 State 40
 
-   71 sum: term •
-   72 term: term • STAR factor
-   73     | term • SLASH factor
-   74     | term • DOUBLESLASH factor
-   75     | term • PERCENT factor
-   76     | term • AT factor
+   66 comparison: bitwise_or •
+   87 bitwise_or: bitwise_or • VBAR bitwise_xor
 
-    STAR         shift, and go to state 83
-    SLASH        shift, and go to state 84
-    PERCENT      shift, and go to state 85
-    DOUBLESLASH  shift, and go to state 86
-    AT           shift, and go to state 87
+    VBAR  shift, and go to state 90
 
-    $default  reduce using rule 71 (sum)
+    $default  reduce using rule 66 (comparison)
 
 
 State 41
 
-   77 term: factor •
+   88 bitwise_or: bitwise_xor •
+   89 bitwise_xor: bitwise_xor • CIRCUMFLEX bitwise_and
 
-    $default  reduce using rule 77 (term)
+    CIRCUMFLEX  shift, and go to state 91
+
+    $default  reduce using rule 88 (bitwise_or)
 
 
 State 42
 
-   81 factor: power •
+   90 bitwise_xor: bitwise_and •
+   91 bitwise_and: bitwise_and • AMPER shift_expr
 
-    $default  reduce using rule 81 (factor)
+    AMPER  shift, and go to state 92
+
+    $default  reduce using rule 90 (bitwise_xor)
 
 
 State 43
 
-   82 power: await_primary • DOUBLESTAR factor
-   83      | await_primary •
+   92 bitwise_and: shift_expr •
+   93 shift_expr: shift_expr • LEFTSHIFT sum
+   94           | shift_expr • RIGHTSHIFT sum
 
-    DOUBLESTAR  shift, and go to state 88
+    LEFTSHIFT   shift, and go to state 93
+    RIGHTSHIFT  shift, and go to state 94
 
-    $default  reduce using rule 83 (power)
+    $default  reduce using rule 92 (bitwise_and)
 
 
 State 44
 
-   85 await_primary: primary •
-   86 primary: primary • DOT NAME
+   95 shift_expr: sum •
+   96 sum: sum • PLUS term
+   97    | sum • MINUS term
 
-    DOT  shift, and go to state 89
+    PLUS   shift, and go to state 95
+    MINUS  shift, and go to state 96
 
-    $default  reduce using rule 85 (await_primary)
+    $default  reduce using rule 95 (shift_expr)
 
 
 State 45
 
-   28 expression: lambdef •
+   98 sum: term •
+   99 term: term • STAR factor
+  100     | term • SLASH factor
+  101     | term • DOUBLESLASH factor
+  102     | term • PERCENT factor
+  103     | term • AT factor
 
-    $default  reduce using rule 28 (expression)
+    STAR         shift, and go to state 97
+    SLASH        shift, and go to state 98
+    PERCENT      shift, and go to state 99
+    DOUBLESLASH  shift, and go to state 100
+    AT           shift, and go to state 101
+
+    $default  reduce using rule 98 (sum)
 
 
 State 46
 
-   58 star_named_expression: STAR • bitwise_or
+  104 term: factor •
+
+    $default  reduce using rule 104 (term)
+
+
+State 47
+
+  108 factor: power •
+
+    $default  reduce using rule 108 (factor)
+
+
+State 48
+
+  109 power: await_primary • DOUBLESTAR factor
+  110      | await_primary •
+
+    DOUBLESTAR  shift, and go to state 102
+
+    $default  reduce using rule 110 (power)
+
+
+State 49
+
+  112 await_primary: primary •
+  113 primary: primary • DOT NAME
+
+    DOT  shift, and go to state 103
+
+    $default  reduce using rule 112 (await_primary)
+
+
+State 50
+
+   55 expression: lambdef •
+
+    $default  reduce using rule 55 (expression)
+
+
+State 51
+
+   85 star_named_expression: STAR • bitwise_or
 
     FLOATLIT   shift, and go to state 1
     NAME       shift, and go to state 2
@@ -1142,171 +1283,252 @@ State 46
     TILDE      shift, and go to state 9
     PYFALSE    shift, and go to state 10
     NONE       shift, and go to state 11
-    PYTRUE     shift, and go to state 13
-    AWAIT      shift, and go to state 16
+    PYTRUE     shift, and go to state 14
+    AWAIT      shift, and go to state 18
 
-    atom           go to state 32
-    strings        go to state 33
-    list           go to state 34
-    bitwise_or     go to state 90
-    bitwise_xor    go to state 36
-    bitwise_and    go to state 37
-    shift_expr     go to state 38
-    sum            go to state 39
-    term           go to state 40
-    factor         go to state 41
-    power          go to state 42
-    await_primary  go to state 43
-    primary        go to state 44
-
-
-State 47
-
-   59 star_named_expression: expression •
-
-    $default  reduce using rule 59 (star_named_expression)
-
-
-State 48
-
-   50 list: LSQB star_named_expressions_opt • RSQB
-
-    RSQB  shift, and go to state 91
-
-
-State 49
-
-   52 star_named_expressions_opt: star_named_expressions •
-
-    $default  reduce using rule 52 (star_named_expressions_opt)
-
-
-State 50
-
-   55 star_named_expressions: star_named_expression • comma_sne_rep comma_opt
-
-    $default  reduce using rule 56 (comma_sne_rep)
-
-    comma_sne_rep  go to state 92
-
-
-State 51
-
-   78 factor: PLUS factor •
-
-    $default  reduce using rule 78 (factor)
+    atom           go to state 37
+    strings        go to state 38
+    list           go to state 39
+    bitwise_or     go to state 104
+    bitwise_xor    go to state 41
+    bitwise_and    go to state 42
+    shift_expr     go to state 43
+    sum            go to state 44
+    term           go to state 45
+    factor         go to state 46
+    power          go to state 47
+    await_primary  go to state 48
+    primary        go to state 49
 
 
 State 52
 
-   79 factor: MINUS factor •
+   86 star_named_expression: expression •
 
-    $default  reduce using rule 79 (factor)
+    $default  reduce using rule 86 (star_named_expression)
 
 
 State 53
 
-   24 star_expression: STAR bitwise_or •
-   60 bitwise_or: bitwise_or • VBAR bitwise_xor
+   77 list: LSQB star_named_expressions_opt • RSQB
 
-    VBAR  shift, and go to state 76
-
-    $default  reduce using rule 24 (star_expression)
+    RSQB  shift, and go to state 105
 
 
 State 54
 
-   80 factor: TILDE factor •
+   79 star_named_expressions_opt: star_named_expressions •
 
-    $default  reduce using rule 80 (factor)
+    $default  reduce using rule 79 (star_named_expressions_opt)
 
 
 State 55
 
-   16 return_stmt: RETURN star_expressions_opt •
+   82 star_named_expressions: star_named_expression • comma_sne_rep comma_opt
 
-    $default  reduce using rule 16 (return_stmt)
+    $default  reduce using rule 83 (comma_sne_rep)
+
+    comma_sne_rep  go to state 106
 
 
 State 56
 
-   18 star_expressions_opt: star_expressions •
+  105 factor: PLUS factor •
 
-    $default  reduce using rule 18 (star_expressions_opt)
+    $default  reduce using rule 105 (factor)
 
 
 State 57
 
-   91 lambda_params: NAME •
+  106 factor: MINUS factor •
 
-    $default  reduce using rule 91 (lambda_params)
+    $default  reduce using rule 106 (factor)
 
 
 State 58
 
-   88 lambdef: LAMBDA lambda_params_opt • COLON expression
+   51 star_expression: STAR bitwise_or •
+   87 bitwise_or: bitwise_or • VBAR bitwise_xor
 
-    COLON  shift, and go to state 93
+    VBAR  shift, and go to state 90
+
+    $default  reduce using rule 51 (star_expression)
 
 
 State 59
 
-   90 lambda_params_opt: lambda_params • comma_opt
-   92 lambda_params: lambda_params • COMMA NAME
+  107 factor: TILDE factor •
 
-    COMMA  shift, and go to state 94
-
-    $default  reduce using rule 53 (comma_opt)
-
-    comma_opt  go to state 95
+    $default  reduce using rule 107 (factor)
 
 
 State 60
 
-   37 inversion: NOT inversion •
+   36 dotted_name: NAME •
 
-    $default  reduce using rule 37 (inversion)
+    $default  reduce using rule 36 (dotted_name)
 
 
 State 61
 
-   84 await_primary: AWAIT primary •
-   86 primary: primary • DOT NAME
+   19 import_name: IMPORT dotted_as_names •
 
-    DOT  shift, and go to state 89
-
-    $default  reduce using rule 84 (await_primary)
+    $default  reduce using rule 19 (import_name)
 
 
 State 62
+
+   31 dotted_as_names: dotted_as_name • comma_dotted_as_name_rep
+
+    $default  reduce using rule 32 (comma_dotted_as_name_rep)
+
+    comma_dotted_as_name_rep  go to state 107
+
+
+State 63
+
+   34 dotted_as_name: dotted_name • as_name_opt
+   35 dotted_name: dotted_name • DOT NAME
+
+    DOT  shift, and go to state 108
+    AS   shift, and go to state 109
+
+    $default  reduce using rule 29 (as_name_opt)
+
+    as_name_opt  go to state 110
+
+
+State 64
+
+   43 return_stmt: RETURN star_expressions_opt •
+
+    $default  reduce using rule 43 (return_stmt)
+
+
+State 65
+
+   45 star_expressions_opt: star_expressions •
+
+    $default  reduce using rule 45 (star_expressions_opt)
+
+
+State 66
+
+  118 lambda_params: NAME •
+
+    $default  reduce using rule 118 (lambda_params)
+
+
+State 67
+
+  115 lambdef: LAMBDA lambda_params_opt • COLON expression
+
+    COLON  shift, and go to state 111
+
+
+State 68
+
+  117 lambda_params_opt: lambda_params • comma_opt
+  119 lambda_params: lambda_params • COMMA NAME
+
+    COMMA  shift, and go to state 112
+
+    $default  reduce using rule 80 (comma_opt)
+
+    comma_opt  go to state 113
+
+
+State 69
+
+   64 inversion: NOT inversion •
+
+    $default  reduce using rule 64 (inversion)
+
+
+State 70
+
+   41 dot_OR_ellipsis: DOT •
+
+    $default  reduce using rule 41 (dot_OR_ellipsis)
+
+
+State 71
+
+   42 dot_OR_ellipsis: ELLIPSIS •
+
+    $default  reduce using rule 42 (dot_OR_ellipsis)
+
+
+State 72
+
+   20 import_from: FROM dot_OR_ellipsis_rep_opt • dotted_name IMPORT import_from_targets
+
+    NAME  shift, and go to state 60
+
+    dotted_name  go to state 114
+
+
+State 73
+
+   21 import_from: FROM dot_OR_ellipsis_rep • IMPORT import_from_targets
+   38 dot_OR_ellipsis_rep_opt: dot_OR_ellipsis_rep •
+   40 dot_OR_ellipsis_rep: dot_OR_ellipsis_rep • dot_OR_ellipsis
+
+    DOT       shift, and go to state 70
+    ELLIPSIS  shift, and go to state 71
+    IMPORT    shift, and go to state 115
+
+    $default  reduce using rule 38 (dot_OR_ellipsis_rep_opt)
+
+    dot_OR_ellipsis  go to state 116
+
+
+State 74
+
+   39 dot_OR_ellipsis_rep: dot_OR_ellipsis •
+
+    $default  reduce using rule 39 (dot_OR_ellipsis_rep)
+
+
+State 75
+
+  111 await_primary: AWAIT primary •
+  113 primary: primary • DOT NAME
+
+    DOT  shift, and go to state 103
+
+    $default  reduce using rule 111 (await_primary)
+
+
+State 76
 
     0 $accept: file_input $end •
 
     $default  accept
 
 
-State 63
+State 77
 
     3 nl_opt: NEWLINE •
 
     $default  reduce using rule 3 (nl_opt)
 
 
-State 64
+State 78
 
     1 file_input: statements_opt nl_opt • ENDMARKER
 
-    ENDMARKER  shift, and go to state 96
+    ENDMARKER  shift, and go to state 117
 
 
-State 65
+State 79
 
     7 statements: statements statement •
 
     $default  reduce using rule 7 (statements)
 
 
-State 66
+State 80
 
    11 semi_opt: SEMI •
    13 semi_simple_stmts_rep: semi_simple_stmts_rep SEMI • simple_stmt
@@ -1322,50 +1544,55 @@ State 66
     TILDE      shift, and go to state 9
     PYFALSE    shift, and go to state 10
     NONE       shift, and go to state 11
-    RETURN     shift, and go to state 12
-    PYTRUE     shift, and go to state 13
-    LAMBDA     shift, and go to state 14
-    NOT        shift, and go to state 15
-    AWAIT      shift, and go to state 16
+    IMPORT     shift, and go to state 12
+    RETURN     shift, and go to state 13
+    PYTRUE     shift, and go to state 14
+    LAMBDA     shift, and go to state 15
+    NOT        shift, and go to state 16
+    FROM       shift, and go to state 17
+    AWAIT      shift, and go to state 18
 
     $default  reduce using rule 11 (semi_opt)
 
-    simple_stmt       go to state 97
-    return_stmt       go to state 24
-    star_expressions  go to state 25
-    star_expression   go to state 26
-    expression        go to state 27
-    disjunction       go to state 28
-    conjunction       go to state 29
-    inversion         go to state 30
-    comparison        go to state 31
-    atom              go to state 32
-    strings           go to state 33
-    list              go to state 34
-    bitwise_or        go to state 35
-    bitwise_xor       go to state 36
-    bitwise_and       go to state 37
-    shift_expr        go to state 38
-    sum               go to state 39
-    term              go to state 40
-    factor            go to state 41
-    power             go to state 42
-    await_primary     go to state 43
-    primary           go to state 44
-    lambdef           go to state 45
+    simple_stmt       go to state 118
+    import_stmt       go to state 26
+    import_name       go to state 27
+    import_from       go to state 28
+    return_stmt       go to state 29
+    star_expressions  go to state 30
+    star_expression   go to state 31
+    expression        go to state 32
+    disjunction       go to state 33
+    conjunction       go to state 34
+    inversion         go to state 35
+    comparison        go to state 36
+    atom              go to state 37
+    strings           go to state 38
+    list              go to state 39
+    bitwise_or        go to state 40
+    bitwise_xor       go to state 41
+    bitwise_and       go to state 42
+    shift_expr        go to state 43
+    sum               go to state 44
+    term              go to state 45
+    factor            go to state 46
+    power             go to state 47
+    await_primary     go to state 48
+    primary           go to state 49
+    lambdef           go to state 50
 
 
-State 67
+State 81
 
     9 simple_stmts: semi_simple_stmts_rep semi_opt • NEWLINE
 
-    NEWLINE  shift, and go to state 98
+    NEWLINE  shift, and go to state 119
 
 
-State 68
+State 82
 
-   20 star_expressions: star_expression COMMA •
-   22 comma_star_expr_rep: COMMA • star_expression
+   47 star_expressions: star_expression COMMA •
+   49 comma_star_expr_rep: COMMA • star_expression
 
     FLOATLIT   shift, and go to state 1
     NAME       shift, and go to state 2
@@ -1378,577 +1605,50 @@ State 68
     TILDE      shift, and go to state 9
     PYFALSE    shift, and go to state 10
     NONE       shift, and go to state 11
-    PYTRUE     shift, and go to state 13
-    LAMBDA     shift, and go to state 14
-    NOT        shift, and go to state 15
-    AWAIT      shift, and go to state 16
-
-    $default  reduce using rule 20 (star_expressions)
-
-    star_expression  go to state 99
-    expression       go to state 27
-    disjunction      go to state 28
-    conjunction      go to state 29
-    inversion        go to state 30
-    comparison       go to state 31
-    atom             go to state 32
-    strings          go to state 33
-    list             go to state 34
-    bitwise_or       go to state 35
-    bitwise_xor      go to state 36
-    bitwise_and      go to state 37
-    shift_expr       go to state 38
-    sum              go to state 39
-    term             go to state 40
-    factor           go to state 41
-    power            go to state 42
-    await_primary    go to state 43
-    primary          go to state 44
-    lambdef          go to state 45
-
-
-State 69
-
-   19 star_expressions: star_expression comma_star_expr_rep • comma_opt
-   23 comma_star_expr_rep: comma_star_expr_rep • COMMA star_expression
-
-    COMMA  shift, and go to state 100
-
-    $default  reduce using rule 53 (comma_opt)
-
-    comma_opt  go to state 101
-
-
-State 70
-
-   26 expression: disjunction IF • disjunction ELSE expression
-
-    FLOATLIT   shift, and go to state 1
-    NAME       shift, and go to state 2
-    INTLIT     shift, and go to state 3
-    STRINGLIT  shift, and go to state 4
-    LSQB       shift, and go to state 5
-    PLUS       shift, and go to state 6
-    MINUS      shift, and go to state 7
-    TILDE      shift, and go to state 9
-    PYFALSE    shift, and go to state 10
-    NONE       shift, and go to state 11
-    PYTRUE     shift, and go to state 13
-    NOT        shift, and go to state 15
-    AWAIT      shift, and go to state 16
-
-    disjunction    go to state 102
-    conjunction    go to state 29
-    inversion      go to state 30
-    comparison     go to state 31
-    atom           go to state 32
-    strings        go to state 33
-    list           go to state 34
-    bitwise_or     go to state 35
-    bitwise_xor    go to state 36
-    bitwise_and    go to state 37
-    shift_expr     go to state 38
-    sum            go to state 39
-    term           go to state 40
-    factor         go to state 41
-    power          go to state 42
-    await_primary  go to state 43
-    primary        go to state 44
-
-
-State 71
-
-   31 or_conjunction_rep: OR • conjunction
-
-    FLOATLIT   shift, and go to state 1
-    NAME       shift, and go to state 2
-    INTLIT     shift, and go to state 3
-    STRINGLIT  shift, and go to state 4
-    LSQB       shift, and go to state 5
-    PLUS       shift, and go to state 6
-    MINUS      shift, and go to state 7
-    TILDE      shift, and go to state 9
-    PYFALSE    shift, and go to state 10
-    NONE       shift, and go to state 11
-    PYTRUE     shift, and go to state 13
-    NOT        shift, and go to state 15
-    AWAIT      shift, and go to state 16
-
-    conjunction    go to state 103
-    inversion      go to state 30
-    comparison     go to state 31
-    atom           go to state 32
-    strings        go to state 33
-    list           go to state 34
-    bitwise_or     go to state 35
-    bitwise_xor    go to state 36
-    bitwise_and    go to state 37
-    shift_expr     go to state 38
-    sum            go to state 39
-    term           go to state 40
-    factor         go to state 41
-    power          go to state 42
-    await_primary  go to state 43
-    primary        go to state 44
-
-
-State 72
-
-   29 disjunction: conjunction or_conjunction_rep •
-   32 or_conjunction_rep: or_conjunction_rep • OR conjunction
-
-    OR  shift, and go to state 104
-
-    $default  reduce using rule 29 (disjunction)
-
-
-State 73
-
-   35 and_inversion_rep: AND • inversion
-
-    FLOATLIT   shift, and go to state 1
-    NAME       shift, and go to state 2
-    INTLIT     shift, and go to state 3
-    STRINGLIT  shift, and go to state 4
-    LSQB       shift, and go to state 5
-    PLUS       shift, and go to state 6
-    MINUS      shift, and go to state 7
-    TILDE      shift, and go to state 9
-    PYFALSE    shift, and go to state 10
-    NONE       shift, and go to state 11
-    PYTRUE     shift, and go to state 13
-    NOT        shift, and go to state 15
-    AWAIT      shift, and go to state 16
-
-    inversion      go to state 105
-    comparison     go to state 31
-    atom           go to state 32
-    strings        go to state 33
-    list           go to state 34
-    bitwise_or     go to state 35
-    bitwise_xor    go to state 36
-    bitwise_and    go to state 37
-    shift_expr     go to state 38
-    sum            go to state 39
-    term           go to state 40
-    factor         go to state 41
-    power          go to state 42
-    await_primary  go to state 43
-    primary        go to state 44
-
-
-State 74
-
-   33 conjunction: inversion and_inversion_rep •
-   36 and_inversion_rep: and_inversion_rep • AND inversion
-
-    AND  shift, and go to state 106
-
-    $default  reduce using rule 33 (conjunction)
-
-
-State 75
-
-   49 strings: strings STRINGLIT •
-
-    $default  reduce using rule 49 (strings)
-
-
-State 76
-
-   60 bitwise_or: bitwise_or VBAR • bitwise_xor
-
-    FLOATLIT   shift, and go to state 1
-    NAME       shift, and go to state 2
-    INTLIT     shift, and go to state 3
-    STRINGLIT  shift, and go to state 4
-    LSQB       shift, and go to state 5
-    PLUS       shift, and go to state 6
-    MINUS      shift, and go to state 7
-    TILDE      shift, and go to state 9
-    PYFALSE    shift, and go to state 10
-    NONE       shift, and go to state 11
-    PYTRUE     shift, and go to state 13
-    AWAIT      shift, and go to state 16
-
-    atom           go to state 32
-    strings        go to state 33
-    list           go to state 34
-    bitwise_xor    go to state 107
-    bitwise_and    go to state 37
-    shift_expr     go to state 38
-    sum            go to state 39
-    term           go to state 40
-    factor         go to state 41
-    power          go to state 42
-    await_primary  go to state 43
-    primary        go to state 44
-
-
-State 77
-
-   62 bitwise_xor: bitwise_xor CIRCUMFLEX • bitwise_and
-
-    FLOATLIT   shift, and go to state 1
-    NAME       shift, and go to state 2
-    INTLIT     shift, and go to state 3
-    STRINGLIT  shift, and go to state 4
-    LSQB       shift, and go to state 5
-    PLUS       shift, and go to state 6
-    MINUS      shift, and go to state 7
-    TILDE      shift, and go to state 9
-    PYFALSE    shift, and go to state 10
-    NONE       shift, and go to state 11
-    PYTRUE     shift, and go to state 13
-    AWAIT      shift, and go to state 16
-
-    atom           go to state 32
-    strings        go to state 33
-    list           go to state 34
-    bitwise_and    go to state 108
-    shift_expr     go to state 38
-    sum            go to state 39
-    term           go to state 40
-    factor         go to state 41
-    power          go to state 42
-    await_primary  go to state 43
-    primary        go to state 44
-
-
-State 78
-
-   64 bitwise_and: bitwise_and AMPER • shift_expr
-
-    FLOATLIT   shift, and go to state 1
-    NAME       shift, and go to state 2
-    INTLIT     shift, and go to state 3
-    STRINGLIT  shift, and go to state 4
-    LSQB       shift, and go to state 5
-    PLUS       shift, and go to state 6
-    MINUS      shift, and go to state 7
-    TILDE      shift, and go to state 9
-    PYFALSE    shift, and go to state 10
-    NONE       shift, and go to state 11
-    PYTRUE     shift, and go to state 13
-    AWAIT      shift, and go to state 16
-
-    atom           go to state 32
-    strings        go to state 33
-    list           go to state 34
-    shift_expr     go to state 109
-    sum            go to state 39
-    term           go to state 40
-    factor         go to state 41
-    power          go to state 42
-    await_primary  go to state 43
-    primary        go to state 44
-
-
-State 79
-
-   66 shift_expr: shift_expr LEFTSHIFT • sum
-
-    FLOATLIT   shift, and go to state 1
-    NAME       shift, and go to state 2
-    INTLIT     shift, and go to state 3
-    STRINGLIT  shift, and go to state 4
-    LSQB       shift, and go to state 5
-    PLUS       shift, and go to state 6
-    MINUS      shift, and go to state 7
-    TILDE      shift, and go to state 9
-    PYFALSE    shift, and go to state 10
-    NONE       shift, and go to state 11
-    PYTRUE     shift, and go to state 13
-    AWAIT      shift, and go to state 16
-
-    atom           go to state 32
-    strings        go to state 33
-    list           go to state 34
-    sum            go to state 110
-    term           go to state 40
-    factor         go to state 41
-    power          go to state 42
-    await_primary  go to state 43
-    primary        go to state 44
-
-
-State 80
-
-   67 shift_expr: shift_expr RIGHTSHIFT • sum
-
-    FLOATLIT   shift, and go to state 1
-    NAME       shift, and go to state 2
-    INTLIT     shift, and go to state 3
-    STRINGLIT  shift, and go to state 4
-    LSQB       shift, and go to state 5
-    PLUS       shift, and go to state 6
-    MINUS      shift, and go to state 7
-    TILDE      shift, and go to state 9
-    PYFALSE    shift, and go to state 10
-    NONE       shift, and go to state 11
-    PYTRUE     shift, and go to state 13
-    AWAIT      shift, and go to state 16
-
-    atom           go to state 32
-    strings        go to state 33
-    list           go to state 34
-    sum            go to state 111
-    term           go to state 40
-    factor         go to state 41
-    power          go to state 42
-    await_primary  go to state 43
-    primary        go to state 44
-
-
-State 81
-
-   69 sum: sum PLUS • term
-
-    FLOATLIT   shift, and go to state 1
-    NAME       shift, and go to state 2
-    INTLIT     shift, and go to state 3
-    STRINGLIT  shift, and go to state 4
-    LSQB       shift, and go to state 5
-    PLUS       shift, and go to state 6
-    MINUS      shift, and go to state 7
-    TILDE      shift, and go to state 9
-    PYFALSE    shift, and go to state 10
-    NONE       shift, and go to state 11
-    PYTRUE     shift, and go to state 13
-    AWAIT      shift, and go to state 16
-
-    atom           go to state 32
-    strings        go to state 33
-    list           go to state 34
-    term           go to state 112
-    factor         go to state 41
-    power          go to state 42
-    await_primary  go to state 43
-    primary        go to state 44
-
-
-State 82
-
-   70 sum: sum MINUS • term
-
-    FLOATLIT   shift, and go to state 1
-    NAME       shift, and go to state 2
-    INTLIT     shift, and go to state 3
-    STRINGLIT  shift, and go to state 4
-    LSQB       shift, and go to state 5
-    PLUS       shift, and go to state 6
-    MINUS      shift, and go to state 7
-    TILDE      shift, and go to state 9
-    PYFALSE    shift, and go to state 10
-    NONE       shift, and go to state 11
-    PYTRUE     shift, and go to state 13
-    AWAIT      shift, and go to state 16
-
-    atom           go to state 32
-    strings        go to state 33
-    list           go to state 34
-    term           go to state 113
-    factor         go to state 41
-    power          go to state 42
-    await_primary  go to state 43
-    primary        go to state 44
+    PYTRUE     shift, and go to state 14
+    LAMBDA     shift, and go to state 15
+    NOT        shift, and go to state 16
+    AWAIT      shift, and go to state 18
+
+    $default  reduce using rule 47 (star_expressions)
+
+    star_expression  go to state 120
+    expression       go to state 32
+    disjunction      go to state 33
+    conjunction      go to state 34
+    inversion        go to state 35
+    comparison       go to state 36
+    atom             go to state 37
+    strings          go to state 38
+    list             go to state 39
+    bitwise_or       go to state 40
+    bitwise_xor      go to state 41
+    bitwise_and      go to state 42
+    shift_expr       go to state 43
+    sum              go to state 44
+    term             go to state 45
+    factor           go to state 46
+    power            go to state 47
+    await_primary    go to state 48
+    primary          go to state 49
+    lambdef          go to state 50
 
 
 State 83
 
-   72 term: term STAR • factor
-
-    FLOATLIT   shift, and go to state 1
-    NAME       shift, and go to state 2
-    INTLIT     shift, and go to state 3
-    STRINGLIT  shift, and go to state 4
-    LSQB       shift, and go to state 5
-    PLUS       shift, and go to state 6
-    MINUS      shift, and go to state 7
-    TILDE      shift, and go to state 9
-    PYFALSE    shift, and go to state 10
-    NONE       shift, and go to state 11
-    PYTRUE     shift, and go to state 13
-    AWAIT      shift, and go to state 16
-
-    atom           go to state 32
-    strings        go to state 33
-    list           go to state 34
-    factor         go to state 114
-    power          go to state 42
-    await_primary  go to state 43
-    primary        go to state 44
-
-
-State 84
-
-   73 term: term SLASH • factor
-
-    FLOATLIT   shift, and go to state 1
-    NAME       shift, and go to state 2
-    INTLIT     shift, and go to state 3
-    STRINGLIT  shift, and go to state 4
-    LSQB       shift, and go to state 5
-    PLUS       shift, and go to state 6
-    MINUS      shift, and go to state 7
-    TILDE      shift, and go to state 9
-    PYFALSE    shift, and go to state 10
-    NONE       shift, and go to state 11
-    PYTRUE     shift, and go to state 13
-    AWAIT      shift, and go to state 16
-
-    atom           go to state 32
-    strings        go to state 33
-    list           go to state 34
-    factor         go to state 115
-    power          go to state 42
-    await_primary  go to state 43
-    primary        go to state 44
-
-
-State 85
-
-   75 term: term PERCENT • factor
-
-    FLOATLIT   shift, and go to state 1
-    NAME       shift, and go to state 2
-    INTLIT     shift, and go to state 3
-    STRINGLIT  shift, and go to state 4
-    LSQB       shift, and go to state 5
-    PLUS       shift, and go to state 6
-    MINUS      shift, and go to state 7
-    TILDE      shift, and go to state 9
-    PYFALSE    shift, and go to state 10
-    NONE       shift, and go to state 11
-    PYTRUE     shift, and go to state 13
-    AWAIT      shift, and go to state 16
-
-    atom           go to state 32
-    strings        go to state 33
-    list           go to state 34
-    factor         go to state 116
-    power          go to state 42
-    await_primary  go to state 43
-    primary        go to state 44
-
-
-State 86
-
-   74 term: term DOUBLESLASH • factor
-
-    FLOATLIT   shift, and go to state 1
-    NAME       shift, and go to state 2
-    INTLIT     shift, and go to state 3
-    STRINGLIT  shift, and go to state 4
-    LSQB       shift, and go to state 5
-    PLUS       shift, and go to state 6
-    MINUS      shift, and go to state 7
-    TILDE      shift, and go to state 9
-    PYFALSE    shift, and go to state 10
-    NONE       shift, and go to state 11
-    PYTRUE     shift, and go to state 13
-    AWAIT      shift, and go to state 16
-
-    atom           go to state 32
-    strings        go to state 33
-    list           go to state 34
-    factor         go to state 117
-    power          go to state 42
-    await_primary  go to state 43
-    primary        go to state 44
-
-
-State 87
-
-   76 term: term AT • factor
-
-    FLOATLIT   shift, and go to state 1
-    NAME       shift, and go to state 2
-    INTLIT     shift, and go to state 3
-    STRINGLIT  shift, and go to state 4
-    LSQB       shift, and go to state 5
-    PLUS       shift, and go to state 6
-    MINUS      shift, and go to state 7
-    TILDE      shift, and go to state 9
-    PYFALSE    shift, and go to state 10
-    NONE       shift, and go to state 11
-    PYTRUE     shift, and go to state 13
-    AWAIT      shift, and go to state 16
-
-    atom           go to state 32
-    strings        go to state 33
-    list           go to state 34
-    factor         go to state 118
-    power          go to state 42
-    await_primary  go to state 43
-    primary        go to state 44
-
-
-State 88
-
-   82 power: await_primary DOUBLESTAR • factor
-
-    FLOATLIT   shift, and go to state 1
-    NAME       shift, and go to state 2
-    INTLIT     shift, and go to state 3
-    STRINGLIT  shift, and go to state 4
-    LSQB       shift, and go to state 5
-    PLUS       shift, and go to state 6
-    MINUS      shift, and go to state 7
-    TILDE      shift, and go to state 9
-    PYFALSE    shift, and go to state 10
-    NONE       shift, and go to state 11
-    PYTRUE     shift, and go to state 13
-    AWAIT      shift, and go to state 16
-
-    atom           go to state 32
-    strings        go to state 33
-    list           go to state 34
-    factor         go to state 119
-    power          go to state 42
-    await_primary  go to state 43
-    primary        go to state 44
-
-
-State 89
-
-   86 primary: primary DOT • NAME
-
-    NAME  shift, and go to state 120
-
-
-State 90
-
-   58 star_named_expression: STAR bitwise_or •
-   60 bitwise_or: bitwise_or • VBAR bitwise_xor
-
-    VBAR  shift, and go to state 76
-
-    $default  reduce using rule 58 (star_named_expression)
-
-
-State 91
-
-   50 list: LSQB star_named_expressions_opt RSQB •
-
-    $default  reduce using rule 50 (list)
-
-
-State 92
-
-   55 star_named_expressions: star_named_expression comma_sne_rep • comma_opt
-   57 comma_sne_rep: comma_sne_rep • COMMA star_named_expression
+   46 star_expressions: star_expression comma_star_expr_rep • comma_opt
+   50 comma_star_expr_rep: comma_star_expr_rep • COMMA star_expression
 
     COMMA  shift, and go to state 121
 
-    $default  reduce using rule 53 (comma_opt)
+    $default  reduce using rule 80 (comma_opt)
 
     comma_opt  go to state 122
 
 
-State 93
+State 84
 
-   88 lambdef: LAMBDA lambda_params_opt COLON • expression
+   53 expression: disjunction IF • disjunction ELSE expression
 
     FLOATLIT   shift, and go to state 1
     NAME       shift, and go to state 2
@@ -1960,81 +1660,668 @@ State 93
     TILDE      shift, and go to state 9
     PYFALSE    shift, and go to state 10
     NONE       shift, and go to state 11
-    PYTRUE     shift, and go to state 13
-    LAMBDA     shift, and go to state 14
-    NOT        shift, and go to state 15
-    AWAIT      shift, and go to state 16
+    PYTRUE     shift, and go to state 14
+    NOT        shift, and go to state 16
+    AWAIT      shift, and go to state 18
 
-    expression     go to state 123
-    disjunction    go to state 28
-    conjunction    go to state 29
-    inversion      go to state 30
-    comparison     go to state 31
-    atom           go to state 32
-    strings        go to state 33
-    list           go to state 34
-    bitwise_or     go to state 35
-    bitwise_xor    go to state 36
-    bitwise_and    go to state 37
-    shift_expr     go to state 38
-    sum            go to state 39
-    term           go to state 40
-    factor         go to state 41
-    power          go to state 42
-    await_primary  go to state 43
-    primary        go to state 44
-    lambdef        go to state 45
+    disjunction    go to state 123
+    conjunction    go to state 34
+    inversion      go to state 35
+    comparison     go to state 36
+    atom           go to state 37
+    strings        go to state 38
+    list           go to state 39
+    bitwise_or     go to state 40
+    bitwise_xor    go to state 41
+    bitwise_and    go to state 42
+    shift_expr     go to state 43
+    sum            go to state 44
+    term           go to state 45
+    factor         go to state 46
+    power          go to state 47
+    await_primary  go to state 48
+    primary        go to state 49
+
+
+State 85
+
+   58 or_conjunction_rep: OR • conjunction
+
+    FLOATLIT   shift, and go to state 1
+    NAME       shift, and go to state 2
+    INTLIT     shift, and go to state 3
+    STRINGLIT  shift, and go to state 4
+    LSQB       shift, and go to state 5
+    PLUS       shift, and go to state 6
+    MINUS      shift, and go to state 7
+    TILDE      shift, and go to state 9
+    PYFALSE    shift, and go to state 10
+    NONE       shift, and go to state 11
+    PYTRUE     shift, and go to state 14
+    NOT        shift, and go to state 16
+    AWAIT      shift, and go to state 18
+
+    conjunction    go to state 124
+    inversion      go to state 35
+    comparison     go to state 36
+    atom           go to state 37
+    strings        go to state 38
+    list           go to state 39
+    bitwise_or     go to state 40
+    bitwise_xor    go to state 41
+    bitwise_and    go to state 42
+    shift_expr     go to state 43
+    sum            go to state 44
+    term           go to state 45
+    factor         go to state 46
+    power          go to state 47
+    await_primary  go to state 48
+    primary        go to state 49
+
+
+State 86
+
+   56 disjunction: conjunction or_conjunction_rep •
+   59 or_conjunction_rep: or_conjunction_rep • OR conjunction
+
+    OR  shift, and go to state 125
+
+    $default  reduce using rule 56 (disjunction)
+
+
+State 87
+
+   62 and_inversion_rep: AND • inversion
+
+    FLOATLIT   shift, and go to state 1
+    NAME       shift, and go to state 2
+    INTLIT     shift, and go to state 3
+    STRINGLIT  shift, and go to state 4
+    LSQB       shift, and go to state 5
+    PLUS       shift, and go to state 6
+    MINUS      shift, and go to state 7
+    TILDE      shift, and go to state 9
+    PYFALSE    shift, and go to state 10
+    NONE       shift, and go to state 11
+    PYTRUE     shift, and go to state 14
+    NOT        shift, and go to state 16
+    AWAIT      shift, and go to state 18
+
+    inversion      go to state 126
+    comparison     go to state 36
+    atom           go to state 37
+    strings        go to state 38
+    list           go to state 39
+    bitwise_or     go to state 40
+    bitwise_xor    go to state 41
+    bitwise_and    go to state 42
+    shift_expr     go to state 43
+    sum            go to state 44
+    term           go to state 45
+    factor         go to state 46
+    power          go to state 47
+    await_primary  go to state 48
+    primary        go to state 49
+
+
+State 88
+
+   60 conjunction: inversion and_inversion_rep •
+   63 and_inversion_rep: and_inversion_rep • AND inversion
+
+    AND  shift, and go to state 127
+
+    $default  reduce using rule 60 (conjunction)
+
+
+State 89
+
+   76 strings: strings STRINGLIT •
+
+    $default  reduce using rule 76 (strings)
+
+
+State 90
+
+   87 bitwise_or: bitwise_or VBAR • bitwise_xor
+
+    FLOATLIT   shift, and go to state 1
+    NAME       shift, and go to state 2
+    INTLIT     shift, and go to state 3
+    STRINGLIT  shift, and go to state 4
+    LSQB       shift, and go to state 5
+    PLUS       shift, and go to state 6
+    MINUS      shift, and go to state 7
+    TILDE      shift, and go to state 9
+    PYFALSE    shift, and go to state 10
+    NONE       shift, and go to state 11
+    PYTRUE     shift, and go to state 14
+    AWAIT      shift, and go to state 18
+
+    atom           go to state 37
+    strings        go to state 38
+    list           go to state 39
+    bitwise_xor    go to state 128
+    bitwise_and    go to state 42
+    shift_expr     go to state 43
+    sum            go to state 44
+    term           go to state 45
+    factor         go to state 46
+    power          go to state 47
+    await_primary  go to state 48
+    primary        go to state 49
+
+
+State 91
+
+   89 bitwise_xor: bitwise_xor CIRCUMFLEX • bitwise_and
+
+    FLOATLIT   shift, and go to state 1
+    NAME       shift, and go to state 2
+    INTLIT     shift, and go to state 3
+    STRINGLIT  shift, and go to state 4
+    LSQB       shift, and go to state 5
+    PLUS       shift, and go to state 6
+    MINUS      shift, and go to state 7
+    TILDE      shift, and go to state 9
+    PYFALSE    shift, and go to state 10
+    NONE       shift, and go to state 11
+    PYTRUE     shift, and go to state 14
+    AWAIT      shift, and go to state 18
+
+    atom           go to state 37
+    strings        go to state 38
+    list           go to state 39
+    bitwise_and    go to state 129
+    shift_expr     go to state 43
+    sum            go to state 44
+    term           go to state 45
+    factor         go to state 46
+    power          go to state 47
+    await_primary  go to state 48
+    primary        go to state 49
+
+
+State 92
+
+   91 bitwise_and: bitwise_and AMPER • shift_expr
+
+    FLOATLIT   shift, and go to state 1
+    NAME       shift, and go to state 2
+    INTLIT     shift, and go to state 3
+    STRINGLIT  shift, and go to state 4
+    LSQB       shift, and go to state 5
+    PLUS       shift, and go to state 6
+    MINUS      shift, and go to state 7
+    TILDE      shift, and go to state 9
+    PYFALSE    shift, and go to state 10
+    NONE       shift, and go to state 11
+    PYTRUE     shift, and go to state 14
+    AWAIT      shift, and go to state 18
+
+    atom           go to state 37
+    strings        go to state 38
+    list           go to state 39
+    shift_expr     go to state 130
+    sum            go to state 44
+    term           go to state 45
+    factor         go to state 46
+    power          go to state 47
+    await_primary  go to state 48
+    primary        go to state 49
+
+
+State 93
+
+   93 shift_expr: shift_expr LEFTSHIFT • sum
+
+    FLOATLIT   shift, and go to state 1
+    NAME       shift, and go to state 2
+    INTLIT     shift, and go to state 3
+    STRINGLIT  shift, and go to state 4
+    LSQB       shift, and go to state 5
+    PLUS       shift, and go to state 6
+    MINUS      shift, and go to state 7
+    TILDE      shift, and go to state 9
+    PYFALSE    shift, and go to state 10
+    NONE       shift, and go to state 11
+    PYTRUE     shift, and go to state 14
+    AWAIT      shift, and go to state 18
+
+    atom           go to state 37
+    strings        go to state 38
+    list           go to state 39
+    sum            go to state 131
+    term           go to state 45
+    factor         go to state 46
+    power          go to state 47
+    await_primary  go to state 48
+    primary        go to state 49
 
 
 State 94
 
-   54 comma_opt: COMMA •
-   92 lambda_params: lambda_params COMMA • NAME
+   94 shift_expr: shift_expr RIGHTSHIFT • sum
 
-    NAME  shift, and go to state 124
+    FLOATLIT   shift, and go to state 1
+    NAME       shift, and go to state 2
+    INTLIT     shift, and go to state 3
+    STRINGLIT  shift, and go to state 4
+    LSQB       shift, and go to state 5
+    PLUS       shift, and go to state 6
+    MINUS      shift, and go to state 7
+    TILDE      shift, and go to state 9
+    PYFALSE    shift, and go to state 10
+    NONE       shift, and go to state 11
+    PYTRUE     shift, and go to state 14
+    AWAIT      shift, and go to state 18
 
-    $default  reduce using rule 54 (comma_opt)
+    atom           go to state 37
+    strings        go to state 38
+    list           go to state 39
+    sum            go to state 132
+    term           go to state 45
+    factor         go to state 46
+    power          go to state 47
+    await_primary  go to state 48
+    primary        go to state 49
 
 
 State 95
 
-   90 lambda_params_opt: lambda_params comma_opt •
+   96 sum: sum PLUS • term
 
-    $default  reduce using rule 90 (lambda_params_opt)
+    FLOATLIT   shift, and go to state 1
+    NAME       shift, and go to state 2
+    INTLIT     shift, and go to state 3
+    STRINGLIT  shift, and go to state 4
+    LSQB       shift, and go to state 5
+    PLUS       shift, and go to state 6
+    MINUS      shift, and go to state 7
+    TILDE      shift, and go to state 9
+    PYFALSE    shift, and go to state 10
+    NONE       shift, and go to state 11
+    PYTRUE     shift, and go to state 14
+    AWAIT      shift, and go to state 18
+
+    atom           go to state 37
+    strings        go to state 38
+    list           go to state 39
+    term           go to state 133
+    factor         go to state 46
+    power          go to state 47
+    await_primary  go to state 48
+    primary        go to state 49
 
 
 State 96
+
+   97 sum: sum MINUS • term
+
+    FLOATLIT   shift, and go to state 1
+    NAME       shift, and go to state 2
+    INTLIT     shift, and go to state 3
+    STRINGLIT  shift, and go to state 4
+    LSQB       shift, and go to state 5
+    PLUS       shift, and go to state 6
+    MINUS      shift, and go to state 7
+    TILDE      shift, and go to state 9
+    PYFALSE    shift, and go to state 10
+    NONE       shift, and go to state 11
+    PYTRUE     shift, and go to state 14
+    AWAIT      shift, and go to state 18
+
+    atom           go to state 37
+    strings        go to state 38
+    list           go to state 39
+    term           go to state 134
+    factor         go to state 46
+    power          go to state 47
+    await_primary  go to state 48
+    primary        go to state 49
+
+
+State 97
+
+   99 term: term STAR • factor
+
+    FLOATLIT   shift, and go to state 1
+    NAME       shift, and go to state 2
+    INTLIT     shift, and go to state 3
+    STRINGLIT  shift, and go to state 4
+    LSQB       shift, and go to state 5
+    PLUS       shift, and go to state 6
+    MINUS      shift, and go to state 7
+    TILDE      shift, and go to state 9
+    PYFALSE    shift, and go to state 10
+    NONE       shift, and go to state 11
+    PYTRUE     shift, and go to state 14
+    AWAIT      shift, and go to state 18
+
+    atom           go to state 37
+    strings        go to state 38
+    list           go to state 39
+    factor         go to state 135
+    power          go to state 47
+    await_primary  go to state 48
+    primary        go to state 49
+
+
+State 98
+
+  100 term: term SLASH • factor
+
+    FLOATLIT   shift, and go to state 1
+    NAME       shift, and go to state 2
+    INTLIT     shift, and go to state 3
+    STRINGLIT  shift, and go to state 4
+    LSQB       shift, and go to state 5
+    PLUS       shift, and go to state 6
+    MINUS      shift, and go to state 7
+    TILDE      shift, and go to state 9
+    PYFALSE    shift, and go to state 10
+    NONE       shift, and go to state 11
+    PYTRUE     shift, and go to state 14
+    AWAIT      shift, and go to state 18
+
+    atom           go to state 37
+    strings        go to state 38
+    list           go to state 39
+    factor         go to state 136
+    power          go to state 47
+    await_primary  go to state 48
+    primary        go to state 49
+
+
+State 99
+
+  102 term: term PERCENT • factor
+
+    FLOATLIT   shift, and go to state 1
+    NAME       shift, and go to state 2
+    INTLIT     shift, and go to state 3
+    STRINGLIT  shift, and go to state 4
+    LSQB       shift, and go to state 5
+    PLUS       shift, and go to state 6
+    MINUS      shift, and go to state 7
+    TILDE      shift, and go to state 9
+    PYFALSE    shift, and go to state 10
+    NONE       shift, and go to state 11
+    PYTRUE     shift, and go to state 14
+    AWAIT      shift, and go to state 18
+
+    atom           go to state 37
+    strings        go to state 38
+    list           go to state 39
+    factor         go to state 137
+    power          go to state 47
+    await_primary  go to state 48
+    primary        go to state 49
+
+
+State 100
+
+  101 term: term DOUBLESLASH • factor
+
+    FLOATLIT   shift, and go to state 1
+    NAME       shift, and go to state 2
+    INTLIT     shift, and go to state 3
+    STRINGLIT  shift, and go to state 4
+    LSQB       shift, and go to state 5
+    PLUS       shift, and go to state 6
+    MINUS      shift, and go to state 7
+    TILDE      shift, and go to state 9
+    PYFALSE    shift, and go to state 10
+    NONE       shift, and go to state 11
+    PYTRUE     shift, and go to state 14
+    AWAIT      shift, and go to state 18
+
+    atom           go to state 37
+    strings        go to state 38
+    list           go to state 39
+    factor         go to state 138
+    power          go to state 47
+    await_primary  go to state 48
+    primary        go to state 49
+
+
+State 101
+
+  103 term: term AT • factor
+
+    FLOATLIT   shift, and go to state 1
+    NAME       shift, and go to state 2
+    INTLIT     shift, and go to state 3
+    STRINGLIT  shift, and go to state 4
+    LSQB       shift, and go to state 5
+    PLUS       shift, and go to state 6
+    MINUS      shift, and go to state 7
+    TILDE      shift, and go to state 9
+    PYFALSE    shift, and go to state 10
+    NONE       shift, and go to state 11
+    PYTRUE     shift, and go to state 14
+    AWAIT      shift, and go to state 18
+
+    atom           go to state 37
+    strings        go to state 38
+    list           go to state 39
+    factor         go to state 139
+    power          go to state 47
+    await_primary  go to state 48
+    primary        go to state 49
+
+
+State 102
+
+  109 power: await_primary DOUBLESTAR • factor
+
+    FLOATLIT   shift, and go to state 1
+    NAME       shift, and go to state 2
+    INTLIT     shift, and go to state 3
+    STRINGLIT  shift, and go to state 4
+    LSQB       shift, and go to state 5
+    PLUS       shift, and go to state 6
+    MINUS      shift, and go to state 7
+    TILDE      shift, and go to state 9
+    PYFALSE    shift, and go to state 10
+    NONE       shift, and go to state 11
+    PYTRUE     shift, and go to state 14
+    AWAIT      shift, and go to state 18
+
+    atom           go to state 37
+    strings        go to state 38
+    list           go to state 39
+    factor         go to state 140
+    power          go to state 47
+    await_primary  go to state 48
+    primary        go to state 49
+
+
+State 103
+
+  113 primary: primary DOT • NAME
+
+    NAME  shift, and go to state 141
+
+
+State 104
+
+   85 star_named_expression: STAR bitwise_or •
+   87 bitwise_or: bitwise_or • VBAR bitwise_xor
+
+    VBAR  shift, and go to state 90
+
+    $default  reduce using rule 85 (star_named_expression)
+
+
+State 105
+
+   77 list: LSQB star_named_expressions_opt RSQB •
+
+    $default  reduce using rule 77 (list)
+
+
+State 106
+
+   82 star_named_expressions: star_named_expression comma_sne_rep • comma_opt
+   84 comma_sne_rep: comma_sne_rep • COMMA star_named_expression
+
+    COMMA  shift, and go to state 142
+
+    $default  reduce using rule 80 (comma_opt)
+
+    comma_opt  go to state 143
+
+
+State 107
+
+   31 dotted_as_names: dotted_as_name comma_dotted_as_name_rep •
+   33 comma_dotted_as_name_rep: comma_dotted_as_name_rep • COMMA dotted_as_name
+
+    COMMA  shift, and go to state 144
+
+    $default  reduce using rule 31 (dotted_as_names)
+
+
+State 108
+
+   35 dotted_name: dotted_name DOT • NAME
+
+    NAME  shift, and go to state 145
+
+
+State 109
+
+   30 as_name_opt: AS • NAME
+
+    NAME  shift, and go to state 146
+
+
+State 110
+
+   34 dotted_as_name: dotted_name as_name_opt •
+
+    $default  reduce using rule 34 (dotted_as_name)
+
+
+State 111
+
+  115 lambdef: LAMBDA lambda_params_opt COLON • expression
+
+    FLOATLIT   shift, and go to state 1
+    NAME       shift, and go to state 2
+    INTLIT     shift, and go to state 3
+    STRINGLIT  shift, and go to state 4
+    LSQB       shift, and go to state 5
+    PLUS       shift, and go to state 6
+    MINUS      shift, and go to state 7
+    TILDE      shift, and go to state 9
+    PYFALSE    shift, and go to state 10
+    NONE       shift, and go to state 11
+    PYTRUE     shift, and go to state 14
+    LAMBDA     shift, and go to state 15
+    NOT        shift, and go to state 16
+    AWAIT      shift, and go to state 18
+
+    expression     go to state 147
+    disjunction    go to state 33
+    conjunction    go to state 34
+    inversion      go to state 35
+    comparison     go to state 36
+    atom           go to state 37
+    strings        go to state 38
+    list           go to state 39
+    bitwise_or     go to state 40
+    bitwise_xor    go to state 41
+    bitwise_and    go to state 42
+    shift_expr     go to state 43
+    sum            go to state 44
+    term           go to state 45
+    factor         go to state 46
+    power          go to state 47
+    await_primary  go to state 48
+    primary        go to state 49
+    lambdef        go to state 50
+
+
+State 112
+
+   81 comma_opt: COMMA •
+  119 lambda_params: lambda_params COMMA • NAME
+
+    NAME  shift, and go to state 148
+
+    $default  reduce using rule 81 (comma_opt)
+
+
+State 113
+
+  117 lambda_params_opt: lambda_params comma_opt •
+
+    $default  reduce using rule 117 (lambda_params_opt)
+
+
+State 114
+
+   20 import_from: FROM dot_OR_ellipsis_rep_opt dotted_name • IMPORT import_from_targets
+   35 dotted_name: dotted_name • DOT NAME
+
+    DOT     shift, and go to state 108
+    IMPORT  shift, and go to state 149
+
+
+State 115
+
+   21 import_from: FROM dot_OR_ellipsis_rep IMPORT • import_from_targets
+
+    NAME  shift, and go to state 150
+    LPAR  shift, and go to state 151
+    STAR  shift, and go to state 152
+
+    import_from_targets   go to state 153
+    import_from_as_names  go to state 154
+    import_from_as_name   go to state 155
+
+
+State 116
+
+   40 dot_OR_ellipsis_rep: dot_OR_ellipsis_rep dot_OR_ellipsis •
+
+    $default  reduce using rule 40 (dot_OR_ellipsis_rep)
+
+
+State 117
 
     1 file_input: statements_opt nl_opt ENDMARKER •
 
     $default  reduce using rule 1 (file_input)
 
 
-State 97
+State 118
 
    13 semi_simple_stmts_rep: semi_simple_stmts_rep SEMI simple_stmt •
 
     $default  reduce using rule 13 (semi_simple_stmts_rep)
 
 
-State 98
+State 119
 
     9 simple_stmts: semi_simple_stmts_rep semi_opt NEWLINE •
 
     $default  reduce using rule 9 (simple_stmts)
 
 
-State 99
+State 120
 
-   22 comma_star_expr_rep: COMMA star_expression •
+   49 comma_star_expr_rep: COMMA star_expression •
 
-    $default  reduce using rule 22 (comma_star_expr_rep)
+    $default  reduce using rule 49 (comma_star_expr_rep)
 
 
-State 100
+State 121
 
-   23 comma_star_expr_rep: comma_star_expr_rep COMMA • star_expression
-   54 comma_opt: COMMA •
+   50 comma_star_expr_rep: comma_star_expr_rep COMMA • star_expression
+   81 comma_opt: COMMA •
 
     FLOATLIT   shift, and go to state 1
     NAME       shift, and go to state 2
@@ -2047,351 +2334,59 @@ State 100
     TILDE      shift, and go to state 9
     PYFALSE    shift, and go to state 10
     NONE       shift, and go to state 11
-    PYTRUE     shift, and go to state 13
-    LAMBDA     shift, and go to state 14
-    NOT        shift, and go to state 15
-    AWAIT      shift, and go to state 16
-
-    $default  reduce using rule 54 (comma_opt)
-
-    star_expression  go to state 125
-    expression       go to state 27
-    disjunction      go to state 28
-    conjunction      go to state 29
-    inversion        go to state 30
-    comparison       go to state 31
-    atom             go to state 32
-    strings          go to state 33
-    list             go to state 34
-    bitwise_or       go to state 35
-    bitwise_xor      go to state 36
-    bitwise_and      go to state 37
-    shift_expr       go to state 38
-    sum              go to state 39
-    term             go to state 40
-    factor           go to state 41
-    power            go to state 42
-    await_primary    go to state 43
-    primary          go to state 44
-    lambdef          go to state 45
-
-
-State 101
-
-   19 star_expressions: star_expression comma_star_expr_rep comma_opt •
-
-    $default  reduce using rule 19 (star_expressions)
-
-
-State 102
-
-   26 expression: disjunction IF disjunction • ELSE expression
-
-    ELSE  shift, and go to state 126
-
-
-State 103
-
-   31 or_conjunction_rep: OR conjunction •
-
-    $default  reduce using rule 31 (or_conjunction_rep)
-
-
-State 104
-
-   32 or_conjunction_rep: or_conjunction_rep OR • conjunction
-
-    FLOATLIT   shift, and go to state 1
-    NAME       shift, and go to state 2
-    INTLIT     shift, and go to state 3
-    STRINGLIT  shift, and go to state 4
-    LSQB       shift, and go to state 5
-    PLUS       shift, and go to state 6
-    MINUS      shift, and go to state 7
-    TILDE      shift, and go to state 9
-    PYFALSE    shift, and go to state 10
-    NONE       shift, and go to state 11
-    PYTRUE     shift, and go to state 13
-    NOT        shift, and go to state 15
-    AWAIT      shift, and go to state 16
-
-    conjunction    go to state 127
-    inversion      go to state 30
-    comparison     go to state 31
-    atom           go to state 32
-    strings        go to state 33
-    list           go to state 34
-    bitwise_or     go to state 35
-    bitwise_xor    go to state 36
-    bitwise_and    go to state 37
-    shift_expr     go to state 38
-    sum            go to state 39
-    term           go to state 40
-    factor         go to state 41
-    power          go to state 42
-    await_primary  go to state 43
-    primary        go to state 44
-
-
-State 105
-
-   35 and_inversion_rep: AND inversion •
-
-    $default  reduce using rule 35 (and_inversion_rep)
-
-
-State 106
-
-   36 and_inversion_rep: and_inversion_rep AND • inversion
-
-    FLOATLIT   shift, and go to state 1
-    NAME       shift, and go to state 2
-    INTLIT     shift, and go to state 3
-    STRINGLIT  shift, and go to state 4
-    LSQB       shift, and go to state 5
-    PLUS       shift, and go to state 6
-    MINUS      shift, and go to state 7
-    TILDE      shift, and go to state 9
-    PYFALSE    shift, and go to state 10
-    NONE       shift, and go to state 11
-    PYTRUE     shift, and go to state 13
-    NOT        shift, and go to state 15
-    AWAIT      shift, and go to state 16
-
-    inversion      go to state 128
-    comparison     go to state 31
-    atom           go to state 32
-    strings        go to state 33
-    list           go to state 34
-    bitwise_or     go to state 35
-    bitwise_xor    go to state 36
-    bitwise_and    go to state 37
-    shift_expr     go to state 38
-    sum            go to state 39
-    term           go to state 40
-    factor         go to state 41
-    power          go to state 42
-    await_primary  go to state 43
-    primary        go to state 44
-
-
-State 107
-
-   60 bitwise_or: bitwise_or VBAR bitwise_xor •
-   62 bitwise_xor: bitwise_xor • CIRCUMFLEX bitwise_and
-
-    CIRCUMFLEX  shift, and go to state 77
-
-    $default  reduce using rule 60 (bitwise_or)
-
-
-State 108
-
-   62 bitwise_xor: bitwise_xor CIRCUMFLEX bitwise_and •
-   64 bitwise_and: bitwise_and • AMPER shift_expr
-
-    AMPER  shift, and go to state 78
-
-    $default  reduce using rule 62 (bitwise_xor)
-
-
-State 109
-
-   64 bitwise_and: bitwise_and AMPER shift_expr •
-   66 shift_expr: shift_expr • LEFTSHIFT sum
-   67           | shift_expr • RIGHTSHIFT sum
-
-    LEFTSHIFT   shift, and go to state 79
-    RIGHTSHIFT  shift, and go to state 80
-
-    $default  reduce using rule 64 (bitwise_and)
-
-
-State 110
-
-   66 shift_expr: shift_expr LEFTSHIFT sum •
-   69 sum: sum • PLUS term
-   70    | sum • MINUS term
-
-    PLUS   shift, and go to state 81
-    MINUS  shift, and go to state 82
-
-    $default  reduce using rule 66 (shift_expr)
-
-
-State 111
-
-   67 shift_expr: shift_expr RIGHTSHIFT sum •
-   69 sum: sum • PLUS term
-   70    | sum • MINUS term
-
-    PLUS   shift, and go to state 81
-    MINUS  shift, and go to state 82
-
-    $default  reduce using rule 67 (shift_expr)
-
-
-State 112
-
-   69 sum: sum PLUS term •
-   72 term: term • STAR factor
-   73     | term • SLASH factor
-   74     | term • DOUBLESLASH factor
-   75     | term • PERCENT factor
-   76     | term • AT factor
-
-    STAR         shift, and go to state 83
-    SLASH        shift, and go to state 84
-    PERCENT      shift, and go to state 85
-    DOUBLESLASH  shift, and go to state 86
-    AT           shift, and go to state 87
-
-    $default  reduce using rule 69 (sum)
-
-
-State 113
-
-   70 sum: sum MINUS term •
-   72 term: term • STAR factor
-   73     | term • SLASH factor
-   74     | term • DOUBLESLASH factor
-   75     | term • PERCENT factor
-   76     | term • AT factor
-
-    STAR         shift, and go to state 83
-    SLASH        shift, and go to state 84
-    PERCENT      shift, and go to state 85
-    DOUBLESLASH  shift, and go to state 86
-    AT           shift, and go to state 87
-
-    $default  reduce using rule 70 (sum)
-
-
-State 114
-
-   72 term: term STAR factor •
-
-    $default  reduce using rule 72 (term)
-
-
-State 115
-
-   73 term: term SLASH factor •
-
-    $default  reduce using rule 73 (term)
-
-
-State 116
-
-   75 term: term PERCENT factor •
-
-    $default  reduce using rule 75 (term)
-
-
-State 117
-
-   74 term: term DOUBLESLASH factor •
-
-    $default  reduce using rule 74 (term)
-
-
-State 118
-
-   76 term: term AT factor •
-
-    $default  reduce using rule 76 (term)
-
-
-State 119
-
-   82 power: await_primary DOUBLESTAR factor •
-
-    $default  reduce using rule 82 (power)
-
-
-State 120
-
-   86 primary: primary DOT NAME •
-
-    $default  reduce using rule 86 (primary)
-
-
-State 121
-
-   54 comma_opt: COMMA •
-   57 comma_sne_rep: comma_sne_rep COMMA • star_named_expression
-
-    FLOATLIT   shift, and go to state 1
-    NAME       shift, and go to state 2
-    INTLIT     shift, and go to state 3
-    STRINGLIT  shift, and go to state 4
-    LSQB       shift, and go to state 5
-    PLUS       shift, and go to state 6
-    MINUS      shift, and go to state 7
-    STAR       shift, and go to state 46
-    TILDE      shift, and go to state 9
-    PYFALSE    shift, and go to state 10
-    NONE       shift, and go to state 11
-    PYTRUE     shift, and go to state 13
-    LAMBDA     shift, and go to state 14
-    NOT        shift, and go to state 15
-    AWAIT      shift, and go to state 16
-
-    $default  reduce using rule 54 (comma_opt)
-
-    expression             go to state 47
-    disjunction            go to state 28
-    conjunction            go to state 29
-    inversion              go to state 30
-    comparison             go to state 31
-    atom                   go to state 32
-    strings                go to state 33
-    list                   go to state 34
-    star_named_expression  go to state 129
-    bitwise_or             go to state 35
-    bitwise_xor            go to state 36
-    bitwise_and            go to state 37
-    shift_expr             go to state 38
-    sum                    go to state 39
-    term                   go to state 40
-    factor                 go to state 41
-    power                  go to state 42
-    await_primary          go to state 43
-    primary                go to state 44
-    lambdef                go to state 45
+    PYTRUE     shift, and go to state 14
+    LAMBDA     shift, and go to state 15
+    NOT        shift, and go to state 16
+    AWAIT      shift, and go to state 18
+
+    $default  reduce using rule 81 (comma_opt)
+
+    star_expression  go to state 156
+    expression       go to state 32
+    disjunction      go to state 33
+    conjunction      go to state 34
+    inversion        go to state 35
+    comparison       go to state 36
+    atom             go to state 37
+    strings          go to state 38
+    list             go to state 39
+    bitwise_or       go to state 40
+    bitwise_xor      go to state 41
+    bitwise_and      go to state 42
+    shift_expr       go to state 43
+    sum              go to state 44
+    term             go to state 45
+    factor           go to state 46
+    power            go to state 47
+    await_primary    go to state 48
+    primary          go to state 49
+    lambdef          go to state 50
 
 
 State 122
 
-   55 star_named_expressions: star_named_expression comma_sne_rep comma_opt •
+   46 star_expressions: star_expression comma_star_expr_rep comma_opt •
 
-    $default  reduce using rule 55 (star_named_expressions)
+    $default  reduce using rule 46 (star_expressions)
 
 
 State 123
 
-   88 lambdef: LAMBDA lambda_params_opt COLON expression •
+   53 expression: disjunction IF disjunction • ELSE expression
 
-    $default  reduce using rule 88 (lambdef)
+    ELSE  shift, and go to state 157
 
 
 State 124
 
-   92 lambda_params: lambda_params COMMA NAME •
+   58 or_conjunction_rep: OR conjunction •
 
-    $default  reduce using rule 92 (lambda_params)
+    $default  reduce using rule 58 (or_conjunction_rep)
 
 
 State 125
 
-   23 comma_star_expr_rep: comma_star_expr_rep COMMA star_expression •
-
-    $default  reduce using rule 23 (comma_star_expr_rep)
-
-
-State 126
-
-   26 expression: disjunction IF disjunction ELSE • expression
+   59 or_conjunction_rep: or_conjunction_rep OR • conjunction
 
     FLOATLIT   shift, and go to state 1
     NAME       shift, and go to state 2
@@ -2403,55 +2398,515 @@ State 126
     TILDE      shift, and go to state 9
     PYFALSE    shift, and go to state 10
     NONE       shift, and go to state 11
-    PYTRUE     shift, and go to state 13
-    LAMBDA     shift, and go to state 14
-    NOT        shift, and go to state 15
-    AWAIT      shift, and go to state 16
+    PYTRUE     shift, and go to state 14
+    NOT        shift, and go to state 16
+    AWAIT      shift, and go to state 18
 
-    expression     go to state 130
-    disjunction    go to state 28
-    conjunction    go to state 29
-    inversion      go to state 30
-    comparison     go to state 31
-    atom           go to state 32
-    strings        go to state 33
-    list           go to state 34
-    bitwise_or     go to state 35
-    bitwise_xor    go to state 36
-    bitwise_and    go to state 37
-    shift_expr     go to state 38
-    sum            go to state 39
-    term           go to state 40
-    factor         go to state 41
-    power          go to state 42
-    await_primary  go to state 43
-    primary        go to state 44
-    lambdef        go to state 45
+    conjunction    go to state 158
+    inversion      go to state 35
+    comparison     go to state 36
+    atom           go to state 37
+    strings        go to state 38
+    list           go to state 39
+    bitwise_or     go to state 40
+    bitwise_xor    go to state 41
+    bitwise_and    go to state 42
+    shift_expr     go to state 43
+    sum            go to state 44
+    term           go to state 45
+    factor         go to state 46
+    power          go to state 47
+    await_primary  go to state 48
+    primary        go to state 49
+
+
+State 126
+
+   62 and_inversion_rep: AND inversion •
+
+    $default  reduce using rule 62 (and_inversion_rep)
 
 
 State 127
 
-   32 or_conjunction_rep: or_conjunction_rep OR conjunction •
+   63 and_inversion_rep: and_inversion_rep AND • inversion
 
-    $default  reduce using rule 32 (or_conjunction_rep)
+    FLOATLIT   shift, and go to state 1
+    NAME       shift, and go to state 2
+    INTLIT     shift, and go to state 3
+    STRINGLIT  shift, and go to state 4
+    LSQB       shift, and go to state 5
+    PLUS       shift, and go to state 6
+    MINUS      shift, and go to state 7
+    TILDE      shift, and go to state 9
+    PYFALSE    shift, and go to state 10
+    NONE       shift, and go to state 11
+    PYTRUE     shift, and go to state 14
+    NOT        shift, and go to state 16
+    AWAIT      shift, and go to state 18
+
+    inversion      go to state 159
+    comparison     go to state 36
+    atom           go to state 37
+    strings        go to state 38
+    list           go to state 39
+    bitwise_or     go to state 40
+    bitwise_xor    go to state 41
+    bitwise_and    go to state 42
+    shift_expr     go to state 43
+    sum            go to state 44
+    term           go to state 45
+    factor         go to state 46
+    power          go to state 47
+    await_primary  go to state 48
+    primary        go to state 49
 
 
 State 128
 
-   36 and_inversion_rep: and_inversion_rep AND inversion •
+   87 bitwise_or: bitwise_or VBAR bitwise_xor •
+   89 bitwise_xor: bitwise_xor • CIRCUMFLEX bitwise_and
 
-    $default  reduce using rule 36 (and_inversion_rep)
+    CIRCUMFLEX  shift, and go to state 91
+
+    $default  reduce using rule 87 (bitwise_or)
 
 
 State 129
 
-   57 comma_sne_rep: comma_sne_rep COMMA star_named_expression •
+   89 bitwise_xor: bitwise_xor CIRCUMFLEX bitwise_and •
+   91 bitwise_and: bitwise_and • AMPER shift_expr
 
-    $default  reduce using rule 57 (comma_sne_rep)
+    AMPER  shift, and go to state 92
+
+    $default  reduce using rule 89 (bitwise_xor)
 
 
 State 130
 
-   26 expression: disjunction IF disjunction ELSE expression •
+   91 bitwise_and: bitwise_and AMPER shift_expr •
+   93 shift_expr: shift_expr • LEFTSHIFT sum
+   94           | shift_expr • RIGHTSHIFT sum
 
-    $default  reduce using rule 26 (expression)
+    LEFTSHIFT   shift, and go to state 93
+    RIGHTSHIFT  shift, and go to state 94
+
+    $default  reduce using rule 91 (bitwise_and)
+
+
+State 131
+
+   93 shift_expr: shift_expr LEFTSHIFT sum •
+   96 sum: sum • PLUS term
+   97    | sum • MINUS term
+
+    PLUS   shift, and go to state 95
+    MINUS  shift, and go to state 96
+
+    $default  reduce using rule 93 (shift_expr)
+
+
+State 132
+
+   94 shift_expr: shift_expr RIGHTSHIFT sum •
+   96 sum: sum • PLUS term
+   97    | sum • MINUS term
+
+    PLUS   shift, and go to state 95
+    MINUS  shift, and go to state 96
+
+    $default  reduce using rule 94 (shift_expr)
+
+
+State 133
+
+   96 sum: sum PLUS term •
+   99 term: term • STAR factor
+  100     | term • SLASH factor
+  101     | term • DOUBLESLASH factor
+  102     | term • PERCENT factor
+  103     | term • AT factor
+
+    STAR         shift, and go to state 97
+    SLASH        shift, and go to state 98
+    PERCENT      shift, and go to state 99
+    DOUBLESLASH  shift, and go to state 100
+    AT           shift, and go to state 101
+
+    $default  reduce using rule 96 (sum)
+
+
+State 134
+
+   97 sum: sum MINUS term •
+   99 term: term • STAR factor
+  100     | term • SLASH factor
+  101     | term • DOUBLESLASH factor
+  102     | term • PERCENT factor
+  103     | term • AT factor
+
+    STAR         shift, and go to state 97
+    SLASH        shift, and go to state 98
+    PERCENT      shift, and go to state 99
+    DOUBLESLASH  shift, and go to state 100
+    AT           shift, and go to state 101
+
+    $default  reduce using rule 97 (sum)
+
+
+State 135
+
+   99 term: term STAR factor •
+
+    $default  reduce using rule 99 (term)
+
+
+State 136
+
+  100 term: term SLASH factor •
+
+    $default  reduce using rule 100 (term)
+
+
+State 137
+
+  102 term: term PERCENT factor •
+
+    $default  reduce using rule 102 (term)
+
+
+State 138
+
+  101 term: term DOUBLESLASH factor •
+
+    $default  reduce using rule 101 (term)
+
+
+State 139
+
+  103 term: term AT factor •
+
+    $default  reduce using rule 103 (term)
+
+
+State 140
+
+  109 power: await_primary DOUBLESTAR factor •
+
+    $default  reduce using rule 109 (power)
+
+
+State 141
+
+  113 primary: primary DOT NAME •
+
+    $default  reduce using rule 113 (primary)
+
+
+State 142
+
+   81 comma_opt: COMMA •
+   84 comma_sne_rep: comma_sne_rep COMMA • star_named_expression
+
+    FLOATLIT   shift, and go to state 1
+    NAME       shift, and go to state 2
+    INTLIT     shift, and go to state 3
+    STRINGLIT  shift, and go to state 4
+    LSQB       shift, and go to state 5
+    PLUS       shift, and go to state 6
+    MINUS      shift, and go to state 7
+    STAR       shift, and go to state 51
+    TILDE      shift, and go to state 9
+    PYFALSE    shift, and go to state 10
+    NONE       shift, and go to state 11
+    PYTRUE     shift, and go to state 14
+    LAMBDA     shift, and go to state 15
+    NOT        shift, and go to state 16
+    AWAIT      shift, and go to state 18
+
+    $default  reduce using rule 81 (comma_opt)
+
+    expression             go to state 52
+    disjunction            go to state 33
+    conjunction            go to state 34
+    inversion              go to state 35
+    comparison             go to state 36
+    atom                   go to state 37
+    strings                go to state 38
+    list                   go to state 39
+    star_named_expression  go to state 160
+    bitwise_or             go to state 40
+    bitwise_xor            go to state 41
+    bitwise_and            go to state 42
+    shift_expr             go to state 43
+    sum                    go to state 44
+    term                   go to state 45
+    factor                 go to state 46
+    power                  go to state 47
+    await_primary          go to state 48
+    primary                go to state 49
+    lambdef                go to state 50
+
+
+State 143
+
+   82 star_named_expressions: star_named_expression comma_sne_rep comma_opt •
+
+    $default  reduce using rule 82 (star_named_expressions)
+
+
+State 144
+
+   33 comma_dotted_as_name_rep: comma_dotted_as_name_rep COMMA • dotted_as_name
+
+    NAME  shift, and go to state 60
+
+    dotted_as_name  go to state 161
+    dotted_name     go to state 63
+
+
+State 145
+
+   35 dotted_name: dotted_name DOT NAME •
+
+    $default  reduce using rule 35 (dotted_name)
+
+
+State 146
+
+   30 as_name_opt: AS NAME •
+
+    $default  reduce using rule 30 (as_name_opt)
+
+
+State 147
+
+  115 lambdef: LAMBDA lambda_params_opt COLON expression •
+
+    $default  reduce using rule 115 (lambdef)
+
+
+State 148
+
+  119 lambda_params: lambda_params COMMA NAME •
+
+    $default  reduce using rule 119 (lambda_params)
+
+
+State 149
+
+   20 import_from: FROM dot_OR_ellipsis_rep_opt dotted_name IMPORT • import_from_targets
+
+    NAME  shift, and go to state 150
+    LPAR  shift, and go to state 151
+    STAR  shift, and go to state 152
+
+    import_from_targets   go to state 162
+    import_from_as_names  go to state 154
+    import_from_as_name   go to state 155
+
+
+State 150
+
+   28 import_from_as_name: NAME • as_name_opt
+
+    AS  shift, and go to state 109
+
+    $default  reduce using rule 29 (as_name_opt)
+
+    as_name_opt  go to state 163
+
+
+State 151
+
+   22 import_from_targets: LPAR • import_from_as_names comma_opt RPAR
+
+    NAME  shift, and go to state 150
+
+    import_from_as_names  go to state 164
+    import_from_as_name   go to state 155
+
+
+State 152
+
+   24 import_from_targets: STAR •
+
+    $default  reduce using rule 24 (import_from_targets)
+
+
+State 153
+
+   21 import_from: FROM dot_OR_ellipsis_rep IMPORT import_from_targets •
+
+    $default  reduce using rule 21 (import_from)
+
+
+State 154
+
+   23 import_from_targets: import_from_as_names •
+
+    $default  reduce using rule 23 (import_from_targets)
+
+
+State 155
+
+   25 import_from_as_names: import_from_as_name • comma_import_from_as_name_rep
+
+    $default  reduce using rule 26 (comma_import_from_as_name_rep)
+
+    comma_import_from_as_name_rep  go to state 165
+
+
+State 156
+
+   50 comma_star_expr_rep: comma_star_expr_rep COMMA star_expression •
+
+    $default  reduce using rule 50 (comma_star_expr_rep)
+
+
+State 157
+
+   53 expression: disjunction IF disjunction ELSE • expression
+
+    FLOATLIT   shift, and go to state 1
+    NAME       shift, and go to state 2
+    INTLIT     shift, and go to state 3
+    STRINGLIT  shift, and go to state 4
+    LSQB       shift, and go to state 5
+    PLUS       shift, and go to state 6
+    MINUS      shift, and go to state 7
+    TILDE      shift, and go to state 9
+    PYFALSE    shift, and go to state 10
+    NONE       shift, and go to state 11
+    PYTRUE     shift, and go to state 14
+    LAMBDA     shift, and go to state 15
+    NOT        shift, and go to state 16
+    AWAIT      shift, and go to state 18
+
+    expression     go to state 166
+    disjunction    go to state 33
+    conjunction    go to state 34
+    inversion      go to state 35
+    comparison     go to state 36
+    atom           go to state 37
+    strings        go to state 38
+    list           go to state 39
+    bitwise_or     go to state 40
+    bitwise_xor    go to state 41
+    bitwise_and    go to state 42
+    shift_expr     go to state 43
+    sum            go to state 44
+    term           go to state 45
+    factor         go to state 46
+    power          go to state 47
+    await_primary  go to state 48
+    primary        go to state 49
+    lambdef        go to state 50
+
+
+State 158
+
+   59 or_conjunction_rep: or_conjunction_rep OR conjunction •
+
+    $default  reduce using rule 59 (or_conjunction_rep)
+
+
+State 159
+
+   63 and_inversion_rep: and_inversion_rep AND inversion •
+
+    $default  reduce using rule 63 (and_inversion_rep)
+
+
+State 160
+
+   84 comma_sne_rep: comma_sne_rep COMMA star_named_expression •
+
+    $default  reduce using rule 84 (comma_sne_rep)
+
+
+State 161
+
+   33 comma_dotted_as_name_rep: comma_dotted_as_name_rep COMMA dotted_as_name •
+
+    $default  reduce using rule 33 (comma_dotted_as_name_rep)
+
+
+State 162
+
+   20 import_from: FROM dot_OR_ellipsis_rep_opt dotted_name IMPORT import_from_targets •
+
+    $default  reduce using rule 20 (import_from)
+
+
+State 163
+
+   28 import_from_as_name: NAME as_name_opt •
+
+    $default  reduce using rule 28 (import_from_as_name)
+
+
+State 164
+
+   22 import_from_targets: LPAR import_from_as_names • comma_opt RPAR
+
+    COMMA  shift, and go to state 167
+
+    $default  reduce using rule 80 (comma_opt)
+
+    comma_opt  go to state 168
+
+
+State 165
+
+   25 import_from_as_names: import_from_as_name comma_import_from_as_name_rep •
+   27 comma_import_from_as_name_rep: comma_import_from_as_name_rep • COMMA import_from_as_name
+
+    COMMA  shift, and go to state 169
+
+    COMMA     [reduce using rule 25 (import_from_as_names)]
+    $default  reduce using rule 25 (import_from_as_names)
+
+
+State 166
+
+   53 expression: disjunction IF disjunction ELSE expression •
+
+    $default  reduce using rule 53 (expression)
+
+
+State 167
+
+   81 comma_opt: COMMA •
+
+    $default  reduce using rule 81 (comma_opt)
+
+
+State 168
+
+   22 import_from_targets: LPAR import_from_as_names comma_opt • RPAR
+
+    RPAR  shift, and go to state 170
+
+
+State 169
+
+   27 comma_import_from_as_name_rep: comma_import_from_as_name_rep COMMA • import_from_as_name
+
+    NAME  shift, and go to state 150
+
+    import_from_as_name  go to state 171
+
+
+State 170
+
+   22 import_from_targets: LPAR import_from_as_names comma_opt RPAR •
+
+    $default  reduce using rule 22 (import_from_targets)
+
+
+State 171
+
+   27 comma_import_from_as_name_rep: comma_import_from_as_name_rep COMMA import_from_as_name •
+
+    $default  reduce using rule 27 (comma_import_from_as_name_rep)

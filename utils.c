@@ -293,10 +293,10 @@ void err_t_lookahead(int yychar)
     }
 }
 
-void err_lookahead(int yychar, int count, const char *err_tokens, ...)
+void err_lookahead(int yychar, int count, const char *buf, ...)
 {
     va_list args;
-    va_start(args, err_tokens);
+    va_start(args, buf);
     int token;
     for(int i = 0; i < count; i++) {
         token = va_arg(args, int);

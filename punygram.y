@@ -6,6 +6,7 @@
     extern int yyerror(char *);
     extern int yychar;
     extern char *yytext;
+    char *puny_support_err = "This Python feature is not in puny\n";
 %}
 
 %union {
@@ -148,7 +149,69 @@ semi_simple_stmts_rep: simple_stmt
 
 simple_stmt: return_stmt
     | star_expressions
+    | import_stmt
     ;
+
+// Import Stmts
+import_stmt: import_name 
+    | import_from
+    ; 
+
+import_name: IMPORT dotted_as_names
+    ;
+
+import_from: FROM dot_OR_ellipsis_rep_opt dotted_name IMPORT import_from_targets
+    | FROM dot_OR_ellipsis_rep IMPORT import_from_targets
+    ;
+
+import_from_targets: LPAR import_from_as_names comma_opt RPAR
+    | import_from_as_names {err_lookahead(yychar, 1, "", COMMA);}
+    | STAR
+    ;
+
+import_from_as_names: import_from_as_name comma_import_from_as_name_rep
+    ;
+
+comma_import_from_as_name_rep: %empty
+    | comma_import_from_as_name_rep COMMA import_from_as_name
+    ;
+
+import_from_as_name: NAME as_name_opt
+    ;
+
+as_name_opt: %empty
+    | AS NAME {yyerror(puny_support_err);}
+    ;
+
+dotted_as_names: dotted_as_name comma_dotted_as_name_rep
+    ;
+
+comma_dotted_as_name_rep: %empty
+    | comma_dotted_as_name_rep COMMA dotted_as_name
+    ;
+
+dotted_as_name: dotted_name as_name_opt
+    ;
+dotted_name: dotted_name DOT NAME
+    | NAME
+    ;
+
+
+dot_OR_ellipsis_rep_opt: %empty
+    | dot_OR_ellipsis_rep
+    ;
+
+dot_OR_ellipsis_rep: dot_OR_ellipsis
+    | dot_OR_ellipsis_rep dot_OR_ellipsis;
+
+dot_OR_ellipsis: DOT
+    | ELLIPSIS
+    ;
+
+
+
+//
+
 
 // Targets for del statements
 
