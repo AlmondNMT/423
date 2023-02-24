@@ -1,0 +1,20 @@
+function_call: //TODO
+
+
+varargslist: %empty
+    |fpdefs
+    ;
+
+fpdefs:
+    | fpdef
+    | fpdefs fpdef
+    ;    
+
+fpdef: 
+    | NAME 
+    | fplist
+    ;
+    
+fplist: 
+    | fpdef (',' fpdef)* [',']
+    ;

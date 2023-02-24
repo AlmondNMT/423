@@ -37,4 +37,5 @@ int print_token(token_t *node);
 tokenlist_t *insert_tail_node(tokenlist_t *l, tokenlist_t *node);
 int get_lineno(char *text, int rows);
 int get_column(char *text, int column);
+struct tree* append_kid(struct tree * kidspassed[], char * symbnam);
 //struct tree *alloc_tree(int R, ...);

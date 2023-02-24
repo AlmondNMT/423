@@ -218,41 +218,17 @@ dot_OR_ellipsis: DOT
 return_stmt: RETURN star_expressions_opt
     ;
 
-star_expressions_opt: %empty
-    | star_expressions
-    ;
-star_expressions: star_expression comma_star_expr_rep comma_opt
-    | star_expression COMMA
-    | star_expression
-    ;
-comma_star_expr_rep: COMMA star_expression
-    | comma_star_expr_rep COMMA star_expression
-    ;
-star_expression: STAR bitwise_or
-    | expression
-    ;
-expression: disjunction IF disjunction ELSE expression
-    | disjunction
-    | lambdef
-    ;
+exprlist: expr (',' expr)* [',']
 
-disjunction: conjunction or_conjunction_rep
-    | conjunction
-    ;
-or_conjunction_rep: OR conjunction
-    | or_conjunction_rep OR conjunction
-    ;
-conjunction: inversion and_inversion_rep
-    | inversion
-    ;
-and_inversion_rep: AND inversion
-    | and_inversion_rep AND inversion
-    ;
-inversion: NOT inversion
-    | comparison
-    ;
-comparison: bitwise_or
-    ;
+expr: xor_expr ('|' xor_expr)*
+xor_expr: and_expr ('^' and_expr)*
+and_expr: shift_expr ('&' shift_expr)*
+shift_expr: arith_expr (('<<'|'>>') arith_expr)*
+arith_expr: term (('+'|'-') term)*
+term: factor (('*'|'/'|'%'|'//') factor)*
+factor: ('+'|'-'|'~') factor | power
+
+
 atom: NAME
     | PYTRUE
     | PYFALSE
@@ -289,6 +265,49 @@ star_named_expression: STAR bitwise_or
     | expression   // Skipping assignment expression cuz it uses ':='
     ;
 
+
+
+assignment:
+    | assign_target assign_symb assign_source
+    ;
+    
+assign_target:
+    | NAME
+    | indexed_list
+    ;	
+    
+assign_source:
+    | atom
+    | indexed_list //omitted for now:     | function_call
+    ;
+
+indexed_list:
+    |NAME LSQB slice RSQB 
+    ;
+  
+assign_symb: 
+    | EQUAL
+    | PLUSEQUAL 
+    | MINEQUAL 
+    | STAREQUAL  
+    | SLASHEQUAL 
+    | PERCENTEQUAL 
+    | AMPEREQUAL 
+    | VBAREQUAL 
+    | CIRCUMFLEXEQUAL 
+    | LEFTSHIFTEQUAL 
+    | RIGHTSHIFTEQUAL 
+    | DOUBLESTAREQUAL 
+    | DOUBLESLASHEQUAL
+    ;
+
+slice:
+    | [expression] ':' [expression] [':' [expression] ] 
+    | named_expression 
+    ;
+    
+    
+    
 bitwise_or: bitwise_or VBAR bitwise_xor
     | bitwise_xor
     ;
@@ -340,16 +359,4 @@ primary: primary DOT NAME
 // Compound statements
 // -------------------
 
-// Lambda functions
-// ---------------
-lambdef: LAMBDA lambda_params_opt COLON expression
-    ;
-
-lambda_params_opt: %empty
-    | lambda_params comma_opt
-    ;
-
-lambda_params: NAME 
-    | lambda_params COMMA NAME
-    ;
-// ---------------
+/

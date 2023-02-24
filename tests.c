@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h> 
 #include <string.h>
-#include "punygram.tab.h"
+//#include "punygram.tab.h"
 #include "tree.h"
 #include "utils.h"
 
-extern char *rev_token(int cat);
-extern YYSTYPE yylsval;
+//extern char *rev_token(int cat);
+//extern YYSTYPE yylsval;
 
 void test_ext_str()
 {   
@@ -81,9 +81,36 @@ void test_deesc()
 
 }
 
+void test_tree()
+{
+    struct tree* append1 = malloc(sizeof(struct tree));
+    struct tree* append2 = malloc(sizeof(struct tree));
+    struct tree* append3 = malloc(sizeof(struct tree));
+
+    struct tree* kidspassed[3];
+
+    append1->symbolname = "ap1";
+    append2->symbolname = "ap2";
+    append3->symbolname = "ap3";
+
+    kidspassed[0] = append1;
+    kidspassed[1] = append2;
+    kidspassed[2] = append3;
+
+    struct tree* root = append_kid(kidspassed, "myCFuncChee");
+
+    int i = 0;
+    while(i<3)
+    {
+        printf("name of kid %s\n", root->kids[i]->symbolname);
+    }
+
+}
+
 int main()
 {   
-    test_ext_str();
-    test_deesc();
-    test_ext_int();
+    //test_ext_str();
+    //test_deesc();
+    //test_ext_int();
+    test_tree();
 }

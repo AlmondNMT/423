@@ -25,6 +25,13 @@ tests: tests.c
 	gcc -Wall -g lex.yy.o utils.o back.o tree.o punygram.tab.o tests.c -o tests
 	./tests
 
+
+testsnolexing:
+	gcc -Wall -g  utils.c back.c tree.c tests.c 
+	gcc -Wall -g  utils.o back.o tree.o tests.o -o tests
+
+
+
 clean: 
 	rm -f lex.yy.c puny tests *.o a.out punygram.tab.*
 

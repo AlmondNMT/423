@@ -1,13 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "punygram.tab.h"
+//#include "punygram.tab.h"
 #include "tree.h"
 #include "utils.h"
 
-extern char *rev_token(int cat);
-extern char *yytext;
-extern YYSTYPE yylval;
+//extern char *rev_token(int cat);
+//extern char *yytext;
+//extern YYSTYPE yylval;
 
 // ### DEBUGGING ### //
 int indentation_level = 0; 
@@ -116,6 +116,9 @@ void create_token(tokenlist_t *list, int category, char *yytext, int rows, int c
 }
 
 
+
+
+
 /** Add tokenlist_t node to end of l
  * @param l head of list
  * @param node tokenlist_t to append
@@ -206,6 +209,19 @@ int print_token(token_t *t)
         printf("\tMAX INDENT: %d\n", max_indent);
     }
     return 0;
+}
+
+struct tree* append_kid(struct tree * kidspassed[], char * symbnam)
+{
+    int i = 0;
+    struct tree *newtree = malloc(sizeof(struct tree));
+    newtree->symbolname = symbnam;
+    newtree->leaf = NULL;
+    while(i < 9 && kidspassed[i] != NULL)
+    {
+        newtree->kids[i] = kidspassed[i];
+    }
+    return newtree;
 }
 
 
