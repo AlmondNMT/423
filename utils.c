@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
+#include "punygram.tab.h"
 #include "utils.h"
 
 extern char yyfilename[];
@@ -276,6 +277,16 @@ void check_alloc(void *obj, char *msg)
 {
     if(obj == NULL) {
         fprintf(stderr, "Could not allocate memory for '%s'", msg);
+        exit(1);
+    }
+}
+
+/** Generate syntax error for t_lookahead in grammar
+ */
+void err_t_lookahead(int yychar)
+{
+    if(yychar == LPAR || yychar == LSQB || yychar == DOT) {
+        printf("t_primary forbidden lookahead\n");
         exit(1);
     }
 }

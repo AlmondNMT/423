@@ -14,6 +14,7 @@ int indentlevel(char *s);
 int words = 0, column=0;
 int dedentcount;
 int firsttime;
+int has_endmarker_been_returned = 0;
 // Are the indent/dedents inside of brackets or parentheses?
 int paren_nesting = 0, sqbr_nesting = 0, cbr_nesting = 0; 
 extern int yylineno;
@@ -38,7 +39,7 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
 
 #+[^\n]*			{ column += strlen(yytext); }
 <<EOF>>             { 
-                        if (firsttime++ == 0) {
+                        if(firsttime++ == 0) {
                             int il = 0;
                             dedentcount = count_dedents(&top, dentstack, il, yylineno);
                             if(dedentcount == SCAN_ERROR) {
@@ -48,10 +49,15 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
                                 fprintf(stderr, "SyntaxError: Unexpected EOF at line %d\n", yylineno);
                                 return EOF_ERROR;
                             }
+                            return NEWLINE; 
+                        }
+                        else {
+                            if(has_endmarker_been_returned) {
+                                return -1;
+                            }
+                            has_endmarker_been_returned = 1;
                             return ENDMARKER; 
                         }
-                        else 
-                            return -1; 
                     }
 \\\n		        { yylineno++; column=1; }
 \n/[^ \t\n]         { 

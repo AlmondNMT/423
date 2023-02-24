@@ -1,6 +1,7 @@
 %{
     #include <stdio.h>
     #include <stdlib.h>
+    #include "utils.h"
     extern int yylex();
     extern int yyerror(char *);
     extern int yychar;
@@ -116,7 +117,7 @@
 
 %%
 
-file_input: statements_opt endmarker_opt
+file_input: statements_opt ENDMARKER
     ;
 
 statements_opt: %empty
@@ -135,11 +136,7 @@ statement: simple_stmts
     | compound_stmt
     ;
 
-simple_stmts: semi_simple_stmts_rep semi_opt nl_OR_endmarker
-    ;
-
-nl_OR_endmarker: NEWLINE
-    | ENDMARKER
+simple_stmts: semi_simple_stmts_rep semi_opt NEWLINE
     ;
 
 semi_opt: %empty
@@ -153,6 +150,7 @@ semi_simple_stmts_rep: simple_stmt
 simple_stmt: assignment
     | return_stmt
     | star_expressions
+    | del_stmt
     ;
 
 assignment: star_targets_equal_rep yield_expr_OR_star_expressions err_equal type_comment_opt 
@@ -200,28 +198,24 @@ comma_star_target_rep: %empty
     ;
 
 target_with_star_atom: t_primary DOT NAME 
-    | t_primary LSQB slices RSQB err_t_lookahead
+    | t_primary LSQB slices RSQB { err_t_lookahead(yychar); }
     | star_atom
     ;
 
-err_t_lookahead:  %empty 
-                 {
-                    if(yychar == LPAR || yychar == LSQB || yychar == DOT) {
-                        printf("t_primary forbidden lookahead\n");
-                        exit(1);
-                    }
-                 }
+// Targets for del statements
+del_stmt: DEL del_targets
     ;
 
-amp_t_lookahead: %empty
-    | t_lookahead {printf("T lookahead\n");}
+del_targets: del_target_comma_rep comma_opt
     ;
 
-t_lookahead: LPAR
-    | LSQB
-    | DOT
+del_target_comma_rep: del_target
+    | del_target_comma_rep COMMA del_target
     ;
-                
+
+del_target: t_primary DOT NAME {err_t_lookahead(yychar);}
+          | 
+
 star_atom: NAME
     | LPAR target_with_star_atom RPAR
     | LPAR star_targets_tuple_seq_opt RPAR
@@ -252,10 +246,10 @@ single_subscript_attribute_target: t_primary DOT NAME
     | t_primary LSQB slices RSQB
     ;
 
-t_primary: t_primary DOT NAME amp_t_lookahead
-    | t_primary LSQB slices RSQB amp_t_lookahead
-    | t_primary genexp amp_t_lookahead
-    | t_primary LPAR arguments_opt RPAR amp_t_lookahead
+t_primary: t_primary DOT NAME {err_t_lookahead(yychar);}
+    | t_primary LSQB slices RSQB {err_t_lookahead(yychar);}
+    | t_primary genexp {err_t_lookahead(yychar);}
+    | t_primary LPAR arguments_opt RPAR {err_t_lookahead(yychar);}
     | atom
     ;
 
@@ -310,8 +304,7 @@ kwarg_or_starred: NAME EQUAL expression
     | starred_expression
     ;
 
-kwarg_or_double_starred: NAME EQUAL expression
-    | DOUBLESTAR expression
+kwarg_or_double_starred: DOUBLESTAR expression
     ;
 
 starred_expression: STAR expression
@@ -470,7 +463,7 @@ power: await_primary DOUBLESTAR factor
     | await_primary
     ;
 
-await_primary: AWAIT primary
+await_primary: AWAIT primary {yyerror("PunY does not support 'await'\n");}
     | primary
     ;
 
