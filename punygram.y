@@ -127,6 +127,7 @@ nl_OR_stmt_rep: %empty
     ;
 
 stmt: simple_stmt
+    | compound_stmt
     ;
 
 simple_stmt: small_stmt semi_small_stmt_rep semi_opt NEWLINE
@@ -188,6 +189,29 @@ yield_stmt: yield_expr
     ;
 
 yield_expr: YIELD testlist_opt 
+    ;
+
+// Compound Statements
+compound_stmt: if_stmt
+    ;
+
+if_stmt: IF test COLON suite elif_test_colon_suite_rep else_colon_suite_opt
+    ;
+
+elif_test_colon_suite_rep: %empty
+    | elif_test_colon_suite_rep ELIF test COLON suite
+    ;
+
+else_colon_suite_opt: %empty
+    | ELSE COLON suite
+    ;
+
+suite: simple_stmt
+    | NEWLINE INDENT stmt_rep DEDENT
+    ;
+
+stmt_rep: stmt
+    | stmt_rep stmt
     ;
 
 // Expressions
