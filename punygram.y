@@ -117,7 +117,11 @@
 
 %%
 
-file_input: statements_opt ENDMARKER;
+file_input: statements_opt nl_opt ENDMARKER;
+    ;
+
+nl_opt: %empty
+    | NEWLINE
     ;
 
 statements_opt: %empty
