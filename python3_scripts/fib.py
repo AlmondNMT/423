@@ -10,7 +10,6 @@ def fib(n):
     return f[(index + 1) % 2]
 
 def rec(n):
-    assert n >= 0 and type(n) is int
     array = [-1 for i in range(n + 1)]
     return fib_rec(n, array)
 

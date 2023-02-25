@@ -6,8 +6,6 @@ import glob
 import librosa
 import os
 import pathlib
-import numpy as np
-import soundfile as sf
 
 root_dir = "mswc_microset/"
 
@@ -18,7 +16,7 @@ def get_all_files():
 def get_random_file():
     return np.random.choice(get_all_files())
 
-rand_file = get_random_file()
+rand_file = get_random_file()     # ### asdf 
 print(rand_file)
 X, sr = librosa.load(rand_file)
 sf.write("test.wav", X, sr, format="wav")

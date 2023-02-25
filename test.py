@@ -1,7 +1,19 @@
-for (i, j, k) in [[1,1, 1, ], [2,  2, 2], [ 3, 3, 3]]:
-    printf(i)
+def asdf(): ## asdf asdfa sdfas df  \n\n\n\n\n
+    # asdf
 
-for ass in cunt:
+
+    return 1
+
+def f(): 
+    asdf()
+
+for (i, j, k) in [[1,1, 1, ], [2,  2, 2], [ 3, 3, a]]:
+    print(i)
+
+ass = [1, 2, 3]
+fdsa = ass 
+
+for ass in ass:
     asdf = fdsa
     fdsa = 1939102
 
@@ -13,8 +25,8 @@ fook = "asdf" + "fdsa"
 
 print("fdsafdsafdsajkl; %d" % asdf)
 
-class fucky(Object):
-    def __init__(self, douchecunt):
+class fucky(object):
+    def __init__(self, doubleass): ### asdfasdfasdf
         print()
 
 

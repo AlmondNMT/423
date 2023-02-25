@@ -1,14 +1,5 @@
 import glob
-import numpy as np
-import pandas as pd
 import os
-import PIL.Image as Image
-from sklearn.metrics import confusion_matrix
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelBinarizer, LabelEncoder, StandardScaler
-import tensorflow as tf
-from tensorflow.keras import layers, Input
-from tensorflow.keras.models import Model, Sequential
 import time
 
 root_dir = "../data/all_images"

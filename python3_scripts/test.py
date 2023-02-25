@@ -4,15 +4,15 @@ def read_iris():
     """
     attributes = []
     labels = []
-    with open("data/iris.data", "r") as f:
-        lines = f.readlines()
-        for line in lines:
-            datum = line.split(",") #comment to be discarded
-            label = datum[-1].rstrip()
-            #comment to be discarded
-            a = 455654.45
-            attrs = [float(attr) for attr in datum[:-1]]
-            attributes.append(attrs)
-            labels.append(label)
-            apostring = 'apostring'
-        return np.array(attributes), np.array(labels)
+    f =      open("data/iris.data", "r")
+    lines = f.readlines()
+    for line in lines:
+        datum = line.split(",") #comment to be discarded
+        label = datum[-1].rstrip()
+        #comment to be discarded
+        a = 455654.45
+        attrs = [float(attr) for attr in datum[:-1]]
+        attributes.append(attrs)
+        labels.append(label)
+        apostring = 'apostring'
+    return np.array(attributes), np.array(labels)

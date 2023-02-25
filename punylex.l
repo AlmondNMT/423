@@ -37,9 +37,10 @@ int_octal                   0o[0-7]+
 integer                     {int_dec}|{int_hex}|0+
 float_noexp                 ([0-9]+(_?[0-9])*\.[0-9]*(_?[0-9])*)|([0-9]*(_?[0-9])*\.[0-9]+(_?[0-9])*)
 float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE][+-]?[0-9]+(_?[0-9])*)
+comment                     #+[^\n]*
 %%
 
-#+[^\n]*			{ column += strlen(yytext); } // comments
+{comment}			{ column += strlen(yytext); } // comments
 <<EOF>>             { 
                         if(firsttime++ == 0) {
                             int il = 0;
@@ -61,8 +62,9 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
                             return ENDMARKER; 
                         }
                     }
-\\\n		        { yylineno++; column=1; }
-\n/[^ \t\n]         { 
+\\\n		        { yylineno++; column =1; }
+\n[ \t]*{comment}   { yylineno++; }
+\n/[^ \t\n\r]         { 
                         yylineno++; column=1; 
                         int il = 0;
                         if(il < dentstack[top]) {
@@ -74,7 +76,7 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
                         if(!is_enclosed(paren_nesting, sqbr_nesting, cbr_nesting)) // 
                             return NEWLINE; // Only returning newlines not enclosed within braces, curlies, or parentheses
                     }
-\n[ \t]+/[^ \t\n]   { 	
+\n[ \t]+/[^ \t\n\r]   { 	
                         yylineno++; 
                         int il = indentlevel(yytext+1);
                         column=il+1;
@@ -225,6 +227,8 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
 {integer}                 { column += strlen(yytext); return INTLIT; }
 [A-Za-z0-9]+	{column += strlen(yytext); words++; return NAME;}
 {float} { column += strlen(yytext); return FLOATLIT; }
+{fstring} { yyerror(puny_support_err); }
+{rstring}   { yyerror(puny_support_err); }
 {stringlit} {
                 int len = strlen(yytext);
                 char c;
@@ -238,8 +242,6 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
                 }
                 return STRINGLIT;
             }
-{fstring}   { }
-{rstring}   { }
 .		{column++;}
 %%
 

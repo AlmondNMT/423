@@ -1,10 +1,4 @@
-import numpy as np
 import os
-import pandas as pd
-from PIL import Image
-import tensorflow as tf
-from tensorflow.python.keras import Model
-from tensorflow.python.keras.layers import Conv2D, Dense, MaxPool2D, Flatten, Reshape, Input
 import time
 
 (X_train, y_train), (X_test, y_test) = tf.keras.datasets.mnist.load_data()
@@ -33,8 +27,7 @@ def build_model(latent_units):
     model = Model(inputs = img, outputs = output)
     model.compile(optimizer="adam", metrics=["accuracy"], loss="MSE")
     return model
-8d9da0d45a8e217ea10aa929226227b6de2f4cc6
-rrr find_digits(actual, pred, labels, latent_units):
+def find_digits(actual, pred, labels, latent_units):
     counts = dict(zip([i for i in range(10)], [0 for i in range(10)]))
     actual_images = []
     pred_images = []
@@ -60,7 +53,7 @@ rrr find_digits(actual, pred, labels, latent_units):
 if __name__ == "__main__":
     latent_units = 20
     model = build_model(latent_units)
-    f_string = f"latent_{latent_units}"
+    f_string = "latent_{latent_units}"
     if not os.path.isdir(f_string):
         start = time.time()
         model.fit(X_train, X_train, batch_size=40, epochs=2, validation_split=0.2, shuffle=True)

@@ -1,5 +1,3 @@
-import matplotlib.pyplot as plt
-from perceptron import *
 import random
 
 def get_train_test_split(attrs, labels, split = 0.5):
@@ -7,7 +5,6 @@ def get_train_test_split(attrs, labels, split = 0.5):
     :param split: float between .1 and .9 which determines
     how much training data to use
     """
-    assert 0.1 <= split <= 0.9
     combined = list(zip(attrs, labels))
     random.shuffle(combined)
     n = round(split * len(combined))
@@ -22,7 +19,6 @@ def get_iris(names = ["Iris-versicolor", "Iris-virginica"]):
     Assert that there can only be two classes from the iris dataset.
     Encode the classes with either -1 or 1
     """
-    assert hasattr(names, "__iter__")
     x = []
     y = []
     if len(names) == 2:

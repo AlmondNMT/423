@@ -1,13 +1,11 @@
 class Heap:
     def __init__(self, A):
-        assert type(A) is list
         self.heapsize = len(A)
         self.A = A
         # Build heap algo
         for i in range(self.heapsize // 2 + 2, 0, -1):
             self._heapify(i)
     def _heapify(self, i):
-        assert type(i) is int
         l = self._left(i)
         r = self._right(i)
         if l <= self.heapsize and self.A[l-1] > self.A[i-1]:
@@ -21,24 +19,15 @@ class Heap:
             self._heapify(largest)
 
     def _left(self, i):
-        assert type(i) is int
-        assert i >= 0
         return 2 * i
 
     def _right(self, i):
-        assert type(i) is int
-        assert i >= 0
         return 2 * i + 1
 
     def _parent(self, i):
-        assert type(i) is int
-        assert i >= 0
         return i // 2
 
     def change(self, i, delta):
-        assert type(i) is int and i > 0
-        if i > self.heapsize:
-            raise IndexError
         self.A[i-1] += delta
         p = self._parent(i)
         l = self._left(i)
@@ -53,22 +42,15 @@ class Heap:
             i = self._parent(i)
 
     def _parent(self, i):
-        assert type(i) is int
         return i // 2
-
-    def __iter__(self):
-        for element in self.A:
-            yield element
 
     def __len__(self):
         return len(self.A)
 
     def __getitem__(self, i):
-        assert type(i) is int
         return self.A[i]
 
     def __setitem__(self, i, val):
-        assert 0 <= i < len(self)
         A[i] = val
 
     def __repr__(self):
@@ -82,7 +64,6 @@ def heapify(A, i):
     """
     unrelated to the class above
     """
-    assert 0 <= i < len(A), "i must be a valid index of A"
     l = 2 * i
     r = 2 * i + 1
     if l < len(A) and A[l] > A[i]:
