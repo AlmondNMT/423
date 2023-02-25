@@ -6,7 +6,7 @@ for ass in cunt:
     fdsa = 1939102
 
 
-
+shitpoo = {"asdf": "fdsa", "23412341": "3214321"}
 
 
 print(j)

@@ -537,8 +537,7 @@ comma_subscript_rep: %empty
     | comma_subscript_rep COMMA subscript
     ;
 
-subscript: ELLIPSIS
-    | test
+subscript: test
     | test_opt COLON test_opt sliceop_opt
     ;
 
