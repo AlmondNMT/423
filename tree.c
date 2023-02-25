@@ -8,6 +8,7 @@
 extern char *rev_token(int cat);
 extern char *yytext;
 extern YYSTYPE yylval;
+extern int yylineno, column;
 
 // ### DEBUGGING ### //
 int indentation_level = 0; 
@@ -51,6 +52,7 @@ int get_column(char *text, int column)
  */
 int alctoken(int category)
 {
+    int text_len = strlen(yytext);
     yylval.treeptr = malloc(sizeof(tree_t));
     check_alloc(yylval.treeptr, "yylval.treeptr");
     yylval.treeptr -> prodrule = category;
@@ -58,11 +60,18 @@ int alctoken(int category)
     yylval.treeptr -> leaf = malloc(sizeof(token_t));
     check_alloc(yylval.treeptr -> leaf, "yylval.treeptr -> leaf");
     yylval.treeptr -> leaf -> category = category;
+    yylval.treeptr -> leaf -> lineno = yylineno;
+    yylval.treeptr -> leaf -> text = calloc(text_len + 1, sizeof(char));
+    check_alloc(yylval.treeptr->leaf->text, "yylval.treeptr->text allocation failed");
+    yylval.treeptr -> leaf -> filename = calloc(strlen(yyfilename) + 1, sizeof(char));
+    check_alloc(yylval.treeptr->leaf->filename, "yylval.treeptr->filename allocation failed");
+    strcpy(yylval.treeptr->leaf->filename, yyfilename); 
+    strcpy(yylval.treeptr->leaf->text, yytext);
     if(category == INTLIT) {
         yylval.treeptr->leaf->ival = extract_int(yytext);
     }
     else if(category == FLOATLIT) {
-        yylval.treeptr->leaf->ival = extract_float(yytext);
+        yylval.treeptr->leaf->dval = extract_float(yytext);
     }
     else if(category == STRINGLIT) {
         yylval.treeptr->leaf->sval = calloc(strlen(yytext), sizeof(char));

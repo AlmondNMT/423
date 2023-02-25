@@ -81,6 +81,11 @@ void test_deesc()
 
 }
 
+
+void test_alctoken()
+{
+}
+
 int main()
 {   
     test_ext_str();
