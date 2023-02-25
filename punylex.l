@@ -52,14 +52,14 @@ comment                     #+[^\n]*
                                 fprintf(stderr, "SyntaxError: Unexpected EOF at line %d\n", yylineno);
                                 return EOF_ERROR;
                             }
-                            return NEWLINE; 
+                            return alctoken(NEWLINE); 
                         }
                         else {
                             if(has_endmarker_been_returned) {
                                 return -1;
                             }
                             has_endmarker_been_returned = 1;
-                            return ENDMARKER; 
+                            return alctoken(ENDMARKER); 
                         }
                     }
 \\\n		        { yylineno++; column =1; }
@@ -74,7 +74,7 @@ comment                     #+[^\n]*
                              }
                         }
                         if(!is_enclosed(paren_nesting, sqbr_nesting, cbr_nesting)) // 
-                            return NEWLINE; // Only returning newlines not enclosed within braces, curlies, or parentheses
+                            return alctoken(NEWLINE); // Only returning newlines not enclosed within braces, curlies, or parentheses
                     }
 \n[ \t]+/[^ \t\n\r]   { 	
                         yylineno++; 
@@ -98,7 +98,7 @@ comment                     #+[^\n]*
                                 /* still at ILEVEL il, no INDENT or DEDENT */
                             
                             }
-                            return NEWLINE; 
+                            return alctoken(NEWLINE); 
                         }
                     }
 ^[ \t]+                 {
@@ -118,22 +118,22 @@ comment                     #+[^\n]*
                              //   return NEWLINE;
                         }
 
-"False"                { column += strlen(yytext); words++; return PYFALSE; }
-"def"       	       { column += strlen(yytext);words++; return PYDEF; } 
-"if"  	               { column += strlen(yytext);words++; return IF; }
+"False"                { column += strlen(yytext); words++; return alctoken(PYFALSE); }
+"def"       	       { column += strlen(yytext);words++; return alctoken(PYDEF); } 
+"if"  	               { column += strlen(yytext);words++; return alctoken(IF); }
 "raise"                { yyerror(puny_support_err); }
-"None"                 { column += strlen(yytext);words++; return NONE; }
-"del"                  { column += strlen(yytext);words++; return DEL; }
-"import"               { column += strlen(yytext);words++; return IMPORT; }
-"return"               { column += strlen(yytext);words++; return RETURN; }
-"True"                 { column += strlen(yytext);words++; return PYTRUE; }
-"elif"                 { column += strlen(yytext);words++; return ELIF; }
-"in"                   { column += strlen(yytext);words++; return IN; }
+"None"                 { column += strlen(yytext);words++; return alctoken(NONE); }
+"del"                  { column += strlen(yytext);words++; return alctoken(DEL); }
+"import"               { column += strlen(yytext);words++; return alctoken(IMPORT); }
+"returnalctoken(")               { column += strlen(yytext);words++; return alctoken(RETURN); }
+"True"                 { column += strlen(yytext);words++; return alctoken(PYTRUE); }
+"elif"                 { column += strlen(yytext);words++; return alctoken(ELIF); }
+"in"                   { column += strlen(yytext);words++; return alctoken(IN); }
 "try"                  { yyerror(puny_support_err); }
-"and"                  { column += strlen(yytext);words++; return AND; }
-"else"                 { column += strlen(yytext);words++; return ELSE; }
-"is"                   { column += strlen(yytext);words++; return IS; }
-"while"                { column += strlen(yytext);words++; return WHILE; }
+"and"                  { column += strlen(yytext);words++; return alctoken(AND); }
+"else"                 { column += strlen(yytext);words++; return alctoken(ELSE); }
+"is"                   { column += strlen(yytext);words++; return alctoken(IS); }
+"while"                { column += strlen(yytext);words++; return alctoken(WHILE); }
 "as"                   { yyerror(puny_support_err); }
 "except"               { yyerror(puny_support_err); }
 "lambda"               { yyerror(puny_support_err); }
@@ -142,16 +142,16 @@ comment                     #+[^\n]*
 "finally"              { yyerror(puny_support_err); }
 "nonlocal"             { yyerror(puny_support_err); }
 "yield"                { yyerror(puny_support_err); }
-"break"                { column += strlen(yytext);words++; return BREAK; }
-"for"                  { column += strlen(yytext);words++; return FOR; }
-"not"                  { column += strlen(yytext);words++; return NOT; }
-"class"                { column += strlen(yytext);words++; return CLASS; }
+"break"                { column += strlen(yytext);words++; return alctoken(BREAK); }
+"for"                  { column += strlen(yytext);words++; return alctoken(FOR); }
+"not"                  { column += strlen(yytext);words++; return alctoken(NOT); }
+"class"                { column += strlen(yytext);words++; return alctoken(CLASS); }
 "from"                 { yyerror(puny_support_err); }
-"or"                   { column += strlen(yytext);words++; return OR; }
-"continue"             { column += strlen(yytext);words++; return CONTINUE; }
-"global"               { column += strlen(yytext);words++; return GLOBAL; }
+"or"                   { column += strlen(yytext);words++; return alctoken(OR); }
+"continue"             { column += strlen(yytext);words++; return alctoken(CONTINUE); }
+"global"               { column += strlen(yytext);words++; return alctoken(GLOBAL); }
 "pass"                 { yyerror(puny_support_err); }
-"("					   	{ column += strlen(yytext); paren_nesting++; return LPAR; }
+"("					   	{ column += strlen(yytext); paren_nesting++; return alctoken(LPAR); }
 ")"						{ 
                             column += strlen(yytext); 
                             paren_nesting--; 
@@ -159,9 +159,9 @@ comment                     #+[^\n]*
                                 fprintf(stderr, "Unmatched ')' on line %d\n", yylineno);
                                 return BRACKET_ERROR;
                             }
-                            return RPAR; 
+                            return alctoken(RPAR); 
                         }
-"["						{ column += strlen(yytext); sqbr_nesting++; return LSQB; }
+"["						{ column += strlen(yytext); sqbr_nesting++; return alctoken(LSQB); }
 "]"						{ 
                             column += strlen(yytext); 
                             sqbr_nesting--; 
@@ -169,23 +169,23 @@ comment                     #+[^\n]*
                                 fprintf(stderr, "Unmatched ']' on line %d\n", yylineno);
                                 return BRACKET_ERROR; 
                             }
-                            return RSQB; 
+                            return alctoken(RSQB); 
                         }
-":"						{ column += strlen(yytext); return COLON; }
-","						{ column += strlen(yytext); return COMMA; }
-";"						{ column += strlen(yytext); return SEMI; }
-"+"						{ column += strlen(yytext); return PLUS; }
-"-"						{ column += strlen(yytext); return MINUS; }
-"*"						{ column += strlen(yytext); return STAR; }
-"/"						{ column += strlen(yytext); return SLASH; }
-"|"						{ column += strlen(yytext); return VBAR; }
-"&"						{ column += strlen(yytext); return AMPER; }
-"<"						{ column += strlen(yytext); return LESS; }
-">"						{ column += strlen(yytext); return GREATER; }
-"="						{ column += strlen(yytext); return EQUAL; }
-"."						{ column += strlen(yytext); return DOT; }
-"%"						{ column += strlen(yytext); return PERCENT; }
-"{"						{ column += strlen(yytext); cbr_nesting++; return LBRACE; }
+":"						{ column += strlen(yytext); return alctoken(COLON); }
+","						{ column += strlen(yytext); return alctoken(COMMA); }
+";"						{ column += strlen(yytext); return alctoken(SEMI); }
+"+"						{ column += strlen(yytext); return alctoken(PLUS); }
+"-"						{ column += strlen(yytext); return alctoken(MINUS); }
+"*"						{ column += strlen(yytext); return alctoken(STAR); }
+"/"						{ column += strlen(yytext); return alctoken(SLASH); }
+"|"						{ column += strlen(yytext); return alctoken(VBAR); }
+"&"						{ column += strlen(yytext); return alctoken(AMPER); }
+"<"						{ column += strlen(yytext); return alctoken(LESS); }
+">"						{ column += strlen(yytext); return alctoken(GREATER); }
+"="						{ column += strlen(yytext); return alctoken(EQUAL); }
+"."						{ column += strlen(yytext); return alctoken(DOT); }
+"%"						{ column += strlen(yytext); return alctoken(PERCENT); }
+"{"						{ column += strlen(yytext); cbr_nesting++; return alctoken(LBRACE); }
 "}"						{ 
                             column += strlen(yytext); 
                             cbr_nesting--; 
@@ -193,40 +193,40 @@ comment                     #+[^\n]*
                                 fprintf(stderr, "Unmatched '}' on line %d\n", yylineno);
                                 return BRACKET_ERROR; 
                             }
-                            return RBRACE; 
+                            return alctoken(RBRACE); 
                         }
-"=="					{ column += strlen(yytext); return EQEQUAL; }
-"!="					{ column += strlen(yytext); return NOTEQUAL; }
-"<="					{ column += strlen(yytext); return LESSEQUAL; }
-">="					{ column += strlen(yytext); return GREATEREQUAL; }
-"~"						{ column += strlen(yytext); return TILDE; }
-"^"						{ column += strlen(yytext); return CIRCUMFLEX; }
-"<<"					{ column += strlen(yytext); return LEFTSHIFT; }
-">>"					{ column += strlen(yytext); return RIGHTSHIFT; }
-"**"					{ column += strlen(yytext); return DOUBLESTAR; }
-"+="					{ column += strlen(yytext); return PLUSEQUAL; }
-"-="					{ column += strlen(yytext); return MINEQUAL; }
-"*="					{ column += strlen(yytext); return STAREQUAL; }
-"/="					{ column += strlen(yytext); return SLASHEQUAL; }
-"%="					{ column += strlen(yytext); return PERCENTEQUAL; }
-"&="					{ column += strlen(yytext); return AMPEREQUAL; }
-"|="					{ column += strlen(yytext); return VBAREQUAL; }
-"^="					{ column += strlen(yytext); return CIRCUMFLEXEQUAL; }
-"<<="					{ column += strlen(yytext); return LEFTSHIFTEQUAL; }
-">>="					{ column += strlen(yytext); return RIGHTSHIFTEQUAL; }
-"**="					{ column += strlen(yytext); return DOUBLESTAREQUAL; }
-"//"					{ column += strlen(yytext); return DOUBLESLASH; }
-"//="					{ column += strlen(yytext); return DOUBLESLASHEQUAL; }
-"@"						{ column += strlen(yytext); return AT; }
-"@="					{ column += strlen(yytext); return ATEQUAL; }
-"->"					{ column += strlen(yytext); return RARROW; }
-"..."					{ column += strlen(yytext); return ELLIPSIS; }
-":="					{ column += strlen(yytext); return COLONEQUAL; }
+"=="					{ column += strlen(yytext); return alctoken(EQEQUAL); }
+"!="					{ column += strlen(yytext); return alctoken(NOTEQUAL); }
+"<="					{ column += strlen(yytext); return alctoken(LESSEQUAL); }
+">="					{ column += strlen(yytext); return alctoken(GREATEREQUAL); }
+"~"						{ column += strlen(yytext); return alctoken(TILDE); }
+"^"						{ column += strlen(yytext); return alctoken(CIRCUMFLEX); }
+"<<"					{ column += strlen(yytext); return alctoken(LEFTSHIFT); }
+">>"					{ column += strlen(yytext); return alctoken(RIGHTSHIFT); }
+"**"					{ column += strlen(yytext); return alctoken(DOUBLESTAR); }
+"+="					{ column += strlen(yytext); return alctoken(PLUSEQUAL); }
+"-="					{ column += strlen(yytext); return alctoken(MINEQUAL); }
+"*="					{ column += strlen(yytext); return alctoken(STAREQUAL); }
+"/="					{ column += strlen(yytext); return alctoken(SLASHEQUAL); }
+"%="					{ column += strlen(yytext); return alctoken(PERCENTEQUAL); }
+"&="					{ column += strlen(yytext); return alctoken(AMPEREQUAL); }
+"|="					{ column += strlen(yytext); return alctoken(VBAREQUAL); }
+"^="					{ column += strlen(yytext); return alctoken(CIRCUMFLEXEQUAL); }
+"<<="					{ column += strlen(yytext); return alctoken(LEFTSHIFTEQUAL); }
+">>="					{ column += strlen(yytext); return alctoken(RIGHTSHIFTEQUAL); }
+"**="					{ column += strlen(yytext); return alctoken(DOUBLESTAREQUAL); }
+"//"					{ column += strlen(yytext); return alctoken(DOUBLESLASH); }
+"//="					{ column += strlen(yytext); return alctoken(DOUBLESLASHEQUAL); }
+"@"						{ column += strlen(yytext); return alctoken(AT); }
+"@="					{ column += strlen(yytext); return alctoken(ATEQUAL); }
+"->"					{ column += strlen(yytext); return alctoken(RARROW); }
+"..."					{ column += strlen(yytext); return alctoken(ELLIPSIS); }
+":="					{ column += strlen(yytext); return alctoken(COLONEQUAL); }
 
-[a-zA-Z_][a-zA-Z0-9_]* { column += strlen(yytext); return NAME; }
-{integer}                 { column += strlen(yytext); return INTLIT; }
-[A-Za-z0-9]+	{column += strlen(yytext); words++; return NAME;}
-{float} { column += strlen(yytext); return FLOATLIT; }
+[a-zA-Z_][a-zA-Z0-9_]* { column += strlen(yytext); return alctoken(NAME); }
+{integer}                 { column += strlen(yytext); return alctoken(INTLIT); }
+[A-Za-z0-9]+	{column += strlen(yytext); words++; return alctoken(NAME);}
+{float} { column += strlen(yytext); return alctoken(FLOATLIT); }
 {fstring} { yyerror(puny_support_err); }
 {rstring}   { yyerror(puny_support_err); }
 {stringlit} {
@@ -240,7 +240,7 @@ comment                     #+[^\n]*
                         column = 1;
                     }
                 }
-                return STRINGLIT;
+                return alctoken(STRINGLIT);
             }
 .		{column++;}
 %%
@@ -264,11 +264,11 @@ int indentlevel(char *s)
 int yylex() {
    if (dedentcount<0) {
      dedentcount++;
-     return INDENT;
+     return alctoken(INDENT);
      }
    if(dedentcount>0) {
      dedentcount--;
-     return DEDENT;
+     return alctoken(DEDENT);
      }
    return real_yylex();
 }
