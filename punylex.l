@@ -125,7 +125,7 @@ comment                     #+[^\n]*
 "None"                 { column += strlen(yytext);words++; return alctoken(NONE); }
 "del"                  { column += strlen(yytext);words++; return alctoken(DEL); }
 "import"               { column += strlen(yytext);words++; return alctoken(IMPORT); }
-"returnalctoken(")               { column += strlen(yytext);words++; return alctoken(RETURN); }
+"return"               { column += strlen(yytext);words++; return alctoken(RETURN); }
 "True"                 { column += strlen(yytext);words++; return alctoken(PYTRUE); }
 "elif"                 { column += strlen(yytext);words++; return alctoken(ELIF); }
 "in"                   { column += strlen(yytext);words++; return alctoken(IN); }
