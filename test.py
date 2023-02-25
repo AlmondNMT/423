@@ -21,6 +21,26 @@ for ass in ass:
 shitpoo = {"asdf": "fdsa", "23412341": "3214321"}
 
 
+a = [[1, 2, 3], 
+     [2, 3,],
+     [1, 2, 3],
+     [1, 2, 3]]
+
+b = {"asdf": "fdsa",
+     "0": asdf,
+     "fifa": "foofa"}
+
+def ass(a = 2, b = 2, d = 4):
+    print()
+
+ass(2, 
+        3, 
+        4, 
+        5,
+        4,
+)
+
+
 fook = "asdf" + "fdsa"
 
 print("fdsafdsafdsajkl; %d" % asdf)

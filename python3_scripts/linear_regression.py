@@ -1,7 +1,5 @@
 #! /usr/bin/python3
 
-from func import *
-
 # Returns the average distance between data points
 def avg_diff(values):
     total = 0
