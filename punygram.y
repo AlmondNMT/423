@@ -2,16 +2,21 @@
     #include <stdio.h>
     #include <stdlib.h>
     #include "utils.h"
+    #define YYDEBUG 1
     extern int yylex();
     extern int yyerror(char *);
     extern int yychar;
     extern char *yytext;
     char *puny_support_err = "This Python feature is not in puny\n";
+
 %}
 
 %union {
     struct tree *treeptr;
 }
+
+%define parse.trace
+
 
 %token <treeptr> FLOATLIT
 %token <treeptr> ENDMARKER
@@ -191,8 +196,70 @@ yield_stmt: yield_expr
 yield_expr: YIELD testlist_opt 
     ;
 
+yield_expr_OR_testlist_comp: yield_expr
+    | testlist_comp
+    ;
+
+testlist_comp: test tc_options
+    ;
+
+tc_options: comp_for
+    | comma_test_rep comma_opt
+    ;
+
 // Compound Statements
 compound_stmt: if_stmt
+    | while_stmt
+    | for_stmt
+    | funcdef
+    ;
+
+funcdef: PYDEF NAME parameters COLON suite
+    ;
+
+parameters: LPAR varargslist_opt RPAR
+    ;
+
+varargslist_opt: %empty
+    | varargslist
+    ;
+
+varargslist: fpdef_equal_test_comma_rep fpdef_options
+    ;
+
+fpdef_equal_test_comma_rep: %empty      // (fpdef ['=' test] ',')*
+    | fpdef_equal_test_comma_rep fpdef equal_test_opt COMMA
+    ;
+
+fpdef_options: 
+      star_name_opt_OR_dstar_name // ('*' NAME [',' '**' NAME] | '**' NAME)
+    | fpdef equal_test_opt com_fpdef_eq_t_rep comma_opt  // fpdef ['=' test] (',' fpdef ['=' test])* [',']
+    ;
+
+equal_test_opt: %empty
+    | EQUAL test
+    ;
+
+com_fpdef_eq_t_rep: %empty // (',' fpdef ['=' test])*
+    | com_fpdef_eq_t_rep COMMA fpdef equal_test_opt
+    ;
+
+fpdef: NAME
+    | LPAR fplist RPAR
+    ;
+
+fplist: fpdef comma_fpdef_rep comma_opt
+    ; 
+
+comma_fpdef_rep: %empty
+    | comma_fpdef_rep COMMA fpdef
+    ;
+
+comma_dstar_name_opt: %empty
+    | COMMA DOUBLESTAR NAME
+    ;
+
+star_name_opt_OR_dstar_name: STAR NAME comma_dstar_name_opt
     ;
 
 if_stmt: IF test COLON suite elif_test_colon_suite_rep else_colon_suite_opt
@@ -212,6 +279,12 @@ suite: simple_stmt
 
 stmt_rep: stmt
     | stmt_rep stmt
+    ;
+
+while_stmt: WHILE test COLON suite else_colon_suite_opt
+    ;
+
+for_stmt: FOR exprlist IN testlist COLON suite else_colon_suite_opt
     ;
 
 // Expressions
@@ -272,7 +345,7 @@ import_from_as_name: NAME as_name_opt
     ;
 
 as_name_opt: %empty
-    | AS NAME {yyerror(puny_support_err);}
+    | AS NAME 
     ;
 
 dotted_as_names: dotted_as_name comma_dotted_as_name_rep
@@ -451,8 +524,11 @@ comp_iter_opt: %empty
     ;
 
 comp_iter: comp_for
+    | comp_if
     ;
 
+comp_if: IF old_test comp_iter_opt
+    ;
 
 subscriptlist: subscript comma_subscript_rep comma_opt
     ;
@@ -534,6 +610,72 @@ atom: NAME
     | INTLIT
     | FLOATLIT
     | STRINGLIT
+    | LPAR yield_expr_OR_testlist_comp RPAR
+    | LSQB listmaker_opt RSQB
+    | LBRACE dictorsetmaker_opt RBRACE
     ;
 
+listmaker_opt: %empty
+    | listmaker
+    ;
 
+listmaker: test listmaker_options
+    ;
+
+listmaker_options: list_for
+    | comma_test_rep comma_opt
+    ;
+
+list_for: FOR exprlist IN testlist_safe list_iter_opt
+    ;
+
+testlist_safe: old_test tl_safe_opt
+    ;
+
+old_test: or_test // old lambdef just to throw an error
+    ;
+
+tl_safe_opt: %empty
+    | comma_old_test_rep comma_opt
+    ;
+
+comma_old_test_rep: COMMA old_test
+    | comma_old_test_rep COMMA old_test
+    ;
+
+list_iter_opt: %empty
+    | list_iter
+    ;
+
+list_iter: list_for
+    | list_if
+    ; 
+
+list_if: IF old_test list_iter_opt
+    ;
+
+dictorsetmaker_opt: %empty
+    | dictorsetmaker
+    ;
+
+dictorsetmaker: dictorset_option_1
+    | dictorset_option_2
+    ;
+
+dictorset_option_1: test COLON test comp_for_OR_ctctco // (comp_for | (',' test ':' test)* [','])
+    ;
+
+comp_for_OR_ctctco: comp_for
+    | ctct_rep comma_opt
+    ;
+
+ctct_rep: %empty
+    | ctct_rep COMMA test COLON test
+    ;
+
+dictorset_option_2: test comp_for_OR_ctr_co // (comp_for | (',' test)* [','])
+    ;
+
+comp_for_OR_ctr_co: comp_for
+    | comma_test_rep comma_opt
+    ;

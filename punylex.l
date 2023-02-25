@@ -37,7 +37,7 @@ float_noexp                 ([0-9]+(_?[0-9])*\.[0-9]*(_?[0-9])*)|([0-9]*(_?[0-9]
 float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE][+-]?[0-9]+(_?[0-9])*)
 %%
 
-#+[^\n]*			{ column += strlen(yytext); }
+#+[^\n]*			{ column += strlen(yytext); } // comments
 <<EOF>>             { 
                         if(firsttime++ == 0) {
                             int il = 0;
@@ -110,6 +110,8 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
                             int len = strlen(yytext); 
                             yylineno++; 
                             column = len > 1 ? len - 1 : 1; 
+                            int il = indentlevel(yytext+1);
+                            dedentcount = count_dedents(&top, dentstack, il, yylineno);
                             if(!is_enclosed(paren_nesting, sqbr_nesting, cbr_nesting))
                                 return NEWLINE;
                         }

@@ -5,6 +5,7 @@
 #include "tree.h"
 #include "punygram.tab.h"
 #include "utils.h"
+#define DEBUG 0
 
 extern int yylineno, column, chars;
 extern FILE * yyin;
@@ -53,15 +54,19 @@ int main(int argc, char *argv[]) {
         //list_head->next = NULL;
 
         /** Parse */
-        parse_ret = yyparse();
+        if(!DEBUG) {
+            parse_ret = yyparse();
 
-        printf("yyparse returns: %d\n", parse_ret);
-        /*while ((category = yylex()) > 0) {
-            create_token(list_head, category, yytext, yylineno, column, argv[i]);
+            printf("yyparse returns: %d\n", parse_ret);
+        } else {
+            int category;
+            while ((category = yylex()) > 0) {
+                //create_token(list_head, category, yytext, yylineno, column, argv[i]);
+                printf("%s\n", rev_token(category));
+            }
         }
 
-        print_list(list_head);
-        */
+        //print_list(list_head);
         //dealloc_list(list_head);
         fclose(yyin);
     }
