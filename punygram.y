@@ -610,6 +610,10 @@ atom: NAME
     | INTLIT
     | FLOATLIT
     | STRINGLIT
+    | ELLIPSIS
+    | NONE
+    | PYTRUE
+    | PYFALSE
     | LPAR yield_expr_OR_testlist_comp RPAR
     | LSQB listmaker_opt RSQB
     | LBRACE dictorsetmaker_opt RBRACE
