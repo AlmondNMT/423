@@ -616,7 +616,7 @@ dstar_factor_opt: %empty
 atom: NAME
     | INTLIT
     | FLOATLIT
-    | STRINGLIT
+    | stringlit_rep
     | ELLIPSIS
     | NONE
     | PYTRUE
@@ -624,6 +624,10 @@ atom: NAME
     | LPAR yield_expr_OR_testlist_comp RPAR
     | LSQB listmaker_opt RSQB
     | LBRACE dictorsetmaker_opt RBRACE
+    ;
+
+stringlit_rep: STRINGLIT
+    | stringlit_rep STRINGLIT
     ;
 
 listmaker_opt: %empty

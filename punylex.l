@@ -26,7 +26,7 @@ multiline_double_quotes     \"\"\"((\\\")|([^"])|([^"]\"{0,2})|(\"{0,2}[^"]))*\"
 multiline_single_quotes     \'\'\'((\\\')|([^'])|([^']\'{0,2})|(\'{0,2}[^']))*\'\'\'
 double_quotes               \"[^\"\n]*\"
 single_quotes               \'[^\'\n]*\'
-stringlit                   {multiline_double_quotes}{multiline_single_quotes}{double_quotes}{single_quotes}
+stringlit                   {multiline_double_quotes}|{multiline_single_quotes}|{double_quotes}|{single_quotes}
 fstring                     "f"{stringlit}
 rstring                     "r"{stringlit}
 int_dec                     [1-9](_?[0-9])*
@@ -110,10 +110,8 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
                             int len = strlen(yytext); 
                             yylineno++; 
                             column = len > 1 ? len - 1 : 1; 
-                            int il = indentlevel(yytext+1);
-                            dedentcount = count_dedents(&top, dentstack, il, yylineno);
-                            if(!is_enclosed(paren_nesting, sqbr_nesting, cbr_nesting))
-                                return NEWLINE;
+                            //if(!is_enclosed(paren_nesting, sqbr_nesting, cbr_nesting))
+                             //   return NEWLINE;
                         }
 
 "False"                { column += strlen(yytext); words++; return PYFALSE; }

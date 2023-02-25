@@ -9,6 +9,10 @@ for ass in cunt:
 shitpoo = {"asdf": "fdsa", "23412341": "3214321"}
 
 
+fook = "asdf" + "fdsa"
+
+print("fdsafdsafdsajkl; %d" % asdf)
+
 class fucky(Object):
     def __init__(self, douchecunt):
         print()
