@@ -44,7 +44,6 @@ class SLPerceptron:
         assert type(X) is np.ndarray
         assert type(y) is np.ndarray
         return np.mean(np.sign(X.dot(self.weights) + self.biases) == y)
-
     def __call__(self, x):
         """
         This class can be called as a function of the input 

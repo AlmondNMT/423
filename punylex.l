@@ -18,14 +18,16 @@ int has_endmarker_been_returned = 0;
 // Are the indent/dedents inside of brackets or parentheses?
 int paren_nesting = 0, sqbr_nesting = 0, cbr_nesting = 0; 
 extern int yylineno;
+extern int yyerror(char *s);
+extern char *puny_support_err;
 
 #define yylex real_yylex			
 %}
 
-multiline_double_quotes     \"\"\"((\\\")|([^"])|([^"]\"{0,2})|(\"{0,2}[^"]))*\"\"\"
-multiline_single_quotes     \'\'\'((\\\')|([^'])|([^']\'{0,2})|(\'{0,2}[^']))*\'\'\'
-double_quotes               \"[^\"\n]*\"
-single_quotes               \'[^\'\n]*\'
+multiline_double_quotes     ["]{3}(["]{0,2}([^\\"]|\\(.|\n)))*["]{3}
+multiline_single_quotes     [']{3}([']{0,2}([^\\']|\\(.|\n)))*[']{3}
+double_quotes               \"[^"\n]*\"
+single_quotes               \'[^'\n]*\'
 stringlit                   {multiline_double_quotes}|{multiline_single_quotes}|{double_quotes}|{single_quotes}
 fstring                     "f"{stringlit}
 rstring                     "r"{stringlit}
@@ -117,7 +119,7 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
 "False"                { column += strlen(yytext); words++; return PYFALSE; }
 "def"       	       { column += strlen(yytext);words++; return PYDEF; } 
 "if"  	               { column += strlen(yytext);words++; return IF; }
-"raise"                { column += strlen(yytext);words++; return RAISE; }
+"raise"                { yyerror(puny_support_err); }
 "None"                 { column += strlen(yytext);words++; return NONE; }
 "del"                  { column += strlen(yytext);words++; return DEL; }
 "import"               { column += strlen(yytext);words++; return IMPORT; }
@@ -125,28 +127,28 @@ float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE
 "True"                 { column += strlen(yytext);words++; return PYTRUE; }
 "elif"                 { column += strlen(yytext);words++; return ELIF; }
 "in"                   { column += strlen(yytext);words++; return IN; }
-"try"                  { column += strlen(yytext);words++; return TRY; }
+"try"                  { yyerror(puny_support_err); }
 "and"                  { column += strlen(yytext);words++; return AND; }
 "else"                 { column += strlen(yytext);words++; return ELSE; }
 "is"                   { column += strlen(yytext);words++; return IS; }
 "while"                { column += strlen(yytext);words++; return WHILE; }
-"as"                   { column += strlen(yytext);words++; return AS; }
-"except"               { column += strlen(yytext);words++; return EXCEPT; }
-"lambda"               { column += strlen(yytext);words++; return LAMBDA; }
-"with"                 { column += strlen(yytext);words++; return WITH; }
-"assert"               { column += strlen(yytext);words++; return ASSERT; }
-"finally"              { column += strlen(yytext);words++; return FINALLY; }
-"nonlocal"             { column += strlen(yytext);words++; return NONLOCAL; }
-"yield"                { column += strlen(yytext);words++; return YIELD; }
+"as"                   { yyerror(puny_support_err); }
+"except"               { yyerror(puny_support_err); }
+"lambda"               { yyerror(puny_support_err); }
+"with"                 { yyerror(puny_support_err); }
+"assert"               { yyerror(puny_support_err); }
+"finally"              { yyerror(puny_support_err); }
+"nonlocal"             { yyerror(puny_support_err); }
+"yield"                { yyerror(puny_support_err); }
 "break"                { column += strlen(yytext);words++; return BREAK; }
 "for"                  { column += strlen(yytext);words++; return FOR; }
 "not"                  { column += strlen(yytext);words++; return NOT; }
 "class"                { column += strlen(yytext);words++; return CLASS; }
-"from"                 { column += strlen(yytext);words++; return FROM; }
+"from"                 { yyerror(puny_support_err); }
 "or"                   { column += strlen(yytext);words++; return OR; }
 "continue"             { column += strlen(yytext);words++; return CONTINUE; }
 "global"               { column += strlen(yytext);words++; return GLOBAL; }
-"pass"                 { column += strlen(yytext);words++; return PASS; }
+"pass"                 { yyerror(puny_support_err); }
 "("					   	{ column += strlen(yytext); paren_nesting++; return LPAR; }
 ")"						{ 
                             column += strlen(yytext); 

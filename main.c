@@ -60,9 +60,11 @@ int main(int argc, char *argv[]) {
             printf("yyparse returns: %d\n", parse_ret);
         } else {
             int category;
+            char truncated[14];
             while ((category = yylex()) > 0) {
                 //create_token(list_head, category, yytext, yylineno, column, argv[i]);
-                printf("%s\n", rev_token(category));
+                truncate_str(truncated, yytext, 14);
+                printf("Line %d: %s : %s\n", yylineno, rev_token(category), yytext);
             }
         }
 
