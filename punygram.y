@@ -212,6 +212,14 @@ compound_stmt: if_stmt
     | while_stmt
     | for_stmt
     | funcdef
+    | classdef
+    ;
+
+classdef: CLASS NAME lpar_testlist_rpar_opt COLON suite
+    ;
+
+lpar_testlist_rpar_opt: %empty
+    | LPAR testlist_opt RPAR
     ;
 
 funcdef: PYDEF NAME parameters COLON suite

@@ -9,6 +9,11 @@ for ass in cunt:
 shitpoo = {"asdf": "fdsa", "23412341": "3214321"}
 
 
+class fucky(Object):
+    def __init__(self, douchecunt):
+        print()
+
+
 print(j)
 ## dictorsetmaker: ( (test ':' test (comp_for | (',' test ':' test)* [','])) |
 #                  (test (comp_for | (',' test)* [','])) )
