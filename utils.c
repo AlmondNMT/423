@@ -174,6 +174,7 @@ int extract_string(char *dest, char *s)
     }
 
     char *temp =  substring(s, start, end);
+    free(temp);
 	return deescape(dest, temp);
 }
 

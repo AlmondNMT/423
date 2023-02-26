@@ -66,7 +66,6 @@ int alctoken(int category)
     char *name = rev_token(category);
     yylval.treeptr -> symbolname = malloc(strlen(name));
     check_alloc(yylval.treeptr -> symbolname, "yylval.treeptr -> symbolname");
-    strcpy(yylval.treeptr->symbolname, name);
     yylval.treeptr -> leaf -> text = calloc(text_len + 1, sizeof(char));
     check_alloc(yylval.treeptr->leaf->text, "yylval.treeptr->text allocation failed");
     yylval.treeptr -> leaf -> filename = calloc(strlen(yyfilename) + 1, sizeof(char));
@@ -104,6 +103,9 @@ void free_tree(struct tree *t)
     }
     for(int i = 0; i < t->nkids && t->kids[i] != NULL; i++) {
         free_tree(t->kids[i]);
+    }
+    if(t->symbolname != NULL) {
+        free(t->symbolname);
     }
     free(t);
 }
@@ -248,7 +250,8 @@ struct tree* append_kid(struct tree * kidspassed[], char * symbnam)
 {
     int i = 0;
     struct tree *newtree = malloc(sizeof(struct tree));
-    newtree->symbolname = symbnam;
+    newtree -> symbolname = malloc(strlen(symbnam));
+    strcpy(newtree->symbolname, symbnam);
     newtree->leaf = NULL;
     while(i < 9 && kidspassed[i] != NULL)
     {
@@ -273,7 +276,7 @@ struct tree* make_tree(char * symbname, int argc, ...)
         
         i++;
     }
-
+    va_end(ap);
     return append_kid(kids, symbname);   
 
 }
