@@ -251,7 +251,7 @@ fpdef_options:
     ;
 
 equal_test_opt: {$$=make_tree("nulltree",0,NULL);}
-    | EQUAL test {$$=make_tree("equal_test_opt", 1,  $2);}
+    | EQUAL test {$$=make_tree("equal_test_opt", 2, $1,  $2);}
     ;
 
 com_fpdef_eq_t_rep: {$$=make_tree("nulltree",0,NULL);} 
@@ -314,7 +314,7 @@ yield_OR_testlist: YIELD
     ;
 
 equal_OR_yield_OR_testlist_rep: {$$=make_tree("nulltree",0,NULL);}
-    | equal_OR_yield_OR_testlist_rep EQUAL yield_OR_testlist {$$=make_tree("equal_OR_yield_OR_testlist_rep", 2, $1, $3);}
+    | equal_OR_yield_OR_testlist_rep EQUAL yield_OR_testlist {$$=make_tree("equal_OR_yield_OR_testlist_rep", 3, $1,$2, $3);}
     ;
 
 augassign: PLUSEQUAL
@@ -524,7 +524,7 @@ comma_dstar_test_opt: {$$=make_tree("nulltree",0,NULL);}
     ;
 
 argument: test comp_for_opt {$$=make_tree("argument", 2,$1,$2);}
-    | test EQUAL test {$$=make_tree("argument", 2,$1,$3);}
+    | test EQUAL test {$$=make_tree("argument", 3,$1,$2,$3);}
     ;
 
 comp_for_opt: {$$=make_tree("nulltree",0,NULL);}
