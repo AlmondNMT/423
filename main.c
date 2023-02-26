@@ -14,6 +14,7 @@ extern char *yytext;
 extern char *rev_token(int cat);
 extern int paren_nesting, sqbr_nesting, cbr_nesting;
 extern int firsttime;
+extern YYSTYPE yylval;
 // For debugging
 extern int indent_count, dedent_count;
 //void dealloc_list(struct tokenlist *l);
@@ -63,6 +64,7 @@ int main(int argc, char *argv[]) {
         print_list(list_head);
         */
         //dealloc_list(list_head);
+
         fclose(yyin);
     }
 

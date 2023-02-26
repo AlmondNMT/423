@@ -32,6 +32,7 @@ void create_token(tokenlist_t *list, int category, char *yytext, int rows, int c
 int insert_node(tokenlist_t *l, double dval, char *sval, int ival, char *text, int cat, int rows, int column, char *filename);
 void print_list(tokenlist_t *l);
 void dealloc_list(tokenlist_t *l);
+void free_tree(struct tree *);
 void free_token(token_t *t);
 int print_token(token_t *node);
 tokenlist_t *insert_tail_node(tokenlist_t *l, tokenlist_t *node);
