@@ -1,6 +1,8 @@
 # Python Compiler
-def \_\_nihil\_\_(self):<br>
+<pre> 
+def \_\_nihil\_\_(self):
     return 
+</pre>
 
 ## Tasks
 ### punygram.y
