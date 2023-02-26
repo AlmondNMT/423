@@ -7,7 +7,7 @@
 #include "utils.h"
 
 extern char yyfilename[];
-extern int yylineno, column;
+extern int yylineno;
 extern char *yytext;
 extern char *rev_token(int);
 
@@ -267,7 +267,7 @@ int is_enclosed(int p, int sq, int cb)
  */
 int yyerror(char *s)
 {
-    fprintf(stderr, "%s:%d: %s before '%s' token. Column %d\n", yyfilename, yylineno, s, yytext, column);
+    fprintf(stderr, "%s:%d: %s before '%s' token\n", yyfilename, yylineno, s, yytext);
     exit(1);
 }
 
