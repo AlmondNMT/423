@@ -268,9 +268,9 @@ struct tree *null_tree()
 
 char *get_spaces(int n)
 {
-    char *s = malloc(n*2+1);
+    char *s = malloc(n+1);
     int i = 0; 
-    while(i<2*n)
+    while(i<n)
     {
         s[i] = ' ';
         i++;
