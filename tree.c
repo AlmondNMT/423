@@ -57,6 +57,11 @@ int alctoken(int category)
     int text_len = strlen(yytext);
     yylval.treeptr = malloc(sizeof(tree_t));
     check_alloc(yylval.treeptr, "yylval.treeptr");
+    
+    int i = 0;
+    while(i<9)
+    {yylval.treeptr->kids[i] = NULL;i++;}
+    
     yylval.treeptr -> prodrule = category;
     yylval.treeptr -> nkids = 0;
     yylval.treeptr -> leaf = malloc(sizeof(token_t));
@@ -64,7 +69,7 @@ int alctoken(int category)
     yylval.treeptr -> leaf -> category = category;
     yylval.treeptr -> leaf -> lineno = yylineno;
     char *name = rev_token(category);
-    yylval.treeptr -> symbolname = malloc(strlen(name));
+    yylval.treeptr -> symbolname = malloc(strlen(name)+1);
     check_alloc(yylval.treeptr -> symbolname, "yylval.treeptr -> symbolname");
     yylval.treeptr -> leaf -> text = calloc(text_len + 1, sizeof(char));
     check_alloc(yylval.treeptr->leaf->text, "yylval.treeptr->text allocation failed");
@@ -249,10 +254,20 @@ int print_token(token_t *t)
 struct tree* append_kid(struct tree * kidspassed[], char * symbnam)
 {
     int i = 0;
-    struct tree *newtree = malloc(sizeof(struct tree));
+    struct tree *newtree = malloc(sizeof(tree_t));
     newtree -> symbolname = malloc(strlen(symbnam));
     strcpy(newtree->symbolname, symbnam);
+    while(i<9)
+    {
+        newtree->kids[i]=NULL;
+        i++;
+    }
+
+    i=0;
+
     newtree->leaf = NULL;
+    newtree->prodrule = 0;
+    
     while(i < 9 && kidspassed[i] != NULL)
     {
         newtree->kids[i] = kidspassed[i];
@@ -267,9 +282,16 @@ struct tree* make_tree(char * symbname, int argc, ...)
 {
     va_list ap;
     va_start(ap, argc);
-    struct tree *kids[9] = {NULL};
-
     int i = 0;
+    struct tree *kids[9];
+    while(i<9)
+    {
+        kids[i]=NULL;
+        i++;
+    }
+    
+
+    i = 0;
     while((argc-i)>0)
     {
         kids[i] = va_arg(ap, struct tree *);
@@ -277,10 +299,10 @@ struct tree* make_tree(char * symbname, int argc, ...)
         i++;
     }
     va_end(ap);
+
     return append_kid(kids, symbname);   
 
 }
-
 
 
 char *get_spaces(int n)
@@ -393,7 +415,7 @@ void print_list(tokenlist_t *l)
     else {
         printf("Token list is empty.\n");
     }
-	while(curr != NULL) { //TODO: make dynamic, probably while(1)
+	while(curr != NULL) { 
         if(print_token(curr -> t) == 0)
             curr = curr -> next;
         else
