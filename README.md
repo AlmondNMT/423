@@ -1,6 +1,6 @@
 # Python Compiler
 <pre> 
-def \_\_nihil\_\_(self):
+def __nihil__(self):
     return 
 </pre>
 
