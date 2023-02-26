@@ -3,18 +3,6 @@ This module is to handle everything related to data collection (historical
 or real-time). The command-line utility can call these functions for doing 
 things such as getting the most recent price/volume data (spot prices or OHLC).
 """
-import ast
-from datetime import datetime
-from cryptocmd import CmcScraper
-from html.parser import HTMLParser
-import json
-import numpy as np
-import os
-import pandas as pd
-import re
-import requests
-import time
-from typing import List
 
 url_prefixes = {"coingecko": "https://api.coingecko.com/api/v3/{}", 
              "kraken" : "https://api.kraken.com/0/public/{}",
@@ -45,8 +33,6 @@ class KrakenCurrencyTableParser(HTMLParser):
     def handle_starttag(self, tag, attrs):
         if tag == "strong":
             self.current = True
-    def handle_endtag(self, tag):
-        pass
     def handle_data(self, data):
         if bool(re.search(r"[A-Z][A-Z][A-Z][A-Z]*", data)) and self.current \
                 and data not in self.ignore_currencies:
@@ -73,16 +59,12 @@ class CMCCurrencyTableParser(KrakenCurrencyTableParser):
     def handle_starttag(self, tag, attrs):
         if tag == "a" and ('class', 'cmc-table__column-name--symbol cmc-link') in attrs:
             self.current = True
-    def handle_endtag(self, tag):
-        pass
     def handle_data(self, data):
         if self.current:
             self.coins.append(data)
         self.current = False
 
 class APIInterface:
-    def __init__(self):
-        pass
     def search_symbols(self, symbol):
         """
         Tries to locate the given symbol in the list of valid input symbols
@@ -94,17 +76,6 @@ class APIInterface:
             if symbol.upper() == sym.upper():
                 found.append(sym.upper())
         return found
-    def get_ids(self, update_cache = False):
-        """
-        :return: a list of useable IDs for the specific API
-        :rtype: list
-        """
-        pass
-    def get_intervals(self):
-        """
-        :return: a list of integers for each available interval (in minutes)
-        """
-        pass
     def is_valid_id(self, id):
         """
         :return: whether a given coin ID is in the list of available IDs
@@ -489,5 +460,3 @@ def pull_CMC_scraper_data(cryptocurrency_name: str) -> np.ndarray:
 		data.append(a["Open"])
 	return data
 
-def get_x_and_y(ohlc: pd.DataFrame):
-    pass

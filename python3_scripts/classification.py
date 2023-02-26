@@ -1,26 +1,8 @@
 import json
-import matplotlib.pyplot as plt
-import numpy as np
 import os
-import pandas as pd
 import pdb
 import scipy
-import tensorflow as tf
 import time
-
-from sklearn.cluster import KMeans
-from sklearn.decomposition import PCA
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import RidgeClassifier, SGDClassifier
-from sklearn.metrics import confusion_matrix
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import OneHotEncoder, LabelEncoder
-from sklearn.svm import LinearSVC
-from sklearn.tree import DecisionTreeClassifier
-from tensorflow.keras import layers, regularizers
-from tensorflow.keras.metrics import categorical_accuracy, Precision
-from tensorflow.keras.models import Model, Sequential
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 EPOCHS = 20
 CSV_ROOT = "../data/csvs"
@@ -292,8 +274,6 @@ def save_json(name, conf, acc, epochs):
         "epochs": epochs,
     }
     print(json.dumps(data, indent=4))
-    with open(os.path.join(accuracy_dir, name + ".json"), "w") as f:
-        json.dump(data, f, indent=4)
     
 
 
@@ -387,8 +367,8 @@ def build_ensemble(input_shape, output_shape):
 
 def get_model_name(is_binary, use_aug, use_std_scale, use_ensemble):
     if use_ensemble:
-        hist_name = f"CNN Ensemble (Model count: 3)"
-        plot_name = f"ensemble_3"
+        hist_name = "CNN Ensemble (Model count: 3)"
+        plot_name = "ensemble_3"
     else:
         hist_name = "Deep Convolutional Model Accuracy"
         plot_name = "conv"

@@ -2,16 +2,22 @@
     #include <stdio.h>
     #include <stdlib.h>
     #include "utils.h"
+<<<<<<< HEAD
     
+=======
+>>>>>>> f0fc3a18355e94ee65ea979f1da6cf7a068ce105
     #define YYDEBUG 1
     extern int yylex();
     extern int yyerror(char *);
     extern int yychar;
     extern char *yytext;
     char *puny_support_err = "This Python feature is not in puny\n";
+<<<<<<< HEAD
     
     #include "tree.h"
     extern struct tree *root;
+=======
+>>>>>>> f0fc3a18355e94ee65ea979f1da6cf7a068ce105
 
 %}
 
@@ -129,6 +135,7 @@
 
 %%
 
+<<<<<<< HEAD
 file_input: nl_OR_stmt_rep ENDMARKER{$$=make_tree("file_input", 1, $1);print_tree($$,0);}
     ;
 
@@ -149,6 +156,28 @@ semi_small_stmt_rep: {$$=make_tree("nulltree",0,NULL);}
     ;
 
 semi_opt: {$$=make_tree("nulltree",0,NULL);}
+=======
+file_input: nl_OR_stmt_rep ENDMARKER;
+    ;
+
+nl_OR_stmt_rep: %empty
+    | nl_OR_stmt_rep NEWLINE
+    | nl_OR_stmt_rep stmt
+    ;
+
+stmt: simple_stmt
+    | compound_stmt
+    ;
+
+simple_stmt: small_stmt semi_small_stmt_rep semi_opt NEWLINE
+    ;
+
+semi_small_stmt_rep: %empty
+    | semi_small_stmt_rep SEMI small_stmt
+    ;
+
+semi_opt: %empty
+>>>>>>> f0fc3a18355e94ee65ea979f1da6cf7a068ce105
     | SEMI
     ;
 
@@ -158,6 +187,7 @@ small_stmt: pass_stmt
     | import_stmt
     | expr_stmt
     | global_stmt
+<<<<<<< HEAD
     //| assert_stmt {yyerror(puny_support_err); }
     ;
 
@@ -166,23 +196,46 @@ global_stmt: GLOBAL NAME comma_name_rep {$$=make_tree("global_stmt", 2, $2,$3);}
 
 comma_name_rep: {$$=make_tree("nulltree",0,NULL);}
     | comma_name_rep COMMA NAME {$$=make_tree("comma_name_rep", 2, $1,$3);}
+=======
+    | assert_stmt {yyerror(puny_support_err); }
+    ;
+
+global_stmt: GLOBAL NAME comma_name_rep
+    ;
+
+comma_name_rep: %empty
+    | comma_name_rep COMMA NAME
+>>>>>>> f0fc3a18355e94ee65ea979f1da6cf7a068ce105
     ;
 
 pass_stmt: PASS
     ;
 
+<<<<<<< HEAD
 del_stmt: DEL exprlist {$$=make_tree("del_stmt", 1, $2);}
+=======
+del_stmt: DEL exprlist
+>>>>>>> f0fc3a18355e94ee65ea979f1da6cf7a068ce105
     ; 
 
 flow_stmt: break_stmt
     | continue_stmt
     | return_stmt
+<<<<<<< HEAD
 //    | raise_stmt {yyerror(puny_support_err); }
     | yield_stmt {yyerror(puny_support_err); }
     ;
 
 //assert_stmt: ASSERT test comma_test_opt {$$=make_tree("assert_stmt", 2,$1, $2);}
 //    ;
+=======
+    | raise_stmt {yyerror(puny_support_err); }
+    | yield_stmt {yyerror(puny_support_err); }
+    ;
+
+assert_stmt: ASSERT test comma_test_opt
+    ;
+>>>>>>> f0fc3a18355e94ee65ea979f1da6cf7a068ce105
 
 break_stmt: BREAK
     ;
@@ -190,22 +243,35 @@ break_stmt: BREAK
 continue_stmt: CONTINUE
     ;
 
+<<<<<<< HEAD
 return_stmt: RETURN testlist_opt {$$=make_tree("return_stmt", 1, $2);}
     ;
 
 //raise_stmt: RAISE test_triplet_opt {$$=make_tree("raise_stmt", 1, $2);}
 //    ;
+=======
+return_stmt: RETURN testlist_opt
+    ;
+
+raise_stmt: RAISE test_triplet_opt 
+    ;
+>>>>>>> f0fc3a18355e94ee65ea979f1da6cf7a068ce105
 
 yield_stmt: yield_expr
     ;
 
+<<<<<<< HEAD
 yield_expr: YIELD testlist_opt {$$=make_tree("yield_expr", 1, $2);}
+=======
+yield_expr: YIELD testlist_opt 
+>>>>>>> f0fc3a18355e94ee65ea979f1da6cf7a068ce105
     ;
 
 yield_expr_OR_testlist_comp: yield_expr
     | testlist_comp
     ;
 
+<<<<<<< HEAD
 testlist_comp: test tc_options {$$=make_tree("testlist_comp", 2,$1, $2);}
     ;
 
@@ -215,12 +281,24 @@ tc_options: comp_for
 
 // Compound Statements
 compound_stmt: if_stmt 
+=======
+testlist_comp: test tc_options
+    ;
+
+tc_options: comp_for
+    | comma_test_rep comma_opt
+    ;
+
+// Compound Statements
+compound_stmt: if_stmt
+>>>>>>> f0fc3a18355e94ee65ea979f1da6cf7a068ce105
     | while_stmt
     | for_stmt
     | funcdef
     | classdef
     ;
 
+<<<<<<< HEAD
 classdef: CLASS NAME lpar_testlist_rpar_opt COLON suite {$$=make_tree("classdef", 3, $2, $3, $5);}
     ;
 
@@ -306,6 +384,93 @@ expr_stmt: testlist expr_conjunct {$$=make_tree("expr_stmt", 2, $1, $2);}
     ;
 
 expr_conjunct: augassign yield_OR_testlist {$$=make_tree("expr_conjunct", 2, $1, $2);} 
+=======
+classdef: CLASS NAME lpar_testlist_rpar_opt COLON suite
+    ;
+
+lpar_testlist_rpar_opt: %empty
+    | LPAR testlist_opt RPAR
+    ;
+
+funcdef: PYDEF NAME parameters COLON suite
+    ;
+
+parameters: LPAR varargslist_opt RPAR
+    ;
+
+varargslist_opt: %empty
+    | varargslist
+    ;
+
+varargslist: fpdef_equal_test_comma_rep fpdef_options
+    ;
+
+fpdef_equal_test_comma_rep: %empty      // (fpdef ['=' test] ',')*
+    | fpdef_equal_test_comma_rep fpdef equal_test_opt COMMA
+    ;
+
+fpdef_options: 
+      star_name_opt_OR_dstar_name // ('*' NAME [',' '**' NAME] | '**' NAME)
+    | fpdef equal_test_opt com_fpdef_eq_t_rep comma_opt  // fpdef ['=' test] (',' fpdef ['=' test])* [',']
+    ;
+
+equal_test_opt: %empty
+    | EQUAL test
+    ;
+
+com_fpdef_eq_t_rep: %empty // (',' fpdef ['=' test])*
+    | com_fpdef_eq_t_rep COMMA fpdef equal_test_opt
+    ;
+
+fpdef: NAME
+    | LPAR fplist RPAR
+    ;
+
+fplist: fpdef comma_fpdef_rep comma_opt
+    ; 
+
+comma_fpdef_rep: %empty
+    | comma_fpdef_rep COMMA fpdef
+    ;
+
+comma_dstar_name_opt: %empty
+    | COMMA DOUBLESTAR NAME
+    ;
+
+star_name_opt_OR_dstar_name: STAR NAME comma_dstar_name_opt
+    ;
+
+if_stmt: IF test COLON suite elif_test_colon_suite_rep else_colon_suite_opt
+    ;
+
+elif_test_colon_suite_rep: %empty
+    | elif_test_colon_suite_rep ELIF test COLON suite
+    ;
+
+else_colon_suite_opt: %empty
+    | ELSE COLON suite
+    ;
+
+suite: simple_stmt
+    | NEWLINE INDENT stmt_rep DEDENT
+    ;
+
+stmt_rep: stmt
+    | stmt_rep stmt
+    ;
+
+while_stmt: WHILE test COLON suite else_colon_suite_opt
+    ;
+
+for_stmt: FOR exprlist IN testlist COLON suite else_colon_suite_opt
+    ;
+
+// Expressions
+expr_stmt: testlist expr_conjunct
+    ;
+
+expr_conjunct: augassign yield_OR_testlist
+>>>>>>> f0fc3a18355e94ee65ea979f1da6cf7a068ce105
     | equal_OR_yield_OR_testlist_rep
     ;
 
@@ -313,8 +478,13 @@ yield_OR_testlist: YIELD
     | testlist
     ;
 
+<<<<<<< HEAD
 equal_OR_yield_OR_testlist_rep: {$$=make_tree("nulltree",0,NULL);}
     | equal_OR_yield_OR_testlist_rep EQUAL yield_OR_testlist {$$=make_tree("equal_OR_yield_OR_testlist_rep", 2, $1, $3);}
+=======
+equal_OR_yield_OR_testlist_rep: %empty
+    | equal_OR_yield_OR_testlist_rep EQUAL yield_OR_testlist
+>>>>>>> f0fc3a18355e94ee65ea979f1da6cf7a068ce105
     ;
 
 augassign: PLUSEQUAL
@@ -334,6 +504,12 @@ augassign: PLUSEQUAL
 // Import Stmts
 import_stmt: import_name
     | import_from
+<<<<<<< HEAD
+=======
+    ;
+
+import_name: IMPORT dotted_as_names
+>>>>>>> f0fc3a18355e94ee65ea979f1da6cf7a068ce105
     ;
 
 import_name: IMPORT dotted_as_names {$$=make_tree("import_name", 1, $2);}
@@ -362,7 +538,12 @@ as_name_opt: {$$=make_tree("nulltree",0,NULL);}
     | AS NAME {$$=make_tree("as_name_opt", 1, $2);}
     ;
 
+<<<<<<< HEAD
 dotted_as_names: dotted_as_name comma_dotted_as_name_rep  {$$=make_tree("dotted_as_names", 2, $1,$2);}
+=======
+as_name_opt: %empty
+    | AS NAME 
+>>>>>>> f0fc3a18355e94ee65ea979f1da6cf7a068ce105
     ;
 
 comma_dotted_as_name_rep: {$$=make_tree("nulltree",0,NULL);}
@@ -372,11 +553,22 @@ comma_dotted_as_name_rep: {$$=make_tree("nulltree",0,NULL);}
 dotted_as_name: dotted_name as_name_opt {$$=make_tree("dotted_as_name", 2, $1,$2);}
     ;
 
+<<<<<<< HEAD
 dotted_name: dotted_name DOT NAME {$$=make_tree("dotted_name", 2, $1,$3);}
     | NAME
     ;
 
 dot_OR_ellipsis_rep_opt: {$$=make_tree("nulltree",0,NULL);}
+=======
+dotted_as_name: dotted_name as_name_opt
+    ;
+
+dotted_name: dotted_name DOT NAME
+    | NAME
+    ;
+
+dot_OR_ellipsis_rep_opt: %empty
+>>>>>>> f0fc3a18355e94ee65ea979f1da6cf7a068ce105
     | dot_OR_ellipsis_rep
     ;
 
@@ -388,6 +580,7 @@ dot_OR_ellipsis: DOT
     | ELLIPSIS
     ;
 
+<<<<<<< HEAD
 //test_triplet_opt: {$$=make_tree("nulltree",0,NULL);}
 //    | test test_doublet_opt {$$=make_tree("test_triplet_opt", 2, $1,$2);}
 //    ;
@@ -448,21 +641,92 @@ shift_expr: arith_expr shift_arith_expr_rep {$$=make_tree("shift_expr", 2,$1,$2)
 
 shift_arith_expr_rep: {$$=make_tree("nulltree",0,NULL);}
     | shift_arith_expr_rep shift arith_expr {$$=make_tree("shift_arith_expr_rep", 3,$1,$2,$3);}
+=======
+test_triplet_opt: %empty
+    | test test_doublet_opt
+    ;
+
+test_doublet_opt: %empty
+    | COMMA test comma_test_opt
+    ;
+
+comma_test_opt: %empty
+    | COMMA test
+    ;
+
+testlist_opt: %empty
+    | testlist
+    ;
+
+testlist: test comma_test_rep comma_opt
+    ;
+
+comma_test_rep: %empty
+    | comma_test_rep COMMA test 
+    ;
+
+exprlist: expr comma_expr_rep comma_opt
+    ;
+
+comma_expr_rep: %empty
+    | comma_expr_rep COMMA expr
+    ;
+
+comma_opt: %empty
+    | COMMA
+    ;
+
+expr: xor_expr vbar_xor_expr_rep
+    ; 
+
+vbar_xor_expr_rep: %empty
+    | vbar_xor_expr_rep VBAR xor_expr
+    ; 
+
+xor_expr: and_expr caret_and_expr_rep
+    ;
+
+caret_and_expr_rep: %empty
+    | caret_and_expr_rep CIRCUMFLEX and_expr
+    ;
+
+and_expr: shift_expr amper_shift_expr_rep
+    ;
+
+amper_shift_expr_rep: %empty
+    | amper_shift_expr_rep AMPER shift_expr
+    ;
+
+shift_expr: arith_expr shift_arith_expr_rep
+    ;
+
+shift_arith_expr_rep: %empty
+    | shift_arith_expr_rep shift arith_expr
+>>>>>>> f0fc3a18355e94ee65ea979f1da6cf7a068ce105
     ;
 
 shift: LEFTSHIFT
     | RIGHTSHIFT
     ;
 
+<<<<<<< HEAD
 arith_expr: term pm_term_rep {$$=make_tree("arith_expr", 2,$1,$2);}
     ;
 
 pm_term_rep: {$$=make_tree("nulltree",0,NULL);}
     | pm_term_rep plus_OR_minus term {$$=make_tree("pm_term_rep", 3,$1,$2,$3);}
+=======
+arith_expr: term pm_term_rep
+    ;
+
+pm_term_rep: %empty
+    | pm_term_rep plus_OR_minus term
+>>>>>>> f0fc3a18355e94ee65ea979f1da6cf7a068ce105
     ;
 
 plus_OR_minus: PLUS
     | MINUS
+<<<<<<< HEAD
     ;
 
 term: factor factops_factor_rep {$$=make_tree("term", 2,$1,$2);}
@@ -535,6 +799,80 @@ comp_for: FOR exprlist IN or_test comp_iter_opt {$$=make_tree("comp_for", 3,$2,$
     ;
 
 comp_iter_opt: {$$=make_tree("nulltree",0,NULL);}
+=======
+    ;
+
+term: factor factops_factor_rep
+    ;
+
+factops_factor_rep: %empty
+    | factops_factor_rep factops factor
+    ;
+
+factops: STAR
+    | SLASH
+    | PERCENT
+    | DOUBLESLASH
+    ;
+
+factor: pmt factor
+    | power
+    ;
+
+pmt: PLUS
+    | MINUS
+    | TILDE
+    ;
+
+power: atom trailer_rep dstar_factor_opt
+    ;
+
+trailer_rep: %empty
+    | trailer_rep trailer
+    ;
+
+trailer: LPAR arglist_opt RPAR
+    | LSQB subscriptlist RSQB
+    | DOT NAME
+    ;
+
+arglist_opt: %empty
+    | arglist
+    ;
+
+arglist: arg_comma_rep arg_ORS
+    ;
+
+arg_comma_rep: %empty
+    | arg_comma_rep argument COMMA
+    ;
+
+arg_ORS: argument comma_opt
+    | STAR test comma_arg_rep comma_dstar_test_opt
+    | DOUBLESTAR test
+    ;
+
+comma_arg_rep: %empty
+    | comma_arg_rep COMMA argument
+    ;
+
+comma_dstar_test_opt: %empty
+    | COMMA DOUBLESTAR test
+    ;
+
+argument: test comp_for_opt
+    | test EQUAL test
+    ;
+
+comp_for_opt: %empty
+    | comp_for
+    ;
+
+comp_for: FOR exprlist IN or_test comp_iter_opt
+    ;
+
+comp_iter_opt: %empty
+>>>>>>> f0fc3a18355e94ee65ea979f1da6cf7a068ce105
     | comp_iter
     ;
 
@@ -542,6 +880,7 @@ comp_iter: comp_for
     | comp_if
     ;
 
+<<<<<<< HEAD
 comp_if: IF old_test comp_iter_opt {$$=make_tree("comp_if", 2,$2,$3);}
     ;
 
@@ -598,6 +937,62 @@ comparison: expr comp_op_expr_rep {$$=make_tree("comparison", 2,$1,$2);}
 
 comp_op_expr_rep: {$$=make_tree("nulltree",0,NULL);}
     | comp_op_expr_rep comp_op expr {$$=make_tree("comp_op_expr_rep", 3,$1,$2,$3);}
+=======
+comp_if: IF old_test comp_iter_opt
+    ;
+
+subscriptlist: subscript comma_subscript_rep comma_opt
+    ;
+
+comma_subscript_rep: %empty
+    | comma_subscript_rep COMMA subscript
+    ;
+
+subscript: test
+    | test_opt COLON test_opt sliceop_opt
+    ;
+
+sliceop_opt: %empty
+    | sliceop
+    ;
+
+sliceop: COLON test_opt
+    ;
+
+test_opt: %empty
+    | test
+    ;
+
+test: or_test if_or_test_else_test_opt
+    ;
+
+if_or_test_else_test_opt: %empty
+    | IF or_test ELSE test
+    ;
+
+or_test: and_test or_and_test_rep
+    ;
+
+or_and_test_rep: %empty
+    | or_and_test_rep OR and_test
+    ;
+
+and_test: not_test and_not_test_rep
+    ;
+
+and_not_test_rep: %empty
+    | and_not_test_rep AND not_test
+    ;
+
+not_test: NOT not_test
+    | comparison
+
+comparison: expr comp_op_expr_rep
+    ; 
+
+comp_op_expr_rep: %empty
+    | comp_op_expr_rep comp_op expr
+>>>>>>> f0fc3a18355e94ee65ea979f1da6cf7a068ce105
     ;
 
 comp_op: LESS
@@ -618,6 +1013,7 @@ not_in: NOT IN
 is_not: IS NOT
     ;
 
+<<<<<<< HEAD
 dstar_factor_opt: {$$=make_tree("nulltree",0,NULL);}
     | DOUBLESTAR factor {$$=make_tree("dstar_factor_opt", 1,$2);}
     ;
@@ -626,10 +1022,21 @@ atom: NAME
     | INTLIT 
     | FLOATLIT
     | STRINGLIT
+=======
+dstar_factor_opt: %empty
+    | DOUBLESTAR factor
+    ;
+
+atom: NAME
+    | INTLIT
+    | FLOATLIT
+    | stringlit_rep
+>>>>>>> f0fc3a18355e94ee65ea979f1da6cf7a068ce105
     | ELLIPSIS
     | NONE
     | PYTRUE
     | PYFALSE
+<<<<<<< HEAD
     | LPAR yield_expr_OR_testlist_comp RPAR {$$=make_tree("atom", 1,$2);}
     | LSQB listmaker_opt RSQB {$$=make_tree("atom", 1,$2);}
     | LBRACE dictorsetmaker_opt RBRACE {$$=make_tree("atom", 1,$2);}
@@ -650,11 +1057,38 @@ list_for: FOR exprlist IN testlist_safe list_iter_opt {$$=make_tree("list_for", 
     ;
 
 testlist_safe: old_test tl_safe_opt {$$=make_tree("testlist_safe", 2,$1,$2);}
+=======
+    | LPAR yield_expr_OR_testlist_comp RPAR
+    | LSQB listmaker_opt RSQB
+    | LBRACE dictorsetmaker_opt RBRACE
+    ;
+
+stringlit_rep: STRINGLIT
+    | stringlit_rep STRINGLIT
+    ;
+
+listmaker_opt: %empty
+    | listmaker
+    ;
+
+listmaker: test listmaker_options
+    ;
+
+listmaker_options: list_for
+    | comma_test_rep comma_opt
+    ;
+
+list_for: FOR exprlist IN testlist_safe list_iter_opt
+    ;
+
+testlist_safe: old_test tl_safe_opt
+>>>>>>> f0fc3a18355e94ee65ea979f1da6cf7a068ce105
     ;
 
 old_test: or_test // old lambdef just to throw an error
     ;
 
+<<<<<<< HEAD
 tl_safe_opt: {$$=make_tree("nulltree",0,NULL);}
     | comma_old_test_rep comma_opt {$$=make_tree("tl_safe_opt", 2,$1,$2);}
     ;
@@ -664,6 +1098,17 @@ comma_old_test_rep: COMMA old_test {$$=make_tree("comma_old_test_rep", 1,$2);}
     ;
 
 list_iter_opt: {$$=make_tree("nulltree",0,NULL);}
+=======
+tl_safe_opt: %empty
+    | comma_old_test_rep comma_opt
+    ;
+
+comma_old_test_rep: COMMA old_test
+    | comma_old_test_rep COMMA old_test
+    ;
+
+list_iter_opt: %empty
+>>>>>>> f0fc3a18355e94ee65ea979f1da6cf7a068ce105
     | list_iter
     ;
 
@@ -671,10 +1116,17 @@ list_iter: list_for
     | list_if
     ; 
 
+<<<<<<< HEAD
 list_if: IF old_test list_iter_opt {$$=make_tree("list_if", 2,$2,$3);}
     ;
 
 dictorsetmaker_opt: {$$=make_tree("nulltree",0,NULL);}
+=======
+list_if: IF old_test list_iter_opt
+    ;
+
+dictorsetmaker_opt: %empty
+>>>>>>> f0fc3a18355e94ee65ea979f1da6cf7a068ce105
     | dictorsetmaker
     ;
 
@@ -682,6 +1134,7 @@ dictorsetmaker: dictorset_option_1
     | dictorset_option_2
     ;
 
+<<<<<<< HEAD
 dictorset_option_1: test COLON test comp_for_OR_ctctco {$$=make_tree("dictorset_option_1", 3,$1,$3,$4);}
     ;
 
@@ -698,4 +1151,22 @@ dictorset_option_2: test comp_for_OR_ctr_co  {$$=make_tree("dictorset_option_2",
 
 comp_for_OR_ctr_co: comp_for
     | comma_test_rep comma_opt {$$=make_tree("comp_for_OR_ctr_co", 2,$1,$2);}
+=======
+dictorset_option_1: test COLON test comp_for_OR_ctctco // (comp_for | (',' test ':' test)* [','])
+    ;
+
+comp_for_OR_ctctco: comp_for
+    | ctct_rep comma_opt
+    ;
+
+ctct_rep: %empty
+    | ctct_rep COMMA test COLON test
+    ;
+
+dictorset_option_2: test comp_for_OR_ctr_co // (comp_for | (',' test)* [','])
+    ;
+
+comp_for_OR_ctr_co: comp_for
+    | comma_test_rep comma_opt
+>>>>>>> f0fc3a18355e94ee65ea979f1da6cf7a068ce105
     ;

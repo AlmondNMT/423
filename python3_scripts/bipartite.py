@@ -1,5 +1,3 @@
-import numpy as np
-from queue import Queue
 
 # Undirected nodes
 class Node:
@@ -10,7 +8,7 @@ class Node:
         self.adj.append(v)
         v.adj.append(self)
     def __repr__(self):
-        return f"Node({self.val})"
+        return "Node({self.val})"
     def __str__(self):
         return repr(self)
 

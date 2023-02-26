@@ -1,6 +1,4 @@
-import numpy as np
 import os
-import tkinter as tk
 import time
 
 # Avagadro's Number
@@ -103,8 +101,6 @@ Zn = Element("Zn","Zinc", 30,65.41,4,12)
 
 def empirical(*args): # Provide percent first then element for each element
     molelist = []
-    if len(args) % 2 != 0:
-        raise ValueError("Uneven number of arguments.")
     for i in range(0,len(args),2):
         molelist.append(args[i]/args[i+1])
     for i in range(len(molelist)):

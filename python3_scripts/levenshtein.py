@@ -1,4 +1,3 @@
-import numpy as np
 
 def dist(a, b):
     D = [[0 for i in range(len(b)+1)] for j in range(len(a)+1)]

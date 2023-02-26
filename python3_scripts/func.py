@@ -1,23 +1,11 @@
 #! /usr/bin/python3.5
 
-from decimal import Decimal
-from math import radians as rad
-from math import degrees as deg
-from math import *
-from mpl_toolkits.mplot3d import axes3d
-from matplotlib import cm
-import matplotlib as mpl
 mpl.use("TkAgg")
-import matplotlib.pyplot as plt
-import matplotlib.style as style
-import numpy as np
 import os
-from os import system as cmd
 import random
 #import stats as st
 import sys
 import time
-from util import *
 
 ## x is a global numpy array useful for plotting graphs of functions
 x = np.arange(-10,10,.001)
@@ -112,9 +100,9 @@ class V:
     # The first element of m_a list will be taken as the magnitude and the rest as angles
     def __init__(self, c_t = None, m_a = None):
         if c_t != None and m_a != None:
-            raise ValueError("Can only accept either a component tuple or a magnitude/angles tuple.")
+            ValueError("Can only accept either a component tuple or a magnitude/angles tuple.")
         if c_t == None and m_a == None:
-            raise ValueError("Must pass either components or magnitude/angle list.")
+            ValueError("Must pass either components or magnitude/angle list.")
         if c_t != None:
             self.components = np.array(c_t)
             self._calc_mag_angles()
@@ -131,9 +119,9 @@ class V:
 
     def __add__(self, v):
         if not isinstance(v, V):
-            raise ValueError("Invalid vector addition.")
+            ValueError("Invalid vector addition.")
         if len(self) != len(v):
-            raise ValueError("Must add vectors of same dimensions.")
+            ValueError("Must add vectors of same dimensions.")
         components = (self.components + v.components)
         return V(list(components))
     def __repr__(self):
@@ -273,7 +261,6 @@ def slope_field(ax, diff, color = "#abc888", interval = (-10, 10), resolution = 
 
 ## Create a vector field in two or three dimensions after passing a vector-valued function
 def vector_field(F, dim, ax, length = .1, width = .003,color = "b", resolution = 12, normalize = True, domain = (-10, 10)):
-    from matplotlib.colors import Normalize
     if dim == 3:
         norm = Normalize()
         x, y, z = getMesh3D(x = domain, y = domain, z = domain, resolution = resolution)
@@ -338,13 +325,6 @@ def parity(func):
     table = {}
     
     err = "Error at x = "
-    try:
-        for i in range(-10, 11, 1):
-            table.__setitem__(i, func(i))
-    except ValueError:
-        print(err + str(i))
-    except ZeroDivisionError:
-        print(err + str(i))
 
     if -func(100) == func(-100):
         return "Odd"
@@ -425,7 +405,7 @@ def deriv(f, x, order=1):
     if order is 1:
         return (f(x + h) - f(x)) / h
     else:
-        return deriv(lambda val : deriv(f, val, order = 1), x, order - 1)
+        return deriv()
 
 ## Return the divergence of a vector-valued function at a specified point
 def divergence(f, *r):
@@ -436,17 +416,17 @@ def divergence(f, *r):
 #    operator = np.array(
 
 ## Partial v2: pass a function f with regular parameterization. Returns list of the partial derivatives at the specified point
-def partial(f, *args):
+def partial(f, args):
     partials = []
     h = .0001
     for i in range(len(args[0])):
-        h_params = [*args[0]]
+        h_params = [args[0]]
         h_params[i] += h
-        partials.append((f(*h_params) - f(*args[0])) / h)
+        partials.append((f(*h_params) - f(args[0])) / h)
     return partials
 
 # Replaced by a better version above
-'''def partial(f,*args):
+'''def partial(f,args):
     partials = []
     def resetArgs(args):
             newAr = []
@@ -498,7 +478,7 @@ def trapezoid(f, a, b, n):
 
 def simpson(f, a, b, n):
     if not n % 2 == 0:
-        raise ValueError("n must be an even number.")
+        ValueError("n must be an even number.")
     current_x = a
     delta_x = (b - a) / n
     total = f(a)
@@ -545,20 +525,10 @@ def getfunc():
     a = b = c = None
     funcstr = input("Enter function: ")
     for i in range(len(funcstr)):
-        try:
-            val.append(int(funcstr[i]))
-            if a == None:
-                a = val[i]
-            if b == None:
-                b = val[i]
-            if c == None:
-                c = val[i]
-        except ValueError:
-            val.append(funcstr[i])
+        print()
 
 ## This function accepts a function argument (single variables for now) and parses through the string representation of the function's definition and locates key values
 def analyze(f):
-        import inspect as ins
         fstring = ins.getsource(f)
         if fstring.find("def") == 0:
                 islambda=False
@@ -588,7 +558,6 @@ def heron(a, b, c):
 
 ## Chaos Theory
 def chaos(y0, k, n):
-    from decimal import Decimal
     y0 = Decimal(y0)
     k = Decimal(k)
     a = [Decimal(y0)]
@@ -601,7 +570,7 @@ def timer(val, func = None, fVal = None, compute = None):
     tm_val = time.time() + val
     while tm_val - time.time() > .00001:
         if compute is None:
-            pass
+            print()
         else:
             compute()
     if func is not None and fVal is not None:
@@ -637,7 +606,7 @@ class kinematic: ### Assumes constant acceleration
         self.a = a
     def __check(self):
         if self.delta_x is None:
-            pass
+            print()
     def displacement(self):
             return self.v0*self.t + .5 * self.a * self.t ** 2
     def final_v(self):

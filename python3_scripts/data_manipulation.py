@@ -2,10 +2,7 @@
 Filesystem manipulation
 """
 import glob
-import numpy as np
 import os
-from pathlib import Path
-import pandas as pd
 import shutil
 
 multiclass_path_root = "../data/images_multiclass"
@@ -18,8 +15,8 @@ def copy_images(df, root_path):
         name = row[1] + ".jpg"
         img_path = os.path.join(root_path, name)
         counts[row[2]] += 1
-        dest_path = f"sample_images/{row[2]}_{counts[row[2]]}.jpg"
-        os.system(f"cp {img_path} {dest_path}")
+        dest_path = "sample_images/{row[2]}_{counts[row[2]]}.jpg"
+        os.system("cp {img_path} {dest_path}")
 
 
 def fix_dir_structure(df, root_path):
@@ -32,7 +29,7 @@ def fix_dir_structure(df, root_path):
         name = row[1] + ".jpg"
         img_path = os.path.join(root_path, name)
         dest_path = os.path.join(root_path, row[2], name)
-        os.system(f"mv {img_path} {dest_path}")
+        os.system("mv {img_path} {dest_path}")
 
 def make_train_test_val_dirs(root_path):
     """
