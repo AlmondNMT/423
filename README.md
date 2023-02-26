@@ -3,14 +3,14 @@ NIHILISM
 
 ## Tasks
 ### punygram.y
-- [ ] Add grammar rules
+- [x] Add grammar rules
 
 ### utils.c
 - [ ] Fix string deescaping and add tests
 
 ### tree.c
 - [x] Finish writing alctoken (I think this is done)
-- [ ] alctree
+- [x] alctree
 
 ### GRAMMAR
 - [ ] file\_input

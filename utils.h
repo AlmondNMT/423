@@ -18,3 +18,4 @@ char *substring(char *s, int start, int end);
 void truncate_str(char *dest, char *src, int level);
 void err_t_lookahead(int yychar);
 void err_lookahead(int yychar, int count, const char *msg, ...);
+int yylexerror(char *s);

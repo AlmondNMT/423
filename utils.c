@@ -10,6 +10,7 @@ extern char yyfilename[];
 extern int yylineno;
 extern char *yytext;
 extern char *rev_token(int);
+extern YYSTYPE yylval;
 
 int get_ascii(char c)
 {
@@ -263,12 +264,20 @@ int is_enclosed(int p, int sq, int cb)
     return (p > 0) || (sq > 0) || (cb > 0);
 }
 
-/** Error printing
+/** Error printing for syntax errors
  * TODO: Make better error handling
  */
 int yyerror(char *s)
 {
-    fprintf(stderr, "%s:%d: %s before '%s' token\n", yyfilename, yylineno, s, yytext);
+    fprintf(stderr, "%s:%d: SyntaxError: %s before '%s' token\n", yyfilename, yylineno, s, yytext);
+    exit(2);
+}
+
+/* Lexical error handling
+ */
+int yylexerror(char *s)
+{
+    fprintf(stderr, "%s:%d: Lexical error: %s before '%s' token\n", yyfilename, yylineno, s, yytext);
     exit(1);
 }
 

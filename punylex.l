@@ -46,11 +46,10 @@ comment                     #+[^\n]*
                             int il = 0;
                             dedentcount = count_dedents(&top, dentstack, il, yylineno);
                             if(dedentcount == SCAN_ERROR) {
-                                return SCAN_ERROR;
+                                yylexerror("indentation error");
                             }
                             if(is_enclosed(paren_nesting, sqbr_nesting, cbr_nesting)) {
-                                fprintf(stderr, "SyntaxError: Unexpected EOF at line %d\n", yylineno);
-                                return EOF_ERROR;
+                                yyerror("Unexpected EOF");
                             }
                             return alctoken(NEWLINE); 
                         }
@@ -70,7 +69,7 @@ comment                     #+[^\n]*
                         if(il < dentstack[top]) {
                              dedentcount = count_dedents(&top, dentstack, il, yylineno);
                              if(dedentcount == SCAN_ERROR && !is_enclosed(paren_nesting, sqbr_nesting, cbr_nesting)) {
-                                 return SCAN_ERROR;
+                                 yylexerror("indentation error");
                              }
                         }
                         if(!is_enclosed(paren_nesting, sqbr_nesting, cbr_nesting)) // 
@@ -90,7 +89,7 @@ comment                     #+[^\n]*
                                 /* return one or more DEDENT tokens */
                                 dedentcount = count_dedents(&top, dentstack, il, yylineno);
                                 if(dedentcount == SCAN_ERROR) {
-                                    return SCAN_ERROR;
+                                    yylexerror("indentation error");
                                 }
                                 /* need to dedent by dedentcount, but returning NEWLINE */
                             }
@@ -103,9 +102,7 @@ comment                     #+[^\n]*
                     }
 ^[ \t]+                 {
                             if(yylineno == 1) {
-                                fprintf(stderr, "Indent on line 1\n");
-                                fflush(stderr);
-                                return SCAN_ERROR;
+                                yyerror("Indentation on line 1");
                             }
                             column += strlen(yytext);
                         }
@@ -121,7 +118,7 @@ comment                     #+[^\n]*
 "False"                { column += strlen(yytext); words++; return alctoken(PYFALSE); }
 "def"       	       { column += strlen(yytext);words++; return alctoken(PYDEF); } 
 "if"  	               { column += strlen(yytext);words++; return alctoken(IF); }
-"raise"                { yyerror(puny_support_err); }
+"raise"                { yylexerror(puny_support_err); }
 "None"                 { column += strlen(yytext);words++; return alctoken(NONE); }
 "del"                  { column += strlen(yytext);words++; return alctoken(DEL); }
 "import"               { column += strlen(yytext);words++; return alctoken(IMPORT); }
@@ -129,35 +126,34 @@ comment                     #+[^\n]*
 "True"                 { column += strlen(yytext);words++; return alctoken(PYTRUE); }
 "elif"                 { column += strlen(yytext);words++; return alctoken(ELIF); }
 "in"                   { column += strlen(yytext);words++; return alctoken(IN); }
-"try"                  { yyerror(puny_support_err); }
+"try"                  { yylexerror(puny_support_err); }
 "and"                  { column += strlen(yytext);words++; return alctoken(AND); }
 "else"                 { column += strlen(yytext);words++; return alctoken(ELSE); }
 "is"                   { column += strlen(yytext);words++; return alctoken(IS); }
 "while"                { column += strlen(yytext);words++; return alctoken(WHILE); }
-"as"                   { yyerror(puny_support_err); }
-"except"               { yyerror(puny_support_err); }
-"lambda"               { yyerror(puny_support_err); }
-"with"                 { yyerror(puny_support_err); }
-"assert"               { yyerror(puny_support_err); }
-"finally"              { yyerror(puny_support_err); }
-"nonlocal"             { yyerror(puny_support_err); }
-"yield"                { yyerror(puny_support_err); }
+"as"                   { yylexerror(puny_support_err); }
+"except"               { yylexerror(puny_support_err); }
+"lambda"               { yylexerror(puny_support_err); }
+"with"                 { yylexerror(puny_support_err); }
+"assert"               { yylexerror(puny_support_err); }
+"finally"              { yylexerror(puny_support_err); }
+"nonlocal"             { yylexerror(puny_support_err); }
+"yield"                { yylexerror(puny_support_err); }
 "break"                { column += strlen(yytext);words++; return alctoken(BREAK); }
 "for"                  { column += strlen(yytext);words++; return alctoken(FOR); }
 "not"                  { column += strlen(yytext);words++; return alctoken(NOT); }
 "class"                { column += strlen(yytext);words++; return alctoken(CLASS); }
-"from"                 { yyerror(puny_support_err); }
+"from"                 { yylexerror(puny_support_err); }
 "or"                   { column += strlen(yytext);words++; return alctoken(OR); }
 "continue"             { column += strlen(yytext);words++; return alctoken(CONTINUE); }
 "global"               { column += strlen(yytext);words++; return alctoken(GLOBAL); }
-"pass"                 { yyerror(puny_support_err); }
+"pass"                 { yylexerror(puny_support_err); }
 "("					   	{ column += strlen(yytext); paren_nesting++; return alctoken(LPAR); }
 ")"						{ 
                             column += strlen(yytext); 
                             paren_nesting--; 
                             if(paren_nesting < 0) {
-                                fprintf(stderr, "Unmatched ')' on line %d\n", yylineno);
-                                return BRACKET_ERROR;
+                                yyerror("unmatched ')'");
                             }
                             return alctoken(RPAR); 
                         }
@@ -166,8 +162,7 @@ comment                     #+[^\n]*
                             column += strlen(yytext); 
                             sqbr_nesting--; 
                             if(sqbr_nesting < 0) {
-                                fprintf(stderr, "Unmatched ']' on line %d\n", yylineno);
-                                return BRACKET_ERROR; 
+                                yyerror("unmatched ']'");
                             }
                             return alctoken(RSQB); 
                         }
@@ -190,8 +185,7 @@ comment                     #+[^\n]*
                             column += strlen(yytext); 
                             cbr_nesting--; 
                             if(cbr_nesting < 0) { 
-                                fprintf(stderr, "Unmatched '}' on line %d\n", yylineno);
-                                return BRACKET_ERROR; 
+                                yyerror("unmatched '}'");
                             }
                             return alctoken(RBRACE); 
                         }
@@ -227,8 +221,8 @@ comment                     #+[^\n]*
 {integer}                 { column += strlen(yytext); return alctoken(INTLIT); }
 [A-Za-z0-9]+	{column += strlen(yytext); words++; return alctoken(NAME);}
 {float} { column += strlen(yytext); return alctoken(FLOATLIT); }
-{fstring} { yyerror(puny_support_err); }
-{rstring}   { yyerror(puny_support_err); }
+{fstring} { yylexerror(puny_support_err); }
+{rstring}   { yylexerror(puny_support_err); }
 {stringlit} {
                 int len = strlen(yytext);
                 char c;
