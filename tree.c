@@ -1,13 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-//#include "punygram.tab.h"
+#include <stdarg.h>
+#include "punygram.tab.h"
 #include "tree.h"
 #include "utils.h"
 
-//extern char *rev_token(int cat);
-//extern char *yytext;
-//extern YYSTYPE yylval;
+extern char *rev_token(int cat);
+extern char *yytext;
+extern YYSTYPE yylval;
+extern int yylineno;
+extern int column;
 
 // ### DEBUGGING ### //
 int indentation_level = 0; 
@@ -51,6 +54,7 @@ int get_column(char *text, int column)
  */
 int alctoken(int category)
 {
+    int text_len = strlen(yytext);
     yylval.treeptr = malloc(sizeof(tree_t));
     check_alloc(yylval.treeptr, "yylval.treeptr");
     yylval.treeptr -> prodrule = category;
@@ -58,11 +62,22 @@ int alctoken(int category)
     yylval.treeptr -> leaf = malloc(sizeof(token_t));
     check_alloc(yylval.treeptr -> leaf, "yylval.treeptr -> leaf");
     yylval.treeptr -> leaf -> category = category;
+    yylval.treeptr -> leaf -> lineno = yylineno;
+    char *name = rev_token(category);
+    yylval.treeptr -> symbolname = malloc(strlen(name));
+    check_alloc(yylval.treeptr -> symbolname, "yylval.treeptr -> symbolname");
+    strcpy(yylval.treeptr->symbolname, name);
+    yylval.treeptr -> leaf -> text = calloc(text_len + 1, sizeof(char));
+    check_alloc(yylval.treeptr->leaf->text, "yylval.treeptr->text allocation failed");
+    yylval.treeptr -> leaf -> filename = calloc(strlen(yyfilename) + 1, sizeof(char));
+    check_alloc(yylval.treeptr->leaf->filename, "yylval.treeptr->filename allocation failed");
+    strcpy(yylval.treeptr->leaf->filename, yyfilename); 
+    strcpy(yylval.treeptr->leaf->text, yytext);
     if(category == INTLIT) {
         yylval.treeptr->leaf->ival = extract_int(yytext);
     }
     else if(category == FLOATLIT) {
-        yylval.treeptr->leaf->ival = extract_float(yytext);
+        yylval.treeptr->leaf->dval = extract_float(yytext);
     }
     else if(category == STRINGLIT) {
         yylval.treeptr->leaf->sval = calloc(strlen(yytext), sizeof(char));
@@ -220,8 +235,94 @@ struct tree* append_kid(struct tree * kidspassed[], char * symbnam)
     while(i < 9 && kidspassed[i] != NULL)
     {
         newtree->kids[i] = kidspassed[i];
+        i++;
     }
     return newtree;
+}
+
+
+struct tree* make_tree(char * symbname, int argc, ...)
+{
+    va_list ap;
+    va_start(ap, argc);
+    struct tree *kids[9] = {NULL};
+
+    int i = 0;
+    while((argc-i)>0)
+    {
+        kids[i] = va_arg(ap, struct tree *);
+        
+        i++;
+    }
+
+    return append_kid(kids, symbname);   
+
+}
+
+
+struct tree *null_tree()
+{
+    struct tree *ret = malloc(sizeof(struct tree));
+    return ret = NULL;
+}
+
+char *get_spaces(int n)
+{
+    char *s = malloc(n*2+1);
+    int i = 0; 
+    while(i<2*n)
+    {
+        s[i] = ' ';
+        i++;
+    }
+    s[i] = '\0';
+    return s;
+}
+
+
+void print_tree(struct tree * t, int depth)
+{  // printf("entering print tree\n");
+    char * spcs = get_spaces(depth);
+    if(strcmp(t->symbolname,"nulltree")==0)
+    {
+        //printf("NULLTREE \n");
+        return;
+    }
+    //printf("about to check if leaf is null\n");
+    if(t->leaf != NULL)
+    {   //printf("finna print leaf info\n");
+        printf("%s%d-LEAF category(int): %d, category: %s, value: %s\n",spcs,depth, t->leaf->category, rev_token(t->leaf->category), t->leaf->text);
+        return;
+    }
+    //printf("somehow past leaf print\n");
+    
+    if(t->kids[0]==NULL)
+    {   //printf("kids are null\n");
+        if(t->symbolname != NULL)
+        {
+            //printf("leaf depth %d\n",depth);
+            printf("%s%d-LEAF: symbname: %s\n", spcs, depth, t->symbolname);
+        }
+        free(spcs);
+        return;
+    }
+    //printf("see if symbname is null\n");
+
+    if(t->symbolname != NULL)
+    {   //printf("somehow made it past this\n");
+        printf("%s%d-INNER: symbname: %s\n", spcs, depth, t->symbolname); 
+        //printf("existence has concluded in segmentation fault\n");
+    }
+    int i = 0;
+
+    while(i < 9 && t->kids[i] != NULL)
+    {   
+        //printf("inner depth %d\n",depth);
+        print_tree(t->kids[i], depth+1);
+        i++;
+    }
+    free(spcs);
+    return;
 }
 
 

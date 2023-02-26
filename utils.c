@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
-//#include "punygram.tab.h"
+#include "punygram.tab.h"
 #include "utils.h"
 
 extern char yyfilename[];
