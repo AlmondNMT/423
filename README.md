@@ -1,8 +1,11 @@
 # Python Compiler
-<pre> 
-def __nihil__(self):
-    return 
-</pre>
+```python
+class Consciousness:
+    def __init__(self):
+        ...
+    def __nihil__(self):
+        return 
+```
 
 ## Tasks
 ### punygram.y
