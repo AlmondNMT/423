@@ -351,7 +351,7 @@ def DMS(val, toMin = True, minut = None, sec = None): # Takes the entire value i
         print(seconds)
         seconds = str(round(float(seconds) * 60))
         
-        return str(int(val)) + "\u00b0" + minutes + "'" + seconds + '"'
+        return str(int(val)) + "00b0" + minutes + "'" + seconds + '"'
         
 #### Plotting and graphing
 def getMesh(x = (-10, 10), y = (-10, 10), resolution = 200):

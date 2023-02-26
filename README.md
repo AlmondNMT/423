@@ -1,5 +1,6 @@
 # Python Compiler
-NIHILISM
+def \_\_nihil\_\_(self):
+    return 
 
 ## Tasks
 ### punygram.y
@@ -11,15 +12,7 @@ NIHILISM
 ### tree.c
 - [x] Finish writing alctoken (I think this is done)
 - [x] alctree
+- [ ] Fix memory leak between 
 
 ### GRAMMAR
-- [ ] file\_input
-- [ ] stmt
-        - [ ] simple\_statement
-            - [ ] small_stmt
-                - [ ] expr_stmt 
-            - [ ] compound_stmt
-                - [ ] assert_stmt
-    - [ ] exprlist
-- [ ] single\_input
-- [ ] eval\_input
+- [x] Complete
