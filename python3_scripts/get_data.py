@@ -34,7 +34,7 @@ class KrakenCurrencyTableParser(HTMLParser):
         if tag == "strong":
             self.current = True
     def handle_data(self, data):
-        if bool(re.search(r"[A-Z][A-Z][A-Z][A-Z]*", data)) and self.current \
+        if bool(re.search("[A-Z][A-Z][A-Z][A-Z]*", data)) and self.current \
                 and data not in self.ignore_currencies:
 
 
@@ -92,7 +92,7 @@ class CMC(APIInterface):
         super().__init__()
         self.url_prefix = "https://coinmarketcap.com/all/views/all/"
         self.file_name = "data/cmc_id_list.json"
-    def get_ids(self, update_cache = False) -> List[str]:
+    def get_ids(self, update_cache = False):
         """
         To get IDs for the CoinMarketCap API, a page on their website is scraped
         for available symbols. Unfortunately, this only returns a small portion 
@@ -115,7 +115,7 @@ class CMC(APIInterface):
         with open(self.file_name, "r") as f:
             coin_list = json.load(f)
         return coin_list
-    def get_intervals(self) -> List[int]:
+    def get_intervals(self):
         """
         util for API time steps
         :return: list of intervals
@@ -142,7 +142,7 @@ class CMC(APIInterface):
         print(trunc)
         print(len(trunc))
         return trunc
-    def get_ohlc(self, id: str) -> np.ndarray:
+    def get_ohlc(self, id: str):
         """
         Get CMC's OHLC/Volume data
         :param str id: coin id, such as "eth", "btc", etc.
@@ -160,7 +160,7 @@ class Kraken(APIInterface):
         super().__init__()
         self.url_prefix = url_prefixes["kraken"]
         self.file_name = "data/kraken_pairs_list.json"
-    def get_server_status(self) -> bool:
+    def get_server_status(self):
         url = self.url_prefix.format("SystemStatus")
         r = requests.get(url)
         data = r.json()
@@ -185,7 +185,7 @@ class Kraken(APIInterface):
             coin_ids.sort()
             return coin_ids
             
-    def get_asset_pairs(self, update_cache = False) -> List[str]:
+    def get_asset_pairs(self, update_cache = False):
         filepath = "data/kraken_asset_pairs.json"
         if not os.path.isfile(filepath) or update_cache:
             url_suffix = "AssetPairs?"
@@ -206,7 +206,7 @@ class Kraken(APIInterface):
         :return: The valid intervals (in minutes) for Kraken API 
         """
         return [1, 5, 15, 30, 60, 240, 1440, 10080, 21600]
-    def get_ohlc(self, id: str, vs_currency: str, days: int, interval: int) -> List[List[float]]:
+    def get_ohlc(self, id: str, vs_currency: str, days: int, interval: int):
         """
         Retrieve OHLC that ranges from a specified date to current. The granularity 
         can be supplied as well. This one might be preferable to the user since it 
@@ -241,7 +241,7 @@ class Kraken(APIInterface):
         data = response.json()
         assert len(data['error']) == 0, "Kraken server returned {}.".format(data['error'][0])
         return np.array(data['result'][list(data['result'])[-1]], dtype = np.float64)
-    def get_opening_price(self, id: str, vs_currency: str, days: int, interval: int) -> List[float]:
+    def get_opening_price(self, id: str, vs_currency: str, days: int, interval: int):
         """
         Get the daily opening price
 
@@ -251,7 +251,7 @@ class Kraken(APIInterface):
         data = self.get_ohlc(id, vs_currency, days, interval).transpose()
         assert len(data) > 1
         return data[1]
-    def get_current_price(self, id: str, vs_currency: str, bid_type = "a") -> float:
+    def get_current_price(self, id: str, vs_currency: str, bid_type = "a"):
         """
         Get the most recent ask price for an asset.
         
@@ -276,13 +276,13 @@ class CoinGecko(APIInterface):
     """
     def __init__(self):
         super().__init__()
-    def get_server_status(self) -> bool:
+    def get_server_status(self):
         url = url_prefixes["coingecko"].format("ping")
         req = requests.get(url)
         data = req.json()
         assert data["gecko_says"] == "(V3) To the Moon!", "CoinGecko server cannot be reached currently"
         return True
-    def search_symbols(self, symbol: str) -> List[str]:
+    def search_symbols(self, symbol: str):
         """
         This attempts to find a symbol in the available IDs list for the API.
 
@@ -321,20 +321,20 @@ class CoinGecko(APIInterface):
         ids = [data[i]['id'] for i in range(len(data))]
 
         return list(set(ids))
-    def get_intervals(self) -> List[int]:
+    def get_intervals(self):
         """
         Return the available intervals (in minutes) for CoinGecko
 
         :return: a list of integers representing OHLC time intervals in minutes
         """
         return [30, 60 * 4, 60 * 24 * 4]
-    def get_range(self) -> np.ndarray:
+    def get_range(self):
         """
         :return: The allowed CG range (in days)
         :rtype: numpy array of integers
         """
         return np.array([1, 7, 14, 30, 90, 180, 365])
-    def get_current_price(self, id: str, vs_currency: str) -> float:
+    def get_current_price(self, id: str, vs_currency: str):
         """
         Get the current live price of the specified coin.
 

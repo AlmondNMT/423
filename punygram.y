@@ -129,7 +129,7 @@
 
 %%
 
-file_input: nl_OR_stmt_rep ENDMARKER{$$=make_tree("file_input", 1, $1);print_tree($$,0);}
+file_input: nl_OR_stmt_rep ENDMARKER{$$=make_tree("file_input", 1, $1); print_tree($$,0); free_tree($$);}
     ;
 
 nl_OR_stmt_rep: {$$=make_tree("nulltree",0,NULL);}

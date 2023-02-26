@@ -90,6 +90,24 @@ int alctoken(int category)
 }
 
 
+/** Liberate the tree tokens.
+ *
+ */
+void free_tree(struct tree *t)
+{
+    if(t->leaf != NULL) {
+        free(t->leaf->text);
+        free(t->leaf->filename);
+        if(t->leaf->category == STRINGLIT)
+            free(t->leaf->sval);
+        free(t->leaf);
+    }
+    for(int i = 0; i < t->nkids && t->kids[i] != NULL; i++) {
+        free_tree(t->kids[i]);
+    }
+    free(t);
+}
+
 /** Create token in tokenlist
  * @param list
  * @param category type of token
@@ -237,6 +255,7 @@ struct tree* append_kid(struct tree * kidspassed[], char * symbnam)
         newtree->kids[i] = kidspassed[i];
         i++;
     }
+    newtree->nkids = i;
     return newtree;
 }
 
@@ -286,12 +305,14 @@ void print_tree(struct tree * t, int depth)
     if(strcmp(t->symbolname,"nulltree")==0)
     {
         //printf("NULLTREE \n");
+        free(spcs);
         return;
     }
     //printf("about to check if leaf is null\n");
     if(t->leaf != NULL)
     {   //printf("finna print leaf info\n");
         printf("%s%d-LEAF category(int): %d, category: %s, value: %s\n",spcs,depth, t->leaf->category, rev_token(t->leaf->category), t->leaf->text);
+        free(spcs);
         return;
     }
     //printf("somehow past leaf print\n");
