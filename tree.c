@@ -255,7 +255,7 @@ struct tree* append_kid(struct tree * kidspassed[], char * symbnam)
 {
     int i = 0;
     struct tree *newtree = malloc(sizeof(tree_t));
-    newtree -> symbolname = malloc(strlen(symbnam));
+    newtree -> symbolname = malloc(strlen(symbnam) + 1);
     strcpy(newtree->symbolname, symbnam);
     while(i<9)
     {

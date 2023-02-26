@@ -516,7 +516,7 @@ arg_ORS: argument comma_opt {$$=make_tree("arg_ORS", 2,$1,$2);}
     ;
 
 comma_arg_rep: {$$=make_tree("nulltree",0,NULL);}
-    | comma_arg_rep COMMA argument
+    | comma_arg_rep COMMA argument {$$=make_tree("comma_arg_rep", 2, $1, $3);}
     ;
 
 comma_dstar_test_opt: {$$=make_tree("nulltree",0,NULL);}

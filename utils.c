@@ -68,8 +68,8 @@ int panic(char *errmsg)
 int deescape(char *dest, char *s)
 {   
     int temp_index = 0;
-    int s_index = 0;
-    while(s[s_index] != '\0')
+    int s_index;
+    for(s_index = 0; s_index < strlen(s); s_index++)
     {
         if(s[s_index] == '\\')
         {
@@ -84,6 +84,7 @@ int deescape(char *dest, char *s)
             	}
             	else
             	{
+                    free(s);
             		return panic("error in deescape, invalid escape character\n");	
             	}
             }
@@ -107,14 +108,15 @@ int deescape(char *dest, char *s)
             			}
             		else
             		{
+                        free(s);
             			return panic("possibly invalid octal in de-escape\n");
             		}	
 
             	}
             	else
             	{
+                    free(s);
             		return panic("ERROR de-escaping character\n");
-
             	}
                 if((dest[temp_index] = get_ascii(s[s_index])) > 0)
                 {   
@@ -125,6 +127,7 @@ int deescape(char *dest, char *s)
                 else
                 {
                     printf("error in deescape, invalid escape character\n");
+                    free(s);
                     return -1;   
                 }
             }
@@ -143,12 +146,12 @@ char *substring(char *s, int start, int end)
 {	
     int i = 0;
     int length = end - start;
-    char *ret = malloc(sizeof(char) * (length + 1));
+    char *ret = calloc(length + 1, sizeof(char));
     while (i < length) {
         ret[i] = s[i + start];
         i++;
     }
-    ret[i] = '\0';
+    //ret[i] = '\0';
     return ret;
 }
 
@@ -175,7 +178,6 @@ int extract_string(char *dest, char *s)
     }
 
     char *temp =  substring(s, start, end);
-    free(temp);
 	return deescape(dest, temp);
 }
 

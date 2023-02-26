@@ -16,7 +16,7 @@ compile: lex.yy.c punygram.tab.c utils.c main.c back.c tree.c utils.h
 
 link: lex.yy.o utils.o main.o back.o tree.o punygram.tab.o
 	gcc -g -Wall lex.yy.o punygram.tab.o utils.o tree.o main.o back.o -o puny
-	./puny test.py
+	#./puny test.py
 
 tests: tests.c
 	$(bison)
@@ -35,5 +35,5 @@ testsnolexing:
 clean: 
 	rm -f lex.yy.c puny tests *.o a.out punygram.tab.*
 
-zip: punylex.l main.c utils.c back.c tree.c tree.h utils.h Makefile
-	zip hw2.zip punylex.l main.c utils.c back.c tree.c tree.h utils.h Makefile
+zip: punylex.l punygram.y main.c utils.c back.c tree.c tree.h utils.h Makefile
+	zip hw3.zip punygram.y punylex.l main.c utils.c back.c tree.c tree.h utils.h Makefile
