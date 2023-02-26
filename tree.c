@@ -55,7 +55,6 @@ int get_column(char *text, int column)
 int alctoken(int category)
 {
     int text_len = strlen(yytext);
-    int text_len = strlen(yytext);
     yylval.treeptr = malloc(sizeof(tree_t));
     check_alloc(yylval.treeptr, "yylval.treeptr");
     yylval.treeptr -> prodrule = category;
