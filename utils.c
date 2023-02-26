@@ -68,8 +68,8 @@ int panic(char *errmsg)
 int deescape(char *dest, char *s)
 {   
     int temp_index = 0;
-    int s_index;
-    for(s_index = 0; s_index < strlen(s); s_index++)
+    int s_index = 0;
+    while(s[s_index] != '\0')
     {
         if(s[s_index] == '\\')
         {

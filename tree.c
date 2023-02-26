@@ -77,6 +77,7 @@ int alctoken(int category)
     check_alloc(yylval.treeptr->leaf->filename, "yylval.treeptr->filename allocation failed");
     strcpy(yylval.treeptr->leaf->filename, yyfilename); 
     strcpy(yylval.treeptr->leaf->text, yytext);
+    strcpy(yylval.treeptr->symbolname, name);
     if(category == INTLIT) {
         yylval.treeptr->leaf->ival = extract_int(yytext);
     }
