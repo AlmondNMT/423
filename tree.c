@@ -279,11 +279,6 @@ struct tree* make_tree(char * symbname, int argc, ...)
 }
 
 
-struct tree *null_tree()
-{
-    struct tree *ret = malloc(sizeof(struct tree));
-    return ret = NULL;
-}
 
 char *get_spaces(int n)
 {
