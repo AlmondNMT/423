@@ -2,9 +2,8 @@ Terminals unused in grammar
 
     AT
     ATEQUAL
-    RARROW
     COLONEQUAL
-    RAISE
+    RARROW
     TRY
     EXCEPT
     LAMBDA
@@ -12,9 +11,10 @@ Terminals unused in grammar
     ASSERT
     FINALLY
     NONLOCAL
-    OP
+    RAISE
     AWAIT
     ASYNC
+    OP
     TYPE_IGNORE
     TYPE_COMMENT
     ERRORTOKEN
@@ -26,7 +26,7 @@ Terminals unused in grammar
     DECORATOR
 
 
-State 290 conflicts: 1 shift/reduce
+State 288 conflicts: 1 shift/reduce
 State 312 conflicts: 1 shift/reduce
 
 
@@ -447,96 +447,96 @@ Terminals, with rules where they appear
     $end (0) 0
     error (256)
     FLOATLIT <treeptr> (258) 231
-    ENDMARKER <treeptr> (259) 1
-    NAME <treeptr> (260) 18 20 42 45 58 64 65 107 109 114 115 168 229
-    INTLIT <treeptr> (261) 230
-    STRINGLIT <treeptr> (262) 232
-    NEWLINE <treeptr> (263) 3 7 72
-    INDENT <treeptr> (264) 72
-    DEDENT <treeptr> (265) 72
-    LPAR <treeptr> (266) 44 46 59 101 166 237
-    RPAR <treeptr> (267) 44 46 59 101 166 237
-    LSQB <treeptr> (268) 167 238
-    RSQB <treeptr> (269) 167 238
-    COLON <treeptr> (270) 42 45 66 68 70 75 76 195 198 261 265
-    COMMA <treeptr> (271) 20 51 57 62 64 106 112 126 129 131 173 178 180 193 250 251 265
-    SEMI <treeptr> (272) 9 11
-    PLUS <treeptr> (273) 149 160
-    MINUS <treeptr> (274) 150 161
-    STAR <treeptr> (275) 65 103 154 175
-    SLASH <treeptr> (276) 155
-    VBAR <treeptr> (277) 134
-    AMPER <treeptr> (278) 140
-    LESS <treeptr> (279) 215
-    GREATER <treeptr> (280) 216
-    EQUAL <treeptr> (281) 55 83 182
-    DOT <treeptr> (282) 114 120 168
-    PERCENT <treeptr> (283) 156
-    LBRACE <treeptr> (284) 239
-    RBRACE <treeptr> (285) 239
-    EQEQUAL <treeptr> (286) 217
-    NOTEQUAL <treeptr> (287) 220
-    LESSEQUAL <treeptr> (288) 219
-    GREATEREQUAL <treeptr> (289) 218
-    TILDE <treeptr> (290) 162
-    CIRCUMFLEX <treeptr> (291) 137
-    LEFTSHIFT <treeptr> (292) 144
-    RIGHTSHIFT <treeptr> (293) 145
-    DOUBLESTAR <treeptr> (294) 64 176 180 228
-    PLUSEQUAL <treeptr> (295) 84
-    MINEQUAL <treeptr> (296) 85
-    STAREQUAL <treeptr> (297) 86
-    SLASHEQUAL <treeptr> (298) 87
-    PERCENTEQUAL <treeptr> (299) 88
-    AMPEREQUAL <treeptr> (300) 89
-    VBAREQUAL <treeptr> (301) 90
-    CIRCUMFLEXEQUAL <treeptr> (302) 91
-    LEFTSHIFTEQUAL <treeptr> (303) 92
-    RIGHTSHIFTEQUAL <treeptr> (304) 93
-    DOUBLESTAREQUAL <treeptr> (305) 94
-    DOUBLESLASH <treeptr> (306) 157
-    DOUBLESLASHEQUAL <treeptr> (307) 95
-    AT <treeptr> (308)
+    INTLIT <treeptr> (259) 230
+    STRINGLIT <treeptr> (260) 232
+    ENDMARKER <treeptr> (261) 1
+    NEWLINE <treeptr> (262) 3 7 72
+    INDENT <treeptr> (263) 72
+    DEDENT <treeptr> (264) 72
+    NAME <treeptr> (265) 18 20 42 45 58 64 65 107 109 114 115 168 229
+    DOT <treeptr> (266) 114 120 168
+    LPAR <treeptr> (267) 44 46 59 101 166 237
+    RPAR <treeptr> (268) 44 46 59 101 166 237
+    LSQB <treeptr> (269) 167 238
+    RSQB <treeptr> (270) 167 238
+    LBRACE <treeptr> (271) 239
+    RBRACE <treeptr> (272) 239
+    SEMI <treeptr> (273) 9 11
+    COLON <treeptr> (274) 42 45 66 68 70 75 76 195 198 261 265
+    COMMA <treeptr> (275) 20 51 57 62 64 106 112 126 129 131 173 178 180 193 250 251 265
+    PLUS <treeptr> (276) 149 160
+    MINUS <treeptr> (277) 150 161
+    STAR <treeptr> (278) 65 103 154 175
+    SLASH <treeptr> (279) 155
+    VBAR <treeptr> (280) 134
+    AMPER <treeptr> (281) 140
+    PERCENT <treeptr> (282) 156
+    CIRCUMFLEX <treeptr> (283) 137
+    TILDE <treeptr> (284) 162
+    LEFTSHIFT <treeptr> (285) 144
+    RIGHTSHIFT <treeptr> (286) 145
+    DOUBLESTAR <treeptr> (287) 64 176 180 228
+    AT <treeptr> (288)
+    DOUBLESLASH <treeptr> (289) 157
+    LESS <treeptr> (290) 215
+    GREATER <treeptr> (291) 216
+    EQUAL <treeptr> (292) 55 83 182
+    EQEQUAL <treeptr> (293) 217
+    NOTEQUAL <treeptr> (294) 220
+    LESSEQUAL <treeptr> (295) 219
+    GREATEREQUAL <treeptr> (296) 218
+    PLUSEQUAL <treeptr> (297) 84
+    MINEQUAL <treeptr> (298) 85
+    STAREQUAL <treeptr> (299) 86
+    SLASHEQUAL <treeptr> (300) 87
+    PERCENTEQUAL <treeptr> (301) 88
+    AMPEREQUAL <treeptr> (302) 89
+    VBAREQUAL <treeptr> (303) 90
+    CIRCUMFLEXEQUAL <treeptr> (304) 91
+    LEFTSHIFTEQUAL <treeptr> (305) 92
+    RIGHTSHIFTEQUAL <treeptr> (306) 93
+    DOUBLESTAREQUAL <treeptr> (307) 94
+    DOUBLESLASHEQUAL <treeptr> (308) 95
     ATEQUAL <treeptr> (309)
-    RARROW <treeptr> (310)
-    ELLIPSIS <treeptr> (311) 121 233
-    COLONEQUAL <treeptr> (312)
-    PYFALSE <treeptr> (313) 236
-    PYDEF <treeptr> (314) 45
-    IF <treeptr> (315) 66 190 203 256
-    RAISE <treeptr> (316)
-    NONE <treeptr> (317) 234
-    DEL <treeptr> (318) 22
-    IMPORT <treeptr> (319) 98 99 100
-    RETURN <treeptr> (320) 29
-    PYTRUE <treeptr> (321) 235
-    ELIF <treeptr> (322) 68
-    IN <treeptr> (323) 76 185 221 225 245
-    TRY <treeptr> (324)
-    AND <treeptr> (325) 209
-    ELSE <treeptr> (326) 70 203
-    IS <treeptr> (327) 223 226
-    WHILE <treeptr> (328) 75
-    AS <treeptr> (329) 109
-    EXCEPT <treeptr> (330)
-    LAMBDA <treeptr> (331)
-    WITH <treeptr> (332)
-    ASSERT <treeptr> (333)
-    FINALLY <treeptr> (334)
-    NONLOCAL <treeptr> (335)
-    YIELD <treeptr> (336) 31 80
-    BREAK <treeptr> (337) 27
-    FOR <treeptr> (338) 76 185 245
-    NOT <treeptr> (339) 210 225 226
-    CLASS <treeptr> (340) 42
-    FROM <treeptr> (341) 99 100
-    OR <treeptr> (342) 206
-    CONTINUE <treeptr> (343) 28
-    GLOBAL <treeptr> (344) 18
-    PASS <treeptr> (345) 21
-    OP <treeptr> (346)
-    AWAIT <treeptr> (347)
-    ASYNC <treeptr> (348)
+    COLONEQUAL <treeptr> (310)
+    RARROW <treeptr> (311)
+    ELLIPSIS <treeptr> (312) 121 233
+    PYTRUE <treeptr> (313) 235
+    PYFALSE <treeptr> (314) 236
+    PYDEF <treeptr> (315) 45
+    CLASS <treeptr> (316) 42
+    IF <treeptr> (317) 66 190 203 256
+    ELIF <treeptr> (318) 68
+    ELSE <treeptr> (319) 70 203
+    DEL <treeptr> (320) 22
+    NONE <treeptr> (321) 234
+    RETURN <treeptr> (322) 29
+    GLOBAL <treeptr> (323) 18
+    IMPORT <treeptr> (324) 98 99 100
+    FROM <treeptr> (325) 99 100
+    AS <treeptr> (326) 109
+    TRY <treeptr> (327)
+    EXCEPT <treeptr> (328)
+    LAMBDA <treeptr> (329)
+    WITH <treeptr> (330)
+    ASSERT <treeptr> (331)
+    FINALLY <treeptr> (332)
+    NONLOCAL <treeptr> (333)
+    YIELD <treeptr> (334) 31 80
+    RAISE <treeptr> (335)
+    PASS <treeptr> (336) 21
+    AWAIT <treeptr> (337)
+    ASYNC <treeptr> (338)
+    AND <treeptr> (339) 209
+    OR <treeptr> (340) 206
+    NOT <treeptr> (341) 210 225 226
+    IN <treeptr> (342) 76 185 221 225 245
+    IS <treeptr> (343) 223 226
+    WHILE <treeptr> (344) 75
+    FOR <treeptr> (345) 76 185 245
+    BREAK <treeptr> (346) 27
+    CONTINUE <treeptr> (347) 28
+    OP <treeptr> (348)
     TYPE_IGNORE <treeptr> (349)
     TYPE_COMMENT <treeptr> (350)
     ERRORTOKEN <treeptr> (351)
@@ -995,36 +995,36 @@ State 2
     4               | nl_OR_stmt_rep • stmt
 
     FLOATLIT   shift, and go to state 4
-    ENDMARKER  shift, and go to state 5
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
-    NEWLINE    shift, and go to state 9
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    ENDMARKER  shift, and go to state 7
+    NEWLINE    shift, and go to state 8
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    PYDEF      shift, and go to state 18
-    IF         shift, and go to state 19
-    NONE       shift, and go to state 20
-    DEL        shift, and go to state 21
-    IMPORT     shift, and go to state 22
-    RETURN     shift, and go to state 23
-    PYTRUE     shift, and go to state 24
-    WHILE      shift, and go to state 25
-    YIELD      shift, and go to state 26
-    BREAK      shift, and go to state 27
-    FOR        shift, and go to state 28
-    NOT        shift, and go to state 29
-    CLASS      shift, and go to state 30
-    FROM       shift, and go to state 31
-    CONTINUE   shift, and go to state 32
-    GLOBAL     shift, and go to state 33
-    PASS       shift, and go to state 34
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    PYDEF      shift, and go to state 19
+    CLASS      shift, and go to state 20
+    IF         shift, and go to state 21
+    DEL        shift, and go to state 22
+    NONE       shift, and go to state 23
+    RETURN     shift, and go to state 24
+    GLOBAL     shift, and go to state 25
+    IMPORT     shift, and go to state 26
+    FROM       shift, and go to state 27
+    YIELD      shift, and go to state 28
+    PASS       shift, and go to state 29
+    NOT        shift, and go to state 30
+    WHILE      shift, and go to state 31
+    FOR        shift, and go to state 32
+    BREAK      shift, and go to state 33
+    CONTINUE   shift, and go to state 34
 
     stmt           go to state 35
     simple_stmt    go to state 36
@@ -1082,37 +1082,37 @@ State 4
 
 State 5
 
-    1 file_input: nl_OR_stmt_rep ENDMARKER •
-
-    $default  reduce using rule 1 (file_input)
-
-
-State 6
-
-  229 atom: NAME •
-
-    $default  reduce using rule 229 (atom)
-
-
-State 7
-
   230 atom: INTLIT •
 
     $default  reduce using rule 230 (atom)
 
 
-State 8
+State 6
 
   232 atom: STRINGLIT •
 
     $default  reduce using rule 232 (atom)
 
 
-State 9
+State 7
+
+    1 file_input: nl_OR_stmt_rep ENDMARKER •
+
+    $default  reduce using rule 1 (file_input)
+
+
+State 8
 
     3 nl_OR_stmt_rep: nl_OR_stmt_rep NEWLINE •
 
     $default  reduce using rule 3 (nl_OR_stmt_rep)
+
+
+State 9
+
+  229 atom: NAME •
+
+    $default  reduce using rule 229 (atom)
 
 
 State 10
@@ -1120,21 +1120,21 @@ State 10
   237 atom: LPAR • yield_expr_OR_testlist_comp RPAR
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-    YIELD      shift, and go to state 26
-    NOT        shift, and go to state 29
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+    YIELD      shift, and go to state 28
+    NOT        shift, and go to state 30
 
     yield_expr                   go to state 73
     yield_expr_OR_testlist_comp  go to state 74
@@ -1161,20 +1161,20 @@ State 11
   238 atom: LSQB • listmaker_opt RSQB
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-    NOT        shift, and go to state 29
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+    NOT        shift, and go to state 30
 
     $default  reduce using rule 240 (listmaker_opt)
 
@@ -1199,37 +1199,23 @@ State 11
 
 State 12
 
-  160 pmt: PLUS •
-
-    $default  reduce using rule 160 (pmt)
-
-
-State 13
-
-  161 pmt: MINUS •
-
-    $default  reduce using rule 161 (pmt)
-
-
-State 14
-
   239 atom: LBRACE • dictorsetmaker_opt RBRACE
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-    NOT        shift, and go to state 29
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+    NOT        shift, and go to state 30
 
     $default  reduce using rule 257 (dictorsetmaker_opt)
 
@@ -1254,6 +1240,20 @@ State 14
     dictorset_option_2  go to state 84
 
 
+State 13
+
+  160 pmt: PLUS •
+
+    $default  reduce using rule 160 (pmt)
+
+
+State 14
+
+  161 pmt: MINUS •
+
+    $default  reduce using rule 161 (pmt)
+
+
 State 15
 
   162 pmt: TILDE •
@@ -1270,37 +1270,51 @@ State 16
 
 State 17
 
+  235 atom: PYTRUE •
+
+    $default  reduce using rule 235 (atom)
+
+
+State 18
+
   236 atom: PYFALSE •
 
     $default  reduce using rule 236 (atom)
 
 
-State 18
+State 19
 
    45 funcdef: PYDEF • NAME parameters COLON suite
 
     NAME  shift, and go to state 85
 
 
-State 19
+State 20
+
+   42 classdef: CLASS • NAME lpar_testlist_rpar_opt COLON suite
+
+    NAME  shift, and go to state 86
+
+
+State 21
 
    66 if_stmt: IF • test COLON suite elif_test_colon_suite_rep else_colon_suite_opt
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-    NOT        shift, and go to state 29
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+    NOT        shift, and go to state 30
 
     expr        go to state 58
     xor_expr    go to state 59
@@ -1311,7 +1325,7 @@ State 19
     factor      go to state 64
     pmt         go to state 65
     power       go to state 66
-    test        go to state 86
+    test        go to state 87
     or_test     go to state 68
     and_test    go to state 69
     not_test    go to state 70
@@ -1319,80 +1333,69 @@ State 19
     atom        go to state 72
 
 
-State 20
+State 22
+
+   22 del_stmt: DEL • exprlist
+
+    FLOATLIT   shift, and go to state 4
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
+    LPAR       shift, and go to state 10
+    LSQB       shift, and go to state 11
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
+    TILDE      shift, and go to state 15
+    ELLIPSIS   shift, and go to state 16
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+
+    exprlist    go to state 88
+    expr        go to state 89
+    xor_expr    go to state 59
+    and_expr    go to state 60
+    shift_expr  go to state 61
+    arith_expr  go to state 62
+    term        go to state 63
+    factor      go to state 64
+    pmt         go to state 65
+    power       go to state 66
+    atom        go to state 72
+
+
+State 23
 
   234 atom: NONE •
 
     $default  reduce using rule 234 (atom)
 
 
-State 21
-
-   22 del_stmt: DEL • exprlist
-
-    FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
-    LPAR       shift, and go to state 10
-    LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
-    TILDE      shift, and go to state 15
-    ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-
-    exprlist    go to state 87
-    expr        go to state 88
-    xor_expr    go to state 59
-    and_expr    go to state 60
-    shift_expr  go to state 61
-    arith_expr  go to state 62
-    term        go to state 63
-    factor      go to state 64
-    pmt         go to state 65
-    power       go to state 66
-    atom        go to state 72
-
-
-State 22
-
-   98 import_name: IMPORT • dotted_as_names
-
-    NAME  shift, and go to state 89
-
-    dotted_as_names  go to state 90
-    dotted_as_name   go to state 91
-    dotted_name      go to state 92
-
-
-State 23
+State 24
 
    29 return_stmt: RETURN • testlist_opt
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-    NOT        shift, and go to state 29
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+    NOT        shift, and go to state 30
 
     $default  reduce using rule 122 (testlist_opt)
 
-    testlist_opt  go to state 93
-    testlist      go to state 94
+    testlist_opt  go to state 90
+    testlist      go to state 91
     expr          go to state 58
     xor_expr      go to state 59
     and_expr      go to state 60
@@ -1410,32 +1413,106 @@ State 23
     atom          go to state 72
 
 
-State 24
-
-  235 atom: PYTRUE •
-
-    $default  reduce using rule 235 (atom)
-
-
 State 25
 
-   75 while_stmt: WHILE • test COLON suite else_colon_suite_opt
+   18 global_stmt: GLOBAL • NAME comma_name_rep
+
+    NAME  shift, and go to state 92
+
+
+State 26
+
+   98 import_name: IMPORT • dotted_as_names
+
+    NAME  shift, and go to state 93
+
+    dotted_as_names  go to state 94
+    dotted_as_name   go to state 95
+    dotted_name      go to state 96
+
+
+State 27
+
+   99 import_from: FROM • dot_OR_ellipsis_rep_opt dotted_name IMPORT import_from_targets
+  100            | FROM • dot_OR_ellipsis_rep IMPORT import_from_targets
+
+    DOT       shift, and go to state 97
+    ELLIPSIS  shift, and go to state 98
+
+    $default  reduce using rule 116 (dot_OR_ellipsis_rep_opt)
+
+    dot_OR_ellipsis_rep_opt  go to state 99
+    dot_OR_ellipsis_rep      go to state 100
+    dot_OR_ellipsis          go to state 101
+
+
+State 28
+
+   31 yield_expr: YIELD • testlist_opt
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-    NOT        shift, and go to state 29
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+    NOT        shift, and go to state 30
+
+    $default  reduce using rule 122 (testlist_opt)
+
+    testlist_opt  go to state 102
+    testlist      go to state 91
+    expr          go to state 58
+    xor_expr      go to state 59
+    and_expr      go to state 60
+    shift_expr    go to state 61
+    arith_expr    go to state 62
+    term          go to state 63
+    factor        go to state 64
+    pmt           go to state 65
+    power         go to state 66
+    test          go to state 67
+    or_test       go to state 68
+    and_test      go to state 69
+    not_test      go to state 70
+    comparison    go to state 71
+    atom          go to state 72
+
+
+State 29
+
+   21 pass_stmt: PASS •
+
+    $default  reduce using rule 21 (pass_stmt)
+
+
+State 30
+
+  210 not_test: NOT • not_test
+
+    FLOATLIT   shift, and go to state 4
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
+    LPAR       shift, and go to state 10
+    LSQB       shift, and go to state 11
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
+    TILDE      shift, and go to state 15
+    ELLIPSIS   shift, and go to state 16
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+    NOT        shift, and go to state 30
 
     expr        go to state 58
     xor_expr    go to state 59
@@ -1446,7 +1523,41 @@ State 25
     factor      go to state 64
     pmt         go to state 65
     power       go to state 66
-    test        go to state 95
+    not_test    go to state 103
+    comparison  go to state 71
+    atom        go to state 72
+
+
+State 31
+
+   75 while_stmt: WHILE • test COLON suite else_colon_suite_opt
+
+    FLOATLIT   shift, and go to state 4
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
+    LPAR       shift, and go to state 10
+    LSQB       shift, and go to state 11
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
+    TILDE      shift, and go to state 15
+    ELLIPSIS   shift, and go to state 16
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+    NOT        shift, and go to state 30
+
+    expr        go to state 58
+    xor_expr    go to state 59
+    and_expr    go to state 60
+    shift_expr  go to state 61
+    arith_expr  go to state 62
+    term        go to state 63
+    factor      go to state 64
+    pmt         go to state 65
+    power       go to state 66
+    test        go to state 104
     or_test     go to state 68
     and_test    go to state 69
     not_test    go to state 70
@@ -1454,161 +1565,50 @@ State 25
     atom        go to state 72
 
 
-State 26
+State 32
 
-   31 yield_expr: YIELD • testlist_opt
+   76 for_stmt: FOR • exprlist IN testlist COLON suite else_colon_suite_opt
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-    NOT        shift, and go to state 29
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
 
-    $default  reduce using rule 122 (testlist_opt)
-
-    testlist_opt  go to state 96
-    testlist      go to state 94
-    expr          go to state 58
-    xor_expr      go to state 59
-    and_expr      go to state 60
-    shift_expr    go to state 61
-    arith_expr    go to state 62
-    term          go to state 63
-    factor        go to state 64
-    pmt           go to state 65
-    power         go to state 66
-    test          go to state 67
-    or_test       go to state 68
-    and_test      go to state 69
-    not_test      go to state 70
-    comparison    go to state 71
-    atom          go to state 72
+    exprlist    go to state 105
+    expr        go to state 89
+    xor_expr    go to state 59
+    and_expr    go to state 60
+    shift_expr  go to state 61
+    arith_expr  go to state 62
+    term        go to state 63
+    factor      go to state 64
+    pmt         go to state 65
+    power       go to state 66
+    atom        go to state 72
 
 
-State 27
+State 33
 
    27 break_stmt: BREAK •
 
     $default  reduce using rule 27 (break_stmt)
 
 
-State 28
-
-   76 for_stmt: FOR • exprlist IN testlist COLON suite else_colon_suite_opt
-
-    FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
-    LPAR       shift, and go to state 10
-    LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
-    TILDE      shift, and go to state 15
-    ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-
-    exprlist    go to state 97
-    expr        go to state 88
-    xor_expr    go to state 59
-    and_expr    go to state 60
-    shift_expr  go to state 61
-    arith_expr  go to state 62
-    term        go to state 63
-    factor      go to state 64
-    pmt         go to state 65
-    power       go to state 66
-    atom        go to state 72
-
-
-State 29
-
-  210 not_test: NOT • not_test
-
-    FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
-    LPAR       shift, and go to state 10
-    LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
-    TILDE      shift, and go to state 15
-    ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-    NOT        shift, and go to state 29
-
-    expr        go to state 58
-    xor_expr    go to state 59
-    and_expr    go to state 60
-    shift_expr  go to state 61
-    arith_expr  go to state 62
-    term        go to state 63
-    factor      go to state 64
-    pmt         go to state 65
-    power       go to state 66
-    not_test    go to state 98
-    comparison  go to state 71
-    atom        go to state 72
-
-
-State 30
-
-   42 classdef: CLASS • NAME lpar_testlist_rpar_opt COLON suite
-
-    NAME  shift, and go to state 99
-
-
-State 31
-
-   99 import_from: FROM • dot_OR_ellipsis_rep_opt dotted_name IMPORT import_from_targets
-  100            | FROM • dot_OR_ellipsis_rep IMPORT import_from_targets
-
-    DOT       shift, and go to state 100
-    ELLIPSIS  shift, and go to state 101
-
-    $default  reduce using rule 116 (dot_OR_ellipsis_rep_opt)
-
-    dot_OR_ellipsis_rep_opt  go to state 102
-    dot_OR_ellipsis_rep      go to state 103
-    dot_OR_ellipsis          go to state 104
-
-
-State 32
+State 34
 
    28 continue_stmt: CONTINUE •
 
     $default  reduce using rule 28 (continue_stmt)
-
-
-State 33
-
-   18 global_stmt: GLOBAL • NAME comma_name_rep
-
-    NAME  shift, and go to state 105
-
-
-State 34
-
-   21 pass_stmt: PASS •
-
-    $default  reduce using rule 21 (pass_stmt)
 
 
 State 35
@@ -1859,19 +1859,19 @@ State 65
   158 factor: pmt • factor
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
 
     factor  go to state 129
     pmt     go to state 65
@@ -2055,168 +2055,168 @@ State 85
 
 State 86
 
-   66 if_stmt: IF test • COLON suite elif_test_colon_suite_rep else_colon_suite_opt
+   42 classdef: CLASS NAME • lpar_testlist_rpar_opt COLON suite
 
-    COLON  shift, and go to state 153
+    LPAR  shift, and go to state 153
+
+    $default  reduce using rule 43 (lpar_testlist_rpar_opt)
+
+    lpar_testlist_rpar_opt  go to state 154
 
 
 State 87
+
+   66 if_stmt: IF test • COLON suite elif_test_colon_suite_rep else_colon_suite_opt
+
+    COLON  shift, and go to state 155
+
+
+State 88
 
    22 del_stmt: DEL exprlist •
 
     $default  reduce using rule 22 (del_stmt)
 
 
-State 88
+State 89
 
   127 exprlist: expr • comma_expr_rep comma_opt
 
     $default  reduce using rule 128 (comma_expr_rep)
 
-    comma_expr_rep  go to state 154
-
-
-State 89
-
-  115 dotted_name: NAME •
-
-    $default  reduce using rule 115 (dotted_name)
+    comma_expr_rep  go to state 156
 
 
 State 90
-
-   98 import_name: IMPORT dotted_as_names •
-
-    $default  reduce using rule 98 (import_name)
-
-
-State 91
-
-  110 dotted_as_names: dotted_as_name • comma_dotted_as_name_rep
-
-    $default  reduce using rule 111 (comma_dotted_as_name_rep)
-
-    comma_dotted_as_name_rep  go to state 155
-
-
-State 92
-
-  113 dotted_as_name: dotted_name • as_name_opt
-  114 dotted_name: dotted_name • DOT NAME
-
-    DOT  shift, and go to state 156
-    AS   shift, and go to state 157
-
-    $default  reduce using rule 108 (as_name_opt)
-
-    as_name_opt  go to state 158
-
-
-State 93
 
    29 return_stmt: RETURN testlist_opt •
 
     $default  reduce using rule 29 (return_stmt)
 
 
-State 94
+State 91
 
   123 testlist_opt: testlist •
 
     $default  reduce using rule 123 (testlist_opt)
 
 
+State 92
+
+   18 global_stmt: GLOBAL NAME • comma_name_rep
+
+    $default  reduce using rule 19 (comma_name_rep)
+
+    comma_name_rep  go to state 157
+
+
+State 93
+
+  115 dotted_name: NAME •
+
+    $default  reduce using rule 115 (dotted_name)
+
+
+State 94
+
+   98 import_name: IMPORT dotted_as_names •
+
+    $default  reduce using rule 98 (import_name)
+
+
 State 95
 
-   75 while_stmt: WHILE test • COLON suite else_colon_suite_opt
+  110 dotted_as_names: dotted_as_name • comma_dotted_as_name_rep
 
-    COLON  shift, and go to state 159
+    $default  reduce using rule 111 (comma_dotted_as_name_rep)
+
+    comma_dotted_as_name_rep  go to state 158
 
 
 State 96
 
-   31 yield_expr: YIELD testlist_opt •
+  113 dotted_as_name: dotted_name • as_name_opt
+  114 dotted_name: dotted_name • DOT NAME
 
-    $default  reduce using rule 31 (yield_expr)
+    DOT  shift, and go to state 159
+    AS   shift, and go to state 160
+
+    $default  reduce using rule 108 (as_name_opt)
+
+    as_name_opt  go to state 161
 
 
 State 97
-
-   76 for_stmt: FOR exprlist • IN testlist COLON suite else_colon_suite_opt
-
-    IN  shift, and go to state 160
-
-
-State 98
-
-  210 not_test: NOT not_test •
-
-    $default  reduce using rule 210 (not_test)
-
-
-State 99
-
-   42 classdef: CLASS NAME • lpar_testlist_rpar_opt COLON suite
-
-    LPAR  shift, and go to state 161
-
-    $default  reduce using rule 43 (lpar_testlist_rpar_opt)
-
-    lpar_testlist_rpar_opt  go to state 162
-
-
-State 100
 
   120 dot_OR_ellipsis: DOT •
 
     $default  reduce using rule 120 (dot_OR_ellipsis)
 
 
-State 101
+State 98
 
   121 dot_OR_ellipsis: ELLIPSIS •
 
     $default  reduce using rule 121 (dot_OR_ellipsis)
 
 
-State 102
+State 99
 
    99 import_from: FROM dot_OR_ellipsis_rep_opt • dotted_name IMPORT import_from_targets
 
-    NAME  shift, and go to state 89
+    NAME  shift, and go to state 93
 
-    dotted_name  go to state 163
+    dotted_name  go to state 162
 
 
-State 103
+State 100
 
   100 import_from: FROM dot_OR_ellipsis_rep • IMPORT import_from_targets
   117 dot_OR_ellipsis_rep_opt: dot_OR_ellipsis_rep •
   119 dot_OR_ellipsis_rep: dot_OR_ellipsis_rep • dot_OR_ellipsis
 
-    DOT       shift, and go to state 100
-    ELLIPSIS  shift, and go to state 101
-    IMPORT    shift, and go to state 164
+    DOT       shift, and go to state 97
+    ELLIPSIS  shift, and go to state 98
+    IMPORT    shift, and go to state 163
 
     $default  reduce using rule 117 (dot_OR_ellipsis_rep_opt)
 
-    dot_OR_ellipsis  go to state 165
+    dot_OR_ellipsis  go to state 164
 
 
-State 104
+State 101
 
   118 dot_OR_ellipsis_rep: dot_OR_ellipsis •
 
     $default  reduce using rule 118 (dot_OR_ellipsis_rep)
 
 
+State 102
+
+   31 yield_expr: YIELD testlist_opt •
+
+    $default  reduce using rule 31 (yield_expr)
+
+
+State 103
+
+  210 not_test: NOT not_test •
+
+    $default  reduce using rule 210 (not_test)
+
+
+State 104
+
+   75 while_stmt: WHILE test • COLON suite else_colon_suite_opt
+
+    COLON  shift, and go to state 165
+
+
 State 105
 
-   18 global_stmt: GLOBAL NAME • comma_name_rep
+   76 for_stmt: FOR exprlist • IN testlist COLON suite else_colon_suite_opt
 
-    $default  reduce using rule 19 (comma_name_rep)
-
-    comma_name_rep  go to state 166
+    IN  shift, and go to state 166
 
 
 State 106
@@ -2337,21 +2337,21 @@ State 121
    78 expr_conjunct: augassign • yield_OR_testlist
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
     YIELD      shift, and go to state 170
-    NOT        shift, and go to state 29
+    NOT        shift, and go to state 30
 
     yield_OR_testlist  go to state 171
     testlist           go to state 172
@@ -2383,9 +2383,9 @@ State 122
     NOTEQUAL      shift, and go to state 176
     LESSEQUAL     shift, and go to state 177
     GREATEREQUAL  shift, and go to state 178
-    IN            shift, and go to state 179
-    IS            shift, and go to state 180
-    NOT           shift, and go to state 181
+    NOT           shift, and go to state 179
+    IN            shift, and go to state 180
+    IS            shift, and go to state 181
 
     $default  reduce using rule 212 (comparison)
 
@@ -2489,20 +2489,20 @@ State 131
   203 if_or_test_else_test_opt: IF • or_test ELSE test
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-    NOT        shift, and go to state 29
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+    NOT        shift, and go to state 30
 
     expr        go to state 58
     xor_expr    go to state 59
@@ -2552,9 +2552,9 @@ State 135
   163 power: atom trailer_rep • dstar_factor_opt
   165 trailer_rep: trailer_rep • trailer
 
-    LPAR        shift, and go to state 204
-    LSQB        shift, and go to state 205
-    DOT         shift, and go to state 206
+    DOT         shift, and go to state 204
+    LPAR        shift, and go to state 205
+    LSQB        shift, and go to state 206
     DOUBLESTAR  shift, and go to state 207
 
     $default  reduce using rule 227 (dstar_factor_opt)
@@ -2575,22 +2575,22 @@ State 137
   185 comp_for: FOR • exprlist IN or_test comp_iter_opt
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
 
     exprlist    go to state 210
-    expr        go to state 88
+    expr        go to state 89
     xor_expr    go to state 59
     and_expr    go to state 60
     shift_expr  go to state 61
@@ -2633,22 +2633,22 @@ State 141
   245 list_for: FOR • exprlist IN testlist_safe list_iter_opt
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
 
     exprlist    go to state 212
-    expr        go to state 88
+    expr        go to state 89
     xor_expr    go to state 59
     and_expr    go to state 60
     shift_expr  go to state 61
@@ -2698,20 +2698,20 @@ State 146
   261 dictorset_option_1: test COLON • test comp_for_OR_ctctco
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-    NOT        shift, and go to state 29
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+    NOT        shift, and go to state 30
 
     expr        go to state 58
     xor_expr    go to state 59
@@ -2784,237 +2784,28 @@ State 152
 
 State 153
 
-   66 if_stmt: IF test COLON • suite elif_test_colon_suite_rep else_colon_suite_opt
-
-    FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
-    NEWLINE    shift, and go to state 220
-    LPAR       shift, and go to state 10
-    LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
-    TILDE      shift, and go to state 15
-    ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    DEL        shift, and go to state 21
-    IMPORT     shift, and go to state 22
-    RETURN     shift, and go to state 23
-    PYTRUE     shift, and go to state 24
-    YIELD      shift, and go to state 26
-    BREAK      shift, and go to state 27
-    NOT        shift, and go to state 29
-    FROM       shift, and go to state 31
-    CONTINUE   shift, and go to state 32
-    GLOBAL     shift, and go to state 33
-    PASS       shift, and go to state 34
-
-    simple_stmt    go to state 221
-    small_stmt     go to state 37
-    global_stmt    go to state 38
-    pass_stmt      go to state 39
-    del_stmt       go to state 40
-    flow_stmt      go to state 41
-    break_stmt     go to state 42
-    continue_stmt  go to state 43
-    return_stmt    go to state 44
-    yield_stmt     go to state 45
-    yield_expr     go to state 46
-    suite          go to state 222
-    expr_stmt      go to state 53
-    import_stmt    go to state 54
-    import_name    go to state 55
-    import_from    go to state 56
-    testlist       go to state 57
-    expr           go to state 58
-    xor_expr       go to state 59
-    and_expr       go to state 60
-    shift_expr     go to state 61
-    arith_expr     go to state 62
-    term           go to state 63
-    factor         go to state 64
-    pmt            go to state 65
-    power          go to state 66
-    test           go to state 67
-    or_test        go to state 68
-    and_test       go to state 69
-    not_test       go to state 70
-    comparison     go to state 71
-    atom           go to state 72
-
-
-State 154
-
-  127 exprlist: expr comma_expr_rep • comma_opt
-  129 comma_expr_rep: comma_expr_rep • COMMA expr
-
-    COMMA  shift, and go to state 223
-
-    $default  reduce using rule 130 (comma_opt)
-
-    comma_opt  go to state 224
-
-
-State 155
-
-  110 dotted_as_names: dotted_as_name comma_dotted_as_name_rep •
-  112 comma_dotted_as_name_rep: comma_dotted_as_name_rep • COMMA dotted_as_name
-
-    COMMA  shift, and go to state 225
-
-    $default  reduce using rule 110 (dotted_as_names)
-
-
-State 156
-
-  114 dotted_name: dotted_name DOT • NAME
-
-    NAME  shift, and go to state 226
-
-
-State 157
-
-  109 as_name_opt: AS • NAME
-
-    NAME  shift, and go to state 227
-
-
-State 158
-
-  113 dotted_as_name: dotted_name as_name_opt •
-
-    $default  reduce using rule 113 (dotted_as_name)
-
-
-State 159
-
-   75 while_stmt: WHILE test COLON • suite else_colon_suite_opt
-
-    FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
-    NEWLINE    shift, and go to state 220
-    LPAR       shift, and go to state 10
-    LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
-    TILDE      shift, and go to state 15
-    ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    DEL        shift, and go to state 21
-    IMPORT     shift, and go to state 22
-    RETURN     shift, and go to state 23
-    PYTRUE     shift, and go to state 24
-    YIELD      shift, and go to state 26
-    BREAK      shift, and go to state 27
-    NOT        shift, and go to state 29
-    FROM       shift, and go to state 31
-    CONTINUE   shift, and go to state 32
-    GLOBAL     shift, and go to state 33
-    PASS       shift, and go to state 34
-
-    simple_stmt    go to state 221
-    small_stmt     go to state 37
-    global_stmt    go to state 38
-    pass_stmt      go to state 39
-    del_stmt       go to state 40
-    flow_stmt      go to state 41
-    break_stmt     go to state 42
-    continue_stmt  go to state 43
-    return_stmt    go to state 44
-    yield_stmt     go to state 45
-    yield_expr     go to state 46
-    suite          go to state 228
-    expr_stmt      go to state 53
-    import_stmt    go to state 54
-    import_name    go to state 55
-    import_from    go to state 56
-    testlist       go to state 57
-    expr           go to state 58
-    xor_expr       go to state 59
-    and_expr       go to state 60
-    shift_expr     go to state 61
-    arith_expr     go to state 62
-    term           go to state 63
-    factor         go to state 64
-    pmt            go to state 65
-    power          go to state 66
-    test           go to state 67
-    or_test        go to state 68
-    and_test       go to state 69
-    not_test       go to state 70
-    comparison     go to state 71
-    atom           go to state 72
-
-
-State 160
-
-   76 for_stmt: FOR exprlist IN • testlist COLON suite else_colon_suite_opt
-
-    FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
-    LPAR       shift, and go to state 10
-    LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
-    TILDE      shift, and go to state 15
-    ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-    NOT        shift, and go to state 29
-
-    testlist    go to state 229
-    expr        go to state 58
-    xor_expr    go to state 59
-    and_expr    go to state 60
-    shift_expr  go to state 61
-    arith_expr  go to state 62
-    term        go to state 63
-    factor      go to state 64
-    pmt         go to state 65
-    power       go to state 66
-    test        go to state 67
-    or_test     go to state 68
-    and_test    go to state 69
-    not_test    go to state 70
-    comparison  go to state 71
-    atom        go to state 72
-
-
-State 161
-
    44 lpar_testlist_rpar_opt: LPAR • testlist_opt RPAR
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-    NOT        shift, and go to state 29
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+    NOT        shift, and go to state 30
 
     $default  reduce using rule 122 (testlist_opt)
 
-    testlist_opt  go to state 230
-    testlist      go to state 94
+    testlist_opt  go to state 220
+    testlist      go to state 91
     expr          go to state 58
     xor_expr      go to state 59
     and_expr      go to state 60
@@ -3032,50 +2823,259 @@ State 161
     atom          go to state 72
 
 
-State 162
+State 154
 
    42 classdef: CLASS NAME lpar_testlist_rpar_opt • COLON suite
 
-    COLON  shift, and go to state 231
+    COLON  shift, and go to state 221
 
 
-State 163
+State 155
+
+   66 if_stmt: IF test COLON • suite elif_test_colon_suite_rep else_colon_suite_opt
+
+    FLOATLIT   shift, and go to state 4
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NEWLINE    shift, and go to state 222
+    NAME       shift, and go to state 9
+    LPAR       shift, and go to state 10
+    LSQB       shift, and go to state 11
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
+    TILDE      shift, and go to state 15
+    ELLIPSIS   shift, and go to state 16
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    DEL        shift, and go to state 22
+    NONE       shift, and go to state 23
+    RETURN     shift, and go to state 24
+    GLOBAL     shift, and go to state 25
+    IMPORT     shift, and go to state 26
+    FROM       shift, and go to state 27
+    YIELD      shift, and go to state 28
+    PASS       shift, and go to state 29
+    NOT        shift, and go to state 30
+    BREAK      shift, and go to state 33
+    CONTINUE   shift, and go to state 34
+
+    simple_stmt    go to state 223
+    small_stmt     go to state 37
+    global_stmt    go to state 38
+    pass_stmt      go to state 39
+    del_stmt       go to state 40
+    flow_stmt      go to state 41
+    break_stmt     go to state 42
+    continue_stmt  go to state 43
+    return_stmt    go to state 44
+    yield_stmt     go to state 45
+    yield_expr     go to state 46
+    suite          go to state 224
+    expr_stmt      go to state 53
+    import_stmt    go to state 54
+    import_name    go to state 55
+    import_from    go to state 56
+    testlist       go to state 57
+    expr           go to state 58
+    xor_expr       go to state 59
+    and_expr       go to state 60
+    shift_expr     go to state 61
+    arith_expr     go to state 62
+    term           go to state 63
+    factor         go to state 64
+    pmt            go to state 65
+    power          go to state 66
+    test           go to state 67
+    or_test        go to state 68
+    and_test       go to state 69
+    not_test       go to state 70
+    comparison     go to state 71
+    atom           go to state 72
+
+
+State 156
+
+  127 exprlist: expr comma_expr_rep • comma_opt
+  129 comma_expr_rep: comma_expr_rep • COMMA expr
+
+    COMMA  shift, and go to state 225
+
+    $default  reduce using rule 130 (comma_opt)
+
+    comma_opt  go to state 226
+
+
+State 157
+
+   18 global_stmt: GLOBAL NAME comma_name_rep •
+   20 comma_name_rep: comma_name_rep • COMMA NAME
+
+    COMMA  shift, and go to state 227
+
+    $default  reduce using rule 18 (global_stmt)
+
+
+State 158
+
+  110 dotted_as_names: dotted_as_name comma_dotted_as_name_rep •
+  112 comma_dotted_as_name_rep: comma_dotted_as_name_rep • COMMA dotted_as_name
+
+    COMMA  shift, and go to state 228
+
+    $default  reduce using rule 110 (dotted_as_names)
+
+
+State 159
+
+  114 dotted_name: dotted_name DOT • NAME
+
+    NAME  shift, and go to state 229
+
+
+State 160
+
+  109 as_name_opt: AS • NAME
+
+    NAME  shift, and go to state 230
+
+
+State 161
+
+  113 dotted_as_name: dotted_name as_name_opt •
+
+    $default  reduce using rule 113 (dotted_as_name)
+
+
+State 162
 
    99 import_from: FROM dot_OR_ellipsis_rep_opt dotted_name • IMPORT import_from_targets
   114 dotted_name: dotted_name • DOT NAME
 
-    DOT     shift, and go to state 156
-    IMPORT  shift, and go to state 232
+    DOT     shift, and go to state 159
+    IMPORT  shift, and go to state 231
 
 
-State 164
+State 163
 
   100 import_from: FROM dot_OR_ellipsis_rep IMPORT • import_from_targets
 
-    NAME  shift, and go to state 233
-    LPAR  shift, and go to state 234
-    STAR  shift, and go to state 235
+    NAME  shift, and go to state 232
+    LPAR  shift, and go to state 233
+    STAR  shift, and go to state 234
 
-    import_from_targets   go to state 236
-    import_from_as_names  go to state 237
-    import_from_as_name   go to state 238
+    import_from_targets   go to state 235
+    import_from_as_names  go to state 236
+    import_from_as_name   go to state 237
 
 
-State 165
+State 164
 
   119 dot_OR_ellipsis_rep: dot_OR_ellipsis_rep dot_OR_ellipsis •
 
     $default  reduce using rule 119 (dot_OR_ellipsis_rep)
 
 
+State 165
+
+   75 while_stmt: WHILE test COLON • suite else_colon_suite_opt
+
+    FLOATLIT   shift, and go to state 4
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NEWLINE    shift, and go to state 222
+    NAME       shift, and go to state 9
+    LPAR       shift, and go to state 10
+    LSQB       shift, and go to state 11
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
+    TILDE      shift, and go to state 15
+    ELLIPSIS   shift, and go to state 16
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    DEL        shift, and go to state 22
+    NONE       shift, and go to state 23
+    RETURN     shift, and go to state 24
+    GLOBAL     shift, and go to state 25
+    IMPORT     shift, and go to state 26
+    FROM       shift, and go to state 27
+    YIELD      shift, and go to state 28
+    PASS       shift, and go to state 29
+    NOT        shift, and go to state 30
+    BREAK      shift, and go to state 33
+    CONTINUE   shift, and go to state 34
+
+    simple_stmt    go to state 223
+    small_stmt     go to state 37
+    global_stmt    go to state 38
+    pass_stmt      go to state 39
+    del_stmt       go to state 40
+    flow_stmt      go to state 41
+    break_stmt     go to state 42
+    continue_stmt  go to state 43
+    return_stmt    go to state 44
+    yield_stmt     go to state 45
+    yield_expr     go to state 46
+    suite          go to state 238
+    expr_stmt      go to state 53
+    import_stmt    go to state 54
+    import_name    go to state 55
+    import_from    go to state 56
+    testlist       go to state 57
+    expr           go to state 58
+    xor_expr       go to state 59
+    and_expr       go to state 60
+    shift_expr     go to state 61
+    arith_expr     go to state 62
+    term           go to state 63
+    factor         go to state 64
+    pmt            go to state 65
+    power          go to state 66
+    test           go to state 67
+    or_test        go to state 68
+    and_test       go to state 69
+    not_test       go to state 70
+    comparison     go to state 71
+    atom           go to state 72
+
+
 State 166
 
-   18 global_stmt: GLOBAL NAME comma_name_rep •
-   20 comma_name_rep: comma_name_rep • COMMA NAME
+   76 for_stmt: FOR exprlist IN • testlist COLON suite else_colon_suite_opt
 
-    COMMA  shift, and go to state 239
+    FLOATLIT   shift, and go to state 4
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
+    LPAR       shift, and go to state 10
+    LSQB       shift, and go to state 11
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
+    TILDE      shift, and go to state 15
+    ELLIPSIS   shift, and go to state 16
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+    NOT        shift, and go to state 30
 
-    $default  reduce using rule 18 (global_stmt)
+    testlist    go to state 239
+    expr        go to state 58
+    xor_expr    go to state 59
+    and_expr    go to state 60
+    shift_expr  go to state 61
+    arith_expr  go to state 62
+    term        go to state 63
+    factor      go to state 64
+    pmt         go to state 65
+    power       go to state 66
+    test        go to state 67
+    or_test     go to state 68
+    and_test    go to state 69
+    not_test    go to state 70
+    comparison  go to state 71
+    atom        go to state 72
 
 
 State 167
@@ -3084,29 +3084,29 @@ State 167
    11 semi_opt: SEMI •
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    DEL        shift, and go to state 21
-    IMPORT     shift, and go to state 22
-    RETURN     shift, and go to state 23
-    PYTRUE     shift, and go to state 24
-    YIELD      shift, and go to state 26
-    BREAK      shift, and go to state 27
-    NOT        shift, and go to state 29
-    FROM       shift, and go to state 31
-    CONTINUE   shift, and go to state 32
-    GLOBAL     shift, and go to state 33
-    PASS       shift, and go to state 34
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    DEL        shift, and go to state 22
+    NONE       shift, and go to state 23
+    RETURN     shift, and go to state 24
+    GLOBAL     shift, and go to state 25
+    IMPORT     shift, and go to state 26
+    FROM       shift, and go to state 27
+    YIELD      shift, and go to state 28
+    PASS       shift, and go to state 29
+    NOT        shift, and go to state 30
+    BREAK      shift, and go to state 33
+    CONTINUE   shift, and go to state 34
 
     $default  reduce using rule 11 (semi_opt)
 
@@ -3154,21 +3154,21 @@ State 169
    83 equal_OR_yield_OR_testlist_rep: equal_OR_yield_OR_testlist_rep EQUAL • yield_OR_testlist
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
     YIELD      shift, and go to state 170
-    NOT        shift, and go to state 29
+    NOT        shift, and go to state 30
 
     yield_OR_testlist  go to state 242
     testlist           go to state 172
@@ -3254,26 +3254,26 @@ State 178
 
 State 179
 
+  225 not_in: NOT • IN
+
+    IN  shift, and go to state 243
+
+
+State 180
+
   221 comp_op: IN •
 
     $default  reduce using rule 221 (comp_op)
 
 
-State 180
+State 181
 
   223 comp_op: IS •
   226 is_not: IS • NOT
 
-    NOT  shift, and go to state 243
+    NOT  shift, and go to state 244
 
     $default  reduce using rule 223 (comp_op)
-
-
-State 181
-
-  225 not_in: NOT • IN
-
-    IN  shift, and go to state 244
 
 
 State 182
@@ -3281,19 +3281,19 @@ State 182
   214 comp_op_expr_rep: comp_op_expr_rep comp_op • expr
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
 
     expr        go to state 245
     xor_expr    go to state 59
@@ -3326,19 +3326,19 @@ State 185
   134 vbar_xor_expr_rep: vbar_xor_expr_rep VBAR • xor_expr
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
 
     xor_expr    go to state 246
     and_expr    go to state 60
@@ -3356,19 +3356,19 @@ State 186
   137 caret_and_expr_rep: caret_and_expr_rep CIRCUMFLEX • and_expr
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
 
     and_expr    go to state 247
     shift_expr  go to state 61
@@ -3385,19 +3385,19 @@ State 187
   140 amper_shift_expr_rep: amper_shift_expr_rep AMPER • shift_expr
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
 
     shift_expr  go to state 248
     arith_expr  go to state 62
@@ -3427,19 +3427,19 @@ State 190
   143 shift_arith_expr_rep: shift_arith_expr_rep shift • arith_expr
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
 
     arith_expr  go to state 249
     term        go to state 63
@@ -3468,19 +3468,19 @@ State 193
   148 pm_term_rep: pm_term_rep plus_OR_minus • term
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
 
     term    go to state 250
     factor  go to state 64
@@ -3522,19 +3522,19 @@ State 198
   153 factops_factor_rep: factops_factor_rep factops • factor
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
 
     factor  go to state 251
     pmt     go to state 65
@@ -3548,20 +3548,20 @@ State 199
   131 comma_opt: COMMA •
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-    NOT        shift, and go to state 29
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+    NOT        shift, and go to state 30
 
     $default  reduce using rule 131 (comma_opt)
 
@@ -3601,20 +3601,20 @@ State 202
   206 or_and_test_rep: or_and_test_rep OR • and_test
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-    NOT        shift, and go to state 29
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+    NOT        shift, and go to state 30
 
     expr        go to state 58
     xor_expr    go to state 59
@@ -3636,20 +3636,20 @@ State 203
   209 and_not_test_rep: and_not_test_rep AND • not_test
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-    NOT        shift, and go to state 29
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+    NOT        shift, and go to state 30
 
     expr        go to state 58
     xor_expr    go to state 59
@@ -3667,35 +3667,42 @@ State 203
 
 State 204
 
+  168 trailer: DOT • NAME
+
+    NAME  shift, and go to state 256
+
+
+State 205
+
   166 trailer: LPAR • arglist_opt RPAR
 
     RPAR      reduce using rule 169 (arglist_opt)
     $default  reduce using rule 172 (arg_comma_rep)
 
-    arglist_opt    go to state 256
-    arglist        go to state 257
-    arg_comma_rep  go to state 258
+    arglist_opt    go to state 257
+    arglist        go to state 258
+    arg_comma_rep  go to state 259
 
 
-State 205
+State 206
 
   167 trailer: LSQB • subscriptlist RSQB
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-    NOT        shift, and go to state 29
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+    NOT        shift, and go to state 30
 
     $default  reduce using rule 199 (test_opt)
 
@@ -3708,10 +3715,10 @@ State 205
     factor         go to state 64
     pmt            go to state 65
     power          go to state 66
-    subscriptlist  go to state 259
-    subscript      go to state 260
-    test_opt       go to state 261
-    test           go to state 262
+    subscriptlist  go to state 260
+    subscript      go to state 261
+    test_opt       go to state 262
+    test           go to state 263
     or_test        go to state 68
     and_test       go to state 69
     not_test       go to state 70
@@ -3719,31 +3726,24 @@ State 205
     atom           go to state 72
 
 
-State 206
-
-  168 trailer: DOT • NAME
-
-    NAME  shift, and go to state 263
-
-
 State 207
 
   228 dstar_factor_opt: DOUBLESTAR • factor
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
 
     factor  go to state 264
     pmt     go to state 65
@@ -3846,32 +3846,32 @@ State 219
    45 funcdef: PYDEF NAME parameters COLON • suite
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
-    NEWLINE    shift, and go to state 220
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NEWLINE    shift, and go to state 222
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    DEL        shift, and go to state 21
-    IMPORT     shift, and go to state 22
-    RETURN     shift, and go to state 23
-    PYTRUE     shift, and go to state 24
-    YIELD      shift, and go to state 26
-    BREAK      shift, and go to state 27
-    NOT        shift, and go to state 29
-    FROM       shift, and go to state 31
-    CONTINUE   shift, and go to state 32
-    GLOBAL     shift, and go to state 33
-    PASS       shift, and go to state 34
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    DEL        shift, and go to state 22
+    NONE       shift, and go to state 23
+    RETURN     shift, and go to state 24
+    GLOBAL     shift, and go to state 25
+    IMPORT     shift, and go to state 26
+    FROM       shift, and go to state 27
+    YIELD      shift, and go to state 28
+    PASS       shift, and go to state 29
+    NOT        shift, and go to state 30
+    BREAK      shift, and go to state 33
+    CONTINUE   shift, and go to state 34
 
-    simple_stmt    go to state 221
+    simple_stmt    go to state 223
     small_stmt     go to state 37
     global_stmt    go to state 38
     pass_stmt      go to state 39
@@ -3907,148 +3907,42 @@ State 219
 
 State 220
 
-   72 suite: NEWLINE • INDENT stmt_rep DEDENT
+   44 lpar_testlist_rpar_opt: LPAR testlist_opt • RPAR
 
-    INDENT  shift, and go to state 278
+    RPAR  shift, and go to state 278
 
 
 State 221
 
-   71 suite: simple_stmt •
-
-    $default  reduce using rule 71 (suite)
-
-
-State 222
-
-   66 if_stmt: IF test COLON suite • elif_test_colon_suite_rep else_colon_suite_opt
-
-    $default  reduce using rule 67 (elif_test_colon_suite_rep)
-
-    elif_test_colon_suite_rep  go to state 279
-
-
-State 223
-
-  129 comma_expr_rep: comma_expr_rep COMMA • expr
-  131 comma_opt: COMMA •
-
-    FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
-    LPAR       shift, and go to state 10
-    LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
-    TILDE      shift, and go to state 15
-    ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-
-    $default  reduce using rule 131 (comma_opt)
-
-    expr        go to state 280
-    xor_expr    go to state 59
-    and_expr    go to state 60
-    shift_expr  go to state 61
-    arith_expr  go to state 62
-    term        go to state 63
-    factor      go to state 64
-    pmt         go to state 65
-    power       go to state 66
-    atom        go to state 72
-
-
-State 224
-
-  127 exprlist: expr comma_expr_rep comma_opt •
-
-    $default  reduce using rule 127 (exprlist)
-
-
-State 225
-
-  112 comma_dotted_as_name_rep: comma_dotted_as_name_rep COMMA • dotted_as_name
-
-    NAME  shift, and go to state 89
-
-    dotted_as_name  go to state 281
-    dotted_name     go to state 92
-
-
-State 226
-
-  114 dotted_name: dotted_name DOT NAME •
-
-    $default  reduce using rule 114 (dotted_name)
-
-
-State 227
-
-  109 as_name_opt: AS NAME •
-
-    $default  reduce using rule 109 (as_name_opt)
-
-
-State 228
-
-   75 while_stmt: WHILE test COLON suite • else_colon_suite_opt
-
-    ELSE  shift, and go to state 282
-
-    $default  reduce using rule 69 (else_colon_suite_opt)
-
-    else_colon_suite_opt  go to state 283
-
-
-State 229
-
-   76 for_stmt: FOR exprlist IN testlist • COLON suite else_colon_suite_opt
-
-    COLON  shift, and go to state 284
-
-
-State 230
-
-   44 lpar_testlist_rpar_opt: LPAR testlist_opt • RPAR
-
-    RPAR  shift, and go to state 285
-
-
-State 231
-
    42 classdef: CLASS NAME lpar_testlist_rpar_opt COLON • suite
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
-    NEWLINE    shift, and go to state 220
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NEWLINE    shift, and go to state 222
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    DEL        shift, and go to state 21
-    IMPORT     shift, and go to state 22
-    RETURN     shift, and go to state 23
-    PYTRUE     shift, and go to state 24
-    YIELD      shift, and go to state 26
-    BREAK      shift, and go to state 27
-    NOT        shift, and go to state 29
-    FROM       shift, and go to state 31
-    CONTINUE   shift, and go to state 32
-    GLOBAL     shift, and go to state 33
-    PASS       shift, and go to state 34
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    DEL        shift, and go to state 22
+    NONE       shift, and go to state 23
+    RETURN     shift, and go to state 24
+    GLOBAL     shift, and go to state 25
+    IMPORT     shift, and go to state 26
+    FROM       shift, and go to state 27
+    YIELD      shift, and go to state 28
+    PASS       shift, and go to state 29
+    NOT        shift, and go to state 30
+    BREAK      shift, and go to state 33
+    CONTINUE   shift, and go to state 34
 
-    simple_stmt    go to state 221
+    simple_stmt    go to state 223
     small_stmt     go to state 37
     global_stmt    go to state 38
     pass_stmt      go to state 39
@@ -4059,7 +3953,7 @@ State 231
     return_stmt    go to state 44
     yield_stmt     go to state 45
     yield_expr     go to state 46
-    suite          go to state 286
+    suite          go to state 279
     expr_stmt      go to state 53
     import_stmt    go to state 54
     import_name    go to state 55
@@ -4082,75 +3976,181 @@ State 231
     atom           go to state 72
 
 
-State 232
+State 222
+
+   72 suite: NEWLINE • INDENT stmt_rep DEDENT
+
+    INDENT  shift, and go to state 280
+
+
+State 223
+
+   71 suite: simple_stmt •
+
+    $default  reduce using rule 71 (suite)
+
+
+State 224
+
+   66 if_stmt: IF test COLON suite • elif_test_colon_suite_rep else_colon_suite_opt
+
+    $default  reduce using rule 67 (elif_test_colon_suite_rep)
+
+    elif_test_colon_suite_rep  go to state 281
+
+
+State 225
+
+  129 comma_expr_rep: comma_expr_rep COMMA • expr
+  131 comma_opt: COMMA •
+
+    FLOATLIT   shift, and go to state 4
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
+    LPAR       shift, and go to state 10
+    LSQB       shift, and go to state 11
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
+    TILDE      shift, and go to state 15
+    ELLIPSIS   shift, and go to state 16
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+
+    $default  reduce using rule 131 (comma_opt)
+
+    expr        go to state 282
+    xor_expr    go to state 59
+    and_expr    go to state 60
+    shift_expr  go to state 61
+    arith_expr  go to state 62
+    term        go to state 63
+    factor      go to state 64
+    pmt         go to state 65
+    power       go to state 66
+    atom        go to state 72
+
+
+State 226
+
+  127 exprlist: expr comma_expr_rep comma_opt •
+
+    $default  reduce using rule 127 (exprlist)
+
+
+State 227
+
+   20 comma_name_rep: comma_name_rep COMMA • NAME
+
+    NAME  shift, and go to state 283
+
+
+State 228
+
+  112 comma_dotted_as_name_rep: comma_dotted_as_name_rep COMMA • dotted_as_name
+
+    NAME  shift, and go to state 93
+
+    dotted_as_name  go to state 284
+    dotted_name     go to state 96
+
+
+State 229
+
+  114 dotted_name: dotted_name DOT NAME •
+
+    $default  reduce using rule 114 (dotted_name)
+
+
+State 230
+
+  109 as_name_opt: AS NAME •
+
+    $default  reduce using rule 109 (as_name_opt)
+
+
+State 231
 
    99 import_from: FROM dot_OR_ellipsis_rep_opt dotted_name IMPORT • import_from_targets
 
-    NAME  shift, and go to state 233
-    LPAR  shift, and go to state 234
-    STAR  shift, and go to state 235
+    NAME  shift, and go to state 232
+    LPAR  shift, and go to state 233
+    STAR  shift, and go to state 234
 
-    import_from_targets   go to state 287
-    import_from_as_names  go to state 237
-    import_from_as_name   go to state 238
+    import_from_targets   go to state 285
+    import_from_as_names  go to state 236
+    import_from_as_name   go to state 237
+
+
+State 232
+
+  107 import_from_as_name: NAME • as_name_opt
+
+    AS  shift, and go to state 160
+
+    $default  reduce using rule 108 (as_name_opt)
+
+    as_name_opt  go to state 286
 
 
 State 233
 
-  107 import_from_as_name: NAME • as_name_opt
+  101 import_from_targets: LPAR • import_from_as_names comma_opt RPAR
 
-    AS  shift, and go to state 157
+    NAME  shift, and go to state 232
 
-    $default  reduce using rule 108 (as_name_opt)
-
-    as_name_opt  go to state 288
+    import_from_as_names  go to state 287
+    import_from_as_name   go to state 237
 
 
 State 234
-
-  101 import_from_targets: LPAR • import_from_as_names comma_opt RPAR
-
-    NAME  shift, and go to state 233
-
-    import_from_as_names  go to state 289
-    import_from_as_name   go to state 238
-
-
-State 235
 
   103 import_from_targets: STAR •
 
     $default  reduce using rule 103 (import_from_targets)
 
 
-State 236
+State 235
 
   100 import_from: FROM dot_OR_ellipsis_rep IMPORT import_from_targets •
 
     $default  reduce using rule 100 (import_from)
 
 
-State 237
+State 236
 
   102 import_from_targets: import_from_as_names •
 
     $default  reduce using rule 102 (import_from_targets)
 
 
-State 238
+State 237
 
   104 import_from_as_names: import_from_as_name • comma_import_from_as_name_rep
 
     $default  reduce using rule 105 (comma_import_from_as_name_rep)
 
-    comma_import_from_as_name_rep  go to state 290
+    comma_import_from_as_name_rep  go to state 288
+
+
+State 238
+
+   75 while_stmt: WHILE test COLON suite • else_colon_suite_opt
+
+    ELSE  shift, and go to state 289
+
+    $default  reduce using rule 69 (else_colon_suite_opt)
+
+    else_colon_suite_opt  go to state 290
 
 
 State 239
 
-   20 comma_name_rep: comma_name_rep COMMA • NAME
+   76 for_stmt: FOR exprlist IN testlist • COLON suite else_colon_suite_opt
 
-    NAME  shift, and go to state 291
+    COLON  shift, and go to state 291
 
 
 State 240
@@ -4176,16 +4176,16 @@ State 242
 
 State 243
 
-  226 is_not: IS NOT •
+  225 not_in: NOT IN •
 
-    $default  reduce using rule 226 (is_not)
+    $default  reduce using rule 225 (not_in)
 
 
 State 244
 
-  225 not_in: NOT IN •
+  226 is_not: IS NOT •
 
-    $default  reduce using rule 225 (not_in)
+    $default  reduce using rule 226 (is_not)
 
 
 State 245
@@ -4249,20 +4249,20 @@ State 253
   203 if_or_test_else_test_opt: IF or_test ELSE • test
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-    NOT        shift, and go to state 29
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+    NOT        shift, and go to state 30
 
     expr        go to state 58
     xor_expr    go to state 59
@@ -4297,40 +4297,47 @@ State 255
 
 State 256
 
+  168 trailer: DOT NAME •
+
+    $default  reduce using rule 168 (trailer)
+
+
+State 257
+
   166 trailer: LPAR arglist_opt • RPAR
 
     RPAR  shift, and go to state 293
 
 
-State 257
+State 258
 
   170 arglist_opt: arglist •
 
     $default  reduce using rule 170 (arglist_opt)
 
 
-State 258
+State 259
 
   171 arglist: arg_comma_rep • arg_ORS
   173 arg_comma_rep: arg_comma_rep • argument COMMA
 
     FLOATLIT    shift, and go to state 4
-    NAME        shift, and go to state 6
-    INTLIT      shift, and go to state 7
-    STRINGLIT   shift, and go to state 8
+    INTLIT      shift, and go to state 5
+    STRINGLIT   shift, and go to state 6
+    NAME        shift, and go to state 9
     LPAR        shift, and go to state 10
     LSQB        shift, and go to state 11
-    PLUS        shift, and go to state 12
-    MINUS       shift, and go to state 13
+    LBRACE      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
     STAR        shift, and go to state 294
-    LBRACE      shift, and go to state 14
     TILDE       shift, and go to state 15
     DOUBLESTAR  shift, and go to state 295
     ELLIPSIS    shift, and go to state 16
-    PYFALSE     shift, and go to state 17
-    NONE        shift, and go to state 20
-    PYTRUE      shift, and go to state 24
-    NOT         shift, and go to state 29
+    PYTRUE      shift, and go to state 17
+    PYFALSE     shift, and go to state 18
+    NONE        shift, and go to state 23
+    NOT         shift, and go to state 30
 
     expr        go to state 58
     xor_expr    go to state 59
@@ -4351,14 +4358,14 @@ State 258
     atom        go to state 72
 
 
-State 259
+State 260
 
   167 trailer: LSQB subscriptlist • RSQB
 
     RSQB  shift, and go to state 299
 
 
-State 260
+State 261
 
   191 subscriptlist: subscript • comma_subscript_rep comma_opt
 
@@ -4367,27 +4374,20 @@ State 260
     comma_subscript_rep  go to state 300
 
 
-State 261
+State 262
 
   195 subscript: test_opt • COLON test_opt sliceop_opt
 
     COLON  shift, and go to state 301
 
 
-State 262
+State 263
 
   194 subscript: test •
   200 test_opt: test •
 
     COLON     reduce using rule 200 (test_opt)
     $default  reduce using rule 194 (subscript)
-
-
-State 263
-
-  168 trailer: DOT NAME •
-
-    $default  reduce using rule 168 (trailer)
 
 
 State 264
@@ -4402,20 +4402,20 @@ State 265
   185 comp_for: FOR exprlist IN • or_test comp_iter_opt
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-    NOT        shift, and go to state 29
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+    NOT        shift, and go to state 30
 
     expr        go to state 58
     xor_expr    go to state 59
@@ -4438,20 +4438,20 @@ State 266
   245 list_for: FOR exprlist IN • testlist_safe list_iter_opt
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-    NOT        shift, and go to state 29
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+    NOT        shift, and go to state 30
 
     expr           go to state 58
     xor_expr       go to state 59
@@ -4564,37 +4564,51 @@ State 277
 
 State 278
 
+   44 lpar_testlist_rpar_opt: LPAR testlist_opt RPAR •
+
+    $default  reduce using rule 44 (lpar_testlist_rpar_opt)
+
+
+State 279
+
+   42 classdef: CLASS NAME lpar_testlist_rpar_opt COLON suite •
+
+    $default  reduce using rule 42 (classdef)
+
+
+State 280
+
    72 suite: NEWLINE INDENT • stmt_rep DEDENT
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    PYDEF      shift, and go to state 18
-    IF         shift, and go to state 19
-    NONE       shift, and go to state 20
-    DEL        shift, and go to state 21
-    IMPORT     shift, and go to state 22
-    RETURN     shift, and go to state 23
-    PYTRUE     shift, and go to state 24
-    WHILE      shift, and go to state 25
-    YIELD      shift, and go to state 26
-    BREAK      shift, and go to state 27
-    FOR        shift, and go to state 28
-    NOT        shift, and go to state 29
-    CLASS      shift, and go to state 30
-    FROM       shift, and go to state 31
-    CONTINUE   shift, and go to state 32
-    GLOBAL     shift, and go to state 33
-    PASS       shift, and go to state 34
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    PYDEF      shift, and go to state 19
+    CLASS      shift, and go to state 20
+    IF         shift, and go to state 21
+    DEL        shift, and go to state 22
+    NONE       shift, and go to state 23
+    RETURN     shift, and go to state 24
+    GLOBAL     shift, and go to state 25
+    IMPORT     shift, and go to state 26
+    FROM       shift, and go to state 27
+    YIELD      shift, and go to state 28
+    PASS       shift, and go to state 29
+    NOT        shift, and go to state 30
+    WHILE      shift, and go to state 31
+    FOR        shift, and go to state 32
+    BREAK      shift, and go to state 33
+    CONTINUE   shift, and go to state 34
 
     stmt           go to state 313
     simple_stmt    go to state 36
@@ -4637,78 +4651,121 @@ State 278
     atom           go to state 72
 
 
-State 279
+State 281
 
    66 if_stmt: IF test COLON suite elif_test_colon_suite_rep • else_colon_suite_opt
    68 elif_test_colon_suite_rep: elif_test_colon_suite_rep • ELIF test COLON suite
 
     ELIF  shift, and go to state 315
-    ELSE  shift, and go to state 282
+    ELSE  shift, and go to state 289
 
     $default  reduce using rule 69 (else_colon_suite_opt)
 
     else_colon_suite_opt  go to state 316
 
 
-State 280
+State 282
 
   129 comma_expr_rep: comma_expr_rep COMMA expr •
 
     $default  reduce using rule 129 (comma_expr_rep)
 
 
-State 281
+State 283
+
+   20 comma_name_rep: comma_name_rep COMMA NAME •
+
+    $default  reduce using rule 20 (comma_name_rep)
+
+
+State 284
 
   112 comma_dotted_as_name_rep: comma_dotted_as_name_rep COMMA dotted_as_name •
 
     $default  reduce using rule 112 (comma_dotted_as_name_rep)
 
 
-State 282
+State 285
+
+   99 import_from: FROM dot_OR_ellipsis_rep_opt dotted_name IMPORT import_from_targets •
+
+    $default  reduce using rule 99 (import_from)
+
+
+State 286
+
+  107 import_from_as_name: NAME as_name_opt •
+
+    $default  reduce using rule 107 (import_from_as_name)
+
+
+State 287
+
+  101 import_from_targets: LPAR import_from_as_names • comma_opt RPAR
+
+    COMMA  shift, and go to state 317
+
+    $default  reduce using rule 130 (comma_opt)
+
+    comma_opt  go to state 318
+
+
+State 288
+
+  104 import_from_as_names: import_from_as_name comma_import_from_as_name_rep •
+  106 comma_import_from_as_name_rep: comma_import_from_as_name_rep • COMMA import_from_as_name
+
+    COMMA  shift, and go to state 319
+
+    COMMA     [reduce using rule 104 (import_from_as_names)]
+    $default  reduce using rule 104 (import_from_as_names)
+
+
+State 289
 
    70 else_colon_suite_opt: ELSE • COLON suite
 
-    COLON  shift, and go to state 317
+    COLON  shift, and go to state 320
 
 
-State 283
+State 290
 
    75 while_stmt: WHILE test COLON suite else_colon_suite_opt •
 
     $default  reduce using rule 75 (while_stmt)
 
 
-State 284
+State 291
 
    76 for_stmt: FOR exprlist IN testlist COLON • suite else_colon_suite_opt
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
-    NEWLINE    shift, and go to state 220
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NEWLINE    shift, and go to state 222
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    DEL        shift, and go to state 21
-    IMPORT     shift, and go to state 22
-    RETURN     shift, and go to state 23
-    PYTRUE     shift, and go to state 24
-    YIELD      shift, and go to state 26
-    BREAK      shift, and go to state 27
-    NOT        shift, and go to state 29
-    FROM       shift, and go to state 31
-    CONTINUE   shift, and go to state 32
-    GLOBAL     shift, and go to state 33
-    PASS       shift, and go to state 34
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    DEL        shift, and go to state 22
+    NONE       shift, and go to state 23
+    RETURN     shift, and go to state 24
+    GLOBAL     shift, and go to state 25
+    IMPORT     shift, and go to state 26
+    FROM       shift, and go to state 27
+    YIELD      shift, and go to state 28
+    PASS       shift, and go to state 29
+    NOT        shift, and go to state 30
+    BREAK      shift, and go to state 33
+    CONTINUE   shift, and go to state 34
 
-    simple_stmt    go to state 221
+    simple_stmt    go to state 223
     small_stmt     go to state 37
     global_stmt    go to state 38
     pass_stmt      go to state 39
@@ -4719,7 +4776,7 @@ State 284
     return_stmt    go to state 44
     yield_stmt     go to state 45
     yield_expr     go to state 46
-    suite          go to state 318
+    suite          go to state 321
     expr_stmt      go to state 53
     import_stmt    go to state 54
     import_name    go to state 55
@@ -4742,63 +4799,6 @@ State 284
     atom           go to state 72
 
 
-State 285
-
-   44 lpar_testlist_rpar_opt: LPAR testlist_opt RPAR •
-
-    $default  reduce using rule 44 (lpar_testlist_rpar_opt)
-
-
-State 286
-
-   42 classdef: CLASS NAME lpar_testlist_rpar_opt COLON suite •
-
-    $default  reduce using rule 42 (classdef)
-
-
-State 287
-
-   99 import_from: FROM dot_OR_ellipsis_rep_opt dotted_name IMPORT import_from_targets •
-
-    $default  reduce using rule 99 (import_from)
-
-
-State 288
-
-  107 import_from_as_name: NAME as_name_opt •
-
-    $default  reduce using rule 107 (import_from_as_name)
-
-
-State 289
-
-  101 import_from_targets: LPAR import_from_as_names • comma_opt RPAR
-
-    COMMA  shift, and go to state 319
-
-    $default  reduce using rule 130 (comma_opt)
-
-    comma_opt  go to state 320
-
-
-State 290
-
-  104 import_from_as_names: import_from_as_name comma_import_from_as_name_rep •
-  106 comma_import_from_as_name_rep: comma_import_from_as_name_rep • COMMA import_from_as_name
-
-    COMMA  shift, and go to state 321
-
-    COMMA     [reduce using rule 104 (import_from_as_names)]
-    $default  reduce using rule 104 (import_from_as_names)
-
-
-State 291
-
-   20 comma_name_rep: comma_name_rep COMMA NAME •
-
-    $default  reduce using rule 20 (comma_name_rep)
-
-
 State 292
 
   203 if_or_test_else_test_opt: IF or_test ELSE test •
@@ -4818,20 +4818,20 @@ State 294
   175 arg_ORS: STAR • test comma_arg_rep comma_dstar_test_opt
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-    NOT        shift, and go to state 29
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+    NOT        shift, and go to state 30
 
     expr        go to state 58
     xor_expr    go to state 59
@@ -4855,20 +4855,20 @@ State 295
   176 arg_ORS: DOUBLESTAR • test
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-    NOT        shift, and go to state 29
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+    NOT        shift, and go to state 30
 
     expr        go to state 58
     xor_expr    go to state 59
@@ -4944,20 +4944,20 @@ State 301
   195 subscript: test_opt COLON • test_opt sliceop_opt
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-    NOT        shift, and go to state 29
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+    NOT        shift, and go to state 30
 
     $default  reduce using rule 199 (test_opt)
 
@@ -5034,20 +5034,20 @@ State 306
   265 ctct_rep: ctct_rep COMMA • test COLON test
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-    NOT        shift, and go to state 29
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+    NOT        shift, and go to state 30
 
     $default  reduce using rule 131 (comma_opt)
 
@@ -5107,20 +5107,20 @@ State 311
    55 equal_test_opt: EQUAL • test
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-    NOT        shift, and go to state 29
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+    NOT        shift, and go to state 30
 
     expr        go to state 58
     xor_expr    go to state 59
@@ -5165,35 +5165,35 @@ State 314
    74 stmt_rep: stmt_rep • stmt
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
     DEDENT     shift, and go to state 354
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    PYDEF      shift, and go to state 18
-    IF         shift, and go to state 19
-    NONE       shift, and go to state 20
-    DEL        shift, and go to state 21
-    IMPORT     shift, and go to state 22
-    RETURN     shift, and go to state 23
-    PYTRUE     shift, and go to state 24
-    WHILE      shift, and go to state 25
-    YIELD      shift, and go to state 26
-    BREAK      shift, and go to state 27
-    FOR        shift, and go to state 28
-    NOT        shift, and go to state 29
-    CLASS      shift, and go to state 30
-    FROM       shift, and go to state 31
-    CONTINUE   shift, and go to state 32
-    GLOBAL     shift, and go to state 33
-    PASS       shift, and go to state 34
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    PYDEF      shift, and go to state 19
+    CLASS      shift, and go to state 20
+    IF         shift, and go to state 21
+    DEL        shift, and go to state 22
+    NONE       shift, and go to state 23
+    RETURN     shift, and go to state 24
+    GLOBAL     shift, and go to state 25
+    IMPORT     shift, and go to state 26
+    FROM       shift, and go to state 27
+    YIELD      shift, and go to state 28
+    PASS       shift, and go to state 29
+    NOT        shift, and go to state 30
+    WHILE      shift, and go to state 31
+    FOR        shift, and go to state 32
+    BREAK      shift, and go to state 33
+    CONTINUE   shift, and go to state 34
 
     stmt           go to state 355
     simple_stmt    go to state 36
@@ -5240,20 +5240,20 @@ State 315
    68 elif_test_colon_suite_rep: elif_test_colon_suite_rep ELIF • test COLON suite
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-    NOT        shift, and go to state 29
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+    NOT        shift, and go to state 30
 
     expr        go to state 58
     xor_expr    go to state 59
@@ -5281,35 +5281,58 @@ State 316
 
 State 317
 
+  131 comma_opt: COMMA •
+
+    $default  reduce using rule 131 (comma_opt)
+
+
+State 318
+
+  101 import_from_targets: LPAR import_from_as_names comma_opt • RPAR
+
+    RPAR  shift, and go to state 357
+
+
+State 319
+
+  106 comma_import_from_as_name_rep: comma_import_from_as_name_rep COMMA • import_from_as_name
+
+    NAME  shift, and go to state 232
+
+    import_from_as_name  go to state 358
+
+
+State 320
+
    70 else_colon_suite_opt: ELSE COLON • suite
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
-    NEWLINE    shift, and go to state 220
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NEWLINE    shift, and go to state 222
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    DEL        shift, and go to state 21
-    IMPORT     shift, and go to state 22
-    RETURN     shift, and go to state 23
-    PYTRUE     shift, and go to state 24
-    YIELD      shift, and go to state 26
-    BREAK      shift, and go to state 27
-    NOT        shift, and go to state 29
-    FROM       shift, and go to state 31
-    CONTINUE   shift, and go to state 32
-    GLOBAL     shift, and go to state 33
-    PASS       shift, and go to state 34
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    DEL        shift, and go to state 22
+    NONE       shift, and go to state 23
+    RETURN     shift, and go to state 24
+    GLOBAL     shift, and go to state 25
+    IMPORT     shift, and go to state 26
+    FROM       shift, and go to state 27
+    YIELD      shift, and go to state 28
+    PASS       shift, and go to state 29
+    NOT        shift, and go to state 30
+    BREAK      shift, and go to state 33
+    CONTINUE   shift, and go to state 34
 
-    simple_stmt    go to state 221
+    simple_stmt    go to state 223
     small_stmt     go to state 37
     global_stmt    go to state 38
     pass_stmt      go to state 39
@@ -5320,7 +5343,7 @@ State 317
     return_stmt    go to state 44
     yield_stmt     go to state 45
     yield_expr     go to state 46
-    suite          go to state 357
+    suite          go to state 359
     expr_stmt      go to state 53
     import_stmt    go to state 54
     import_name    go to state 55
@@ -5343,38 +5366,15 @@ State 317
     atom           go to state 72
 
 
-State 318
+State 321
 
    76 for_stmt: FOR exprlist IN testlist COLON suite • else_colon_suite_opt
 
-    ELSE  shift, and go to state 282
+    ELSE  shift, and go to state 289
 
     $default  reduce using rule 69 (else_colon_suite_opt)
 
-    else_colon_suite_opt  go to state 358
-
-
-State 319
-
-  131 comma_opt: COMMA •
-
-    $default  reduce using rule 131 (comma_opt)
-
-
-State 320
-
-  101 import_from_targets: LPAR import_from_as_names comma_opt • RPAR
-
-    RPAR  shift, and go to state 359
-
-
-State 321
-
-  106 comma_import_from_as_name_rep: comma_import_from_as_name_rep COMMA • import_from_as_name
-
-    NAME  shift, and go to state 233
-
-    import_from_as_name  go to state 360
+    else_colon_suite_opt  go to state 360
 
 
 State 322
@@ -5414,20 +5414,20 @@ State 326
   182 argument: test EQUAL • test
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-    NOT        shift, and go to state 29
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+    NOT        shift, and go to state 30
 
     expr        go to state 58
     xor_expr    go to state 59
@@ -5466,20 +5466,20 @@ State 329
   193 comma_subscript_rep: comma_subscript_rep COMMA • subscript
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-    NOT        shift, and go to state 29
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+    NOT        shift, and go to state 30
 
     COLON     reduce using rule 199 (test_opt)
     $default  reduce using rule 131 (comma_opt)
@@ -5494,8 +5494,8 @@ State 329
     pmt         go to state 65
     power       go to state 66
     subscript   go to state 363
-    test_opt    go to state 261
-    test        go to state 262
+    test_opt    go to state 262
+    test        go to state 263
     or_test     go to state 68
     and_test    go to state 69
     not_test    go to state 70
@@ -5534,20 +5534,20 @@ State 333
   190 comp_if: IF • old_test comp_iter_opt
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-    NOT        shift, and go to state 29
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+    NOT        shift, and go to state 30
 
     expr        go to state 58
     xor_expr    go to state 59
@@ -5599,20 +5599,20 @@ State 338
   256 list_if: IF • old_test list_iter_opt
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-    NOT        shift, and go to state 29
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+    NOT        shift, and go to state 30
 
     expr        go to state 58
     xor_expr    go to state 59
@@ -5664,20 +5664,20 @@ State 343
   250 comma_old_test_rep: COMMA • old_test
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-    NOT        shift, and go to state 29
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+    NOT        shift, and go to state 30
 
     expr        go to state 58
     xor_expr    go to state 59
@@ -5804,30 +5804,30 @@ State 356
 
 State 357
 
-   70 else_colon_suite_opt: ELSE COLON suite •
-
-    $default  reduce using rule 70 (else_colon_suite_opt)
-
-
-State 358
-
-   76 for_stmt: FOR exprlist IN testlist COLON suite else_colon_suite_opt •
-
-    $default  reduce using rule 76 (for_stmt)
-
-
-State 359
-
   101 import_from_targets: LPAR import_from_as_names comma_opt RPAR •
 
     $default  reduce using rule 101 (import_from_targets)
 
 
-State 360
+State 358
 
   106 comma_import_from_as_name_rep: comma_import_from_as_name_rep COMMA import_from_as_name •
 
     $default  reduce using rule 106 (comma_import_from_as_name_rep)
+
+
+State 359
+
+   70 else_colon_suite_opt: ELSE COLON suite •
+
+    $default  reduce using rule 70 (else_colon_suite_opt)
+
+
+State 360
+
+   76 for_stmt: FOR exprlist IN testlist COLON suite else_colon_suite_opt •
+
+    $default  reduce using rule 76 (for_stmt)
 
 
 State 361
@@ -5861,20 +5861,20 @@ State 364
   198 sliceop: COLON • test_opt
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-    NOT        shift, and go to state 29
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+    NOT        shift, and go to state 30
 
     $default  reduce using rule 199 (test_opt)
 
@@ -5953,20 +5953,20 @@ State 370
   251 comma_old_test_rep: comma_old_test_rep COMMA • old_test
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-    NOT        shift, and go to state 29
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+    NOT        shift, and go to state 30
 
     $default  reduce using rule 131 (comma_opt)
 
@@ -5999,20 +5999,20 @@ State 372
   265 ctct_rep: ctct_rep COMMA test COLON • test
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-    NOT        shift, and go to state 29
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+    NOT        shift, and go to state 30
 
     expr        go to state 58
     xor_expr    go to state 59
@@ -6083,32 +6083,32 @@ State 378
    68 elif_test_colon_suite_rep: elif_test_colon_suite_rep ELIF test COLON • suite
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
-    NEWLINE    shift, and go to state 220
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NEWLINE    shift, and go to state 222
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    DEL        shift, and go to state 21
-    IMPORT     shift, and go to state 22
-    RETURN     shift, and go to state 23
-    PYTRUE     shift, and go to state 24
-    YIELD      shift, and go to state 26
-    BREAK      shift, and go to state 27
-    NOT        shift, and go to state 29
-    FROM       shift, and go to state 31
-    CONTINUE   shift, and go to state 32
-    GLOBAL     shift, and go to state 33
-    PASS       shift, and go to state 34
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    DEL        shift, and go to state 22
+    NONE       shift, and go to state 23
+    RETURN     shift, and go to state 24
+    GLOBAL     shift, and go to state 25
+    IMPORT     shift, and go to state 26
+    FROM       shift, and go to state 27
+    YIELD      shift, and go to state 28
+    PASS       shift, and go to state 29
+    NOT        shift, and go to state 30
+    BREAK      shift, and go to state 33
+    CONTINUE   shift, and go to state 34
 
-    simple_stmt    go to state 221
+    simple_stmt    go to state 223
     small_stmt     go to state 37
     global_stmt    go to state 38
     pass_stmt      go to state 39
@@ -6148,21 +6148,21 @@ State 379
   180 comma_dstar_test_opt: COMMA • DOUBLESTAR test
 
     FLOATLIT    shift, and go to state 4
-    NAME        shift, and go to state 6
-    INTLIT      shift, and go to state 7
-    STRINGLIT   shift, and go to state 8
+    INTLIT      shift, and go to state 5
+    STRINGLIT   shift, and go to state 6
+    NAME        shift, and go to state 9
     LPAR        shift, and go to state 10
     LSQB        shift, and go to state 11
-    PLUS        shift, and go to state 12
-    MINUS       shift, and go to state 13
-    LBRACE      shift, and go to state 14
+    LBRACE      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
     TILDE       shift, and go to state 15
     DOUBLESTAR  shift, and go to state 390
     ELLIPSIS    shift, and go to state 16
-    PYFALSE     shift, and go to state 17
-    NONE        shift, and go to state 20
-    PYTRUE      shift, and go to state 24
-    NOT         shift, and go to state 29
+    PYTRUE      shift, and go to state 17
+    PYFALSE     shift, and go to state 18
+    NONE        shift, and go to state 23
+    NOT         shift, and go to state 30
 
     expr        go to state 58
     xor_expr    go to state 59
@@ -6261,20 +6261,20 @@ State 390
   180 comma_dstar_test_opt: COMMA DOUBLESTAR • test
 
     FLOATLIT   shift, and go to state 4
-    NAME       shift, and go to state 6
-    INTLIT     shift, and go to state 7
-    STRINGLIT  shift, and go to state 8
+    INTLIT     shift, and go to state 5
+    STRINGLIT  shift, and go to state 6
+    NAME       shift, and go to state 9
     LPAR       shift, and go to state 10
     LSQB       shift, and go to state 11
-    PLUS       shift, and go to state 12
-    MINUS      shift, and go to state 13
-    LBRACE     shift, and go to state 14
+    LBRACE     shift, and go to state 12
+    PLUS       shift, and go to state 13
+    MINUS      shift, and go to state 14
     TILDE      shift, and go to state 15
     ELLIPSIS   shift, and go to state 16
-    PYFALSE    shift, and go to state 17
-    NONE       shift, and go to state 20
-    PYTRUE     shift, and go to state 24
-    NOT        shift, and go to state 29
+    PYTRUE     shift, and go to state 17
+    PYFALSE    shift, and go to state 18
+    NONE       shift, and go to state 23
+    NOT        shift, and go to state 30
 
     expr        go to state 58
     xor_expr    go to state 59

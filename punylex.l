@@ -54,6 +54,7 @@ comment                     #+[^\n]*
                             return alctoken(NEWLINE); 
                         }
                         else {
+                            // We return an extra newline at the end for the grammar
                             if(has_endmarker_been_returned) {
                                 return -1;
                             }

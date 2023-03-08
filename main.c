@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include "symtab.h"
 #include "tree.h"
 #include "punygram.tab.h"
 #include "utils.h"
@@ -17,6 +18,7 @@ extern int firsttime;
 extern YYSTYPE yylval;
 // For debugging
 extern int indent_count, dedent_count;
+extern int make_tree_count, alctoken_count;
 //void dealloc_list(struct tokenlist *l);
 
 extern char yyfilename[PATHMAX];
@@ -56,7 +58,12 @@ int main(int argc, char *argv[]) {
         /** Parse */
         parse_ret = yyparse();
 
+        /** Initialize SymbolTable Stack */
+        SymbolTable st = mksymtab(1); // Idk how many buckets to specify
+        populate_symboltables(yylval.treeptr, st);
+
         printf("yyparse returns: %d\n", parse_ret);
+        printf("make_tree_count: %d\nalctoken count: %d\n", make_tree_count, alctoken_count);
         /*while ((category = yylex()) > 0) {
             create_token(list_head, category, yytext, yylineno, column, argv[i]);
         }

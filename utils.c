@@ -1,8 +1,10 @@
+#include <assert.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <time.h>
 #include "punygram.tab.h"
 #include "utils.h"
 
@@ -317,4 +319,26 @@ void err_lookahead(int yychar, int count, const char *buf, ...)
         }
     }
     va_end(args);
+}
+
+/** Generate a random string of length len
+ * For debugging hash table and maybe other stuff
+ */
+char *rand_string(int min_len, int max_len)
+{
+    assert(min_len > 0);
+    int n = rand() % max_len;
+    n = n >= min_len ? n : n + min_len;
+    char *out = calloc(n + 1, sizeof(char));
+    for(int i = 0; i < n; i++) {
+        out[i] = get_rand_ascii();
+    }
+    return out;
+}
+
+int get_rand_ascii()
+{
+    int lower = '!', upper = '~';
+    char res = rand() % upper;
+    return res >= lower ? res : res + lower;
 }

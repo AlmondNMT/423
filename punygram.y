@@ -22,97 +22,26 @@
 %define parse.trace
 
 
-%token <treeptr> FLOATLIT
-%token <treeptr> ENDMARKER
+%token <treeptr> FLOATLIT INTLIT STRINGLIT
+%token <treeptr> ENDMARKER NEWLINE INDENT DEDENT
 %token <treeptr> NAME
-%token <treeptr> INTLIT
-%token <treeptr> STRINGLIT
-%token <treeptr> NEWLINE
-%token <treeptr> INDENT
-%token <treeptr> DEDENT
-%token <treeptr> LPAR
-%token <treeptr> RPAR
-%token <treeptr> LSQB
-%token <treeptr> RSQB
-%token <treeptr> COLON
-%token <treeptr> COMMA
-%token <treeptr> SEMI
-%token <treeptr> PLUS
-%token <treeptr> MINUS
-%token <treeptr> STAR
-%token <treeptr> SLASH
-%token <treeptr> VBAR
-%token <treeptr> AMPER
-%token <treeptr> LESS
-%token <treeptr> GREATER
-%token <treeptr> EQUAL
 %token <treeptr> DOT
-%token <treeptr> PERCENT
-%token <treeptr> LBRACE
-%token <treeptr> RBRACE
-%token <treeptr> EQEQUAL
-%token <treeptr> NOTEQUAL
-%token <treeptr> LESSEQUAL
-%token <treeptr> GREATEREQUAL
-%token <treeptr> TILDE
-%token <treeptr> CIRCUMFLEX
-%token <treeptr> LEFTSHIFT
-%token <treeptr> RIGHTSHIFT
-%token <treeptr> DOUBLESTAR
-%token <treeptr> PLUSEQUAL
-%token <treeptr> MINEQUAL
-%token <treeptr> STAREQUAL
-%token <treeptr> SLASHEQUAL
-%token <treeptr> PERCENTEQUAL
-%token <treeptr> AMPEREQUAL
-%token <treeptr> VBAREQUAL
-%token <treeptr> CIRCUMFLEXEQUAL
-%token <treeptr> LEFTSHIFTEQUAL
-%token <treeptr> RIGHTSHIFTEQUAL
-%token <treeptr> DOUBLESTAREQUAL
-%token <treeptr> DOUBLESLASH
-%token <treeptr> DOUBLESLASHEQUAL
-%token <treeptr> AT
-%token <treeptr> ATEQUAL
-%token <treeptr> RARROW
-%token <treeptr> ELLIPSIS
-%token <treeptr> COLONEQUAL
-%token <treeptr> PYFALSE
-%token <treeptr> PYDEF
-%token <treeptr> IF
-%token <treeptr> RAISE
-%token <treeptr> NONE
-%token <treeptr> DEL
-%token <treeptr> IMPORT
-%token <treeptr> RETURN
-%token <treeptr> PYTRUE
-%token <treeptr> ELIF
-%token <treeptr> IN
-%token <treeptr> TRY
-%token <treeptr> AND
-%token <treeptr> ELSE
-%token <treeptr> IS
-%token <treeptr> WHILE
-%token <treeptr> AS
-%token <treeptr> EXCEPT
-%token <treeptr> LAMBDA
-%token <treeptr> WITH
-%token <treeptr> ASSERT
-%token <treeptr> FINALLY
-%token <treeptr> NONLOCAL
-%token <treeptr> YIELD
-%token <treeptr> BREAK
-%token <treeptr> FOR
-%token <treeptr> NOT
-%token <treeptr> CLASS
-%token <treeptr> FROM
-%token <treeptr> OR
-%token <treeptr> CONTINUE
-%token <treeptr> GLOBAL
-%token <treeptr> PASS
+%token <treeptr> LPAR RPAR LSQB RSQB LBRACE RBRACE
+%token <treeptr> SEMI COLON COMMA
+%token <treeptr> PLUS MINUS STAR SLASH VBAR AMPER PERCENT CIRCUMFLEX TILDE LEFTSHIFT RIGHTSHIFT DOUBLESTAR AT DOUBLESLASH
+%token <treeptr> LESS GREATER EQUAL
+%token <treeptr> EQEQUAL NOTEQUAL LESSEQUAL GREATEREQUAL 
+%token <treeptr> PLUSEQUAL MINEQUAL STAREQUAL SLASHEQUAL PERCENTEQUAL AMPEREQUAL VBAREQUAL CIRCUMFLEXEQUAL LEFTSHIFTEQUAL RIGHTSHIFTEQUAL DOUBLESTAREQUAL DOUBLESLASHEQUAL ATEQUAL COLONEQUAL
+%token <treeptr> RARROW ELLIPSIS
+%token <treeptr> PYTRUE PYFALSE
+%token <treeptr> PYDEF CLASS
+%token <treeptr> IF ELIF ELSE
+%token <treeptr> DEL NONE RETURN GLOBAL
+%token <treeptr> IMPORT FROM AS
+%token <treeptr> TRY EXCEPT LAMBDA WITH ASSERT FINALLY NONLOCAL YIELD RAISE PASS AWAIT ASYNC// Unsupported tokens
+%token <treeptr> AND OR NOT IN IS
+%token <treeptr> WHILE FOR BREAK CONTINUE
 %token <treeptr> OP
-%token <treeptr> AWAIT
-%token <treeptr> ASYNC
 %token <treeptr> TYPE_IGNORE
 %token <treeptr> TYPE_COMMENT
 %token <treeptr> ERRORTOKEN
@@ -228,7 +157,7 @@ lpar_testlist_rpar_opt: {$$=make_tree("nulltree",0,NULL);}
     | LPAR testlist_opt RPAR {$$=make_tree("lpar_testlist_rpar_opt", 1, $2);}
     ;
 
-funcdef: PYDEF NAME parameters COLON suite {$$=make_tree("funcdef", 3, $2, $3, $5);}
+funcdef: PYDEF NAME parameters COLON suite {$$=make_tree("funcdef", 3, $2, $3, $5); }
     ;
 
 parameters: LPAR varargslist_opt RPAR {$$=make_tree("parameters", 1, $2);}
@@ -313,7 +242,7 @@ yield_OR_testlist: YIELD
     | testlist
     ;
 
-equal_OR_yield_OR_testlist_rep: {$$=make_tree("nulltree",0,NULL);}
+equal_OR_yield_OR_testlist_rep: {$$=make_tree("nulltree",0,NULL); }
     | equal_OR_yield_OR_testlist_rep EQUAL yield_OR_testlist {$$=make_tree("equal_OR_yield_OR_testlist_rep", 3, $1,$2, $3);}
     ;
 
@@ -586,7 +515,6 @@ and_test: not_test and_not_test_rep  {$$=make_tree("and_test", 2,$1,$2);}
 
 and_not_test_rep: {$$=make_tree("nulltree",0,NULL);}
     | and_not_test_rep AND not_test {$$=make_tree("and_not_test_rep", 2,$1,$3);}
-    ;
     ;
 
 not_test: NOT not_test {$$=make_tree("not_test", 1,$2);}

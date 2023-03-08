@@ -17,6 +17,7 @@ int indentation_level = 0;
 int max_indent = 0;
 int indent_count = 0;
 int dedent_count = 0;
+int make_tree_count = 0, alctoken_count = 0;
 
 // Current filename
 char yyfilename[PATHMAX];
@@ -54,6 +55,7 @@ int get_column(char *text, int column)
  */
 int alctoken(int category)
 {
+    alctoken_count++;
     int text_len = strlen(yytext);
     yylval.treeptr = malloc(sizeof(tree_t));
     check_alloc(yylval.treeptr, "yylval.treeptr");
@@ -281,28 +283,26 @@ struct tree* append_kid(struct tree * kidspassed[], char * symbnam)
 
 struct tree* make_tree(char * symbname, int argc, ...)
 {
+    make_tree_count++;
     va_list ap;
     va_start(ap, argc);
     int i = 0;
     struct tree *kids[9];
-    while(i<9)
+    while(i<9) // Initializing to keep valgrind happy
     {
-        kids[i]=NULL;
+        kids[i] = NULL;
         i++;
     }
-    
 
     i = 0;
     while((argc-i)>0)
     {
         kids[i] = va_arg(ap, struct tree *);
-        
         i++;
     }
     va_end(ap);
 
     return append_kid(kids, symbname);   
-
 }
 
 
@@ -398,6 +398,26 @@ int insert_node(tokenlist_t *l, double dval, char *sval, int ival, char *text, i
 	strcpy(new_node -> t -> filename, filename);
     l = insert_tail_node(l, new_node);
 	return 0;
+}
+
+/** printsyms
+ */
+void printsyms(struct tree *t)
+{
+    if(t == NULL) return;
+    if(t -> nkids > 0) {
+        int i;
+        for(i = 0; i < t->nkids; i++) printsyms(t->kids[i]);
+    }
+    else {
+        if(t->leaf->category == NAME) printsymbol(t->leaf->text);
+    }
+}
+
+
+void printsymbol(char *s)
+{
+    printf("%s\n", s); fflush(stdout);
 }
 
 

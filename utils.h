@@ -19,3 +19,5 @@ void truncate_str(char *dest, char *src, int level);
 void err_t_lookahead(int yychar);
 void err_lookahead(int yychar, int count, const char *msg, ...);
 int yylexerror(char *s);
+char *rand_string(int min_len, int max_len);
+int get_rand_ascii();

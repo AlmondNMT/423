@@ -2,6 +2,7 @@
 #include <stdlib.h> 
 #include <string.h>
 #include "punygram.tab.h"
+#include "symtab.h"
 #include "tree.h"
 #include "utils.h"
 
@@ -150,11 +151,27 @@ void test_make_tree()
 
 }
 
+// TODO
+void test_hash()
+{
+    SymbolTable st = calloc(1, sizeof(struct sym_table));
+    st->nBuckets = 10;
+    printf("HASH TABLE SIZE: %d\n", HASH_TABLE_SIZE);
+    char *randstr;
+    for(int i = 0; i < 50; i++) {
+        randstr = rand_string(1, 30);
+        printf("%s:\t\t\t%d\n", randstr, hash(st, randstr));
+        free(randstr);
+    }
+    free(st);
+}
+
 int main()
 {   
     //test_ext_str();
     //test_deesc();
     //test_ext_int();
     //test_tree();
-    test_make_tree();
+    //test_make_tree();
+    test_hash();
 }
