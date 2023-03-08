@@ -29,6 +29,8 @@ void scope_lookup(char *name);
 void scope_lookup_current(char *name);
 int hash(SymbolTable st, char *s);
 SymbolTable mksymtab(int nbuckets);
-int insert_sym(SymbolTable st, char *s); // TODO: Add typeptr later
-SymbolTableEntry lookup_st(SymbolTable st, char *s);
+int insertsymbol(SymbolTable st, char *s); // TODO: Add typeptr later
+SymbolTableEntry removesymbol(SymbolTable st, char *s);
+SymbolTableEntry findsymbol(SymbolTable st, char *s);
 void populate_symboltables(struct tree *t, struct sym_table *st);
+

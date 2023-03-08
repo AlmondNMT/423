@@ -31,6 +31,7 @@ int hash(SymbolTable st, char *s)
     return h % st->nBuckets;
 }
 
+// Create a new symbol table
 SymbolTable mksymtab(int nbuckets)
 {
     SymbolTable rv;
@@ -41,10 +42,8 @@ SymbolTable mksymtab(int nbuckets)
     return rv;
 }
 
-/*
- * Insert a symbol into a symbol table.
- */
-int insert_sym(SymbolTable st, char *s)
+// Insert a symbol into a symbol table.
+int insertsymbol(SymbolTable st, char *s)
 {
     int h;
     SymbolTableEntry se;
@@ -52,7 +51,6 @@ int insert_sym(SymbolTable st, char *s)
     for(se = st->tbl[h]; se != NULL; se = se->next) {
         if(!strcmp(s, se->s)) { 
             /* A copy of the string is already in the table. */
-            /* TODO: Implement collision handling */
             return 0;
         }
     }
@@ -70,7 +68,8 @@ int insert_sym(SymbolTable st, char *s)
     return 1;
 }
 
-SymbolTableEntry lookup_st(SymbolTable st, char *s)
+// Helper function to find a symbol in a symbol table
+SymbolTableEntry findsymbol(SymbolTable st, char *s)
 {
     int h;
     SymbolTableEntry se;
@@ -124,3 +123,38 @@ void sematreeticerror(char *s, struct tree *tree)
     errors++;
 }
 */
+
+// Remove a symbol from the symbol table
+/*SymbolTableEntry removesymbol(SymbolTable st, char *s) {
+    SymbolTableEntry ste = st->next;
+    SymbolTableEntry prev = NULL;
+    int h = hash(st, s);
+    while(ste != NULL) {
+        if(strcmp(ste->s, s) == 0) {
+            // Symbol found, remove it
+            if(prev == NULL) {
+                // Symbol is at the beginning of the list
+                st->next = ste->next;
+            } else {
+                prev->next = ste->next;
+            }
+            st->nEntries--;
+            return ste;
+        }
+        prev = ste;
+        ste = ste->next;
+    }
+
+    // Symbol was not found
+    return NULL;
+}*/
+
+// Print the symbol table
+/*void printsymtab(SymbolTable st) {
+    printf("Entries: %d \n", st->nEntries);
+    SymbolTableEntry ste = st->;
+    while(ste != NULL) {
+        printf("\tSymbol: %s\n", ste->s);
+        ste = ste->next;
+    }
+}*/

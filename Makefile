@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-g -Wall -c
-CFILES=punygram.tab.c lex.yy.c utils.c main.c back.c tree.c symtab.c
+CFILES=punygram.tab.c lex.yy.c utils.c main.c back.c tree.c symtab.c printsyms.c
 
 all: bison flex compile link 
 
@@ -11,7 +11,7 @@ bison: punygram.y
 flex: punylex.l punygram.tab.h tree.h utils.h
 	flex punylex.l
 
-compile: lex.yy.c punygram.tab.c utils.c main.c back.c tree.c symtab.c utils.h symtab.h tree.h
+compile: lex.yy.c punygram.tab.c utils.c main.c back.c tree.c symtab.c utils.h symtab.h symtab.c printsyms.c
 	$(CC) $(CFLAGS) $(CFILES)
 
 link: lex.yy.o utils.o main.o back.o tree.o punygram.tab.o symtab.o
@@ -33,5 +33,5 @@ testsnolexing:
 clean: 
 	rm -f lex.yy.c puny tests *.o a.out punygram.tab.*
 
-zip: punylex.l punygram.y main.c utils.c back.c tree.c tree.h utils.h Makefile
-	zip lab5.zip punygram.y punylex.l main.c utils.c back.c tree.c symtab.c tree.h utils.h symtab.h Makefile
+zip: punylex.l punygram.y main.c utils.c back.c tree.c tree.h utils.h Makefile printsyms.c symtab.h symtab.c
+	zip hw3.zip punygram.y punylex.l main.c utils.c back.c tree.c tree.h utils.h Makefile symtab.h symtab.c printsyms.c
