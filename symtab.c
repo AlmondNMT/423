@@ -9,7 +9,6 @@ extern YYSTYPE yylval;
 
 void populate_symboltables(struct tree *t, SymbolTable st)
 {
-    int i;
     if(t == NULL) return;
     /*switch(t->prodrule) {
     case yylval.global_stmt: 
@@ -122,10 +121,10 @@ void sematreeticerror(char *s, struct tree *tree)
     fpritreetf(stderr, "\tree");
     errors++;
 }
-*/
+
 
 // Remove a symbol from the symbol table
-/*SymbolTableEntry removesymbol(SymbolTable st, char *s) {
+SymbolTableEntry removesymbol(SymbolTable st, char *s) {
     SymbolTableEntry ste = st->next;
     SymbolTableEntry prev = NULL;
     int h = hash(st, s);
@@ -147,10 +146,10 @@ void sematreeticerror(char *s, struct tree *tree)
 
     // Symbol was not found
     return NULL;
-}*/
+}
 
 // Print the symbol table
-/*void printsymtab(SymbolTable st) {
+void printsymtab(SymbolTable st) {
     printf("Entries: %d \n", st->nEntries);
     SymbolTableEntry ste = st->;
     while(ste != NULL) {

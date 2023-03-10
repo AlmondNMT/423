@@ -332,7 +332,7 @@ void print_tree(struct tree * t, int depth)
     //printf("about to check if leaf is null\n");
     if(t->leaf != NULL)
     {   //printf("finna print leaf info\n");
-        printf("%s%d-LEAF category(int): %d, category: %s, value: %s\n",spcs,depth, t->leaf->category, rev_token(t->leaf->category), t->leaf->text);
+        printf("%s%d-LEAF category: %d, category: %s, value: %s\n",spcs,depth, t->leaf->category, rev_token(t->leaf->category), t->leaf->text);
         free(spcs);
         return;
     }
