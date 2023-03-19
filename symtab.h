@@ -16,6 +16,7 @@ typedef struct sym_entry {
     struct sym_entry *next;
 } *SymbolTableEntry;
 
+// Data structure for symbol table stack
 typedef struct symtab_stack {
     int top;
     struct sym_table **tstack;
@@ -33,4 +34,5 @@ int insertsymbol(SymbolTable st, char *s); // TODO: Add typeptr later
 SymbolTableEntry removesymbol(SymbolTable st, char *s);
 SymbolTableEntry findsymbol(SymbolTable st, char *s);
 void populate_symboltables(struct tree *t, struct sym_table *st);
-
+void printsymbols(SymbolTable st, int level);
+void free_symtab(SymbolTable st);

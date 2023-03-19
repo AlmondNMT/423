@@ -20,13 +20,12 @@ void populate_symboltables(struct tree *t, SymbolTable st)
 // Return an index to the hash table
 int hash(SymbolTable st, char *s)
 {
-    register int h = 0;
+    register unsigned int h = 0;
     register char c;
     while((c = *s++)) {
         h += c & 377;
         h *= 37;
     }
-    if(h < 0) h = -h;
     return h % st->nBuckets;
 }
 
@@ -157,3 +156,8 @@ void printsymtab(SymbolTable st) {
         ste = ste->next;
     }
 }*/
+
+void free_symtab(SymbolTable st)
+{
+
+}

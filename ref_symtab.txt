@@ -1,0 +1,149 @@
+```
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "tree.h"
+
+#define HASH_TABLE_SIZE (1 << 30)
+
+// Data structure for symbol table entry
+typedef struct sym_entry {
+    SymbolTable table;          /* what symbol table do we belong to */
+    char *s;                    /* string */
+    /* more symbol attributes go here for code generation */
+    struct sym_entry *next;
+} *SymbolTableEntry;
+
+// Data structure for symbol table
+typedef struct sym_table {
+    int nBuckets;               /* # of buckets */
+    int nEntries;               /* # of symbols in the table */
+    struct sym_table *parent;   /* enclosing scope, superclass etc. */
+    struct sym_entry **tbl;
+    /* more per-scope/per-symbol-table attributes go here */
+} *SymbolTable;
+
+// Data structure for symbol table stack
+typedef struct symtab_stack {
+    int top;
+    struct sym_table **tstack;
+} *SymtabStack;
+
+// Create a new symbol table
+SymbolTable create_symbol_table(int nBuckets, SymbolTable parent) {
+    SymbolTable table = malloc(sizeof(struct sym_table));
+    table->nBuckets = nBuckets;
+    table->nEntries = 0;
+    table->parent = parent;
+    table->tbl = malloc(nBuckets * sizeof(SymbolTableEntry));
+    for (int i = 0; i < nBuckets; i++) {
+        table->tbl[i] = NULL;
+    }
+    return table;
+}
+
+// Create a new symbol table stack
+SymtabStack create_symbol_table_stack(int size) {
+    SymtabStack stack = malloc(sizeof(struct symtab_stack));
+    stack->top = -1;
+    stack->tstack = malloc(size * sizeof(SymbolTable));
+    return stack;
+}
+
+// Push a symbol table onto the stack
+void push_symbol_table(SymtabStack stack, SymbolTable table) {
+    stack->top++;
+    stack->tstack[stack->top] = table;
+}
+
+// Pop a symbol table from the stack
+SymbolTable pop_symbol_table(SymtabStack stack) {
+    SymbolTable table = stack->tstack[stack->top];
+    stack->top--;
+    return table;
+}
+
+// Hash function
+int hash(char *s) {
+    unsigned int hashval = 0;
+    for (; *s != '\0'; s++) {
+        hashval = *s + 31 * hashval;
+    }
+    return hashval % HASH_TABLE_SIZE;
+}
+
+// Insert a symbol into the symbol table
+void insert_symbol(SymbolTable table, char *s) {
+    int index = hash(s);
+    SymbolTableEntry entry = malloc(sizeof(struct sym_entry));
+    entry->table = table;
+    entry->s = s;
+    entry->next = table->tbl[index];
+    table->tbl[index] = entry;
+    table->nEntries++;
+}
+
+// Find a symbol in the symbol table
+SymbolTableEntry find_symbol(SymbolTable table, char *s) {
+    int index = hash(s);
+    SymbolTableEntry entry = table->tbl[index];
+    while (entry != NULL) {
+        if (strcmp(entry->s, s) == 0) {
+            return entry;
+        }
+        entry = entry->next;
+    }
+    if (table->parent != NULL) {
+        return find_symbol(table->parent, s);
+    }
+    return NULL;
+}
+
+// Exit the current scope
+void scope_exit(SymtabStack stack) {
+    SymbolTable table = pop_symbol_table(stack);
+    for (int i = 0; i < table->nBuckets; i++) {
+        SymbolTableEntry entry = table->tbl[i];
+        while (entry != NULL) {
+            SymbolTableEntry next = entry->next;
+            free(entry);
+            entry = next;
+        }
+    }
+    free(table->tbl);
+    free(table);
+}
+
+// Get the current symbol table
+SymbolTable current_symbol_table(SymtabStack stack) {
+    return stack->tstack[stack->top];
+}
+
+// Populate symbol tables from AST
+void populate_symbol_tables(SymbolTable table, struct tree *t) {
+    if (t == NULL) {
+        return;
+    }
+    switch (t->type) {
+        case NODE_FUNCTION:
+            insert_symbol(table, t->left->val.id);
+            scope_enter(stack);
+            populate_symbol_tables(current_symbol_table(stack), t->right->left);
+            scope_exit(stack);
+            break;
+        case NODE_BLOCK:
+            scope_enter(stack);
+            populate_symbol_tables(current_symbol_table(stack), t->left);
+            scope_exit(stack);
+            break;
+        case NODE_ASSIGN:
+            insert_symbol(table, t->left->val.id);
+            break;
+        default:
+            break;
+    }
+    populate_symbol_tables(table, t->left);
+    populate_symbol_tables(table, t->right);
+}
+
+```

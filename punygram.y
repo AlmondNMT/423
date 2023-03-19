@@ -13,6 +13,8 @@
     #include "tree.h"
     extern struct tree *root;
 
+    tree_t *tree;
+
 %}
 
 %union {
@@ -56,7 +58,7 @@
 
 %%
 
-file_input: nl_OR_stmt_rep ENDMARKER{$$=make_tree("file_input", 1, $1); print_tree($$,0); free_tree($$);}
+file_input: nl_OR_stmt_rep ENDMARKER{tree=make_tree("file_input", 1, $1);}
     ;
 
 nl_OR_stmt_rep: {$$=make_tree("nulltree",0,NULL);}
@@ -159,7 +161,7 @@ lpar_testlist_rpar_opt: {$$=make_tree("nulltree",0,NULL);}
     | LPAR testlist_opt RPAR {$$=make_tree("lpar_testlist_rpar_opt", 1, $2);}
     ;
 
-funcdef: PYDEF NAME parameters rarrow_test_opt COLON suite {$$=make_tree("funcdef", 3, $2, $3, $5); }
+funcdef: PYDEF NAME parameters rarrow_test_opt COLON suite {$$=make_tree("funcdef", 4, $2, $3, $4, $6); }
     ;
 
 rarrow_test_opt: {$$=make_tree("nulltree", 0, NULL); }

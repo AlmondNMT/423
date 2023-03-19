@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,6 +17,7 @@ extern char *rev_token(int cat);
 extern int paren_nesting, sqbr_nesting, cbr_nesting;
 extern int firsttime;
 extern YYSTYPE yylval;
+extern tree_t* tree;
 // For debugging
 extern int indent_count, dedent_count;
 extern int make_tree_count, alctoken_count;
@@ -26,14 +28,17 @@ void print_list(tokenlist_t *l);
 //int insert_node(tokenlist_t **l, double dval, char *sval, int ival, char *text, int cat, int rows, char *filename);
 void dealloc_list(tokenlist_t *l);
 
-
 int main(int argc, char *argv[]) {
 
     //int category = 0;
     //tokenlist_t *list_head = NULL;
     int parse_ret;
+    bool symtab_opt = false; // Should we print symbol table?
 
     for(int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "-symbtab") == 0) {
+            symtab_opt = true;
+        }
         if (access(argv[i], F_OK) == 0 && strstr(argv[i], ".py")) { // Check if file exists and has .py extension
             yyin = fopen(argv[i], "rb");
             strcpy(yyfilename, argv[i]);
@@ -59,19 +64,16 @@ int main(int argc, char *argv[]) {
         parse_ret = yyparse();
 
         /** Initialize SymbolTable Stack */
-        SymbolTable st = mksymtab(1); // Idk how many buckets to specify
+        SymbolTable st = mksymtab(HASH_TABLE_SIZE); // Idk how many buckets to specify
         populate_symboltables(yylval.treeptr, st);
+        print_tree(tree, 0);
+        if(symtab_opt)
+            printsymbols(st, 0);
 
-        printf("yyparse returns: %d\n", parse_ret);
-        printf("make_tree_count: %d\nalctoken count: %d\n", make_tree_count, alctoken_count);
-        /*while ((category = yylex()) > 0) {
-            create_token(list_head, category, yytext, yylineno, column, argv[i]);
-        }
-
-        print_list(list_head);
-        */
-        //dealloc_list(list_head);
-
+        //printf("yyparse returns: %d\n", parse_ret);
+        //printf("make_tree_count: %d\nalctoken count: %d\n", make_tree_count, alctoken_count);
+        free_tree(yylval.treeptr);
+        free_symtab(st);
         fclose(yyin);
     }
 
