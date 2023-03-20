@@ -5,17 +5,53 @@
 #include "symtab.h"
 #include "tree.h"
 
-extern YYSTYPE yylval;
+extern tree_t* tree;
 
-void populate_symboltables(struct tree *t, SymbolTable st)
-{
-    if(t == NULL) return;
-    /*switch(t->prodrule) {
-    case yylval.global_stmt: 
-        // Need to iterate through all comma-separated names in the global statement 
-        break;
-    }*/
+// Populate symbol tables from AST
+/*void populate_symboltables(struct tree *t, SymbolTable *st) {
+    if (t == NULL) {
+        return;
+    }
+    switch (t->prodrule) {
+        case NODE_ASSIGN:
+            insertsymbol(st, t->left->str_val, NULL);
+            break;
+        case NODE_FUNCTION:
+            insertsymbol(st, t->left->str_val, NULL);
+            scope_enter(&st);
+            populate_symboltables(t->right->left, st);
+            scope_exit(&st);
+            break;
+        case NODE_BLOCK:
+            scope_enter(&st);
+            populate_symboltables(t->left, st);
+            scope_exit(&st);
+            break;
+        case NODE_IF:
+            populate_symboltables(t->left, st);
+            scope_enter(&st);
+            populate_symboltables(t->right->left, st);
+            scope_exit(&st);
+            if (t->right->right != NULL) {
+                scope_enter(&st);
+                populate_symboltables(t->right->right, st);
+                scope_exit(&st);
+            }
+            break;
+        case NODE_WHILE:
+            populate_symboltables(t->left, st);
+            scope_enter(&st);
+            populate_symboltables(t->right, st);
+            scope_exit(&st);
+            break;
+        default:
+            break;
+    }
+    populate_symboltables(t->left, st);
+    populate_symboltables(t->right, st);
 }
+*/
+
 
 // Return an index to the hash table
 int hash(SymbolTable st, char *s)
@@ -46,23 +82,15 @@ int insertsymbol(SymbolTable st, char *s)
     int h;
     SymbolTableEntry se;
     h = hash(st, s);
-    for(se = st->tbl[h]; se != NULL; se = se->next) {
-        if(!strcmp(s, se->s)) { 
-            /* A copy of the string is already in the table. */
-            return 0;
+    se = st->tbl[h];
+    while(se != NULL) {
+        if(se->s == s) {
+            /* Entry found */
+            break;
         }
+        /* Collision */
+        se = se->next;
     }
-    /*
-     * The string is not in the table. Add the copy from the 
-     * buffer to the table.
-     */
-    se = calloc(1, sizeof(struct sym_entry));
-    se->next = st->tbl[h];
-    se->table = st;
-    st->tbl[h] = se;
-    se->s = strdup(s);
-    //se->type = t;
-    st->nEntries++;
     return 1;
 }
 
@@ -308,51 +336,4 @@ SymbolTableEntry findsymbol(SymbolTable *st, char *name) {
     }
     return NULL;
 }
-
-// Populate symbol tables from AST
-void populate_symboltables(struct tree *t, SymbolTable *st) {
-    if (t == NULL) {
-        return;
-    }
-    switch (t->node_type) {
-        case NODE_ASSIGN:
-            insertsymbol(st, t->left->str_val, NULL);
-            break;
-        case NODE_FUNCTION:
-            insertsymbol(st, t->left->str_val, NULL);
-            scope_enter(&st);
-            populate_symboltables(t->right->left, st);
-            scope_exit(&st);
-            break;
-        case NODE_BLOCK:
-            scope_enter(&st);
-            populate_symboltables(t->left, st);
-            scope_exit(&st);
-            break;
-        case NODE_IF:
-            populate_symboltables(t->left, st);
-            scope_enter(&st);
-            populate_symboltables(t->right->left, st);
-            scope_exit(&st);
-            if (t->right->right != NULL) {
-                scope_enter(&st);
-                populate_symboltables(t->right->right, st);
-                scope_exit(&st);
-            }
-            break;
-        case NODE_WHILE:
-            populate_symboltables(t->left, st);
-            scope_enter(&st);
-            populate_symboltables(t->right, st);
-            scope_exit(&st);
-            break;
-        default:
-            break;
-    }
-    populate_symboltables(t->left, st);
-    populate_symboltables(t->right, st);
-}
-```
-
-
 */

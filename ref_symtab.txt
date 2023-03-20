@@ -1,149 +1,181 @@
 ```
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "tree.h"
-
-#define HASH_TABLE_SIZE (1 << 30)
-
 // Data structure for symbol table entry
-typedef struct sym_entry {
-    SymbolTable table;          /* what symbol table do we belong to */
-    char *s;                    /* string */
-    /* more symbol attributes go here for code generation */
-    struct sym_entry *next;
-} *SymbolTableEntry;
+typedef struct SymbolTableEntry {
+    char *name;
+    void *data;
+    struct SymbolTableEntry *next;
+} SymbolTableEntry;
 
 // Data structure for symbol table
-typedef struct sym_table {
-    int nBuckets;               /* # of buckets */
-    int nEntries;               /* # of symbols in the table */
-    struct sym_table *parent;   /* enclosing scope, superclass etc. */
-    struct sym_entry **tbl;
-    /* more per-scope/per-symbol-table attributes go here */
-} *SymbolTable;
-
-// Data structure for symbol table stack
-typedef struct symtab_stack {
-    int top;
-    struct sym_table **tstack;
-} *SymtabStack;
-
-// Create a new symbol table
-SymbolTable create_symbol_table(int nBuckets, SymbolTable parent) {
-    SymbolTable table = malloc(sizeof(struct sym_table));
-    table->nBuckets = nBuckets;
-    table->nEntries = 0;
-    table->parent = parent;
-    table->tbl = malloc(nBuckets * sizeof(SymbolTableEntry));
-    for (int i = 0; i < nBuckets; i++) {
-        table->tbl[i] = NULL;
-    }
-    return table;
-}
-
-// Create a new symbol table stack
-SymtabStack create_symbol_table_stack(int size) {
-    SymtabStack stack = malloc(sizeof(struct symtab_stack));
-    stack->top = -1;
-    stack->tstack = malloc(size * sizeof(SymbolTable));
-    return stack;
-}
-
-// Push a symbol table onto the stack
-void push_symbol_table(SymtabStack stack, SymbolTable table) {
-    stack->top++;
-    stack->tstack[stack->top] = table;
-}
-
-// Pop a symbol table from the stack
-SymbolTable pop_symbol_table(SymtabStack stack) {
-    SymbolTable table = stack->tstack[stack->top];
-    stack->top--;
-    return table;
-}
+typedef struct SymbolTable {
+    int level;
+    SymbolTableEntry *table[HASH_SIZE];
+    struct SymbolTable *parent;
+} SymbolTable;
 
 // Hash function
 int hash(char *s) {
-    unsigned int hashval = 0;
+    int hashval = 0;
     for (; *s != '\0'; s++) {
         hashval = *s + 31 * hashval;
     }
-    return hashval % HASH_TABLE_SIZE;
+    return hashval % HASH_SIZE;
 }
 
-// Insert a symbol into the symbol table
-void insert_symbol(SymbolTable table, char *s) {
-    int index = hash(s);
-    SymbolTableEntry entry = malloc(sizeof(struct sym_entry));
-    entry->table = table;
-    entry->s = s;
-    entry->next = table->tbl[index];
-    table->tbl[index] = entry;
-    table->nEntries++;
+// Create a new symbol table
+SymbolTable *mksymtab() {
+    SymbolTable *st = malloc(sizeof(SymbolTable));
+    st->level = 0;
+    for (int i = 0; i < HASH_SIZE; i++) {
+        st->table[i] = NULL;
+    }
+    st->parent = NULL;
+    return st;
 }
 
-// Find a symbol in the symbol table
-SymbolTableEntry find_symbol(SymbolTable table, char *s) {
-    int index = hash(s);
-    SymbolTableEntry entry = table->tbl[index];
-    while (entry != NULL) {
-        if (strcmp(entry->s, s) == 0) {
-            return entry;
-        }
-        entry = entry->next;
-    }
-    if (table->parent != NULL) {
-        return find_symbol(table->parent, s);
-    }
-    return NULL;
+// Enter a new scope
+void scope_enter(SymbolTable **pst) {
+    SymbolTable *st = mksymtab();
+    st->level = (*pst)->level + 1;
+    st->parent = *pst;
+    *pst = st;
 }
 
 // Exit the current scope
-void scope_exit(SymtabStack stack) {
-    SymbolTable table = pop_symbol_table(stack);
-    for (int i = 0; i < table->nBuckets; i++) {
-        SymbolTableEntry entry = table->tbl[i];
+void scope_exit(SymbolTable **pst) {
+    SymbolTable *st = *pst;
+    for (int i = 0; i < HASH_SIZE; i++) {
+        SymbolTableEntry *entry = st->table[i];
         while (entry != NULL) {
-            SymbolTableEntry next = entry->next;
+            SymbolTableEntry *next = entry->next;
             free(entry);
             entry = next;
         }
     }
-    free(table->tbl);
-    free(table);
+    *pst = st->parent;
+    free(st);
 }
 
-// Get the current symbol table
-SymbolTable current_symbol_table(SymtabStack stack) {
-    return stack->tstack[stack->top];
+// Get the current scope level
+int scope_level(SymbolTable *st) {
+    return st->level;
+}
+
+// Look up a symbol in all scopes
+void scope_lookup(SymbolTable *st, char *name) {
+    SymbolTable *cur = st;
+    while (cur != NULL) {
+        int index = hash(name);
+        SymbolTableEntry *entry = cur->table[index];
+        while (entry != NULL) {
+            if (strcmp(entry->name, name) == 0) {
+                printf("Symbol found: %s\n", name);
+                return;
+            }
+            entry = entry->next;
+        }
+        cur = cur->parent;
+    }
+    printf("Symbol not found: %s\n", name);
+}
+
+// Look up a symbol in the current scope only
+void scope_lookup_current(SymbolTable *st, char *name) {
+    int index = hash(name);
+    SymbolTableEntry *entry = st->table[index];
+    while (entry != NULL) {
+        if (strcmp(entry->name, name) == 0) {
+            printf("Symbol found in current scope: %s\n", name);
+            return;
+        }
+        entry = entry->next;
+    }
+    printf("Symbol not found in current scope: %s\n", name);
+}
+
+// Insert a symbol into the symbol table
+void insertsymbol(SymbolTable *st, char *name, void *data) {
+    int index = hash(name);
+    SymbolTableEntry *entry = malloc(sizeof(SymbolTableEntry));
+    entry->name = name;
+    entry->data = data;
+    entry->next = st->table[index];
+    st->table[index] = entry;
+}
+// Remove a symbol from the symbol table
+SymbolTableEntry removesymbol(SymbolTable *st, char *name) {
+    int index = hash(name);
+    SymbolTableEntry *prev = NULL;
+    SymbolTableEntry *entry = st->table[index];
+    while (entry != NULL) {
+        if (strcmp(entry->name, name) == 0) {
+            if (prev == NULL) {
+                st->table[index] = entry->next;
+            } else {
+                prev->next = entry->next;
+            }
+            return entry;
+        }
+        prev = entry;
+        entry = entry->next;
+    }
+    return NULL;
+}
+
+// Find a symbol in the symbol table
+SymbolTableEntry findsymbol(SymbolTable *st, char *name) {
+    int index = hash(name);
+    SymbolTableEntry *entry = st->table[index];
+    while (entry != NULL) {
+        if (strcmp(entry->name, name) == 0) {
+            return entry;
+        }
+        entry = entry->next;
+    }
+    return NULL;
 }
 
 // Populate symbol tables from AST
-void populate_symbol_tables(SymbolTable table, struct tree *t) {
+void populate_symboltables(struct tree *t, SymbolTable *st) {
     if (t == NULL) {
         return;
     }
-    switch (t->type) {
+    switch (t->node_type) {
+        case NODE_ASSIGN:
+            insertsymbol(st, t->left->str_val, NULL);
+            break;
         case NODE_FUNCTION:
-            insert_symbol(table, t->left->val.id);
-            scope_enter(stack);
-            populate_symbol_tables(current_symbol_table(stack), t->right->left);
-            scope_exit(stack);
+            insertsymbol(st, t->left->str_val, NULL);
+            scope_enter(&st);
+            populate_symboltables(t->right->left, st);
+            scope_exit(&st);
             break;
         case NODE_BLOCK:
-            scope_enter(stack);
-            populate_symbol_tables(current_symbol_table(stack), t->left);
-            scope_exit(stack);
+            scope_enter(&st);
+            populate_symboltables(t->left, st);
+            scope_exit(&st);
             break;
-        case NODE_ASSIGN:
-            insert_symbol(table, t->left->val.id);
+        case NODE_IF:
+            populate_symboltables(t->left, st);
+            scope_enter(&st);
+            populate_symboltables(t->right->left, st);
+            scope_exit(&st);
+            if (t->right->right != NULL) {
+                scope_enter(&st);
+                populate_symboltables(t->right->right, st);
+                scope_exit(&st);
+            }
+            break;
+        case NODE_WHILE:
+            populate_symboltables(t->left, st);
+            scope_enter(&st);
+            populate_symboltables(t->right, st);
+            scope_exit(&st);
             break;
         default:
             break;
     }
-    populate_symbol_tables(table, t->left);
-    populate_symbol_tables(table, t->right);
+    populate_symboltables(t->left, st);
+    populate_symboltables(t->right, st);
 }
-
 ```

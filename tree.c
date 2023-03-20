@@ -64,18 +64,18 @@ int alctoken(int category)
     while(i<9)
     {yylval.treeptr->kids[i] = NULL;i++;}
     
-    yylval.treeptr -> prodrule = category;
-    yylval.treeptr -> nkids = 0;
-    yylval.treeptr -> leaf = malloc(sizeof(token_t));
-    check_alloc(yylval.treeptr -> leaf, "yylval.treeptr -> leaf");
-    yylval.treeptr -> leaf -> category = category;
-    yylval.treeptr -> leaf -> lineno = yylineno;
+    yylval.treeptr->prodrule = category;
+    yylval.treeptr->nkids = 0;
+    yylval.treeptr->leaf = malloc(sizeof(token_t));
+    check_alloc(yylval.treeptr->leaf, "yylval.treeptr->leaf");
+    yylval.treeptr->leaf->category = category;
+    yylval.treeptr->leaf->lineno = yylineno;
     char *name = rev_token(category);
-    yylval.treeptr -> symbolname = malloc(strlen(name)+1);
-    check_alloc(yylval.treeptr -> symbolname, "yylval.treeptr -> symbolname");
-    yylval.treeptr -> leaf -> text = calloc(text_len + 1, sizeof(char));
+    yylval.treeptr->symbolname = malloc(strlen(name)+1);
+    check_alloc(yylval.treeptr->symbolname, "yylval.treeptr->symbolname");
+    yylval.treeptr->leaf->text = calloc(text_len + 1, sizeof(char));
     check_alloc(yylval.treeptr->leaf->text, "yylval.treeptr->text allocation failed");
-    yylval.treeptr -> leaf -> filename = calloc(strlen(yyfilename) + 1, sizeof(char));
+    yylval.treeptr->leaf->filename = calloc(strlen(yyfilename) + 1, sizeof(char));
     check_alloc(yylval.treeptr->leaf->filename, "yylval.treeptr->filename allocation failed");
     strcpy(yylval.treeptr->leaf->filename, yyfilename); 
     strcpy(yylval.treeptr->leaf->text, yytext);
@@ -118,99 +118,6 @@ void free_tree(struct tree *t)
     free(t);
 }
 
-/** Create token in tokenlist
- * @param list
- * @param category type of token
- */
-void create_token(tokenlist_t *list, int category, char *yytext, int rows, int column, char *filename)
-{
-    token_t *t = calloc(1, sizeof(token_t));
-    check_alloc(t, "token");
-    int token_length = strlen(yytext);
-    int fname_length = strlen(filename);
-    t -> category = category;
-    t -> text = calloc(token_length + 1, sizeof(char));
-    check_alloc(t -> text, "token text");
-    strcpy(t -> text, yytext);
-    t -> lineno = get_lineno(t -> text, rows);
-    t -> column = get_column(t -> text, column);
-    t -> filename = calloc(fname_length + 1, sizeof(char));
-    check_alloc(t -> filename, "token filename");
-    strcpy(t -> filename, filename);
-    if(category == INTLIT) {
-        t -> ival = extract_int(yytext);
-    }
-    else if(category == FLOATLIT) {
-        t -> dval = extract_float(yytext);
-    }
-    else if(category == STRINGLIT) {
-        t -> sval = calloc(token_length, sizeof(char));
-        extract_string(t -> sval, yytext);
-    }
-    if(list -> t != NULL) {
-        tokenlist_t *l = calloc(1, sizeof(tokenlist_t));
-        check_alloc(l, "list");
-        l -> t = t;
-        list = insert_tail_node(list, l);
-    }
-    else {
-        list -> t = t;
-    }
-}
-
-
-
-
-
-/** Add tokenlist_t node to end of l
- * @param l head of list
- * @param node tokenlist_t to append
- */
-tokenlist_t *insert_tail_node(tokenlist_t *head, tokenlist_t *node)
-{
-
-    if(head == NULL)
-        return node;
-    tokenlist_t *current = head;
-    if(current == NULL) {
-        fprintf(stderr, "NULL???\n");
-        exit(1);
-    }
-    while(current -> next != NULL) {
-        if(current == node) {
-            return head;
-        }
-        current = current -> next;
-    }
-    current -> next = node;
-    node -> next = NULL;
-    return head;
-}
-
-void dealloc_list(tokenlist_t *list){
-
-    tokenlist_t *current = list;
-    tokenlist_t *prev = NULL;
-    while (current != NULL)
-    {
-        prev = current;
-        current = current -> next;
-
-        free_token(prev -> t);
-        free(prev);
-    }
-}
-
-void free_token(token_t *t)
-{
-    if(t != NULL) {
-        free(t -> text);
-        free(t -> filename);
-        if(t -> category == STRINGLIT)
-            free(t -> sval);
-        free(t);
-    }
-}
 
 /**
  * @return zero if everything executes correctly or nonzero if error printing
@@ -221,20 +128,20 @@ int print_token(token_t *t)
         return 1;
     }
     char truncated_text[TEXT_TRUNCATION_LEVEL+1] = "";
-    truncate_str(truncated_text, t -> text, TEXT_TRUNCATION_LEVEL);
-    printf("%s\t\t\t%s\t\t%d\t\t%d\t\t%s\t\t", rev_token(t -> category), truncated_text, t -> lineno, t -> column, t -> filename);
-    if(t -> category == INTLIT)
-        printf("%d\n", t -> ival);
-    else if(t -> category == FLOATLIT)
-        printf("%f\n", t -> dval);
-    else if(t -> category == STRINGLIT) {
+    truncate_str(truncated_text, t->text, TEXT_TRUNCATION_LEVEL);
+    printf("%s\t\t\t%s\t\t%d\t\t%d\t\t%s\t\t", rev_token(t->category), truncated_text, t->lineno, t->column, t->filename);
+    if(t->category == INTLIT)
+        printf("%d\n", t->ival);
+    else if(t->category == FLOATLIT)
+        printf("%f\n", t->dval);
+    else if(t->category == STRINGLIT) {
         char truncated_str[TEXT_TRUNCATION_LEVEL+1] = "";
-        truncate_str(truncated_str, t -> sval, TEXT_TRUNCATION_LEVEL);
+        truncate_str(truncated_str, t->sval, TEXT_TRUNCATION_LEVEL);
         printf("%s\n", truncated_str);
     }
     else
         printf("\n");
-    if(t -> category == INDENT) {
+    if(t->category == INDENT) {
         indentation_level++;
         indent_count++;
         if(indentation_level > max_indent) {
@@ -244,7 +151,7 @@ int print_token(token_t *t)
         printf("\tINDENT COUNT: %d\tDEDENT COUNT: %d\n", indent_count, dedent_count);
         printf("\tMAX INDENT: %d\n", max_indent);
     }
-    else if(t -> category == DEDENT) {
+    else if(t->category == DEDENT) {
         dedent_count++;
         indentation_level--;
         printf("\tINDENTATION LEVEL: %d\n", indentation_level);
@@ -258,7 +165,7 @@ struct tree* append_kid(struct tree * kidspassed[], char * symbnam)
 {
     int i = 0;
     struct tree *newtree = malloc(sizeof(tree_t));
-    newtree -> symbolname = malloc(strlen(symbnam) + 1);
+    newtree->symbolname = malloc(strlen(symbnam) + 1);
     strcpy(newtree->symbolname, symbnam);
     while(i<9)
     {
@@ -368,44 +275,12 @@ void print_tree(struct tree * t, int depth)
 }
 
 
-/** #### Linked List Stuff **/
-int insert_node(tokenlist_t *l, double dval, char *sval, int ival, char *text, int cat, int rows, int column, char *filename){
-	tokenlist_t *new_node = NULL;
-    if(l -> t == NULL) {
-        new_node = l;
-    }
-    else {
-        new_node = malloc(sizeof(tokenlist_t));
-        check_alloc(new_node, "tokenlist");
-    }
-    new_node -> t = malloc(sizeof(token_t));
-    check_alloc(new_node -> t, "token");
-
-    int text_len = strlen(text);
-    new_node -> t -> text = calloc(text_len + 1, sizeof(char));
-    
-    strcpy(new_node -> t -> text, text);
-	new_node -> t -> dval = dval;
-	new_node -> t -> ival = ival;
-	new_node -> t -> category = cat;
-	new_node -> t -> lineno = get_lineno(text, rows);
-    new_node -> t -> column = get_column(text, column);
-    if(cat == STRINGLIT) {
-        new_node -> t -> sval = calloc(strlen(sval) + 1, sizeof(char));
-        strcpy(new_node -> t -> sval, sval);
-    }
-    new_node -> t -> filename = calloc(strlen(filename) + 1, sizeof(char));
-	strcpy(new_node -> t -> filename, filename);
-    l = insert_tail_node(l, new_node);
-	return 0;
-}
-
 /** printsyms
  */
 void printsyms(struct tree *t)
 {
     if(t == NULL) return;
-    if(t -> nkids > 0) {
+    if(t->nkids > 0) {
         int i;
         for(i = 0; i < t->nkids; i++) printsyms(t->kids[i]);
     }
@@ -437,8 +312,8 @@ void print_list(tokenlist_t *l)
         printf("Token list is empty.\n");
     }
 	while(curr != NULL) { 
-        if(print_token(curr -> t) == 0)
-            curr = curr -> next;
+        if(print_token(curr->t) == 0)
+            curr = curr->next;
         else
             break;
 	}
