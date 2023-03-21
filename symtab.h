@@ -31,6 +31,8 @@ typedef struct symtab_stack {
  *  
  */
 
+struct functype {
+};
 typedef union {
     struct functype func;
 } symbol;
