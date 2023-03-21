@@ -21,11 +21,80 @@ void populate_symboltables(struct tree *t, SymbolTable st) {
 void add_puny_builtins(SymbolTable st) {
     insertsymbol(st, "print");
     insertsymbol(st, "int");
+    insertsymbol(st, "abs");
+    insertsymbol(st, "aiter");
+    insertsymbol(st, "all");
+    insertsymbol(st, "any");
+    insertsymbol(st, "anext");
+    insertsymbol(st, "ascii");
+    insertsymbol(st, "bin");
+    insertsymbol(st, "bool");
+    insertsymbol(st, "breakpoint");
+    insertsymbol(st, "bytearray");
+    insertsymbol(st, "bytes");
+    insertsymbol(st, "callable");
+    insertsymbol(st, "chr");
+    insertsymbol(st, "classmethod");
+    insertsymbol(st, "compile");
+    insertsymbol(st, "complex");
+    insertsymbol(st, "delattr");
+    insertsymbol(st, "dict");
+    insertsymbol(st, "dir");
+    insertsymbol(st, "divmod");
+    insertsymbol(st, "enumerate");
+    insertsymbol(st, "eval");
+    insertsymbol(st, "exec");
+    insertsymbol(st, "filter");
+    insertsymbol(st, "float");
+    insertsymbol(st, "format");
+    insertsymbol(st, "frozenset");
+    insertsymbol(st, "getattr");
+    insertsymbol(st, "globals");
+    insertsymbol(st, "hasattr");
+    insertsymbol(st, "hash");
+    insertsymbol(st, "help");
+    insertsymbol(st, "hex");
+    insertsymbol(st, "id");
+    insertsymbol(st, "input");
+    insertsymbol(st, "int");
+    insertsymbol(st, "isinstance");
+    insertsymbol(st, "issubclass");
+    insertsymbol(st, "iter");
+    insertsymbol(st, "len");
+    insertsymbol(st, "list");
+    insertsymbol(st, "locals");
+    insertsymbol(st, "map");
+    insertsymbol(st, "max");
+    insertsymbol(st, "memoryview");
+    insertsymbol(st, "min");
+    insertsymbol(st, "next");
+    insertsymbol(st, "object");
+    insertsymbol(st, "oct");
+    insertsymbol(st, "open");
+    insertsymbol(st, "ord");
+    insertsymbol(st, "pow");
+    insertsymbol(st, "print");
+    insertsymbol(st, "property");
+    insertsymbol(st, "range");
+    insertsymbol(st, "repr");
+    insertsymbol(st, "reversed");
+    insertsymbol(st, "round");
+    insertsymbol(st, "set");
+    insertsymbol(st, "setattr");
+    insertsymbol(st, "slice");
+    insertsymbol(st, "sorted");
+    insertsymbol(st, "staticmethod");
+    insertsymbol(st, "str");
+    insertsymbol(st, "sum");
+    insertsymbol(st, "super");
+    insertsymbol(st, "tuple");
+    insertsymbol(st, "type");
+    insertsymbol(st, "vars");
+    insertsymbol(st, "zip");
+    insertsymbol(st, "__import__");
 }
 
-// Return an index to the hash table
-int hash(SymbolTable st, char *s)
-{
+int hash(SymbolTable st, char *s) {
     register unsigned int h = 0;
     register char c;
     while((c = *s++)) {
@@ -43,24 +112,50 @@ SymbolTable mksymtab(int nbuckets)
     rv->tbl = calloc(nbuckets, sizeof(struct sym_entry *));
     rv->nBuckets = nbuckets;
     rv->nEntries = 0;
+    rv->parent = NULL;
     return rv;
 }
 
+// 
+
 // Insert a symbol into a symbol table.
+// TODO: Fixing symbol insert
+/*
 int insertsymbol(SymbolTable st, char *s)
 {
     int h;
     SymbolTableEntry se;
     h = hash(st, s);
     se = st->tbl[h];
-    while(se != NULL) {
+    if(se == NULL) {
+        st->tbl[h] = calloc(1, sizeof(struct sym_entr *));
+        st->tbl[h]->s = s;
+        st->nEntries++;
+        return 1;
+    }
+    while(se->next != NULL) {
         if(se->s == s) {
-            /* Entry found */
-            break;
+            // Entry found return 0
+            printf("%s\n", se->s);
+            return 0;
         }
-        /* Collision */
         se = se->next;
     }
+    return 1;
+} */
+int insertsymbol(SymbolTable st, char *s) {
+    int idx = hash(st, s);
+    for (SymbolTableEntry e = st->tbl[idx]; e != NULL; e = e->next) {
+        if (strcmp(e->s, s) == 0) {
+            return 0;
+        }
+    }
+    SymbolTableEntry entry = (SymbolTableEntry) malloc(sizeof(struct sym_entry));
+    entry->table = st;
+    entry->s = strdup(s);
+    entry->next = st->tbl[idx];
+    st->tbl[idx] = entry;
+    st->nEntries++;
     return 1;
 }
 
@@ -68,13 +163,12 @@ int insertsymbol(SymbolTable st, char *s)
 SymbolTableEntry findsymbol(SymbolTable st, char *s)
 {
     int h;
-    SymbolTableEntry se;
 
     h = hash(st, s);
-    for(se = st->tbl[h]; se != NULL; se = se->next) {
-        if(!strcmp(s, se->s)) {
+    for(SymbolTableEntry entry = st->tbl[h]; entry != NULL; entry = entry->next) {
+        if(strcmp(s, entry->s) == 0) {
             /* Return a pointer to the symbol table entry. */
-            return se;
+            return entry;
         }
     }
     return NULL;
@@ -91,10 +185,11 @@ void scope_enter(char *s)
 void printsymbols(SymbolTable st, int level)
 {
     int i, j;
-    SymbolTableEntry ste;
     if (st == NULL) return;
     for (i = 0; i < st->nBuckets; i++) {
-
+        for(SymbolTableEntry entry = st->tbl[i]; entry != NULL; entry = entry->next) {
+            printf("Symname: %s\n", entry->s);
+        }
     }
 }
 

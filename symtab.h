@@ -1,4 +1,4 @@
-#define HASH_TABLE_SIZE (1 << 30)
+#define HASH_TABLE_SIZE (1 << 26)
 struct tree; // Definition found in tree.h
 
 typedef struct sym_table {
