@@ -22,6 +22,21 @@ typedef struct symtab_stack {
     struct sym_table **tstack;
 } *SymtabStack;
 
+
+/* Different symbol kind:
+ *  Functions
+ *  Classes
+ *  Parameters
+ *  Variables
+ *  
+ */
+
+typedef union {
+    struct functype func;
+} symbol;
+
+
+
 // Prototypes TODO: write function definitions and determine return types
 void scope_enter();
 void scope_exit();
@@ -36,3 +51,4 @@ SymbolTableEntry findsymbol(SymbolTable st, char *s);
 void populate_symboltables(struct tree *t, struct sym_table *st);
 void printsymbols(SymbolTable st, int level);
 void free_symtab(SymbolTable st);
+void add_puny_builtins(SymbolTable st);

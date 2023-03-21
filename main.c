@@ -36,8 +36,9 @@ int main(int argc, char *argv[]) {
     bool symtab_opt = false; // Should we print symbol table?
 
     for(int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "-symbtab") == 0) {
+        if (strcmp(argv[i], "-symtab") == 0) {
             symtab_opt = true;
+            continue;
         }
         if (access(argv[i], F_OK) == 0 && strstr(argv[i], ".py")) { // Check if file exists and has .py extension
             yyin = fopen(argv[i], "rb");
@@ -63,12 +64,14 @@ int main(int argc, char *argv[]) {
         /** Parse */
         parse_ret = yyparse();
 
-        /** Initialize SymbolTable Stack */
-        SymbolTable st = mksymtab(HASH_TABLE_SIZE); // Idk how many buckets to specify
-        //populate_symboltables(yylval.treeptr, st);
+        /** Initialize SymbolTable Stack with HASH_TABLE_SIZE buckets */
+        SymbolTable st = mksymtab(HASH_TABLE_SIZE); 
+        add_puny_builtins(st);
+        //populate_symboltables(tree, st);
         print_tree(tree, 0);
-        if(symtab_opt)
+        if(symtab_opt) {
             printsymbols(st, 0);
+        }
 
         //printf("yyparse returns: %d\n", parse_ret);
         //printf("make_tree_count: %d\nalctoken count: %d\n", make_tree_count, alctoken_count);

@@ -8,50 +8,20 @@
 extern tree_t* tree;
 
 // Populate symbol tables from AST
-/*void populate_symboltables(struct tree *t, SymbolTable *st) {
+void populate_symboltables(struct tree *t, SymbolTable st) {
     if (t == NULL) {
         return;
     }
-    switch (t->prodrule) {
-        case NODE_ASSIGN:
-            insertsymbol(st, t->left->str_val, NULL);
-            break;
-        case NODE_FUNCTION:
-            insertsymbol(st, t->left->str_val, NULL);
-            scope_enter(&st);
-            populate_symboltables(t->right->left, st);
-            scope_exit(&st);
-            break;
-        case NODE_BLOCK:
-            scope_enter(&st);
-            populate_symboltables(t->left, st);
-            scope_exit(&st);
-            break;
-        case NODE_IF:
-            populate_symboltables(t->left, st);
-            scope_enter(&st);
-            populate_symboltables(t->right->left, st);
-            scope_exit(&st);
-            if (t->right->right != NULL) {
-                scope_enter(&st);
-                populate_symboltables(t->right->right, st);
-                scope_exit(&st);
-            }
-            break;
-        case NODE_WHILE:
-            populate_symboltables(t->left, st);
-            scope_enter(&st);
-            populate_symboltables(t->right, st);
-            scope_exit(&st);
-            break;
-        default:
-            break;
-    }
-    populate_symboltables(t->left, st);
-    populate_symboltables(t->right, st);
 }
-*/
 
+
+/** 
+ * Add print(), int(), str(), etc. to global symtab
+ */
+void add_puny_builtins(SymbolTable st) {
+    insertsymbol(st, "print");
+    insertsymbol(st, "int");
+}
 
 // Return an index to the hash table
 int hash(SymbolTable st, char *s)
@@ -123,16 +93,7 @@ void printsymbols(SymbolTable st, int level)
     int i, j;
     SymbolTableEntry ste;
     if (st == NULL) return;
-    for (i=0;i<st->nBuckets;i++) {
-        for (ste = st->tbl[i]; ste; ste=ste->next) {
-            for (j=0; j < level; j++) printf("  ");
-            printf("%s\n", ste->s);
-
-     /* if this symbol has a subscope, print it recursively, indented
-     printsymbols( // subscope symbol table
-                    , level+1);
-          */
-      }
+    for (i = 0; i < st->nBuckets; i++) {
     }
 }
 
