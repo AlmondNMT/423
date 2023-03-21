@@ -94,7 +94,6 @@ void printsymbols(SymbolTable st, int level)
     SymbolTableEntry ste;
     if (st == NULL) return;
     for (i = 0; i < st->nBuckets; i++) {
-
     }
 }
 
