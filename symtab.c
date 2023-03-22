@@ -60,18 +60,13 @@ void insertfunction(struct tree *t, SymbolTable st)
         return;
     char *name = t->kids[0]->leaf->text;
     int idx = hash(st, name);
-    printf("name: %s\tidx: %d\n", name, idx);
     SymbolTableEntry e = NULL, entry = NULL, prev = NULL;
     for(e = st->tbl[idx]; e != NULL; prev = e, e = e->next) {
         if(strcmp(e->ident, name) == 0) {
             // If new function definition found, overwrite previous nested table
             entry = e;
             free_symtab(entry->nested);
-            entry->nested = mksymtab(HASH_TABLE_SIZE, name);
-            entry->nested->level = st->level + 1;
-            printf("level: %d\n", entry->nested->level);
-            entry->nested->parent = st;
-            entry->nested->scope = strdup("function");
+            entry->nested = mkfunctab(HASH_TABLE_SIZE, st);
             populate_symboltables(t->kids[1], entry->nested); // Add parameters 
             populate_symboltables(t->kids[2], entry->nested); // Add rarrow test
             populate_symboltables(t->kids[3], entry->nested); // Add suite
@@ -79,11 +74,7 @@ void insertfunction(struct tree *t, SymbolTable st)
         }
     }
     entry = calloc(1, sizeof(SymbolTableEntry));
-    entry->nested = mksymtab(HASH_TABLE_SIZE, name);// make symbol table for function scope
-    entry->nested->level = st->level + 1;           // symbol table nesting
-    entry->nested->parent = st;                     // set symbol table parent
-    entry->nested->scope = strdup("function");      // name of scope: "function"
-
+    entry->nested = mkfunctab(HASH_TABLE_SIZE, st); // make symbol table for function scope
 
     if(prev != NULL) {
         prev->next = entry;
@@ -103,7 +94,7 @@ SymbolTable get_global_symtab(SymbolTable st)
 uint hash(SymbolTable st, char *s) {
     register uint h = 5381;
     register char c;
-    while(c = *s++) {
+    while((c = *s++)) {
         h = (((h << 5) + h) ^ h) + c;
     }
     return h % st->nBuckets;
@@ -122,6 +113,16 @@ SymbolTable mksymtab(int nbuckets, char *scope)
     rv->parent = NULL;
     rv->scope = strdup(scope);
     return rv;
+}
+
+
+// Create a symbol table for functions
+SymbolTable mkfunctab(int nbuckets, SymbolTable parent)
+{
+    SymbolTable ftable = mksymtab(nbuckets, "function");
+    ftable->level = parent->level + 1;
+    ftable->parent = parent;
+    return ftable;
 }
 
 /**
@@ -175,9 +176,12 @@ void printsymbols(SymbolTable st, int level)
     for (i = 0; i < st->nBuckets; i++) {
         for(SymbolTableEntry entry = st->tbl[i]; entry != NULL; entry = entry->next) {
             for(int j = 0; j < entry->table->level; j++) {
-                printf(" ");
+                printf("  ");
             }
             printf("Symname: %s\n", entry->ident);
+            if(entry->nested != NULL) {
+                printsymbols(entry->nested, level + 1);
+            }
         }
     }
 }
