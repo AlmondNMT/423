@@ -28,6 +28,25 @@ void populate_symboltables(struct tree *t, SymbolTable st) {
 }
 
 /**
+ * We're assuming that st is the global symbol table
+ */
+void add_global_names(SymbolTable st, tree_t *t)
+{
+    if(t->nkids == 0) {
+        return;
+    }
+    printf("t->kids[0]->symbolname: %s\n", t->kids[0]->symbolname);
+    if(strcmp(t->kids[0]->symbolname, "NAME") == 0) {
+        insertsymbol(st, t->kids[0]->leaf->text);
+        add_global_names(st, t->kids[1]);
+    }
+    else {
+        insertsymbol(st, t->kids[1]->leaf->text);
+        add_global_names(st, t->kids[0]);
+    }
+}
+
+/**
  * Insertfunction: Unlike insertsymbol, overwrite any previous definitions of 
  * s in the table. This means free the nested symbol table. An auxiliary function 
  * will recursively descend through the tree to collect identifiers for its 
@@ -61,24 +80,6 @@ void insertfunction(struct tree *t, SymbolTable st)
     }
 }
 
-
-/**
- * We're assuming that st is the global symbol table
- */
-void add_global_names(SymbolTable st, tree_t *t)
-{
-    if(t->nkids == 0) {
-        return;
-    }
-    if(strcmp(t->kids[0]->symbolname, "NAME") == 0) {
-        insertsymbol(st, t->kids[0]->leaf->text);
-        add_global_names(st, t->kids[1]);
-    }
-    else {
-        insertsymbol(st, t->kids[1]->leaf->text);
-        add_global_names(st, t->kids[0]);
-    }
-}
 
 SymbolTable get_global_symtab(SymbolTable st) 
 {
@@ -128,7 +129,7 @@ int insertsymbol(SymbolTable st, char *s) {
             return 0;
         }
     }
-    SymbolTableEntry entry = (SymbolTableEntry) malloc(sizeof(struct sym_entry));
+    SymbolTableEntry entry = calloc(1, sizeof(struct sym_entry));
     entry->table = st;
     entry->s = strdup(s);
     entry->next = NULL;
@@ -136,6 +137,7 @@ int insertsymbol(SymbolTable st, char *s) {
     st->nEntries++;
     return 1;
 }
+
 
 // Helper function to find a symbol in a symbol table
 SymbolTableEntry findsymbol(SymbolTable st, char *s)
@@ -152,17 +154,9 @@ SymbolTableEntry findsymbol(SymbolTable st, char *s)
     return NULL;
 }
 
-void scope_enter(char *s)
-{
-    /* allocate a new symbol table */
-    /* insert s into current symbol table */
-    /* attach new symbol table to s's symbol table in the current symbol table*/
-    /* push new symbol on the stack, making it the current symbol table */
-}
-
 void printsymbols(SymbolTable st, int level)
 {
-    int i, j;
+    int i;
     if (st == NULL) return;
     for (i = 0; i < st->nBuckets; i++) {
         for(SymbolTableEntry entry = st->tbl[i]; entry != NULL; entry = entry->next) {
@@ -171,26 +165,68 @@ void printsymbols(SymbolTable st, int level)
     }
 }
 
-void free_symtab(SymbolTable st)
-{
-    if(st == NULL) 
+void free_symtab(SymbolTable st) {
+    if (st == NULL) {
         return;
-    SymbolTableEntry entry = NULL, prev = NULL;
-    for(int i = 0; i < st->nBuckets; i++) {
-        entry = st->tbl[i];
-        while(entry != NULL) {
-            prev = entry;
-            if(prev->nested != NULL) {
-                free_symtab(prev->nested);
+    }
+
+    // Free symbol entries
+    for (int i = 0; i < st->nBuckets; i++) {
+        SymbolTableEntry entry = st->tbl[i];
+        while (entry != NULL) {
+            SymbolTableEntry next_entry = entry->next;
+
+            // Free nested symbol table
+            if (entry->nested != NULL) {
+                free_symtab(entry->nested);
             }
-            free(prev->s);
-            entry = entry->next;
-            free(prev);
+
+            // Free entry attributes
+            if (entry->s != NULL) {
+                free(entry->s);
+            }
+            if (entry->scope != NULL) {
+                free(entry->scope);
+            }
+
+            // Free entry
+            free(entry);
+
+            entry = next_entry;
         }
     }
-    free(st->tbl);
+
+    // Free referenced but not declared variables
+    SymbolTableEntry ref_entry = st->references;
+    while (ref_entry != NULL) {
+        SymbolTableEntry next_ref_entry = ref_entry->next;
+
+        // Free entry attributes
+        if (ref_entry->s != NULL) {
+            free(ref_entry->s);
+        }
+        if (ref_entry->scope != NULL) {
+            free(ref_entry->scope);
+        }
+
+        // Free entry
+        free(ref_entry);
+
+        ref_entry = next_ref_entry;
+    }
+
+    // Free the table array and table attributes
+    if (st->tbl != NULL) {
+        free(st->tbl);
+    }
+    if (st->table_name != NULL) {
+        free(st->table_name);
+    }
+
+    // Free the symbol table itself
     free(st);
 }
+
 
 void add_puny_builtins(SymbolTable st) {
     insertsymbol(st, "print");

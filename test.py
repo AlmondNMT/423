@@ -1,4 +1,5 @@
-global t1, t2, t3
+#
+global t1, t2, t3, t4, t5
 
 class ASDF:
     def __init__(self):

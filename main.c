@@ -80,8 +80,6 @@ int main(int argc, char *argv[]) {
             printsymbols(global, 0);
         }
 
-        //printf("yyparse returns: %d\n", parse_ret);
-        //printf("make_tree_count: %d\nalctoken count: %d\n", make_tree_count, alctoken_count);
         free_tree(yylval.treeptr);
         free_symtab(global);
         fclose(yyin);

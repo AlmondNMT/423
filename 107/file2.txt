@@ -1,0 +1,6 @@
+$ cat file2.txt
+John goes to work.
+Coral went to a Kesha concert.
+Alice ate an apple pie.
+Joe planted a tree.
+The dog jumped over the wall.
