@@ -170,6 +170,9 @@ SymbolTableEntry findsymbol(SymbolTable st, char *s)
     return NULL;
 }
 
+
+////comment this out here for code to work uwu
+
 void scope_enter(char *s) {
     SymbolTable *st = mksymtab();
     st -> level = (*s) -> level + 1;
@@ -177,7 +180,21 @@ void scope_enter(char *s) {
     *s = st;
 }
 
+void scope_exit(SymbolTable **s) {
+    SymbolTable *st = *s;
+    for (int i = 0; i < HASH_SIZE; i++) {
+        SymbolTableEntry *entry = st->table[i];
+        while (entry != NULL) {
+            SymbolTableEntry *next = entry->next;
+            free(entry);
+            entry = next;
+        }
+    }
+    *s = st->parent;
+    free(st);
+}
 
+////comment this out here for code to work uwu
 
 void printsymbols(SymbolTable st, int level)
 {
@@ -288,22 +305,6 @@ SymbolTable *mksymtab() {
     }
     st->parent = NULL;
     return st;
-}
-
-
-// Exit the current scope
-void scope_exit(SymbolTable **pst) {
-    SymbolTable *st = *pst;
-    for (int i = 0; i < HASH_SIZE; i++) {
-        SymbolTableEntry *entry = st->table[i];
-        while (entry != NULL) {
-            SymbolTableEntry *next = entry->next;
-            free(entry);
-            entry = next;
-        }
-    }
-    *pst = st->parent;
-    free(st);
 }
 
 // Get the current scope level
