@@ -44,13 +44,37 @@ void add_global_names(SymbolTable st, tree_t *t)
     }
 }
 
-SymbolTable get_global_symtab(SymbolTable st)
+SymbolTable get_global_symtab(SymbolTable st) 
 {
     SymbolTable curr = st;
     while(curr->parent != NULL) {
         curr = curr->parent;
     }
     return curr;
+}
+
+void add_puny_builtins(SymbolTable st) {
+    insertsymbol(st, "print");
+    insertsymbol(st, "int");
+    insertsymbol(st, "abs"); 
+    insertsymbol(st, "bool");  
+    insertsymbol(st, "chr");
+    insertsymbol(st, "dict");
+    insertsymbol(st, "float");
+    insertsymbol(st, "input");
+    insertsymbol(st, "int");    
+    insertsymbol(st, "len");
+    insertsymbol(st, "list");
+    insertsymbol(st, "max");
+    insertsymbol(st, "min");
+    insertsymbol(st, "open");
+    insertsymbol(st, "ord");
+    insertsymbol(st, "pow");
+    insertsymbol(st, "print");
+    insertsymbol(st, "range");
+    insertsymbol(st, "round");
+    insertsymbol(st, "str");
+    insertsymbol(st, "type");
 }
 
 int hash(SymbolTable st, char *s) {
@@ -326,83 +350,4 @@ SymbolTableEntry findsymbol(SymbolTable *st, char *name) {
     return NULL;
 }
 */
-
-/** 
- * Add print(), int(), str(), etc. to global symtab
- */
-void add_puny_builtins(SymbolTable st) {
-    insertsymbol(st, "print");
-    insertsymbol(st, "int");
-    insertsymbol(st, "abs");
-    insertsymbol(st, "aiter");
-    insertsymbol(st, "all");
-    insertsymbol(st, "any");
-    insertsymbol(st, "anext");
-    insertsymbol(st, "ascii");
-    insertsymbol(st, "bin");
-    insertsymbol(st, "bool");
-    insertsymbol(st, "breakpoint");
-    insertsymbol(st, "bytearray");
-    insertsymbol(st, "bytes");
-    insertsymbol(st, "callable");
-    insertsymbol(st, "chr");
-    insertsymbol(st, "classmethod");
-    insertsymbol(st, "compile");
-    insertsymbol(st, "complex");
-    insertsymbol(st, "delattr");
-    insertsymbol(st, "dict");
-    insertsymbol(st, "dir");
-    insertsymbol(st, "divmod");
-    insertsymbol(st, "enumerate");
-    insertsymbol(st, "eval");
-    insertsymbol(st, "exec");
-    insertsymbol(st, "filter");
-    insertsymbol(st, "float");
-    insertsymbol(st, "format");
-    insertsymbol(st, "frozenset");
-    insertsymbol(st, "getattr");
-    insertsymbol(st, "globals");
-    insertsymbol(st, "hasattr");
-    insertsymbol(st, "hash");
-    insertsymbol(st, "help");
-    insertsymbol(st, "hex");
-    insertsymbol(st, "id");
-    insertsymbol(st, "input");
-    insertsymbol(st, "int");
-    insertsymbol(st, "isinstance");
-    insertsymbol(st, "issubclass");
-    insertsymbol(st, "iter");
-    insertsymbol(st, "len");
-    insertsymbol(st, "list");
-    insertsymbol(st, "locals");
-    insertsymbol(st, "map");
-    insertsymbol(st, "max");
-    insertsymbol(st, "memoryview");
-    insertsymbol(st, "min");
-    insertsymbol(st, "next");
-    insertsymbol(st, "object");
-    insertsymbol(st, "oct");
-    insertsymbol(st, "open");
-    insertsymbol(st, "ord");
-    insertsymbol(st, "pow");
-    insertsymbol(st, "print");
-    insertsymbol(st, "property");
-    insertsymbol(st, "range");
-    insertsymbol(st, "repr");
-    insertsymbol(st, "reversed");
-    insertsymbol(st, "round");
-    insertsymbol(st, "set");
-    insertsymbol(st, "setattr");
-    insertsymbol(st, "slice");
-    insertsymbol(st, "sorted");
-    insertsymbol(st, "staticmethod");
-    insertsymbol(st, "str");
-    insertsymbol(st, "sum");
-    insertsymbol(st, "super");
-    insertsymbol(st, "tuple");
-    insertsymbol(st, "type");
-    insertsymbol(st, "vars");
-    insertsymbol(st, "zip");
-    insertsymbol(st, "__import__");
-}
 
