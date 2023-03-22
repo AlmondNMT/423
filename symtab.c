@@ -115,6 +115,46 @@ int insertsymbol(SymbolTable st, char *s) {
     return 1;
 }
 
+
+
+/*
+
+void insertsymbol(SymbolTable *st, char *name, void *data) {
+    int index = hash(name);
+    SymbolTableEntry *entry = malloc(sizeof(SymbolTableEntry));
+    entry->name = name;
+    entry->data = data;
+    entry->next = st->table[index];
+    st->table[index] = entry;
+}
+
+*/
+
+/*
+
+// Remove a symbol from the symbol table
+SymbolTableEntry removesymbol(SymbolTable *st, char *name) {
+    int index = hash(name);
+    SymbolTableEntry *prev = NULL;
+    SymbolTableEntry *entry = st->table[index];
+    while (entry != NULL) {
+        if (strcmp(entry->name, name) == 0) {
+            if (prev == NULL) {
+                st->table[index] = entry->next;
+            } else {
+                prev->next = entry->next;
+            }
+            return entry;
+        }
+        prev = entry;
+        entry = entry->next;
+    }
+    return NULL;
+}
+
+*/
+
+
 // Helper function to find a symbol in a symbol table
 SymbolTableEntry findsymbol(SymbolTable st, char *s)
 {
@@ -130,13 +170,14 @@ SymbolTableEntry findsymbol(SymbolTable st, char *s)
     return NULL;
 }
 
-void scope_enter(char *s)
-{
-    /* allocate a new symbol table */
-    /* insert s into current symbol table */
-    /* attach new symbol table to s's symbol table in the current symbol table*/
-    /* push new symbol on the stack, making it the current symbol table */
+void scope_enter(char *s) {
+    SymbolTable *st = mksymtab();
+    st -> level = (*s) -> level + 1;
+    st -> parent = *s;
+    *s = st;
 }
+
+
 
 void printsymbols(SymbolTable st, int level)
 {
@@ -249,13 +290,6 @@ SymbolTable *mksymtab() {
     return st;
 }
 
-// Enter a new scope
-void scope_enter(SymbolTable **pst) {
-    SymbolTable *st = mksymtab();
-    st->level = (*pst)->level + 1;
-    st->parent = *pst;
-    *pst = st;
-}
 
 // Exit the current scope
 void scope_exit(SymbolTable **pst) {
@@ -309,33 +343,6 @@ void scope_lookup_current(SymbolTable *st, char *name) {
 }
 
 // Insert a symbol into the symbol table
-void insertsymbol(SymbolTable *st, char *name, void *data) {
-    int index = hash(name);
-    SymbolTableEntry *entry = malloc(sizeof(SymbolTableEntry));
-    entry->name = name;
-    entry->data = data;
-    entry->next = st->table[index];
-    st->table[index] = entry;
-}
-// Remove a symbol from the symbol table
-SymbolTableEntry removesymbol(SymbolTable *st, char *name) {
-    int index = hash(name);
-    SymbolTableEntry *prev = NULL;
-    SymbolTableEntry *entry = st->table[index];
-    while (entry != NULL) {
-        if (strcmp(entry->name, name) == 0) {
-            if (prev == NULL) {
-                st->table[index] = entry->next;
-            } else {
-                prev->next = entry->next;
-            }
-            return entry;
-        }
-        prev = entry;
-        entry = entry->next;
-    }
-    return NULL;
-}
 
 // Find a symbol in the symbol table
 SymbolTableEntry findsymbol(SymbolTable *st, char *name) {
