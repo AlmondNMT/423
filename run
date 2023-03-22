@@ -1,0 +1,3 @@
+#! /bin/bash
+
+./puny -symtab test.py

@@ -15,9 +15,11 @@ void populate_symboltables(struct tree *t, SymbolTable st) {
     // In the simplest case, we just add NAME to the symbol table
     if(strcmp(t->symbolname, "funcdef") == 0) {
         insertsymbol(st, t->kids[0]->leaf->text);
-
+        insertfunction(t, st);
+        return;
     } else if(strcmp(t->symbolname, "classdef") == 0) {
         insertsymbol(st, t->kids[0]->leaf->text);
+        return;
     } else if(strcmp(t->symbolname, "global_stmt") == 0) {
         SymbolTable global = get_global_symtab(st);
         add_global_names(global, t);
@@ -47,7 +49,7 @@ void add_global_names(SymbolTable st, tree_t *t)
 
 /**
  * Insertfunction: Unlike insertsymbol, overwrite any previous definitions of 
- * s in the table. This means free the nested symbol table. An auxiliary function 
+ * s in the table. This means free the nested symbol table. populate_symboltables
  * will recursively descend through the tree to collect identifiers for its 
  * local scope.
  * Assumptions: The first child should contain the function name
@@ -58,13 +60,18 @@ void insertfunction(struct tree *t, SymbolTable st)
         return;
     char *name = t->kids[0]->leaf->text;
     int idx = hash(st, name);
+    printf("name: %s\tidx: %d\n", name, idx);
     SymbolTableEntry e = NULL, entry = NULL, prev = NULL;
     for(e = st->tbl[idx]; e != NULL; prev = e, e = e->next) {
-        if(strcmp(e->s, name) == 0) {
+        if(strcmp(e->ident, name) == 0) {
             // If new function definition found, overwrite previous nested table
             entry = e;
             free_symtab(entry->nested);
             entry->nested = mksymtab(HASH_TABLE_SIZE, name);
+            entry->nested->level = st->level + 1;
+            printf("level: %d\n", entry->nested->level);
+            entry->nested->parent = st;
+            entry->nested->scope = strdup("function");
             populate_symboltables(t->kids[1], entry->nested); // Add parameters 
             populate_symboltables(t->kids[2], entry->nested); // Add rarrow test
             populate_symboltables(t->kids[3], entry->nested); // Add suite
@@ -72,7 +79,11 @@ void insertfunction(struct tree *t, SymbolTable st)
         }
     }
     entry = calloc(1, sizeof(SymbolTableEntry));
-    entry->nested = mksymtab(HASH_TABLE_SIZE, name);
+    entry->nested = mksymtab(HASH_TABLE_SIZE, name);// make symbol table for function scope
+    entry->nested->level = st->level + 1;           // symbol table nesting
+    entry->nested->parent = st;                     // set symbol table parent
+    entry->nested->scope = strdup("function");      // name of scope: "function"
+
 
     if(prev != NULL) {
         prev->next = entry;
@@ -89,18 +100,17 @@ SymbolTable get_global_symtab(SymbolTable st)
     return curr;
 }
 
-int hash(SymbolTable st, char *s) {
-    register unsigned int h = 0;
+uint hash(SymbolTable st, char *s) {
+    register uint h = 5381;
     register char c;
-    while((c = *s++)) {
-        h += c & 377;
-        h *= 37;
+    while(c = *s++) {
+        h = (((h << 5) + h) ^ h) + c;
     }
     return h % st->nBuckets;
 }
 
 // Create a new symbol table
-SymbolTable mksymtab(int nbuckets, char *table_name)
+SymbolTable mksymtab(int nbuckets, char *scope)
 {
     SymbolTable rv;
     rv = calloc(1, sizeof(struct sym_table));
@@ -110,7 +120,7 @@ SymbolTable mksymtab(int nbuckets, char *table_name)
     rv->nBuckets = nbuckets;
     rv->nEntries = 0;
     rv->parent = NULL;
-    rv->table_name = strdup(table_name);
+    rv->scope = strdup(scope);
     return rv;
 }
 
@@ -123,17 +133,21 @@ int insertsymbol(SymbolTable st, char *s) {
     if(st == NULL)
         return 0;
     int idx = hash(st, s);
-    for (SymbolTableEntry e = st->tbl[idx]; e != NULL; e = e->next) {
-        if (strcmp(e->s, s) == 0) {
+    SymbolTableEntry prev = NULL;
+    for (SymbolTableEntry e = st->tbl[idx]; e != NULL; prev = e, e = e->next) {
+        if (strcmp(e->ident, s) == 0) {
             return 0;
         }
     }
     SymbolTableEntry entry = calloc(1, sizeof(struct sym_entry));
     entry->table = st;
-    entry->s = strdup(s);
-    printf("%s\n", entry->s);
+    entry->ident = strdup(s);
     entry->next = NULL;
-    st->tbl[idx] = entry;
+    if(prev != NULL)
+        prev->next = entry;
+    else
+        st->tbl[idx] = entry;
+    //printf("%s\n", entry->ident);
     st->nEntries++;
     return 1;
 }
@@ -146,7 +160,7 @@ SymbolTableEntry findsymbol(SymbolTable st, char *s)
 
     h = hash(st, s);
     for(SymbolTableEntry entry = st->tbl[h]; entry != NULL; entry = entry->next) {
-        if(strcmp(s, entry->s) == 0) {
+        if(strcmp(s, entry->ident) == 0) {
             /* Return a pointer to the symbol table entry. */
             return entry;
         }
@@ -160,7 +174,10 @@ void printsymbols(SymbolTable st, int level)
     if (st == NULL) return;
     for (i = 0; i < st->nBuckets; i++) {
         for(SymbolTableEntry entry = st->tbl[i]; entry != NULL; entry = entry->next) {
-            printf("Symname: %s\n", entry->s);
+            for(int j = 0; j < entry->table->level; j++) {
+                printf(" ");
+            }
+            printf("Symname: %s\n", entry->ident);
         }
     }
 }
@@ -182,11 +199,8 @@ void free_symtab(SymbolTable st) {
             }
 
             // Free entry attributes
-            if (entry->s != NULL) {
-                free(entry->s);
-            }
-            if (entry->scope != NULL) {
-                free(entry->scope);
+            if (entry->ident != NULL) {
+                free(entry->ident);
             }
 
             // Free entry
@@ -202,11 +216,8 @@ void free_symtab(SymbolTable st) {
         SymbolTableEntry next_ref_entry = ref_entry->next;
 
         // Free entry attributes
-        if (ref_entry->s != NULL) {
-            free(ref_entry->s);
-        }
-        if (ref_entry->scope != NULL) {
-            free(ref_entry->scope);
+        if (ref_entry->ident != NULL) {
+            free(ref_entry->ident);
         }
 
         // Free entry
@@ -219,8 +230,8 @@ void free_symtab(SymbolTable st) {
     if (st->tbl != NULL) {
         free(st->tbl);
     }
-    if (st->table_name != NULL) {
-        free(st->table_name);
+    if (st->scope != NULL) {
+        free(st->scope);
     }
 
     // Free the symbol table itself
