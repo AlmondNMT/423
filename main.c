@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include "errdefs.h"
+#include "errdef.h"
 #include "symtab.h"
 #include "tree.h"
 #include "punygram.tab.h"

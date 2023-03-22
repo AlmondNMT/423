@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "errdef.h"
 #include "punygram.tab.h"
 #include "symtab.h"
 #include "tree.h"
@@ -66,7 +67,7 @@ void insertfunction(struct tree *t, SymbolTable st)
             // If new function definition found, overwrite previous nested table
             entry = e;
             free_symtab(entry->nested);
-            entry->nested = mkfunctab(HASH_TABLE_SIZE, st);
+            entry->nested = mknested(HASH_TABLE_SIZE, st, "function");
             populate_symboltables(t->kids[1], entry->nested); // Add parameters 
             populate_symboltables(t->kids[2], entry->nested); // Add rarrow test
             populate_symboltables(t->kids[3], entry->nested); // Add suite
@@ -74,7 +75,7 @@ void insertfunction(struct tree *t, SymbolTable st)
         }
     }
     entry = calloc(1, sizeof(SymbolTableEntry));
-    entry->nested = mkfunctab(HASH_TABLE_SIZE, st); // make symbol table for function scope
+    entry->nested = mknested(HASH_TABLE_SIZE, st, "function"); // make symbol table for function scope
 
     if(prev != NULL) {
         prev->next = entry;
@@ -116,9 +117,13 @@ SymbolTable mksymtab(int nbuckets, char *scope)
 }
 
 
-// Create a symbol table for functions
-SymbolTable mkfunctab(int nbuckets, SymbolTable parent)
+// Create a symbol table for functions/classes
+SymbolTable mknested(int nbuckets, SymbolTable parent, char *scope)
 {
+    if(strcmp(parent->scope, "function") == 0) {
+        fprintf(stderr, "Function nesting not allowed in puny\n");
+        exit(SEM_ERR);
+    }
     SymbolTable ftable = mksymtab(nbuckets, "function");
     ftable->level = parent->level + 1;
     ftable->parent = parent;

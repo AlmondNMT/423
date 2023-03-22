@@ -6,11 +6,9 @@ class ASDF:
         print(self)
 a: int
 def f(x) -> float:
+    def g(x):
+        return x
     zeta = 23
-    def g(x) -> float:
-        def h(x) -> float:
-            return x
-        return h(x)
     return g(x)
 
 

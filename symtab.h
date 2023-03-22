@@ -42,7 +42,7 @@ int insertsymbol(SymbolTable st, char *s); // TODO: Add typeptr later
 void insertfunction(struct tree *t, SymbolTable st);
 void mark_undeclared(SymbolTable st);
 SymbolTable mksymtab(int nbuckets, char *table_name);
-SymbolTable mkfunctab(int nbuckets, SymbolTable parent);
+SymbolTable mknested(int nbuckets, SymbolTable parent, char *scope);
 void populate_symboltables(struct tree *t, SymbolTable st);
 void printsymbols(SymbolTable st, int level);
 SymbolTableEntry removesymbol(SymbolTable st, char *s);
