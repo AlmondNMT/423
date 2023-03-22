@@ -35,7 +35,6 @@ void add_global_names(SymbolTable st, tree_t *t)
     if(t->nkids == 0) {
         return;
     }
-    printf("t->kids[0]->symbolname: %s\n", t->kids[0]->symbolname);
     if(strcmp(t->kids[0]->symbolname, "NAME") == 0) {
         insertsymbol(st, t->kids[0]->leaf->text);
         add_global_names(st, t->kids[1]);
@@ -132,6 +131,7 @@ int insertsymbol(SymbolTable st, char *s) {
     SymbolTableEntry entry = calloc(1, sizeof(struct sym_entry));
     entry->table = st;
     entry->s = strdup(s);
+    printf("%s\n", entry->s);
     entry->next = NULL;
     st->tbl[idx] = entry;
     st->nEntries++;
