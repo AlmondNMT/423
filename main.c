@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
         //add_puny_builtins(st);
         print_tree(tree, 0);
         populate_symboltables(tree, st);
-        if(symtab_opt) {
+        if(symtab_opt == true) { //idk bing chilling
             printsymbols(st, 0);
         }
 
