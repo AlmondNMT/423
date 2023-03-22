@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include "errdefs.h"
 #include "symtab.h"
 #include "tree.h"
 #include "punygram.tab.h"
@@ -30,14 +31,16 @@ void dealloc_list(tokenlist_t *l);
 
 int main(int argc, char *argv[]) {
 
-    //int category = 0;
-    //tokenlist_t *list_head = NULL;
     int parse_ret;
     bool symtab_opt = false; // Should we print symbol table?
+    bool tree_opt = false;   // Should we print the tree?
 
     for(int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-symtab") == 0) {
             symtab_opt = true;
+            continue;
+        } else if(strcmp(argv[i], "-tree") == 0) {
+            tree_opt = true;
             continue;
         }
         if (access(argv[i], F_OK) == 0 && strstr(argv[i], ".py")) { // Check if file exists and has .py extension
@@ -58,25 +61,29 @@ int main(int argc, char *argv[]) {
         firsttime = 0;
         indent_count = dedent_count = 0;
 
-        //list_head = calloc(1, sizeof(tokenlist_t));
-        //list_head->next = NULL;
-
         /** Parse */
         parse_ret = yyparse();
 
         /** Initialize SymbolTable Stack with HASH_TABLE_SIZE buckets */
-        SymbolTable st = mksymtab(HASH_TABLE_SIZE); 
-        //add_puny_builtins(st);
-        print_tree(tree, 0);
-        populate_symboltables(tree, st);
+        SymbolTable global = mksymtab(HASH_TABLE_SIZE, "global"); 
+        if(global == NULL) {
+            fprintf(stderr, "Unable to allocate symbol table\n");
+            exit(SEM_ERR); // Cuz semantic error, right?
+        }
+
+        //add_puny_builtins(global);
+        if(tree_opt) {
+            print_tree(tree, 0);
+        }
+        populate_symboltables(tree, global);
         if(symtab_opt) {
-            printsymbols(st, 0);
+            printsymbols(global, 0);
         }
 
         //printf("yyparse returns: %d\n", parse_ret);
         //printf("make_tree_count: %d\nalctoken count: %d\n", make_tree_count, alctoken_count);
         free_tree(yylval.treeptr);
-        free_symtab(st);
+        free_symtab(global);
         fclose(yyin);
     }
 

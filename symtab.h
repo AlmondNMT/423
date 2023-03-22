@@ -4,6 +4,8 @@ struct tree; // Definition found in tree.h
 typedef struct sym_table {
     int nBuckets;               /* # of buckets */
     int nEntries;               /* # of symbols in the table */
+    int level;                  /* Nesting level */
+    char *table_name;
     struct sym_table *parent;   /* enclosing scope, superclass etc. */
     struct sym_entry **tbl;
     struct sym_entry *references; /* referenced but not declared variables */
@@ -12,9 +14,10 @@ typedef struct sym_table {
 
 typedef struct sym_entry {
     SymbolTable table;          /* what symbol table do we belong to */
-    char *s;                    /* string */
+    char *s;                    /* identifier name */
     char *scope;                /* Scope name */
     int level;                  /* Scope level */
+    int lineno;                 /* One what line was this first found? */
     int declared;               /* is this symbol declared in this scope? */
     struct sym_table *nested;   /* nested symbol table (if any) */
     /* more symbol attributes go here for code generation */
@@ -37,8 +40,9 @@ SymbolTable get_global_symtab(SymbolTable st);
 int hash(SymbolTable st, char *s);
 SymbolTableEntry findsymbol(SymbolTable st, char *s);
 int insertsymbol(SymbolTable st, char *s); // TODO: Add typeptr later
+void insertfunction(struct tree *t, SymbolTable st);
 void mark_undeclared(SymbolTable st);
-SymbolTable mksymtab(int nbuckets);
+SymbolTable mksymtab(int nbuckets, char *table_name);
 void populate_symboltables(struct tree *t, SymbolTable st);
 void printsymbols(SymbolTable st, int level);
 SymbolTableEntry removesymbol(SymbolTable st, char *s);
