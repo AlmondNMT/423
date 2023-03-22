@@ -66,9 +66,9 @@ int main(int argc, char *argv[]) {
 
         /** Initialize SymbolTable Stack with HASH_TABLE_SIZE buckets */
         SymbolTable st = mksymtab(HASH_TABLE_SIZE); 
-        add_puny_builtins(st);
-        populate_symboltables(tree, st);
+        //add_puny_builtins(st);
         print_tree(tree, 0);
+        populate_symboltables(tree, st);
         if(symtab_opt) {
             printsymbols(st, 0);
         }

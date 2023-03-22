@@ -13,6 +13,8 @@ typedef struct sym_table {
 typedef struct sym_entry {
     SymbolTable table;          /* what symbol table do we belong to */
     char *s;                    /* string */
+    char *scope;                /* Scope name */
+    int level;                  /* Scope level */
     int declared;               /* is this symbol declared in this scope? */
     struct sym_table *nested;   /* nested symbol table (if any) */
     /* more symbol attributes go here for code generation */
@@ -26,20 +28,22 @@ typedef struct symtab_stack {
 } *SymtabStack;
 
 // Prototypes
+void add_global_names(SymbolTable st, struct tree *t);
+void add_puny_builtins(SymbolTable st);
+void check_redeclared_variables(SymbolTable st);
+void check_undeclared_variables(SymbolTable st);
+void free_symtab(SymbolTable st);
+SymbolTable get_global_symtab(SymbolTable st);
+int hash(SymbolTable st, char *s);
+SymbolTableEntry findsymbol(SymbolTable st, char *s);
+int insertsymbol(SymbolTable st, char *s); // TODO: Add typeptr later
+void mark_undeclared(SymbolTable st);
+SymbolTable mksymtab(int nbuckets);
+void populate_symboltables(struct tree *t, SymbolTable st);
+void printsymbols(SymbolTable st, int level);
+SymbolTableEntry removesymbol(SymbolTable st, char *s);
 void scope_enter(char *s);
 void scope_exit();
 void scope_level();
 void scope_lookup(char *name);
 void scope_lookup_current(char *name);
-int hash(SymbolTable st, char *s);
-SymbolTable mksymtab(int nbuckets);
-int insertsymbol(SymbolTable st, char *s); // TODO: Add typeptr later
-SymbolTableEntry removesymbol(SymbolTable st, char *s);
-SymbolTableEntry findsymbol(SymbolTable st, char *s);
-void populate_symboltables(struct tree *t, SymbolTable st);
-void printsymbols(SymbolTable st, int level);
-void free_symtab(SymbolTable st);
-void add_puny_builtins(SymbolTable st);
-void mark_undeclared(SymbolTable st);
-void check_undeclared_variables(SymbolTable st);
-void check_redeclared_variables(SymbolTable st);

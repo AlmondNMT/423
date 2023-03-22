@@ -212,7 +212,7 @@ comment                     #+[^\n]*
 "**="					{ column += strlen(yytext); return alctoken(DOUBLESTAREQUAL); }
 "//"					{ column += strlen(yytext); return alctoken(DOUBLESLASH); }
 "//="					{ column += strlen(yytext); return alctoken(DOUBLESLASHEQUAL); }
-"@"						{ column += strlen(yytext); return alctoken(AT); }
+"@"						{ column += strlen(yytext); return alctoken(AT); yylexerror(puny_support_err); }
 "@="					{ column += strlen(yytext); return alctoken(ATEQUAL); }
 "->"					{ column += strlen(yytext); return alctoken(RARROW); }
 "..."					{ column += strlen(yytext); return alctoken(ELLIPSIS); }
