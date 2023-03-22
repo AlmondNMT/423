@@ -50,6 +50,7 @@ int main(int argc, char *argv[]) {
                 fprintf(stderr, "File %s cannot be opened\n", argv[i]);
                 continue;
             }
+            printf("File: %s\n", yyfilename);
         } else {
             fprintf(stderr, "Skipping %s. Not a .py file or does not exist\n", argv[i]);
             continue;

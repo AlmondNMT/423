@@ -15,15 +15,18 @@ void populate_symboltables(struct tree *t, SymbolTable st) {
     }
     // In the simplest case, we just add NAME to the symbol table
     if(strcmp(t->symbolname, "funcdef") == 0) {
-        insertsymbol(st, t->kids[0]->leaf->text);
+        insertsymbol(st, t->kids[0]->leaf->text, t->kids[0]->leaf->lineno);
         insertfunction(t, st);
         return;
     } else if(strcmp(t->symbolname, "classdef") == 0) {
-        insertsymbol(st, t->kids[0]->leaf->text);
+        insertsymbol(st, t->kids[0]->leaf->text, t->kids[0]->leaf->lineno);
+        insertclass(t, st);
         return;
     } else if(strcmp(t->symbolname, "global_stmt") == 0) {
         SymbolTable global = get_global_symtab(st);
         add_global_names(global, t);
+    } else if(strcmp(t->symbolname, "NAME") == 0) {
+        insertsymbol(st, t->leaf->text, t->leaf->lineno);
     }
     for(int i = 0; i < t->nkids; i++) {
         populate_symboltables(t->kids[i], st);
@@ -39,11 +42,11 @@ void add_global_names(SymbolTable st, tree_t *t)
         return;
     }
     if(strcmp(t->kids[0]->symbolname, "NAME") == 0) {
-        insertsymbol(st, t->kids[0]->leaf->text);
+        insertsymbol(st, t->kids[0]->leaf->text, t->kids[0]->leaf->lineno);
         add_global_names(st, t->kids[1]);
     }
     else {
-        insertsymbol(st, t->kids[1]->leaf->text);
+        insertsymbol(st, t->kids[1]->leaf->text, t->kids[1]->leaf->lineno);
         add_global_names(st, t->kids[0]);
     }
 }
@@ -69,7 +72,7 @@ void insertfunction(struct tree *t, SymbolTable st)
             free_symtab(entry->nested);
             entry->nested = mknested(HASH_TABLE_SIZE, st, "function");
             populate_symboltables(t->kids[1], entry->nested); // Add parameters 
-            populate_symboltables(t->kids[2], entry->nested); // Add rarrow test
+            //populate_symboltables(t->kids[2], entry->nested); // Add rarrow test
             populate_symboltables(t->kids[3], entry->nested); // Add suite
             return;
         }
@@ -91,6 +94,7 @@ SymbolTable get_global_symtab(SymbolTable st)
     }
     return curr;
 }
+
 
 uint hash(SymbolTable st, char *s) {
     register uint h = 5381;
@@ -135,7 +139,7 @@ SymbolTable mknested(int nbuckets, SymbolTable parent, char *scope)
  * Create SymbolTableEntry for the NAME. Add the current table to the entry.
  * Set the relevant fields (s, next, st->tbl[idx])
  */
-int insertsymbol(SymbolTable st, char *s) {
+int insertsymbol(SymbolTable st, char *s, int lineno) {
     if(st == NULL)
         return 0;
     int idx = hash(st, s);
@@ -148,6 +152,7 @@ int insertsymbol(SymbolTable st, char *s) {
     SymbolTableEntry entry = calloc(1, sizeof(struct sym_entry));
     entry->table = st;
     entry->ident = strdup(s);
+    entry->lineno = lineno;
     entry->next = NULL;
     if(prev != NULL)
         prev->next = entry;
@@ -249,26 +254,26 @@ void free_symtab(SymbolTable st) {
 
 
 void add_puny_builtins(SymbolTable st) {
-    insertsymbol(st, "print");
-    insertsymbol(st, "int");
-    insertsymbol(st, "abs"); 
-    insertsymbol(st, "bool");  
-    insertsymbol(st, "chr");
-    insertsymbol(st, "dict");
-    insertsymbol(st, "float");
-    insertsymbol(st, "input");
-    insertsymbol(st, "int");    
-    insertsymbol(st, "len");
-    insertsymbol(st, "list");
-    insertsymbol(st, "max");
-    insertsymbol(st, "min");
-    insertsymbol(st, "open");
-    insertsymbol(st, "ord");
-    insertsymbol(st, "pow");
-    insertsymbol(st, "print");
-    insertsymbol(st, "range");
-    insertsymbol(st, "round");
-    insertsymbol(st, "str");
-    insertsymbol(st, "type");
+    insertsymbol(st, "print", -1);
+    insertsymbol(st, "int", -1);
+    insertsymbol(st, "abs", -1);
+    insertsymbol(st, "bool", -1);  
+    insertsymbol(st, "chr", -1);
+    insertsymbol(st, "dict", -1);
+    insertsymbol(st, "float", -1);
+    insertsymbol(st, "input", -1);
+    insertsymbol(st, "int", -1);    
+    insertsymbol(st, "len", -1);
+    insertsymbol(st, "list", -1);
+    insertsymbol(st, "max", -1);
+    insertsymbol(st, "min", -1);
+    insertsymbol(st, "open", -1);
+    insertsymbol(st, "ord", -1);
+    insertsymbol(st, "pow", -1);
+    insertsymbol(st, "print", -1);
+    insertsymbol(st, "range", -1);
+    insertsymbol(st, "round", -1);
+    insertsymbol(st, "str", -1);
+    insertsymbol(st, "type", -1);
 }
 

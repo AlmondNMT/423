@@ -238,6 +238,7 @@ comment                     #+[^\n]*
                 return alctoken(STRINGLIT);
             }
 .		{column++;}
+\n      {column = 1; yylineno++;}
 %%
 
 

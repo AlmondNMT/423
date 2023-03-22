@@ -5,11 +5,13 @@ class ASDF:
     def __init__(self):
         print(self)
 a: int
+b = 3
+b = 4
+b = 5
+
 def f(x) -> float:
-    def g(x):
-        return x
     zeta = 23
-    return g(x)
+    return zeta
 
 
 def jeeta():

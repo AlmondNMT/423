@@ -35,11 +35,13 @@ void add_puny_builtins(SymbolTable st);
 void check_redeclared_variables(SymbolTable st);
 void check_undeclared_variables(SymbolTable st);
 void free_symtab(SymbolTable st);
+void get_assignments(struct tree *t, SymbolTable st);
 SymbolTable get_global_symtab(SymbolTable st);
 uint hash(SymbolTable st, char *s);
 SymbolTableEntry findsymbol(SymbolTable st, char *s);
-int insertsymbol(SymbolTable st, char *s); // TODO: Add typeptr later
+void insertclass(struct tree *t, SymbolTable st);
 void insertfunction(struct tree *t, SymbolTable st);
+int insertsymbol(SymbolTable st, char *s, int lineno); // TODO: Add typeptr later
 void mark_undeclared(SymbolTable st);
 SymbolTable mksymtab(int nbuckets, char *table_name);
 SymbolTable mknested(int nbuckets, SymbolTable parent, char *scope);
