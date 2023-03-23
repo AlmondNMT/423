@@ -71,11 +71,10 @@ int main(int argc, char *argv[]) {
             exit(SEM_ERR); // Cuz semantic error, right?
         }
 
-        //add_puny_builtins(global);
         if(tree_opt) {
             print_tree(tree, 0);
         }
-        populate_symboltables(tree, global);
+        semantics(tree, global);
         if(symtab_opt) {
             printsymbols(global, 0);
         }

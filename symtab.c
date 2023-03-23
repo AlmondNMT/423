@@ -29,11 +29,64 @@ void populate_symboltables(struct tree *t, SymbolTable st) {
     } else if(strcmp(t->symbolname, "expr_stmt") == 0) {
         get_assignment_symbols(t, st);
         //insertsymbol(st, t->leaf->text, t->leaf->lineno);
-    }
+    } 
     for(int i = 0; i < t->nkids; i++) {
         populate_symboltables(t->kids[i], st);
     }
 }
+
+
+void semantics(struct tree *t, SymbolTable st)
+{
+    //add_puny_builtins(st);
+    populate_symboltables(t, st);
+    locate_undeclared(t, st);
+}
+
+/**
+ * Assumption: symbol table is populated
+ */
+void locate_undeclared(struct tree *t, SymbolTable st)
+{
+    if(t == NULL || st == NULL) 
+        return;
+    if(strcmp(t->symbolname, "NAME") == 0) {
+        //printf("%s\n", t->leaf->text);
+        check_decls(t, st);
+    }
+    for(int i = 0; i < t->nkids; i++) {
+        if(t->stab != NULL) 
+            locate_undeclared(t->kids[i], t->stab);
+        else
+            locate_undeclared(t->kids[i], st);
+    }
+}
+
+
+/**
+ * Assumption: symbol is NAME
+ */
+void check_decls(struct tree *t, SymbolTable st)
+{
+    char *ident = t->leaf->text;
+    if(st == NULL) { // It couldn't be found (global->parent = NULL)
+        fprintf(stderr, "Name '%s' not defined\n", ident);
+        exit(SEM_ERR);
+    }
+    uint h = hash(st, ident);
+    //printf("h: %d\n", h);
+    SymbolTableEntry e = NULL;
+    for(e = st->tbl[h]; e != NULL; e = e->next) {
+        if(strcmp(e->ident, ident) == 0) {
+            // Found identifier in hash table
+            return;
+        }
+    }
+    if(e == NULL) {
+        check_decls(t, st->parent);
+    }
+}
+
 
 /**
  * We're assuming that st is the global symbol table
@@ -73,6 +126,7 @@ void insertfunction(struct tree *t, SymbolTable st)
             entry = e;
             free_symtab(entry->nested);
             entry->nested = mknested(HASH_TABLE_SIZE, st, "function");
+            t->stab = entry->nested;
             get_function_params(t->kids[1], entry->nested); // Add parameters 
             //populate_symboltables(t->kids[2], entry->nested); // Add rarrow test
             populate_symboltables(t->kids[3], entry->nested); // Add suite
@@ -81,6 +135,7 @@ void insertfunction(struct tree *t, SymbolTable st)
     }
     entry = calloc(1, sizeof(SymbolTableEntry));
     entry->nested = mknested(HASH_TABLE_SIZE, st, "function"); // make symbol table for function scope
+    t->stab = entry->nested;
     populate_symboltables(t->kids[1], entry->nested); // Add parameters 
     //populate_symboltables(t->kids[2], entry->nested); // Add rarrow test
     populate_symboltables(t->kids[3], entry->nested); // Add suite
@@ -109,10 +164,26 @@ void get_function_params(struct tree *t, SymbolTable ftable)
     }
 }
 
-void get_assignment_symbols(struct tree *t, SymbolTable ftable)
+/**
+ * Starting subtree is expr_stmt
+ */
+void get_assignment_symbols(struct tree *t, SymbolTable st)
 {
-    if(t == NULL || ftable == NULL)
+    if(t == NULL || st == NULL)
         return;
+    if(strcmp(t->symbolname, "power") == 0) {
+        if(t->kids[0]->leaf != NULL && strcmp(t->kids[0]->symbolname, "NAME") == 0) {
+            insertsymbol(st, t->kids[0]->leaf->text, t->kids[0]->leaf->lineno);
+        }
+    }
+    else {
+        for(int i = 0; i < t->nkids; i++) {
+            if(strcmp(t->kids[i]->symbolname, "equal_OR_yield_OR_testlist_rep") != 0) {
+                get_assignment_symbols(t->kids[i], st);
+                return;
+            }
+        }
+    }
 }
 
 void insertclass(struct tree *t, SymbolTable st)
@@ -128,6 +199,7 @@ void insertclass(struct tree *t, SymbolTable st)
             entry = e;
             free_symtab(entry->nested);
             entry->nested = mknested(HASH_TABLE_SIZE, st, "class");
+            t->stab = entry->nested;
             populate_symboltables(t->kids[1], entry->nested); // Add parameters 
             populate_symboltables(t->kids[2], entry->nested); // Add suite
             return;
@@ -135,6 +207,7 @@ void insertclass(struct tree *t, SymbolTable st)
     }
     entry = calloc(1, sizeof(SymbolTableEntry));
     entry->nested = mknested(HASH_TABLE_SIZE, st, "class"); // make symbol table for function scope
+    t->stab = entry->nested;
     populate_symboltables(t->kids[1], entry->nested); // Add parameters 
     populate_symboltables(t->kids[2], entry->nested); // Add suite
 
@@ -245,7 +318,7 @@ void printsymbols(SymbolTable st, int level)
             for(int j = 0; j < entry->table->level; j++) {
                 printf("  ");
             }
-            printf("Symname: %s\n", entry->ident);
+            printf("%d: %s\n", i, entry->ident);
             if(entry->nested != NULL) {
                 printsymbols(entry->nested, level + 1);
             }
