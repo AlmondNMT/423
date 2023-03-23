@@ -171,7 +171,6 @@ rarrow_test_opt: {$$=make_tree("nulltree", 0, NULL); }
 parameters: LPAR varargslist_opt RPAR {$$=make_tree("parameters", 1, $2);}
     ;
 
-
 varargslist_opt: {$$=make_tree("nulltree",0,NULL);}
     | varargslist
     ;
@@ -196,7 +195,7 @@ com_fpdef_eq_t_rep: {$$=make_tree("nulltree",0,NULL);}
     | com_fpdef_eq_t_rep COMMA fpdef equal_test_opt {$$=make_tree("com_fpdef_eq_t_rep", 3, $1, $3, $4);}
     ;
 
-fpdef: NAME colon_test_opt
+fpdef: NAME colon_test_opt {$$=make_tree("fpdef", 1, $1, $2);}
     | LPAR fplist RPAR {$$=make_tree("fpdef", 1,  $2);}
     ;
 

@@ -31,7 +31,6 @@ void dealloc_list(tokenlist_t *l);
 
 int main(int argc, char *argv[]) {
 
-    int parse_ret;
     bool symtab_opt = false; // Should we print symbol table?
     bool tree_opt = false;   // Should we print the tree?
 
@@ -63,7 +62,7 @@ int main(int argc, char *argv[]) {
         indent_count = dedent_count = 0;
 
         /** Parse */
-        parse_ret = yyparse();
+        yyparse();
 
         /** Initialize SymbolTable Stack with HASH_TABLE_SIZE buckets */
         SymbolTable global = mksymtab(HASH_TABLE_SIZE, "global"); 
@@ -80,7 +79,7 @@ int main(int argc, char *argv[]) {
         if(symtab_opt) {
             printsymbols(global, 0);
         }
-
+        printf("No errors.\n");
         free_tree(yylval.treeptr);
         free_symtab(global);
         fclose(yyin);

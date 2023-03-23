@@ -253,8 +253,6 @@ def slope_field(ax, diff, color = "#abc888", interval = (-10, 10), resolution = 
             domain_radius = lineLength * np.cos(np.arctan(slope)) / 2
             #print("Line Length: " + str(np.sqrt((domain_radius * 2) ** 2 + (lineLength * np.sin(np.arctan(slope))) ** 2)))
             domain = np.linspace(i - domain_radius, i + domain_radius, 2)
-            def func(x1, y1):
-                return slope * (domain - x1) + y1
             lines.append(ax.plot(domain, func(i, j), color = color, linewidth = linewidth, solid_capstyle = "projecting", solid_joinstyle = "bevel")[0])
     #ax.subplots_adjust(right=.999,top=.999,left=-.0001,bottom=.0001)
     return lines
@@ -441,13 +439,9 @@ def partial(f, args):
 
 
 def cylinder(f, a, b):    # finding the volume with cylindrical shells
-    def newfunc(x):
-        return 2 * pi * x * f(x)
     return integrate(newfunc, a, b, 2000)
 
 def washer(f, a, b):
-    def newfunc(x):
-        return pi * f(x) ** 2
     return integrate(newfunc, a, b, 2000)
 
 def Newton_Raphson(f, c_1, max_iterations = 10):

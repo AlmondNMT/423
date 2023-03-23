@@ -26,8 +26,9 @@ void populate_symboltables(struct tree *t, SymbolTable st) {
     } else if(strcmp(t->symbolname, "global_stmt") == 0) {
         SymbolTable global = get_global_symtab(st);
         add_global_names(global, t);
-    } else if(strcmp(t->symbolname, "NAME") == 0) {
-        insertsymbol(st, t->leaf->text, t->leaf->lineno);
+    } else if(strcmp(t->symbolname, "expr_stmt") == 0) {
+        get_assignment_symbols(t, st);
+        //insertsymbol(st, t->leaf->text, t->leaf->lineno);
     }
     for(int i = 0; i < t->nkids; i++) {
         populate_symboltables(t->kids[i], st);
@@ -72,7 +73,7 @@ void insertfunction(struct tree *t, SymbolTable st)
             entry = e;
             free_symtab(entry->nested);
             entry->nested = mknested(HASH_TABLE_SIZE, st, "function");
-            populate_symboltables(t->kids[1], entry->nested); // Add parameters 
+            get_function_params(t->kids[1], entry->nested); // Add parameters 
             //populate_symboltables(t->kids[2], entry->nested); // Add rarrow test
             populate_symboltables(t->kids[3], entry->nested); // Add suite
             return;
@@ -87,6 +88,31 @@ void insertfunction(struct tree *t, SymbolTable st)
     if(prev != NULL) {
         prev->next = entry;
     }
+}
+
+/**
+ * Starting from the parameters rule, navigate to fpdef_equal_test_comma_rep,
+ * then recurse through the 
+ */
+void get_function_params(struct tree *t, SymbolTable ftable)
+{
+    if(t == NULL || ftable == NULL)
+        return;
+    if(strcmp(t->symbolname, "fpdef") == 0) {
+        if(t->kids[0]->leaf != NULL) 
+            insertsymbol(ftable, t->kids[0]->leaf->text, t->kids[0]->leaf->lineno);
+    }
+    else {
+        for(int i = 0; i < t->nkids; i++) {
+            get_function_params(t->kids[i], ftable);
+        }
+    }
+}
+
+void get_assignment_symbols(struct tree *t, SymbolTable ftable)
+{
+    if(t == NULL || ftable == NULL)
+        return;
 }
 
 void insertclass(struct tree *t, SymbolTable st)
@@ -155,7 +181,6 @@ SymbolTable mksymtab(int nbuckets, char *scope)
 // Create a symbol table for functions/classes
 SymbolTable mknested(int nbuckets, SymbolTable parent, char *scope)
 {
-    printf("parent scope: %s\tcurrent: %s\n", parent->scope, scope);
     if(strcmp(parent->scope, "function") == 0) {
         fprintf(stderr, "Function nesting not allowed in puny\n");
         exit(SEM_ERR);
