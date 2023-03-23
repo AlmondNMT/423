@@ -38,7 +38,7 @@ void populate_symboltables(struct tree *t, SymbolTable st) {
 
 void semantics(struct tree *t, SymbolTable st)
 {
-    //add_puny_builtins(st);
+    add_puny_builtins(st);
     populate_symboltables(t, st);
     locate_undeclared(t, st);
 }
@@ -79,7 +79,10 @@ void check_decls(struct tree *t, SymbolTable st)
     for(e = st->tbl[h]; e != NULL; e = e->next) {
         if(strcmp(e->ident, ident) == 0) {
             // Found identifier in hash table
-            return;
+            if(e->lineno <= t->leaf->lineno) {
+                //printf("e->llineno: %d\t t lineno: %d\n", e->lineno, t->leaf->lineno);
+                return;
+            }
         }
     }
     if(e == NULL) {
@@ -172,7 +175,8 @@ void get_assignment_symbols(struct tree *t, SymbolTable st)
     if(t == NULL || st == NULL)
         return;
     if(strcmp(t->symbolname, "power") == 0) {
-        if(t->kids[0]->leaf != NULL && strcmp(t->kids[0]->symbolname, "NAME") == 0) {
+        if(t->kids[0]->leaf != NULL && strcmp(t->kids[0]->symbolname, "NAME") == 0
+                && (t->nkids == 1 || strcmp(t->kids[1]->symbolname, "trailer_rep") != 0)) {
             insertsymbol(st, t->kids[0]->leaf->text, t->kids[0]->leaf->lineno);
         }
     }
