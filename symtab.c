@@ -13,7 +13,8 @@ void populate_symboltables(struct tree *t, SymbolTable st) {
     if (t == NULL) {
         return;
     }
-    // In the simplest case, we just add NAME to the symbol table
+    // For functions, we add the name of the function to the current symbol 
+    // table, then create a symbol table for the function.
     if(strcmp(t->symbolname, "funcdef") == 0) {
         insertsymbol(st, t->kids[0]->leaf->text, t->kids[0]->leaf->lineno);
         insertfunction(t, st);
@@ -79,12 +80,42 @@ void insertfunction(struct tree *t, SymbolTable st)
     }
     entry = calloc(1, sizeof(SymbolTableEntry));
     entry->nested = mknested(HASH_TABLE_SIZE, st, "function"); // make symbol table for function scope
+    populate_symboltables(t->kids[1], entry->nested); // Add parameters 
+    //populate_symboltables(t->kids[2], entry->nested); // Add rarrow test
+    populate_symboltables(t->kids[3], entry->nested); // Add suite
 
     if(prev != NULL) {
         prev->next = entry;
     }
 }
 
+void insertclass(struct tree *t, SymbolTable st)
+{
+    if(st == NULL)
+        return;
+    char *name = t->kids[0]->leaf->text;
+    int idx = hash(st, name);
+    SymbolTableEntry e = NULL, entry = NULL, prev = NULL;
+    for(e = st->tbl[idx]; e != NULL; prev = e, e = e->next) {
+        if(strcmp(e->ident, name) == 0) {
+            // If new class definition found, overwrite previous nested table
+            entry = e;
+            free_symtab(entry->nested);
+            entry->nested = mknested(HASH_TABLE_SIZE, st, "class");
+            populate_symboltables(t->kids[1], entry->nested); // Add parameters 
+            populate_symboltables(t->kids[2], entry->nested); // Add suite
+            return;
+        }
+    }
+    entry = calloc(1, sizeof(SymbolTableEntry));
+    entry->nested = mknested(HASH_TABLE_SIZE, st, "class"); // make symbol table for function scope
+    populate_symboltables(t->kids[1], entry->nested); // Add parameters 
+    populate_symboltables(t->kids[2], entry->nested); // Add suite
+
+    if(prev != NULL) {
+        prev->next = entry; // Connect linked list in case of collision
+    }
+}
 
 SymbolTable get_global_symtab(SymbolTable st) 
 {
@@ -124,11 +155,12 @@ SymbolTable mksymtab(int nbuckets, char *scope)
 // Create a symbol table for functions/classes
 SymbolTable mknested(int nbuckets, SymbolTable parent, char *scope)
 {
+    printf("parent scope: %s\tcurrent: %s\n", parent->scope, scope);
     if(strcmp(parent->scope, "function") == 0) {
         fprintf(stderr, "Function nesting not allowed in puny\n");
         exit(SEM_ERR);
     }
-    SymbolTable ftable = mksymtab(nbuckets, "function");
+    SymbolTable ftable = mksymtab(nbuckets, scope);
     ftable->level = parent->level + 1;
     ftable->parent = parent;
     return ftable;
