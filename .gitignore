@@ -8,5 +8,5 @@ punygram.tab.*
 test.c
 tests
 *~
-swearcheck
+swearcheck.sh
 *.zip
