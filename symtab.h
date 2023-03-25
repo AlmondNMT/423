@@ -38,6 +38,7 @@ void check_decls(struct tree *t, SymbolTable st);
 void free_symtab(SymbolTable st);
 void get_assignment_symbols(struct tree *t, SymbolTable st);
 void get_function_params(struct tree *t, SymbolTable ftable);
+void get_import_symbols(struct tree *t, SymbolTable st);
 SymbolTable get_global_symtab(SymbolTable st);
 uint hash(SymbolTable st, char *s);
 SymbolTableEntry findsymbol(SymbolTable st, char *s);

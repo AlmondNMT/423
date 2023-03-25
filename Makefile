@@ -16,7 +16,7 @@ compile: lex.yy.c punygram.tab.c utils.c main.c back.c tree.c symtab.c utils.h s
 
 link: lex.yy.o utils.o main.o back.o tree.o punygram.tab.o symtab.o
 	gcc -g -Wall lex.yy.o punygram.tab.o utils.o tree.o main.o back.o symtab.o -o puny
-	./puny test.py
+	#./puny test.py
 
 tests: tests.c punylex.l punygram.y utils.c back.c tree.c symtab.c tree.h utils.h symtab.h
 	bison punygram.y
@@ -34,4 +34,4 @@ clean:
 	rm -f lex.yy.c puny tests *.o a.out punygram.tab.*
 
 zip: punylex.l punygram.y main.c utils.c back.c tree.c tree.h utils.h Makefile printsyms.c symtab.h symtab.c
-	zip hw3.zip punygram.y punylex.l main.c utils.c back.c tree.c tree.h utils.h Makefile symtab.h symtab.c printsyms.c 
+	zip GriegoGroverMendozaSchwierz_hw4.zip punygram.y punylex.l main.c utils.c back.c tree.c tree.h utils.h Makefile symtab.h symtab.c printsyms.c errdef.h

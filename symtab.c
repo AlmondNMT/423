@@ -29,7 +29,9 @@ void populate_symboltables(struct tree *t, SymbolTable st) {
     } else if(strcmp(t->symbolname, "expr_stmt") == 0) {
         get_assignment_symbols(t, st);
         //insertsymbol(st, t->leaf->text, t->leaf->lineno);
-    } 
+    } else if(strcmp(t->symbolname, "dotted_as_names") == 0) {
+        get_import_symbols(t, st);
+    }
     for(int i = 0; i < t->nkids; i++) {
         populate_symboltables(t->kids[i], st);
     }
@@ -190,6 +192,11 @@ void get_assignment_symbols(struct tree *t, SymbolTable st)
     }
 }
 
+void get_import_symbols(struct tree *t, SymbolTable st)
+{
+
+}
+
 void insertclass(struct tree *t, SymbolTable st)
 {
     if(st == NULL)
@@ -260,6 +267,9 @@ SymbolTable mknested(int nbuckets, SymbolTable parent, char *scope)
 {
     if(strcmp(parent->scope, "function") == 0) {
         fprintf(stderr, "Function nesting not allowed in puny\n");
+        exit(SEM_ERR);
+    } else if (strcmp(parent->scope, "class") == 0 && strcmp(scope, "class") == 0) {
+        fprintf(stderr, "Class nesting not allowed in puny\n");
         exit(SEM_ERR);
     }
     SymbolTable ftable = mksymtab(nbuckets, scope);

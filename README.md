@@ -21,5 +21,5 @@ class Consciousness:
 - [ ] Add type hints to grammar
 
 ### symtab.c
-
+- Hash function obtained from https://stackoverflow.com/questions/7666509/hash-function-for-string
 ### symtab.h
