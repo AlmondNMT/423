@@ -10,3 +10,4 @@ tests
 *~
 swearcheck.sh
 *.zip
+__pycache__/
