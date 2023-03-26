@@ -15,11 +15,16 @@ class Consciousness:
 ### tree.c
 - [x] Finish writing alctoken (I think this is done)
 - [x] alctree
-- [ ] Fix memory leak between append\_child and alctoken
+- [x] Fix memory leak between append\_child and alctoken (IGNORED)
+- [ ] 
 
 ### GRAMMAR
-- [ ] Add type hints to grammar
+- [x] Add type hints to grammar
 
 ### symtab.c
-- Hash function obtained from https://stackoverflow.com/questions/7666509/hash-function-for-string
+- [x] Hash function obtained from https://stackoverflow.com/questions/7666509/hash-function-for-string
+- [ ] Pre-runtime typing
+- [ ] Grab for loop variables
+- [ ] Solve the dotted name problem
+- [ ] Imports
 ### symtab.h

@@ -192,9 +192,16 @@ void get_assignment_symbols(struct tree *t, SymbolTable st)
     }
 }
 
+/**
+ * TODO: Implement name-mangling for classes
+ * Search for packages (other python files) in current directory, then 
+ * build AST for that package and populate its symbol table
+ * Assumption: Current t pointer is pointing at dotted_as_names 
+ */
 void get_import_symbols(struct tree *t, SymbolTable st)
 {
-
+    char *import_name = t->kids[0]->kids[0]->leaf->text;
+    printf("import name: %s\n", import_name);
 }
 
 void insertclass(struct tree *t, SymbolTable st)

@@ -62,9 +62,9 @@ comment                     #+[^\n]*
                             return alctoken(ENDMARKER); 
                         }
                     }
-\\\n		        { yylineno++; column =1; }
-\n[ \t]*{comment}   { yylineno++; }
-\n/[^ \t\n\r]         { 
+\\(\n|\r\n)		        { yylineno++; column =1; }
+(\n|\r\n)[ \t]*{comment}   { yylineno++; }
+(\n|\r\n)/[^ \t\n\r]         { 
                         yylineno++; column=1; 
                         int il = 0;
                         if(il < dentstack[top]) {
@@ -76,7 +76,7 @@ comment                     #+[^\n]*
                         if(!is_enclosed(paren_nesting, sqbr_nesting, cbr_nesting)) // 
                             return alctoken(NEWLINE); // Only returning newlines not enclosed within braces, curlies, or parentheses
                     }
-\n[ \t]+/[^ \t\n\r]   { 	
+(\n|\r\n)[ \t]+/[^ \t\n\r]   { 	
                         yylineno++; 
                         int il = indentlevel(yytext+1);
                         column=il+1;
@@ -108,7 +108,7 @@ comment                     #+[^\n]*
                             column += strlen(yytext);
                         }
 
-\n[ \t]*/\n				{ 
+(\n|\r\n)[ \t]*/(\n|\r\n)				{ 
                             int len = strlen(yytext); 
                             yylineno++; 
                             column = len > 1 ? len - 1 : 1; 
@@ -132,7 +132,7 @@ comment                     #+[^\n]*
 "else"                 { column += strlen(yytext);words++; return alctoken(ELSE); }
 "is"                   { column += strlen(yytext);words++; return alctoken(IS); }
 "while"                { column += strlen(yytext);words++; return alctoken(WHILE); }
-"as"                   { yylexerror(puny_support_err); }
+"as"                   { column += strlen(yytext);words++; return alctoken(AS);}
 "except"               { yylexerror(puny_support_err); }
 "lambda"               { yylexerror(puny_support_err); }
 "with"                 { yylexerror(puny_support_err); }
@@ -238,7 +238,7 @@ comment                     #+[^\n]*
                 return alctoken(STRINGLIT);
             }
 .		{column++;}
-\n      {column = 1; yylineno++;}
+(\n|\r\n)      {column = 1; yylineno++;}
 %%
 
 
