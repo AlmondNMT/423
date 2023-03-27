@@ -11,3 +11,4 @@ tests
 swearcheck.sh
 *.zip
 __pycache__/
+.DS_Store
