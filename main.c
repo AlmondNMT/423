@@ -31,7 +31,7 @@ void dealloc_list(tokenlist_t *l);
 
 int main(int argc, char *argv[]) {
 
-    bool symtab_opt = false; // Should we print symbol table?
+    bool symtab_opt = false; // Should we print symbol table? #TODO Change back for HWs
     bool tree_opt = false;   // Should we print the tree?
 
     for(int i = 1; i < argc; i++) {

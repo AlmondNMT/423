@@ -6,9 +6,13 @@ class asdf:
     t3 = 4
     def __init__(self):
         print(self)
-a = b = 3
+a = 3
 for i in range(10):
     print(i)
+
+def main():
+    while asdf:
+            a = asdf
 
 def g(x):
     return x + a

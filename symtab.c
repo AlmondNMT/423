@@ -6,6 +6,7 @@
 #include "punygram.tab.h"
 #include "symtab.h"
 #include "tree.h"
+#include "type.h"
 #include "utils.h"
 
 extern tree_t* tree;
@@ -18,11 +19,11 @@ void populate_symboltables(struct tree *t, SymbolTable st) {
     // For functions, we add the name of the function to the current symbol 
     // table, then create a symbol table for the function.
     if(strcmp(t->symbolname, "funcdef") == 0) {
-        insertsymbol(st, t->kids[0]->leaf->text, t->kids[0]->leaf->lineno);
+        insertsymbol(st, t->kids[0]->leaf->text, t->kids[0]->leaf->lineno, FUNC_TYPE);
         insertfunction(t, st);
         return;
     } else if(strcmp(t->symbolname, "classdef") == 0) {
-        insertsymbol(st, t->kids[0]->leaf->text, t->kids[0]->leaf->lineno);
+        insertsymbol(st, t->kids[0]->leaf->text, t->kids[0]->leaf->lineno, CLASS_TYPE);
         insertclass(t, st);
         return;
     } else if(strcmp(t->symbolname, "global_stmt") == 0) {
@@ -110,11 +111,11 @@ void add_global_names(SymbolTable st, tree_t *t)
         return;
     }
     if(strcmp(t->kids[0]->symbolname, "NAME") == 0) {
-        insertsymbol(st, t->kids[0]->leaf->text, t->kids[0]->leaf->lineno);
+        insertsymbol(st, t->kids[0]->leaf->text, t->kids[0]->leaf->lineno, ANY_TYPE);
         add_global_names(st, t->kids[1]);
     }
     else {
-        insertsymbol(st, t->kids[1]->leaf->text, t->kids[1]->leaf->lineno);
+        insertsymbol(st, t->kids[1]->leaf->text, t->kids[1]->leaf->lineno, ANY_TYPE);
         add_global_names(st, t->kids[0]);
     }
 }
@@ -168,7 +169,7 @@ void get_function_params(struct tree *t, SymbolTable ftable)
         return;
     if(strcmp(t->symbolname, "fpdef") == 0) {
         if(t->kids[0]->leaf != NULL) 
-            insertsymbol(ftable, t->kids[0]->leaf->text, t->kids[0]->leaf->lineno);
+            insertsymbol(ftable, t->kids[0]->leaf->text, t->kids[0]->leaf->lineno, ANY_TYPE);
     }
     else {
         for(int i = 0; i < t->nkids; i++) {
@@ -178,7 +179,9 @@ void get_function_params(struct tree *t, SymbolTable ftable)
 }
 
 /**
+ * For handling assignment semantics
  * Starting subtree is expr_stmt
+ * TODO: Change ANY_TYPE to type of RHS
  */
 void get_assignment_symbols(struct tree *t, SymbolTable st)
 {
@@ -189,15 +192,15 @@ void get_assignment_symbols(struct tree *t, SymbolTable st)
                 && (t->nkids == 1 || strcmp(t->kids[1]->symbolname, "trailer_rep") != 0)) {
             // If the first child of power has a leaf, and it is a NAME, and either 
             // the current tree has 1 child or its second child is not trailer_rep
-            insertsymbol(st, t->kids[0]->leaf->text, t->kids[0]->leaf->lineno);
+            insertsymbol(st, t->kids[0]->leaf->text, t->kids[0]->leaf->lineno, ANY_TYPE);
         }
     }
     else {
         for(int i = 0; i < t->nkids; i++) {
-            if(strcmp(t->kids[i]->symbolname, "equal_OR_yield_OR_testlist_rep") != 0) {
+            //if(strcmp(t->kids[i]->symbolname, "equal_OR_yield_OR_testlist_rep") != 0) {
                 get_assignment_symbols(t->kids[i], st);
                 return;
-            }
+            //}
         }
     }
 }
@@ -227,12 +230,12 @@ void get_import_symbols(struct tree *t, SymbolTable st)
         fprintf(stderr, "No module named '%s'\n", import_name);
         exit(SEM_ERR);
     }
-    if(strcmp(dotted_as_name->kids[1]->symbolname, "as_name_opt") == 0) { // Always true. Either nulltree or as_name_opt
+    if(strcmp(dotted_as_name->kids[1]->symbolname, "as_name_opt") == 0) { 
         struct token *alias = dotted_as_name->kids[1]->kids[0]->leaf;
-        insertsymbol(st, alias->text, alias->lineno);
+        insertsymbol(st, alias->text, alias->lineno, PACKAGE_TYPE);
 
     } else {
-        insertsymbol(st, import_name, dotted_as_name->kids[0]->leaf->lineno);
+        insertsymbol(st, import_name, dotted_as_name->kids[0]->leaf->lineno, PACKAGE_TYPE);
     }
 }
 
@@ -243,7 +246,7 @@ void get_import_symbols(struct tree *t, SymbolTable st)
  * for var in range(...):
  *   # do something
  * ```
- *
+ * Therefore, always INT_TYPE
  * Assume: Starting node is for_stmt
  */
 void get_for_iterator(struct tree *t, SymbolTable st)
@@ -254,7 +257,7 @@ void get_for_iterator(struct tree *t, SymbolTable st)
         get_for_iterator(t->kids[0], st);
         return;
     } else {
-        insertsymbol(st, t->kids[0]->leaf->text, t->kids[0]->leaf->lineno);
+        insertsymbol(st, t->kids[0]->leaf->text, t->kids[0]->leaf->lineno, INT_TYPE);
     }
 }
 
@@ -344,7 +347,7 @@ SymbolTable mknested(int nbuckets, SymbolTable parent, char *scope)
  * Create SymbolTableEntry for the NAME. Add the current table to the entry.
  * Set the relevant fields (s, next, st->tbl[idx])
  */
-int insertsymbol(SymbolTable st, char *s, int lineno) {
+int insertsymbol(SymbolTable st, char *s, int lineno, int basetype) {
     if(st == NULL)
         return 0;
     int idx = hash(st, s);
@@ -355,6 +358,8 @@ int insertsymbol(SymbolTable st, char *s, int lineno) {
         }
     }
     SymbolTableEntry entry = calloc(1, sizeof(struct sym_entry));
+    entry->typ = calloc(1, sizeof(struct typeinfo));
+    entry->typ->basetype = basetype;
     entry->table = st;
     entry->ident = strdup(s);
     entry->lineno = lineno;
@@ -393,7 +398,8 @@ void printsymbols(SymbolTable st, int level)
             for(int j = 0; j < entry->table->level; j++) {
                 printf("  ");
             }
-            printf("%d: %s\n", i, entry->ident);
+            printf("%d %s: ", i, entry->ident);
+            print_basetype(entry); // Switch statements for base types
             if(entry->nested != NULL) {
                 printsymbols(entry->nested, level + 1);
             }
@@ -401,6 +407,21 @@ void printsymbols(SymbolTable st, int level)
     }
 }
 
+void print_basetype(SymbolTableEntry entry)
+{
+    switch(entry->typ->basetype) {
+        case FIRST_TYPE:
+            printf("First type");
+            break;
+        default:
+            printf("Mystery type");
+    }
+    printf("\n");
+}
+
+/** 
+ * Liberate the symbol table
+ */
 void free_symtab(SymbolTable st) {
     if (st == NULL) {
         return;
@@ -459,26 +480,25 @@ void free_symtab(SymbolTable st) {
 
 
 void add_puny_builtins(SymbolTable st) {
-    insertsymbol(st, "print", -1);
-    insertsymbol(st, "int", -1);
-    insertsymbol(st, "abs", -1);
-    insertsymbol(st, "bool", -1);  
-    insertsymbol(st, "chr", -1);
-    insertsymbol(st, "dict", -1);
-    insertsymbol(st, "float", -1);
-    insertsymbol(st, "input", -1);
-    insertsymbol(st, "int", -1);    
-    insertsymbol(st, "len", -1);
-    insertsymbol(st, "list", -1);
-    insertsymbol(st, "max", -1);
-    insertsymbol(st, "min", -1);
-    insertsymbol(st, "open", -1);
-    insertsymbol(st, "ord", -1);
-    insertsymbol(st, "pow", -1);
-    insertsymbol(st, "print", -1);
-    insertsymbol(st, "range", -1);
-    insertsymbol(st, "round", -1);
-    insertsymbol(st, "str", -1);
-    insertsymbol(st, "type", -1);
+    insertsymbol(st, "print", -1, FUNC_TYPE);
+    insertsymbol(st, "int", -1, CLASS_TYPE);
+    insertsymbol(st, "abs", -1, FUNC_TYPE);
+    insertsymbol(st, "bool", -1, CLASS_TYPE);  
+    insertsymbol(st, "chr", -1, FUNC_TYPE);
+    insertsymbol(st, "dict", -1, CLASS_TYPE);
+    insertsymbol(st, "float", -1, CLASS_TYPE);
+    insertsymbol(st, "input", -1, FUNC_TYPE);
+    insertsymbol(st, "int", -1, CLASS_TYPE);    
+    insertsymbol(st, "len", -1, FUNC_TYPE);
+    insertsymbol(st, "list", -1, CLASS_TYPE);
+    insertsymbol(st, "max", -1, FUNC_TYPE);
+    insertsymbol(st, "min", -1, FUNC_TYPE);
+    insertsymbol(st, "open", -1, FUNC_TYPE);
+    insertsymbol(st, "ord", -1, FUNC_TYPE);
+    insertsymbol(st, "pow", -1, FUNC_TYPE);
+    insertsymbol(st, "range", -1, CLASS_TYPE);
+    insertsymbol(st, "round", -1, FUNC_TYPE);
+    insertsymbol(st, "str", -1, CLASS_TYPE);
+    insertsymbol(st, "type", -1, CLASS_TYPE);
 }
 

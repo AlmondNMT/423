@@ -59,6 +59,7 @@ int alctoken(int category)
     int text_len = strlen(yytext);
     yylval.treeptr = malloc(sizeof(tree_t));
     check_alloc(yylval.treeptr, "yylval.treeptr");
+    printf("%s: %s\n", rev_token(category), yytext);
     
     int i = 0;
     while(i<9)
@@ -192,6 +193,7 @@ struct tree* make_tree(char * symbname, int argc, ...)
 {
     make_tree_count++;
     va_list ap;
+    //printf("%s\n", symbname);
     va_start(ap, argc);
     int i = 0;
     struct tree *kids[9];

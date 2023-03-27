@@ -20,6 +20,7 @@ typedef struct sym_entry {
     int lineno;                 /* One what line was this first found? */
     int declared;               /* is this symbol declared in this scope? */
     struct sym_table *nested;   /* nested symbol table (if any) */
+    struct typeinfo *typ;
     /* more symbol attributes go here for code generation */
     struct sym_entry *next;
 } *SymbolTableEntry;
@@ -50,13 +51,14 @@ uint hash(SymbolTable st, char *s);
 SymbolTableEntry findsymbol(SymbolTable st, char *s);
 void insertclass(struct tree *t, SymbolTable st);
 void insertfunction(struct tree *t, SymbolTable st);
-int insertsymbol(SymbolTable st, char *s, int lineno); // TODO: Add typeptr later
+int insertsymbol(SymbolTable st, char *s, int lineno, int basetype); // TODO: Add typeptr later
 void locate_undeclared(struct tree *t, SymbolTable st);
 void mark_undeclared(SymbolTable st);
 SymbolTable mksymtab(int nbuckets, char *table_name);
 SymbolTable mknested(int nbuckets, SymbolTable parent, char *scope);
 void populate_symboltables(struct tree *t, SymbolTable st);
 void printsymbols(SymbolTable st, int level);
+void print_basetype(SymbolTableEntry entry);
 SymbolTableEntry removesymbol(SymbolTable st, char *s);
 void semantics(struct tree *t, SymbolTable st);
 void scope_enter(char *s);

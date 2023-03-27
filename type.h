@@ -42,6 +42,13 @@ union {
          int nparams;
          struct param *parameters;
     } f;
+    struct classinfo {
+        char *name;
+        int defined;
+        struct sym_table *st;
+        int nparams;                // For constructor?
+        struct param *parameters;
+    } cls;
 } u;
 } *typeptr;
 

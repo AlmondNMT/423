@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <time.h>
+#include "errdef.h"
 #include "punygram.tab.h"
 #include "utils.h"
 
@@ -282,7 +283,7 @@ int yyerror(char *s)
 int yylexerror(char *s)
 {
     fprintf(stderr, "%s:%d: Lexical error: %s before '%s' token\n", yyfilename, yylineno, s, yytext);
-    exit(1);
+    exit(LEX_ERR);
 }
 
 /** Prints error message and exits if given object is null

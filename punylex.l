@@ -8,6 +8,7 @@
 #include "tree.h"
 #include "punygram.tab.h"
 #include "utils.h"
+int unmatched_quotes = 0;
 int dentstack[100]={0};
 int top=0;
 int indentlevel(char *s);		
@@ -38,10 +39,16 @@ integer                     {int_dec}|{int_hex}|0+
 float_noexp                 ([0-9]+(_?[0-9])*\.[0-9]*(_?[0-9])*)|([0-9]*(_?[0-9])*\.[0-9]+(_?[0-9])*)
 float                       {float_noexp}|(({float_noexp}|([0-9]+(_?[0-9])*))[eE][+-]?[0-9]+(_?[0-9])*)
 comment                     #+[^\n]*
+unmatched_dquotes           \"([^\"\n]|(\"{2}))*[\n]?
+unmatched_squotes           \'([^\'\n]|(\'{2}))*[\n]?
+unmatched_quotes            {unmatched_dquotes}|{unmatched_squotes}
 %%
 
 {comment}			{ column += strlen(yytext); } // comments
 <<EOF>>             { 
+                        if(unmatched_quotes) {
+                            yylexerror("EOF while scanning string literal");
+                        }
                         if(firsttime++ == 0) {
                             int il = 0;
                             dedentcount = count_dedents(&top, dentstack, il, yylineno);
@@ -239,20 +246,23 @@ comment                     #+[^\n]*
             }
 .		{column++;}
 (\n|\r\n)      {column = 1; yylineno++;}
+
+{unmatched_quotes} {yylexerror("EOL while scanning literal"); }
 %%
 
 
+
 int indentlevel(char *s)
-{      
-   int column = 1;
-   while(*s == '\t' || *s == ' ') {
+{
+   column = 1;
+   while(*s != '\0') {
       if (*s == '\t') {
          while ((column % 8) != 0) column++;
       }
-      else if (*s == ' ') column++;
+      else column++;
       s++;
    }
-   return column-1;
+   return column;
 }
 
 #undef yylex
