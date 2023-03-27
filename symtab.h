@@ -1,5 +1,6 @@
 #define HASH_TABLE_SIZE (1 << 12)
-struct tree; // Definition found in tree.h
+struct tree;     // Definition found in tree.h
+struct typeinfo; // Definition found in type.h
 typedef unsigned int uint;
 
 typedef struct sym_table {
@@ -30,17 +31,22 @@ typedef struct symtab_stack {
 } *SymtabStack;
 
 // Prototypes
+void assigntype(struct tree *t, struct typeinfo *typ);
 void add_global_names(SymbolTable st, struct tree *t);
 void add_puny_builtins(SymbolTable st);
 void check_redeclared_variables(SymbolTable st);
 void check_undeclared_variables(SymbolTable st);
 void check_decls(struct tree *t, SymbolTable st);
 void free_symtab(SymbolTable st);
+
 void get_assignment_symbols(struct tree *t, SymbolTable st);
 void get_function_params(struct tree *t, SymbolTable ftable);
+void get_for_iterator(struct tree *t, SymbolTable table);
 void get_import_symbols(struct tree *t, SymbolTable st);
+
 SymbolTable get_global_symtab(SymbolTable st);
 uint hash(SymbolTable st, char *s);
+
 SymbolTableEntry findsymbol(SymbolTable st, char *s);
 void insertclass(struct tree *t, SymbolTable st);
 void insertfunction(struct tree *t, SymbolTable st);

@@ -1,5 +1,6 @@
 #define TEXT_TRUNCATION_LEVEL 20
-struct sym_table;
+struct sym_table; // Found in symtab.h
+struct typeinfo;  // Found in type.h
 
 typedef struct token {
     int category;   /* the integer code returned by yylex */
@@ -23,8 +24,9 @@ typedef struct tree {
     int prodrule;
     char *symbolname;
     int nkids;
-    struct sym_table *stab;
+    struct sym_table *stab; // Symbol table associated with the node
     struct token *leaf;
+    struct typeinfo *type;
     struct tree *kids[9];
 } tree_t;
 

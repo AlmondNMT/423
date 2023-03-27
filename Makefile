@@ -16,7 +16,7 @@ compile: lex.yy.c punygram.tab.c utils.c main.c back.c tree.c symtab.c utils.h s
 
 link: lex.yy.o utils.o main.o back.o tree.o punygram.tab.o symtab.o type.o
 	gcc -g -Wall lex.yy.o punygram.tab.o utils.o tree.o main.o back.o type.o symtab.o -o puny
-	#./puny test.py
+	./puny test.py
 
 tests: tests.c punylex.l punygram.y utils.c back.c tree.c symtab.c tree.h utils.h symtab.h
 	bison punygram.y

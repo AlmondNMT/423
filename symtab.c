@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include "errdef.h"
 #include "punygram.tab.h"
 #include "symtab.h"
 #include "tree.h"
+#include "utils.h"
 
 extern tree_t* tree;
 
@@ -31,6 +33,8 @@ void populate_symboltables(struct tree *t, SymbolTable st) {
         //insertsymbol(st, t->leaf->text, t->leaf->lineno);
     } else if(strcmp(t->symbolname, "dotted_as_names") == 0) {
         get_import_symbols(t, st);
+    } else if(strcmp(t->symbolname, "for_stmt") == 0) {
+        get_for_iterator(t, st);
     }
     for(int i = 0; i < t->nkids; i++) {
         populate_symboltables(t->kids[i], st);
@@ -52,7 +56,11 @@ void locate_undeclared(struct tree *t, SymbolTable st)
 {
     if(t == NULL || st == NULL) 
         return;
-    if(strcmp(t->symbolname, "NAME") == 0) {
+    if(strcmp(t->symbolname, "dotted_as_name") == 0) {
+        // Don't check names in import stmts
+        return;
+    }
+    else if(strcmp(t->symbolname, "NAME") == 0) {
         //printf("%s\n", t->leaf->text);
         check_decls(t, st);
     }
@@ -179,6 +187,8 @@ void get_assignment_symbols(struct tree *t, SymbolTable st)
     if(strcmp(t->symbolname, "power") == 0) {
         if(t->kids[0]->leaf != NULL && strcmp(t->kids[0]->symbolname, "NAME") == 0
                 && (t->nkids == 1 || strcmp(t->kids[1]->symbolname, "trailer_rep") != 0)) {
+            // If the first child of power has a leaf, and it is a NAME, and either 
+            // the current tree has 1 child or its second child is not trailer_rep
             insertsymbol(st, t->kids[0]->leaf->text, t->kids[0]->leaf->lineno);
         }
     }
@@ -192,6 +202,14 @@ void get_assignment_symbols(struct tree *t, SymbolTable st)
     }
 }
 
+/** 
+ * Assign types to the tree nodes
+ */
+void assigntype(struct tree *t, struct typeinfo *typ)
+{
+
+}
+
 /**
  * TODO: Implement name-mangling for classes
  * Search for packages (other python files) in current directory, then 
@@ -200,8 +218,44 @@ void get_assignment_symbols(struct tree *t, SymbolTable st)
  */
 void get_import_symbols(struct tree *t, SymbolTable st)
 {
-    char *import_name = t->kids[0]->kids[0]->leaf->text;
-    printf("import name: %s\n", import_name);
+    struct tree *dotted_as_name = t->kids[0];
+    char *import_name = dotted_as_name->kids[0]->leaf->text;
+    char filename[PATHMAX];
+    strcpy(filename, import_name);
+    strcat(filename, ".py");
+    if(access(filename, F_OK) != 0) {
+        fprintf(stderr, "No module named '%s'\n", import_name);
+        exit(SEM_ERR);
+    }
+    if(strcmp(dotted_as_name->kids[1]->symbolname, "as_name_opt") == 0) { // Always true. Either nulltree or as_name_opt
+        struct token *alias = dotted_as_name->kids[1]->kids[0]->leaf;
+        insertsymbol(st, alias->text, alias->lineno);
+
+    } else {
+        insertsymbol(st, import_name, dotted_as_name->kids[0]->leaf->lineno);
+    }
+}
+
+/**
+ * Get the iterating variable in for loops. We're only considering loops of the
+ * form:
+ * ```
+ * for var in range(...):
+ *   # do something
+ * ```
+ *
+ * Assume: Starting node is for_stmt
+ */
+void get_for_iterator(struct tree *t, SymbolTable st)
+{
+    if(t == NULL || st == NULL) 
+        return;
+    if(strcmp(t->symbolname, "power") != 0) {
+        get_for_iterator(t->kids[0], st);
+        return;
+    } else {
+        insertsymbol(st, t->kids[0]->leaf->text, t->kids[0]->leaf->lineno);
+    }
 }
 
 void insertclass(struct tree *t, SymbolTable st)
