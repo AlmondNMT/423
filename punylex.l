@@ -86,6 +86,7 @@ unmatched_quotes            {unmatched_dquotes}|{unmatched_squotes}
 (\n|\r\n)[ \t]+/[^ \t\n\r]   { 	
                         yylineno++; 
                         int il = indentlevel(yytext+1);
+                        printf("%d\n", il);
                         column=il+1;
                         if(!is_enclosed(paren_nesting, sqbr_nesting, cbr_nesting)) {
                             if (il > dentstack[top]) {
@@ -257,6 +258,8 @@ int indentlevel(char *s)
    column = 1;
    while(*s != '\0') {
       if (*s == '\t') {
+         column++;
+         printf("asdf ");
          while ((column % 8) != 0) column++;
       }
       else column++;
