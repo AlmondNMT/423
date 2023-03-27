@@ -36,6 +36,8 @@ void populate_symboltables(struct tree *t, SymbolTable st) {
         get_import_symbols(t, st);
     } else if(strcmp(t->symbolname, "for_stmt") == 0) {
         get_for_iterator(t, st);
+    } else if(strcmp(t->symbolname, "decl_stmt") == 0) {
+        get_decl_stmt(t, st);
     }
     for(int i = 0; i < t->nkids; i++) {
         populate_symboltables(t->kids[i], st);
@@ -203,6 +205,18 @@ void get_assignment_symbols(struct tree *t, SymbolTable st)
             //}
         }
     }
+}
+
+
+/** 
+ * Add declarations to symbol table
+ * TODO: get type info
+ */
+void get_decl_stmt(struct tree *t, SymbolTable st)
+{
+    if(t == NULL || st == NULL) 
+        return;
+    insertsymbol(st, t->kids[0]->leaf->text, t->kids[0]->leaf->lineno, ANY_TYPE);
 }
 
 /** 

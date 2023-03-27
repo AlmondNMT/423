@@ -1,3 +1,7 @@
+# A test of while loop syntax
+def random():
+	return d20 != 20
+
 def main():
 	# test1 : int
 	# test2 : int

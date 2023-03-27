@@ -91,7 +91,7 @@ small_stmt: pass_stmt
     //| assert_stmt {yyerror(puny_support_err); }
     ;
 
-decl_stmt: NAME COLON NAME {$$=make_tree("decl_stmt", 2, $1, $3); }
+decl_stmt: NAME COLON NAME equal_test_opt {$$=make_tree("decl_stmt", 3, $1, $3, $4); }
     ;
 
 global_stmt: GLOBAL NAME comma_name_rep {$$=make_tree("global_stmt", 2, $2,$3);}

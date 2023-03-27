@@ -59,7 +59,7 @@ int alctoken(int category)
     int text_len = strlen(yytext);
     yylval.treeptr = malloc(sizeof(tree_t));
     check_alloc(yylval.treeptr, "yylval.treeptr");
-    printf("%s: %s\n", rev_token(category), yytext);
+    //printf("%s: %s | \n", rev_token(category), yytext, indent);
     
     int i = 0;
     while(i<9)
