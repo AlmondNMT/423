@@ -1,4 +1,5 @@
-import fdsa as fifa
+import fdsa
+a: int = 3
 class asdf:
     t1 = 3
     t2 = 4
@@ -18,3 +19,5 @@ def g(x):
     return x + a
 print(asdf)
 print(t3)
+f = open("asdf.txt", "w")
+

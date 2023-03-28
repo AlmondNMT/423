@@ -32,7 +32,7 @@ void dealloc_list(tokenlist_t *l);
 int main(int argc, char *argv[]) {
 
     bool symtab_opt = false; // Should we print symbol table? #TODO Change back for HWs
-    bool tree_opt = true;   // Should we print the tree?
+    bool tree_opt = false;   // Should we print the tree?
 
     for(int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-symtab") == 0) {
@@ -74,7 +74,7 @@ int main(int argc, char *argv[]) {
         if(tree_opt) {
             print_tree(tree, 0);
         }
-        //semantics(tree, global);
+        semantics(tree, global);
         if(symtab_opt) {
             printsymbols(global, 0);
         }

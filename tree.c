@@ -120,48 +120,6 @@ void free_tree(struct tree *t)
 }
 
 
-/**
- * @return zero if everything executes correctly or nonzero if error printing
- */
-int print_token(token_t *t)
-{
-    if(t == NULL) {
-        return 1;
-    }
-    char truncated_text[TEXT_TRUNCATION_LEVEL+1] = "";
-    truncate_str(truncated_text, t->text, TEXT_TRUNCATION_LEVEL);
-    printf("%s\t\t\t%s\t\t%d\t\t%d\t\t%s\t\t", rev_token(t->category), truncated_text, t->lineno, t->column, t->filename);
-    if(t->category == INTLIT)
-        printf("%d\n", t->ival);
-    else if(t->category == FLOATLIT)
-        printf("%f\n", t->dval);
-    else if(t->category == STRINGLIT) {
-        char truncated_str[TEXT_TRUNCATION_LEVEL+1] = "";
-        truncate_str(truncated_str, t->sval, TEXT_TRUNCATION_LEVEL);
-        printf("%s\n", truncated_str);
-    }
-    else
-        printf("\n");
-    if(t->category == INDENT) {
-        indentation_level++;
-        indent_count++;
-        if(indentation_level > max_indent) {
-            max_indent = indentation_level;
-        }
-        printf("\tINDENTATION LEVEL: %d\n", indentation_level);
-        printf("\tINDENT COUNT: %d\tDEDENT COUNT: %d\n", indent_count, dedent_count);
-        printf("\tMAX INDENT: %d\n", max_indent);
-    }
-    else if(t->category == DEDENT) {
-        dedent_count++;
-        indentation_level--;
-        printf("\tINDENTATION LEVEL: %d\n", indentation_level);
-        printf("\tINDENT COUNT: %d\tDEDENT COUNT: %d\n", indent_count, dedent_count);
-        printf("\tMAX INDENT: %d\n", max_indent);
-    }
-    return 0;
-}
-
 struct tree* append_kid(struct tree * kidspassed[], char * symbnam)
 {
     int i = 0;
@@ -296,28 +254,3 @@ void printsymbol(char *s)
 {
     printf("%s\n", s); fflush(stdout);
 }
-
-
-/** Display list contents
- * @param l the head of the list
- */
-void print_list(tokenlist_t *l)
-{
-	tokenlist_t *curr = l;
-    printf("\n");
-    if(l != NULL) {
-        printf("Category\t\tText\tLineno\tColumn\tFilename\tIval/Sval\n");
-        for(int i = 0; i < 80; i++) printf("-");
-        printf("\n");
-    }
-    else {
-        printf("Token list is empty.\n");
-    }
-	while(curr != NULL) { 
-        if(print_token(curr->t) == 0)
-            curr = curr->next;
-        else
-            break;
-	}
-}
-

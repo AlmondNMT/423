@@ -33,11 +33,15 @@ void populate_symboltables(struct tree *t, SymbolTable st) {
         get_assignment_symbols(t, st);
         //insertsymbol(st, t->leaf->text, t->leaf->lineno);
     } else if(strcmp(t->symbolname, "dotted_as_names") == 0) {
+        // Import statements
         get_import_symbols(t, st);
+        return;
     } else if(strcmp(t->symbolname, "for_stmt") == 0) {
         get_for_iterator(t, st);
+        return;
     } else if(strcmp(t->symbolname, "decl_stmt") == 0) {
         get_decl_stmt(t, st);
+        return;
     }
     for(int i = 0; i < t->nkids; i++) {
         populate_symboltables(t->kids[i], st);
@@ -410,7 +414,7 @@ void printsymbols(SymbolTable st, int level)
     for (i = 0; i < st->nBuckets; i++) {
         for(SymbolTableEntry entry = st->tbl[i]; entry != NULL; entry = entry->next) {
             for(int j = 0; j < entry->table->level; j++) {
-                printf("  ");
+                printf("   ");
             }
             printf("%d %s: ", i, entry->ident);
             print_basetype(entry); // Switch statements for base types
@@ -424,13 +428,43 @@ void printsymbols(SymbolTable st, int level)
 void print_basetype(SymbolTableEntry entry)
 {
     switch(entry->typ->basetype) {
-        case FIRST_TYPE:
-            printf("First type");
+        case NONE_TYPE:
+            printf("None");
+            break;
+        case INT_TYPE:
+            printf("Int");
+            break;
+        case ANY_TYPE:
+            printf("Any");
+            break;
+        case CLASS_TYPE:
+            printf("Class");
+            break;
+        case LIST_TYPE:
+            printf("List");
+            break;
+        case FLOAT_TYPE:
+            printf("Float");
+            break;
+        case FUNC_TYPE:
+            printf("Func");
+            break;
+        case DICT_TYPE:
+            printf("Dict");
+            break;
+        case BOOL_TYPE:
+            printf("Bool");
+            break;
+        case STRING_TYPE:
+            printf("String");
+            break;
+        case PACKAGE_TYPE:
+            printf("Package");
             break;
         default:
             printf("Mystery type");
     }
-    printf("\n");
+    printf(" type\n");
 }
 
 /** 

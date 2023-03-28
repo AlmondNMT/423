@@ -32,19 +32,12 @@ typedef struct tree {
 
 // Token/List/Tree function prototypes
 int alctoken(int category);
-void create_token(tokenlist_t *list, int category, char *yytext, int rows, int column, char *filename);
-int insert_node(tokenlist_t *l, double dval, char *sval, int ival, char *text, int cat, int rows, int column, char *filename);
 void print_list(tokenlist_t *l);
-void dealloc_list(tokenlist_t *l);
 void free_tree(struct tree *);
-void free_token(token_t *t);
-int print_token(token_t *node);
 void printsyms(struct tree *t);
 void printsymbol(char *s);
-tokenlist_t *insert_tail_node(tokenlist_t *l, tokenlist_t *node);
 int get_lineno(char *text, int rows);
 int get_column(char *text, int column);
 struct tree* append_kid(struct tree * kidspassed[], char * symbnam);
 void print_tree(struct tree * t, int depth);
 struct tree* make_tree(char * symbname, int argc, ...);
-//struct tree *alloc_tree(int R, ...);

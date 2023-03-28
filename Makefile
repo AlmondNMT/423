@@ -34,5 +34,5 @@ clean:
 	rm -f lex.yy.c puny tests *.o a.out punygram.tab.*
 
 zip: punylex.l punygram.y main.c utils.c back.c tree.c tree.h utils.h Makefile printsyms.c symtab.h symtab.c test.py
-	zip hw3.zip punygram.y punylex.l main.c utils.c back.c tree.c tree.h utils.h Makefile symtab.h symtab.c printsyms.c errdef.h type.c type.h test.py fdsa.py
+	zip lab6.zip punygram.y punylex.l main.c utils.c back.c tree.c tree.h utils.h Makefile symtab.h symtab.c printsyms.c errdef.h type.c type.h test.py fdsa.py
 	# Don't forget to remove test.py and fdsa.py for the HWs
