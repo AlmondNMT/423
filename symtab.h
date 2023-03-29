@@ -57,7 +57,7 @@ int insertsymbol(SymbolTable st, char *s, int lineno, int basetype); // TODO: Ad
 void locate_undeclared(struct tree *t, SymbolTable st);
 void mark_undeclared(SymbolTable st);
 SymbolTable mksymtab(int nbuckets, char *table_name);
-SymbolTable mknested(int nbuckets, SymbolTable parent, char *scope);
+SymbolTable mknested(struct tree *t, int nbuckets, SymbolTable parent, char *scope);
 void populate_symboltables(struct tree *t, SymbolTable st);
 void printsymbols(SymbolTable st, int level);
 void print_basetype(SymbolTableEntry entry);
@@ -66,5 +66,6 @@ void semantics(struct tree *t, SymbolTable st);
 void scope_enter(char *s);
 void scope_exit();
 void scope_level();
-void scope_lookup(char *name);
-void scope_lookup_current(char *name);
+int scope_lookup(char *name, SymbolTable st);
+int scope_lookup_current(char *name, SymbolTable st);
+void semantic_error(char *filename, int lineno, char *msg, ...);
