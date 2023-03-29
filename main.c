@@ -61,10 +61,10 @@ int main(int argc, char *argv[]) {
         firsttime = 0;
         indent_count = dedent_count = 0;
 
-        /** Parse */
+        // Parse 
         yyparse();
 
-        /** Initialize SymbolTable Stack with HASH_TABLE_SIZE buckets */
+        // Initialize SymbolTable Stack with HASH_TABLE_SIZE buckets 
         SymbolTable global = mksymtab(HASH_TABLE_SIZE, "global"); 
         if(global == NULL) {
             fprintf(stderr, "Unable to allocate symbol table\n");
@@ -74,6 +74,7 @@ int main(int argc, char *argv[]) {
         if(tree_opt) {
             print_tree(tree, 0);
         }
+        // Populate symbol tables and obtain type information
         semantics(tree, global);
         if(symtab_opt) {
             printsymbols(global, 0);

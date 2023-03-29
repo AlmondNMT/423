@@ -51,6 +51,8 @@ void populate_symboltables(struct tree *t, SymbolTable st) {
 
 void semantics(struct tree *t, SymbolTable st)
 {
+    if(t == NULL || st == NULL) 
+        return;
     add_puny_builtins(st);
     populate_symboltables(t, st);
     locate_undeclared(t, st);

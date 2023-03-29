@@ -149,7 +149,7 @@ char *substring(char *s, int start, int end)
 {	
     int i = 0;
     int length = end - start;
-    char *ret = calloc(length + 1, sizeof(char));
+    char *ret = calloc(length + 2, sizeof(char));
     while (i < length) {
         ret[i] = s[i + start];
         i++;
