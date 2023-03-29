@@ -28,6 +28,8 @@ typedef struct tree {
     struct token *leaf;
     struct typeinfo *type;
     struct tree *kids[9];
+
+    int id; //needed for dot
 } tree_t;
 
 // Token/List/Tree function prototypes
