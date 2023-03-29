@@ -1,3 +1,4 @@
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -87,9 +88,10 @@ void locate_undeclared(struct tree *t, SymbolTable st)
  */
 void check_decls(struct tree *t, SymbolTable st)
 {
+    struct token *leaf = t->leaf;
     char *ident = t->leaf->text;
     if(st == NULL) { // It couldn't be found (global->parent = NULL)
-        fprintf(stderr, "Name '%s' not defined\n", ident);
+        semantic_error(leaf->filename, leaf->lineno, "Name '%s' not defined\n", ident);
         exit(SEM_ERR);
     }
     uint h = hash(st, ident);
@@ -147,7 +149,7 @@ void insertfunction(struct tree *t, SymbolTable st)
             // If new function definition found, overwrite previous nested table
             entry = e;
             free_symtab(entry->nested);
-            entry->nested = mknested(HASH_TABLE_SIZE, st, "function");
+            entry->nested = mknested(t, HASH_TABLE_SIZE, st, "function");
             t->stab = entry->nested;
             get_function_params(t->kids[1], entry->nested); // Add parameters 
             //populate_symboltables(t->kids[2], entry->nested); // Add rarrow test
@@ -156,7 +158,7 @@ void insertfunction(struct tree *t, SymbolTable st)
         }
     }
     entry = calloc(1, sizeof(SymbolTableEntry));
-    entry->nested = mknested(HASH_TABLE_SIZE, st, "function"); // make symbol table for function scope
+    entry->nested = mknested(t, HASH_TABLE_SIZE, st, "function"); // make symbol table for function scope
     t->stab = entry->nested;
     populate_symboltables(t->kids[1], entry->nested); // Add parameters 
     //populate_symboltables(t->kids[2], entry->nested); // Add rarrow test
@@ -222,6 +224,12 @@ void get_decl_stmt(struct tree *t, SymbolTable st)
 {
     if(t == NULL || st == NULL) 
         return;
+    struct token *leaf = t->kids[0]->leaf;
+    char *name = leaf->text;
+    if(scope_lookup_current(name, st)) {
+        // Redeclaration error
+        semantic_error(leaf->filename, leaf->lineno, "Redeclaration for name '%s' in scope '%s'\n", name, st->scope);
+    }
     insertsymbol(st, t->kids[0]->leaf->text, t->kids[0]->leaf->lineno, ANY_TYPE);
 }
 
@@ -233,8 +241,50 @@ void assigntype(struct tree *t, struct typeinfo *typ)
 
 }
 
+/** 
+ * Semantic error printing
+ */
+void semantic_error(char *filename, int lineno, char *msg, ...)
+{
+    va_list args;
+    va_start(args, msg);
+    int counter = 0;
+    fprintf(stderr, "%s:%d: ", filename, lineno);
+    while (*msg != '\0') {
+        switch (*msg) {
+            case '%':
+                switch(*(++msg)) {
+                    case 'd': {
+                        int arg = va_arg(args, int);
+                        fprintf(stderr, "%d", arg);
+                        break;
+                    }
+                    case 'f': {
+                        double arg = va_arg(args, double);
+                        fprintf(stderr, "%f", arg);
+                        break;
+                    }
+                    case 's': {
+                        char *arg = va_arg(args, char*);
+                        fprintf(stderr, "%s", arg);
+                        break;
+                    }
+                }
+                break;
+            default:
+                fprintf(stderr, "%c", *msg);
+        }
+        ++msg;
+        ++counter;
+    }
+
+    va_end(args);
+
+    exit(SEM_ERR);
+}
+
 /**
- * TODO: Implement name-mangling for classes
+ * TODO: Not sure how to handle attribute accesses yet
  * Search for packages (other python files) in current directory, then 
  * build AST for that package and populate its symbol table
  * Assumption: Current t pointer is pointing at dotted_as_names 
@@ -242,13 +292,13 @@ void assigntype(struct tree *t, struct typeinfo *typ)
 void get_import_symbols(struct tree *t, SymbolTable st)
 {
     struct tree *dotted_as_name = t->kids[0];
-    char *import_name = dotted_as_name->kids[0]->leaf->text;
+    struct token *leaf = dotted_as_name->kids[0]->leaf;
+    char *import_name = leaf->text;
     char filename[PATHMAX];
     strcpy(filename, import_name);
     strcat(filename, ".py");
     if(access(filename, F_OK) != 0) {
-        fprintf(stderr, "No module named '%s'\n", import_name);
-        exit(SEM_ERR);
+        semantic_error(leaf->filename, leaf->lineno, "No module named '%s'\n", import_name);
     }
     if(strcmp(dotted_as_name->kids[1]->symbolname, "as_name_opt") == 0) { 
         struct token *alias = dotted_as_name->kids[1]->kids[0]->leaf;
@@ -293,7 +343,7 @@ void insertclass(struct tree *t, SymbolTable st)
             // If new class definition found, overwrite previous nested table
             entry = e;
             free_symtab(entry->nested);
-            entry->nested = mknested(HASH_TABLE_SIZE, st, "class");
+            entry->nested = mknested(t, HASH_TABLE_SIZE, st, "class");
             t->stab = entry->nested;
             populate_symboltables(t->kids[1], entry->nested); // Add parameters 
             populate_symboltables(t->kids[2], entry->nested); // Add suite
@@ -301,7 +351,7 @@ void insertclass(struct tree *t, SymbolTable st)
         }
     }
     entry = calloc(1, sizeof(SymbolTableEntry));
-    entry->nested = mknested(HASH_TABLE_SIZE, st, "class"); // make symbol table for function scope
+    entry->nested = mknested(t, HASH_TABLE_SIZE, st, "class"); // make symbol table for function scope
     t->stab = entry->nested;
     populate_symboltables(t->kids[1], entry->nested); // Add parameters 
     populate_symboltables(t->kids[2], entry->nested); // Add suite
@@ -347,14 +397,12 @@ SymbolTable mksymtab(int nbuckets, char *scope)
 
 
 // Create a symbol table for functions/classes
-SymbolTable mknested(int nbuckets, SymbolTable parent, char *scope)
+SymbolTable mknested(struct tree *t, int nbuckets, SymbolTable parent, char *scope)
 {
     if(strcmp(parent->scope, "function") == 0) {
-        fprintf(stderr, "Function nesting not allowed in puny\n");
-        exit(SEM_ERR);
+        semantic_error(t->leaf->filename, t->leaf->lineno, "Function nesting not allowed in puny\n");
     } else if (strcmp(parent->scope, "class") == 0 && strcmp(scope, "class") == 0) {
-        fprintf(stderr, "Class nesting not allowed in puny\n");
-        exit(SEM_ERR);
+        semantic_error(t->leaf->filename, t->leaf->lineno, "Class nesting not allowed in puny\n");
     }
     SymbolTable ftable = mksymtab(nbuckets, scope);
     ftable->level = parent->level + 1;
@@ -528,6 +576,30 @@ void free_symtab(SymbolTable st) {
     free(st);
 }
 
+
+int scope_lookup(char *name, SymbolTable st) {
+    if(name == NULL)
+        return 0;
+    SymbolTable curr = st;
+    while(curr != NULL) {
+        if(scope_lookup_current(name, st)) 
+            return 1;
+        else
+            curr = st -> parent;
+    }
+    return 0;
+}
+
+int scope_lookup_current(char *name, SymbolTable st) {
+    if(name == NULL)
+        return 0;
+    uint h = hash(st, name);
+    for(SymbolTableEntry e = st->tbl[h]; e != NULL; e = e->next) {
+        if(strcmp(e->ident, name) == 0)
+            return 1;
+    }
+    return 0;
+}
 
 void add_puny_builtins(SymbolTable st) {
     insertsymbol(st, "print", -1, FUNC_TYPE);
