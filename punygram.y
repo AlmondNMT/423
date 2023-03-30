@@ -639,3 +639,11 @@ dictorset_option_2: test comp_for_OR_ctr_co  {$$=make_tree("dictorset_option_2",
 comp_for_OR_ctr_co: comp_for
     | comma_test_rep comma_opt {$$=make_tree("comp_for_OR_ctr_co", 2,$1,$2);}
     ;
+    
+    
+%%
+/*
+const char *yyname(int sym)
+{
+   return yytname[sym-BAD_TOKEN+3];
+}*/

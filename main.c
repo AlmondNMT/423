@@ -33,6 +33,7 @@ int main(int argc, char *argv[]) {
 
     bool symtab_opt = false; // Should we print symbol table? #TODO Change back for HWs
     bool tree_opt = false;   // Should we print the tree?
+    bool dot_opt = false;
 
     for(int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-symtab") == 0) {
@@ -42,6 +43,11 @@ int main(int argc, char *argv[]) {
             tree_opt = true;
             continue;
         }
+	else if(strcmp(argv[i], "-dot") == 0) {
+		dot_opt = true;
+		continue;
+	}
+
         if (access(argv[i], F_OK) == 0 && strstr(argv[i], ".py")) { // Check if file exists and has .py extension
             yyin = fopen(argv[i], "rb");
             strcpy(yyfilename, argv[i]);
