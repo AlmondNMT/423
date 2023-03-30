@@ -1,3 +1,4 @@
+#include <stdio.h>
 #define TEXT_TRUNCATION_LEVEL 20
 struct sym_table; // Found in symtab.h
 struct typeinfo;  // Found in type.h
@@ -43,3 +44,11 @@ int get_column(char *text, int column);
 struct tree* append_kid(struct tree * kidspassed[], char * symbnam);
 void print_tree(struct tree * t, int depth);
 struct tree* make_tree(char * symbname, int argc, ...);
+
+// Graphviz prototypes
+char *escape(char *s);
+char *pretty_print_name(struct tree *t);
+void print_branch(struct tree *t, FILE *f);
+void print_leaf(struct tree *t, FILE *f);
+void print_graph2(struct tree *t, FILE *f);
+void print_graph(struct tree *t, char *filename);

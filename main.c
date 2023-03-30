@@ -42,11 +42,10 @@ int main(int argc, char *argv[]) {
         } else if(strcmp(argv[i], "-tree") == 0) {
             tree_opt = true;
             continue;
+        } else if(strcmp(argv[i], "-dot") == 0) {
+            dot_opt = true;
+            continue;
         }
-	else if(strcmp(argv[i], "-dot") == 0) {
-		dot_opt = true;
-		continue;
-	}
 
         if (access(argv[i], F_OK) == 0 && strstr(argv[i], ".py")) { // Check if file exists and has .py extension
             yyin = fopen(argv[i], "rb");
@@ -79,6 +78,13 @@ int main(int argc, char *argv[]) {
 
         if(tree_opt) {
             print_tree(tree, 0);
+        }
+        // Make pretty debugging graph of tree
+        if(dot_opt) {
+            char *graphname = calloc(strlen(yyfilename) + 10, sizeof(char));
+            sprintf(graphname, "%s.dot", yyfilename);
+            print_graph(tree, graphname);
+            free(graphname);
         }
         // Populate symbol tables and obtain type information
         semantics(tree, global);

@@ -18,6 +18,7 @@ int max_indent = 0;
 int indent_count = 0;
 int dedent_count = 0;
 int make_tree_count = 0, alctoken_count = 0;
+int serial = 0; // For tree printing
 
 // Current filename
 char yyfilename[PATHMAX];
@@ -126,6 +127,7 @@ struct tree* append_kid(struct tree * kidspassed[], char * symbnam)
     struct tree *newtree = malloc(sizeof(tree_t));
     newtree->symbolname = malloc(strlen(symbnam) + 1);
     newtree->stab = NULL;
+    newtree->id = serial++; // For graphical printing
     strcpy(newtree->symbolname, symbnam);
     while(i<9)
     {
@@ -255,3 +257,79 @@ void printsymbol(char *s)
 {
     printf("%s\n", s); fflush(stdout);
 }
+
+
+
+/*  ##### Graphviz printing #####  \\
+//  ####      Nihilism       ####  \\
+//  ###      C: Q×R →  S      ###  \\
+// add a \ before leading and trailing double quotes */
+char *escape(char *s) {
+    int len = strlen(s);
+    char *s2 = malloc(len * 2);
+    for(int i = 0, index = 0; i < len; i++, index++) {
+        if(s[i] == '\"') {
+            s2[index++] = '\\';
+            s2[index] = '\"';
+        } else {
+            s2[index] = s[i];
+        }
+    }
+    return s2;
+}
+
+char *pretty_print_name(struct tree *t) {
+    char *s2 = malloc(40);
+    if (t->leaf == NULL) {
+        sprintf(s2, "%s#%d", t->symbolname, t->prodrule % 10);
+        return s2;
+    }
+    else {
+        sprintf(s2,"%s:%d", escape(t->leaf->text), t->leaf->category);
+        return s2;
+    }
+}
+
+void print_branch(struct tree *t, FILE *f) {
+    fprintf(f, "N%d [shape=box label=\"%s\"];\n", t->id, pretty_print_name(t));
+}
+
+void print_leaf(struct tree *t, FILE *f) {
+    char * s = rev_token(t->leaf->category);
+    // print_branch(t, f);
+    fprintf(f, "N%d [shape=box style=dotted label=\" %s \\n ", t->id, s);
+    fprintf(f, "text = %s \\l lineno = %d \\l\"];\n", escape(t->leaf->text),
+            t->leaf->lineno);
+}
+
+void print_graph2(struct tree *t, FILE *f) {
+    int i;
+    if (t->leaf != NULL) {
+        print_leaf(t, f);
+        return;
+    }
+    /* not a leaf ==> internal node */
+    if(strcmp(t->symbolname, "nulltree") != 0) {
+        print_branch(t, f);
+        for(i=0; i < t->nkids; i++) {
+            if (t->kids[i] != NULL) {
+                fprintf(f, "N%d -> N%d;\n", t->id, t->kids[i]->id);
+                print_graph2(t->kids[i], f);
+            }
+            else { /* NULL kid, epsilon production or something */
+                fprintf(f, "N%d -> N%d%d;\n", t->id, t->id, serial);
+                fprintf(f, "N%d%d [label=\"%s\"];\n", t->id, serial, "Empty rule");
+                serial++;
+            }
+        }
+    }
+}
+
+void print_graph(struct tree *t, char *filename){
+    FILE *f = fopen(filename, "w"); /* should check for NULL */
+    fprintf(f, "digraph {\n");
+    print_graph2(t, f);
+    fprintf(f,"}\n");
+    fclose(f);
+}
+

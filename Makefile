@@ -18,12 +18,12 @@ link: lex.yy.o utils.o main.o back.o tree.o punygram.tab.o symtab.o type.o
 	gcc -g -Wall lex.yy.o punygram.tab.o utils.o tree.o main.o back.o type.o symtab.o -o puny
 	#./puny test.py
 
-tests: tests.c punylex.l punygram.y utils.c back.c tree.c symtab.c tree.h utils.h symtab.h
+tests: tests.c punylex.l punygram.y utils.c back.c tree.c symtab.c tree.h type.c type.h utils.h symtab.h
 	bison punygram.y
 	bison -d punygram.y
 	flex punylex.l
 	$(CC) $(CFLAGS) $(CFILES)
-	gcc -Wall -g lex.yy.o utils.o back.o tree.o punygram.tab.o symtab.o tests.c -o tests
+	gcc -Wall -g lex.yy.o utils.o back.o tree.o punygram.tab.o symtab.o tests.c type.o -o tests
 	./tests
 
 testsnolexing:

@@ -12,3 +12,5 @@ swearcheck.sh
 *.zip
 __pycache__/
 .DS_Store
+*.dot
+python3_scripts/*.dot
