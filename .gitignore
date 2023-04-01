@@ -14,3 +14,4 @@ __pycache__/
 .DS_Store
 *.dot
 python3_scripts/*.dot
+*.png
