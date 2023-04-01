@@ -14,20 +14,16 @@ extern FILE * yyin;
 extern int yylex();
 extern int yyparse();
 extern char *yytext;
-extern char *rev_token(int cat);
 extern int paren_nesting, sqbr_nesting, cbr_nesting;
 extern int firsttime;
 extern YYSTYPE yylval;
 extern tree_t* tree;
+
 // For debugging
 extern int indent_count, dedent_count;
 extern int make_tree_count, alctoken_count;
-//void dealloc_list(struct tokenlist *l);
 
 extern char yyfilename[PATHMAX];
-void print_list(tokenlist_t *l);
-//int insert_node(tokenlist_t **l, double dval, char *sval, int ival, char *text, int cat, int rows, char *filename);
-void dealloc_list(tokenlist_t *l);
 
 int main(int argc, char *argv[]) {
 

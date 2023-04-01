@@ -12,13 +12,14 @@ extern YYSTYPE yylval;
 extern int yylineno;
 extern int column;
 
-// ### DEBUGGING ### //
+// ### DEBUGGING ### \\
 int indentation_level = 0; 
 int max_indent = 0;
 int indent_count = 0;
 int dedent_count = 0;
 int make_tree_count = 0, alctoken_count = 0;
 int serial = 0; // For tree printing
+// ################# \\
 
 // Current filename
 char yyfilename[PATHMAX];

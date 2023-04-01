@@ -34,4 +34,4 @@ clean:
 	rm -f lex.yy.c puny tests *.o a.out punygram.tab.* *.zip
 
 zip: punylex.l punygram.y main.c utils.c back.c tree.c tree.h utils.h Makefile printsyms.c symtab.h symtab.c test.py
-	zip hw4.zip punygram.y punylex.l main.c utils.c back.c tree.c tree.h utils.h Makefile symtab.h symtab.c printsyms.c errdef.h type.c type.h
+	zip lab7.zip punygram.y punylex.l main.c utils.c back.c tree.c tree.h utils.h Makefile symtab.h symtab.c printsyms.c errdef.h type.c type.h
