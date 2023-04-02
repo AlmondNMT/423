@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
         }
         // Make pretty debugging graph of tree
         if(dot_opt) {
-            char *graphname = calloc(strlen(yyfilename) + 10, sizeof(char));
+            char *graphname = ckalloc(strlen(yyfilename) + 10, sizeof(char));
             sprintf(graphname, "%s.dot", yyfilename);
             print_graph(tree, graphname);
             free(graphname);

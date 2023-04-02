@@ -1,5 +1,7 @@
-int = 1
-def f(x: int) -> int:
-    return x
-a: f
-a = "asdf"
+a: int
+b: int
+c: int
+a = b = c = 3
+fdsa: list
+fdsa = [a, b, c]
+asdf = {a: "fdsa", b: "asdf"}

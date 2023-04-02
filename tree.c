@@ -59,7 +59,7 @@ int alctoken(int category)
 {
     alctoken_count++;
     int text_len = strlen(yytext);
-    yylval.treeptr = malloc(sizeof(tree_t));
+    yylval.treeptr = ckalloc(1, sizeof(tree_t));
     check_alloc(yylval.treeptr, "yylval.treeptr");
     //printf("%s: %s | \n", rev_token(category), yytext, indent);
     
@@ -69,16 +69,16 @@ int alctoken(int category)
     
     yylval.treeptr->prodrule = category;
     yylval.treeptr->nkids = 0;
-    yylval.treeptr->leaf = malloc(sizeof(token_t));
+    yylval.treeptr->leaf = ckalloc(1, sizeof(token_t));
     check_alloc(yylval.treeptr->leaf, "yylval.treeptr->leaf");
     yylval.treeptr->leaf->category = category;
     yylval.treeptr->leaf->lineno = yylineno;
     char *name = rev_token(category);
-    yylval.treeptr->symbolname = malloc(strlen(name)+1);
+    yylval.treeptr->symbolname = ckalloc(strlen(name)+1, sizeof(char));
     check_alloc(yylval.treeptr->symbolname, "yylval.treeptr->symbolname");
-    yylval.treeptr->leaf->text = calloc(text_len + 1, sizeof(char));
+    yylval.treeptr->leaf->text = ckalloc(text_len + 1, sizeof(char));
     check_alloc(yylval.treeptr->leaf->text, "yylval.treeptr->text allocation failed");
-    yylval.treeptr->leaf->filename = calloc(strlen(yyfilename) + 1, sizeof(char));
+    yylval.treeptr->leaf->filename = ckalloc(strlen(yyfilename) + 1, sizeof(char));
     check_alloc(yylval.treeptr->leaf->filename, "yylval.treeptr->filename allocation failed");
     strcpy(yylval.treeptr->leaf->filename, yyfilename); 
     strcpy(yylval.treeptr->leaf->text, yytext);
@@ -90,7 +90,7 @@ int alctoken(int category)
         yylval.treeptr->leaf->dval = extract_float(yytext);
     }
     else if(category == STRINGLIT) {
-        yylval.treeptr->leaf->sval = calloc(strlen(yytext), sizeof(char));
+        yylval.treeptr->leaf->sval = ckalloc(strlen(yytext), sizeof(char));
         int retval = extract_string(yylval.treeptr->leaf->sval, yytext);
         if(retval < 0) {
             return retval;
@@ -125,8 +125,8 @@ void free_tree(struct tree *t)
 struct tree* append_kid(struct tree * kidspassed[], char * symbnam)
 {
     int i = 0;
-    struct tree *newtree = malloc(sizeof(tree_t));
-    newtree->symbolname = malloc(strlen(symbnam) + 1);
+    struct tree *newtree = ckalloc(1, sizeof(tree_t));
+    newtree->symbolname = ckalloc(strlen(symbnam) + 1, sizeof(char));
     newtree->stab = NULL;
     newtree->id = serial++; // For graphical printing
     strcpy(newtree->symbolname, symbnam);
@@ -179,7 +179,7 @@ struct tree* make_tree(char * symbname, int argc, ...)
 
 char *get_spaces(int n)
 {
-    char *s = malloc(n+1);
+    char *s = ckalloc(n+1, sizeof(char));
     int i = 0; 
     while(i<n)
     {
@@ -267,7 +267,7 @@ void printsymbol(char *s)
 // add a \ before leading and trailing double quotes */
 char *escape(char *s) {
     int len = strlen(s);
-    char *s2 = malloc(len * 2);
+    char *s2 = ckalloc(len * 2, sizeof(char));
     for(int i = 0, index = 0; i < len; i++, index++) {
         if(s[i] == '\"') {
             s2[index++] = '\\';
@@ -280,7 +280,7 @@ char *escape(char *s) {
 }
 
 char *pretty_print_name(struct tree *t) {
-    char *s2 = malloc(40);
+    char *s2 = ckalloc(40, sizeof(char));
     if (t->leaf == NULL) {
         sprintf(s2, "%s#%d", t->symbolname, t->prodrule % 10);
         return s2;

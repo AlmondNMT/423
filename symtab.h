@@ -1,6 +1,7 @@
 #define HASH_TABLE_SIZE (1 << 12)
 struct tree;     // Definition found in tree.h
 struct typeinfo; // Definition found in type.h
+struct token;
 typedef unsigned int uint;
 
 typedef struct sym_table {
@@ -40,17 +41,19 @@ void check_undeclared_variables(SymbolTable st);
 void check_decls(struct tree *t, SymbolTable st);
 void free_symtab(SymbolTable st);
 
-// Specialized tree traversals for populating symbol table
+// Specialized tree traversals for populating symbol table and getting type info
 void get_assignment_symbols(struct tree *t, SymbolTable st);
 void get_function_params(struct tree *t, SymbolTable ftable);
 void get_for_iterator(struct tree *t, SymbolTable table);
 void get_import_symbols(struct tree *t, SymbolTable st);
 void get_decl_stmt(struct tree *t, SymbolTable st);
+int get_fpdef_type(struct tree *t, SymbolTable ftable);
 SymbolTable get_global_symtab(SymbolTable st);
 
-// Builtins stuff
+// FOr handling PunY builtins stuff
 int get_type_code(SymbolTableEntry e);
-
+int determine_hint_type(struct token *type, SymbolTable st);
+struct token get_assignment_rhs(struct tree *t, SymbolTable st);
 uint hash(SymbolTable st, char *s);
 
 void insertclass(struct tree *t, SymbolTable st);

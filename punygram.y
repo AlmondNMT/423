@@ -195,12 +195,12 @@ com_fpdef_eq_t_rep: {$$=make_tree("nulltree",0,NULL);}
     | com_fpdef_eq_t_rep COMMA fpdef equal_test_opt {$$=make_tree("com_fpdef_eq_t_rep", 3, $1, $3, $4);}
     ;
 
-fpdef: NAME colon_test_opt {$$=make_tree("fpdef", 1, $1, $2);}
+fpdef: NAME colon_test_opt {$$=make_tree("fpdef", 2, $1, $2);}
     | LPAR fplist RPAR {$$=make_tree("fpdef", 1,  $2);}
     ;
 
 colon_test_opt: {$$=make_tree("nulltree", 0, NULL); }
-    | COLON test
+    | COLON test {$$=make_tree("colon_test_opt", 1, $2);}
     ;
 
 fplist: fpdef comma_fpdef_rep comma_opt {$$=make_tree("fplist", 3, $1, $2, $3);}

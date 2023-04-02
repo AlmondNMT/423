@@ -27,8 +27,7 @@ void populate_symboltables(struct tree *t, SymbolTable st) {
         insertclass(t, st);
         return;
     } else if(strcmp(t->symbolname, "global_stmt") == 0) {
-        SymbolTable global = get_global_symtab(st);
-        add_global_names(global, t);
+        add_global_names(st, t);
         return;
     } else if(strcmp(t->symbolname, "expr_stmt") == 0) {
         get_assignment_symbols(t, st);
@@ -116,20 +115,21 @@ void check_decls(struct tree *t, SymbolTable st)
 
 
 /**
- * We're assuming that st is the global symbol table
+ * Get the global symtab;
  */
 void add_global_names(SymbolTable st, tree_t *t)
 {
+    SymbolTable global = get_global_symtab(st);
     if(t->nkids == 0) {
         return;
     }
     if(strcmp(t->kids[0]->symbolname, "NAME") == 0) {
-        insertsymbol(st, t->kids[0]->leaf->text, t->kids[0]->leaf->lineno, ANY_TYPE);
-        add_global_names(st, t->kids[1]);
+        insertsymbol(global, t->kids[0]->leaf->text, t->kids[0]->leaf->lineno, ANY_TYPE);
+        add_global_names(global, t->kids[1]);
     }
     else {
-        insertsymbol(st, t->kids[1]->leaf->text, t->kids[1]->leaf->lineno, ANY_TYPE);
-        add_global_names(st, t->kids[0]);
+        insertsymbol(global, t->kids[1]->leaf->text, t->kids[1]->leaf->lineno, ANY_TYPE);
+        add_global_names(global, t->kids[0]);
     }
 }
 
@@ -156,15 +156,22 @@ void insertfunction(struct tree *t, SymbolTable st)
 
 /**
  * Starting from the parameters rule, navigate to fpdef_equal_test_comma_rep,
- * then recurse through the 
+ * then recurse the descendants. 
+ * fpdef has two children
  */
 void get_function_params(struct tree *t, SymbolTable ftable)
 {
     if(t == NULL || ftable == NULL)
         return;
     if(strcmp(t->symbolname, "fpdef") == 0) {
-        if(t->kids[0]->leaf != NULL) 
-            insertsymbol(ftable, t->kids[0]->leaf->text, t->kids[0]->leaf->lineno, ANY_TYPE);
+        int basetype = ANY_TYPE;
+        if(strcmp(t->kids[1]->symbolname, "colon_test_opt") == 0) {
+            // The function param has a type hint
+            basetype = get_fpdef_type(t->kids[1], ftable);
+        }
+        insertsymbol(ftable, t->kids[0]->leaf->text, t->kids[0]->leaf->lineno, basetype);
+    } else if(strcmp(t->symbolname, "") == 0) {
+
     }
     else {
         for(int i = 0; i < t->nkids; i++) {
@@ -185,6 +192,7 @@ void get_assignment_symbols(struct tree *t, SymbolTable st)
 {
     if(t == NULL || st == NULL)
         return;
+    struct token *rhs = NULL;
     if(strcmp(t->symbolname, "power") == 0) {
         if(t->kids[0]->leaf != NULL && strcmp(t->kids[0]->symbolname, "NAME") == 0
                 && (t->nkids == 1 || strcmp(t->kids[1]->symbolname, "trailer_rep") != 0)) {
@@ -192,35 +200,17 @@ void get_assignment_symbols(struct tree *t, SymbolTable st)
             // the current tree has 1 child or its second child is not trailer_rep
             struct token *tok = t->kids[0]->leaf;
             char *ident = tok->text;
-            SymbolTableEntry entry = lookup(ident, st);
-            int basetype = entry->typ->basetype;
-            if(entry != NULL && basetype != ANY_TYPE) {
-                switch(basetype) {
-                    case INT_TYPE:
-                        if(tok->category != INTLIT) 
-                            semantic_error(tok->filename, tok->lineno, "Wrong type assigned to integer, '%s'\n", tok->text);
-                        break;
-                    case FLOAT_TYPE:
-                        if(tok->category != FLOATLIT)
-                            semantic_error(tok->filename, tok->lineno, "Wrong type assigned to float, '%s'\n", tok->text);
-                        break;
-                    case STRING_TYPE:
-                        if(tok->category != STRINGLIT) 
-                            semantic_error(tok->filename, tok->lineno, "Wrong type assigned to string, '%s'\n", tok->text);
-                        break;
-                }
-            }
-            else insertsymbol(st, tok->text, tok->lineno, ANY_TYPE);
         }
     }
     else {
         for(int i = 0; i < t->nkids; i++) {
-            //if(strcmp(t->kids[i]->symbolname, "equal_OR_yield_OR_testlist_rep") != 0) {
+            if(strcmp(t->kids[i]->symbolname, "equal_OR_yield_OR_testlist_rep") != 0) {
                 get_assignment_symbols(t->kids[i], st);
-                return;
-            //}
+                //rhs = get_assignment_rhs(t->kids[i], st);
+            }
         }
     }
+    
 }
 
 
@@ -241,19 +231,34 @@ void get_decl_stmt(struct tree *t, SymbolTable st)
         // Redeclaration error
         semantic_error(var->filename, var->lineno, "Redeclaration for name '%s' in scope '%s'\n", name, st->scope);
     }
+    int basetype = determine_hint_type(type, st);
+    insertsymbol(st, var->text, var->lineno, basetype);
+}
+
+/**
+ * Some boilerplate for searching the symbol tables for valid type hints,
+ * then returning the corresponding type int
+ */
+int determine_hint_type(struct token *type, SymbolTable st)
+{
     int basetype = ANY_TYPE;
     SymbolTableEntry type_entry = lookup(type->text, st);
     // If the type entry cannot be found in the symbol table, that's an error
-    if(type_entry == NULL)
-        semantic_error(type->filename, type->lineno, "Name '%s' is not defined for declaration type\n", type->text);
+    
+    if(type_entry == NULL) 
+        semantic_error(type->filename, type->lineno, "Name '%s' is not defined for the provided type\n");
     else {
-        // When we find the type entry, we have to consider its type. If it's
-        // a class, we obtain the class define code
+        // When we find the type entry, we have to consider its type code. If it's 
+        // a class, we obtain the class define code if it's a builtin, or ANY_TYPE 
+        // otherwise.
         if(type_entry->typ->basetype == CLASS_TYPE) {
             basetype = get_type_code(type_entry);
+        } else {
+            // If it's not a class type then let it inherit the type of the RHS
+            basetype = type_entry->typ->basetype;
         }
     }
-    insertsymbol(st, var->text, var->lineno, basetype);
+    return basetype;
 }
 
 /** 
@@ -264,8 +269,22 @@ void assigntype(struct tree *t, struct typeinfo *typ)
 
 }
 
+/**
+ * Get the function param type hint
+ */
+int get_fpdef_type(struct tree *t, SymbolTable ftable)
+{
+    if(t == NULL || ftable == NULL) // This probably should never happen
+        return ANY_TYPE;
+    if(strcmp(t->symbolname, "power") == 0) {
+        return determine_hint_type(t->kids[0]->leaf, ftable);
+    } else {
+        return get_fpdef_type(t->kids[0], ftable);
+    }
+}
+
 /** 
- * Semantic error printing
+ * Semantic error printing. Variadic to supply variables
  */
 void semantic_error(char *filename, int lineno, char *msg, ...)
 {
