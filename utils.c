@@ -21,35 +21,27 @@ int get_ascii(char c)
 	switch(c){
 		case 'n': 
 			return '\n';
-			break;
 
 		case 'a':
 			return '\a';
-			break;
 
 		case 'f': 
 			return '\f';
-			break;
 
 		case 'r': 
 			return '\r';
-			break;
 
 		case 't': 
 			return '\t';
-			break;			
 
 		case '\\': 
 			return '\x5c';
-			break;
 
 		case '\'': 
 			return '\x27';
-			break;
 
 		case '"': 
 			return '"';
-			break;
 		default:
 			return -1;
 
@@ -108,7 +100,7 @@ int deescape(char *dest, char *s)
             			s_index += 3;
             			temp_index++;
             			continue;
-            			}
+                    }
             		else
             		{
                         free(s);
@@ -142,14 +134,13 @@ int deescape(char *dest, char *s)
         s_index++;
     }
     dest[temp_index] = '\0';
-
     return 0;
 }
 char *substring(char *s, int start, int end)
 {	
     int i = 0;
     int length = end - start;
-    char *ret = calloc(length + 2, sizeof(char));
+    char *ret = ckalloc(length + 2, sizeof(char));
     while (i < length) {
         ret[i] = s[i + start];
         i++;
@@ -187,7 +178,7 @@ int extract_string(char *dest, char *s)
 char *strip_underscores(char *s)
 {
     int length = strlen(s);
-    char *temp = malloc(sizeof(char) * (length + 1));
+    char *temp = ckalloc(length+1, sizeof(char));
     int temp_index = 0;
     for (int i = 0; i < length; i++) {
         if (s[i] == '_') {
@@ -330,7 +321,7 @@ char *rand_string(int min_len, int max_len)
     assert(min_len > 0);
     int n = rand() % max_len;
     n = n >= min_len ? n : n + min_len;
-    char *out = calloc(n + 1, sizeof(char));
+    char *out = ckalloc(n + 1, sizeof(char));
     for(int i = 0; i < n; i++) {
         out[i] = get_rand_ascii();
     }
@@ -342,4 +333,14 @@ int get_rand_ascii()
     int lower = '!', upper = '~';
     char res = rand() % upper;
     return res >= lower ? res : res + lower;
+}
+
+void *ckalloc(int n, size_t size) // "checked" allocation
+{
+    void *p = calloc(n, size);
+    if (p == NULL) {
+        fprintf(stderr, "out of memory for request of %d bytes\n", n);
+        exit(4);
+    }
+    return p;
 }

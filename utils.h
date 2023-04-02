@@ -21,3 +21,4 @@ void err_lookahead(int yychar, int count, const char *msg, ...);
 int yylexerror(char *s);
 char *rand_string(int min_len, int max_len);
 int get_rand_ascii();
+void *ckalloc(int n, size_t size);

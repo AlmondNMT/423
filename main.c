@@ -72,6 +72,7 @@ int main(int argc, char *argv[]) {
             exit(SEM_ERR); // Cuz semantic error, right?
         }
 
+        // Print syntax tree option
         if(tree_opt) {
             print_tree(tree, 0);
         }

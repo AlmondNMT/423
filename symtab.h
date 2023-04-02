@@ -40,7 +40,7 @@ void check_undeclared_variables(SymbolTable st);
 void check_decls(struct tree *t, SymbolTable st);
 void free_symtab(SymbolTable st);
 
-// Specialized tree traversals
+// Specialized tree traversals for populating symbol table
 void get_assignment_symbols(struct tree *t, SymbolTable st);
 void get_function_params(struct tree *t, SymbolTable ftable);
 void get_for_iterator(struct tree *t, SymbolTable table);
@@ -48,24 +48,28 @@ void get_import_symbols(struct tree *t, SymbolTable st);
 void get_decl_stmt(struct tree *t, SymbolTable st);
 SymbolTable get_global_symtab(SymbolTable st);
 
+// Builtins stuff
+int get_type_code(SymbolTableEntry e);
+
 uint hash(SymbolTable st, char *s);
 
-SymbolTableEntry findsymbol(SymbolTable st, char *s);
 void insertclass(struct tree *t, SymbolTable st);
 void insertfunction(struct tree *t, SymbolTable st);
-int insertsymbol(SymbolTable st, char *s, int lineno, int basetype); // TODO: Add typeptr later
+SymbolTableEntry insertsymbol(SymbolTable st, char *s, int lineno, int basetype); // TODO: Add typeptr later
 void locate_undeclared(struct tree *t, SymbolTable st);
 void mark_undeclared(SymbolTable st);
 SymbolTable mksymtab(int nbuckets, char *table_name);
 SymbolTable mknested(struct tree *t, int nbuckets, SymbolTable parent, char *scope);
 void populate_symboltables(struct tree *t, SymbolTable st);
 void printsymbols(SymbolTable st, int level);
-void print_basetype(SymbolTableEntry entry);
+const char* get_basetype(SymbolTableEntry entry);
 SymbolTableEntry removesymbol(SymbolTable st, char *s);
 void semantics(struct tree *t, SymbolTable st);
-void scope_enter(char *s);
-void scope_exit();
-void scope_level();
-int scope_lookup(char *name, SymbolTable st);
-int scope_lookup_current(char *name, SymbolTable st);
+
+int symbol_exists(char *name, SymbolTable st);
+int symbol_exists_current(char *name, SymbolTable st);
+
+SymbolTableEntry lookup(char *name, SymbolTable st);
+SymbolTableEntry lookup_current(char *name, SymbolTable st);
+
 void semantic_error(char *filename, int lineno, char *msg, ...);
