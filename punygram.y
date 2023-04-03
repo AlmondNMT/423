@@ -575,8 +575,8 @@ atom: NAME
     | LBRACE dictorsetmaker_opt RBRACE {$$=make_tree("atom", 1,$2);}
     ;
 
-listmaker_opt: {$$=make_tree("nulltree",0,NULL);}
-    | listmaker
+listmaker_opt: {$$=make_tree("listmaker_opt",0,NULL);}  // Provides type information
+    | listmaker {$$=make_tree("listmaker_opt", 1, $1);}
     ;
 
 listmaker: test listmaker_options {$$=make_tree("listmaker", 2,$1,$2);}
@@ -614,8 +614,8 @@ list_iter: list_for
 list_if: IF old_test list_iter_opt {$$=make_tree("list_if", 2,$2,$3);}
     ;
 
-dictorsetmaker_opt: {$$=make_tree("nulltree",0,NULL);}
-    | dictorsetmaker
+dictorsetmaker_opt: {$$=make_tree("dictorsetmaker_opt",0,NULL);} // provides type information
+    | dictorsetmaker {$$=make_tree("dictorsetmaker_opt", 1, $1);}
     ;
 
 dictorsetmaker: dictorset_option_1

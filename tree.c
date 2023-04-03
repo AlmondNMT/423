@@ -194,7 +194,7 @@ char *get_spaces(int n)
 void print_tree(struct tree * t, int depth)
 {  // printf("entering print tree\n");
     char * spcs = get_spaces(depth);
-    if(strcmp(t->symbolname,"nulltree")==0)
+    if(strcmp(t->symbolname, "nulltree")==0)
     {
         //printf("NULLTREE \n");
         free(spcs);
@@ -203,7 +203,7 @@ void print_tree(struct tree * t, int depth)
     //printf("about to check if leaf is null\n");
     if(t->leaf != NULL)
     {   //printf("finna print leaf info\n");
-        printf("%s%d-LEAF category: %d, category: %s, value: %s\n",spcs,depth, t->leaf->category, rev_token(t->leaf->category), t->leaf->text);
+        printf("%s%d-LEAF category: %d, category: %s, value: %s, line: %d\n",spcs,depth, t->leaf->category, rev_token(t->leaf->category), t->leaf->text, t->leaf->lineno);
         free(spcs);
         return;
     }

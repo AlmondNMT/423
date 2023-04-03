@@ -30,7 +30,7 @@ void populate_symboltables(struct tree *t, SymbolTable st) {
         add_global_names(st, t);
         return;
     } else if(strcmp(t->symbolname, "expr_stmt") == 0) {
-        get_assignment_symbols(t, st);
+        handle_expr_stmt(t, st);
         return;
     } else if(strcmp(t->symbolname, "dotted_as_names") == 0) {
         // Import statements
@@ -73,7 +73,6 @@ void locate_undeclared(struct tree *t, SymbolTable st)
         return;
     }
     else if(strcmp(t->symbolname, "NAME") == 0) {
-        //printf("%s\n", t->leaf->text);
         check_decls(t, st);
     }
     for(int i = 0; i < t->nkids; i++) {
@@ -90,25 +89,11 @@ void locate_undeclared(struct tree *t, SymbolTable st)
  */
 void check_decls(struct tree *t, SymbolTable st)
 {
-    struct token *leaf = t->leaf;
-    char *ident = t->leaf->text;
-    if(st == NULL) { // It couldn't be found (global->parent = NULL)
-        semantic_error(leaf->filename, leaf->lineno, "Name '%s' not defined\n", ident);
-    }
-    uint h = hash(st, ident);
-    //printf("h: %d\n", h);
-    SymbolTableEntry e = NULL;
-    for(e = st->tbl[h]; e != NULL; e = e->next) {
-        if(strcmp(e->ident, ident) == 0) {
-            // Found identifier in hash table
-            if(e->lineno <= t->leaf->lineno) {
-                //printf("e->llineno: %d\t t lineno: %d\n", e->lineno, t->leaf->lineno);
-                return;
-            }
-        }
-    }
-    if(e == NULL) {
-        check_decls(t, st->parent);
+    if(t == NULL || st == NULL) return;
+    if(t->leaf == NULL) return;
+    SymbolTableEntry entry = lookup(t->leaf->text, st);
+    if(entry == NULL) {
+        semantic_error(t->leaf->filename, t->leaf->lineno, "Name '%s' not defined\n", t->leaf->text);
     }
 }
 
@@ -187,24 +172,25 @@ void get_function_params(struct tree *t, SymbolTable ftable)
  *  2. If it was and it's not type ANY, check that the type of RHS is valid
  *  3. Otherwise, assign type ANY
  */
-void get_assignment_symbols(struct tree *t, SymbolTable st)
+void handle_expr_stmt(struct tree *t, SymbolTable st)
 {
     if(t == NULL || st == NULL)
         return;
     int basetype;
     // 
-    if(t->nkids > 1 && strcmp(t->kids[1]->symbolname, "equal_OR_yield_OR_testlist_rep") == 0) {
-         /* Get the rightmost RHS type of the assignment statement.
-         *  Once we have the basetype, we have to verify that all left-hand 
-         *  operands are valid */
-         basetype = get_rhs(t->kids[1]->kids[1], st);
-         assign_lhs(basetype, t, st); // Pass the expr_stmt and basetype
-         return;
+    if(t->nkids > 1 && strcmp(t->kids[1]->symbolname, "equal_OR_yield_OR_testlist_rep") == 0)   {
+        /* Get the rightmost RHS type of the assignment statement.
+        *  Once we have the basetype, we have to verify that all left-hand 
+        *  operands are valid */
+        printf("t->kids[1]: %s\n", t->kids[1]->kids[1]->kids[0]->symbolname);
+        basetype = get_rhs(t->kids[1]->kids[1], st);
+        assign_lhs(basetype, t, st); // Pass the expr_stmt and basetype
+        return;
     }
     else if(strcmp(t->symbolname, "trailer") == 0) {
         /* TODO: Handle function/method calls, list subscripting, and object member
-         * accesses */
-         return ;
+        * accesses */
+        return ;
     } 
     else if(strcmp(t->symbolname, "expr_conjunct") == 0) {
         /** TODO: Handle stuff like +=, *=, etc. */
@@ -212,7 +198,7 @@ void get_assignment_symbols(struct tree *t, SymbolTable st)
     }
     else if(strcmp(t->symbolname, "power") == 0) {
         if(t->kids[0]->leaf != NULL && strcmp(t->kids[0]->symbolname, "NAME") == 0
-                && (t->nkids == 1 || strcmp(t->kids[1]->symbolname, "trailer_rep") != 0)) {
+        && (t->nkids == 1 || strcmp(t->kids[1]->symbolname, "trailer_rep") != 0)) {
             // If the first child of power has a leaf, and it is a NAME, and either 
             // the current tree has 1 child or its second child is not trailer_rep
             struct token *tok = t->kids[0]->leaf;
@@ -222,12 +208,11 @@ void get_assignment_symbols(struct tree *t, SymbolTable st)
     else {
         for(int i = 0; i < t->nkids; i++) {
             if(strcmp(t->kids[i]->symbolname, "equal_OR_yield_OR_testlist_rep") != 0) {
-                get_assignment_symbols(t->kids[i], st);
+                handle_expr_stmt(t->kids[i], st);
                 //rhs = get_assignment_rhs(t->kids[i], st);
             }
         }
     }
-    
 }
 
 
@@ -245,24 +230,26 @@ int get_rhs(struct tree *t, SymbolTable st)
         struct token *leaf = t->kids[0]->leaf;
         if(leaf->category == NAME) {
             SymbolTableEntry entry = lookup(leaf->text, st);
-            if(entry == NULL) 
+            if(entry == NULL) {
                 semantic_error(leaf->filename, leaf->lineno, "Name '%s' is not defined\n", leaf->text);
+            }
             return entry->typ->basetype;
         }
         return get_token_type_code(leaf);
     } 
-    else if(strcmp(t->symbolname, "listmaker") == 0) {
+    else if(strcmp(t->symbolname, "listmaker_opt") == 0) {
         /* Indicates that the right-hand side is a list */
         return LIST_TYPE;
     }
-    else if(strcmp(t->symbolname, "dictorset_option_1") == 0
-            || strcmp(t->symbolname, "dictorset_option_2") == 0) {
+    else if(strcmp(t->symbolname, "dictorsetmaker_opt") == 0) {
         /* Right-hand side is a dictionary */
         return DICT_TYPE;
     }
     else {
         /* It is assumed that we can just recurse the first child until one of 
-         * the above three options is found */
+         * the above three options is found 
+         * TODO: Fix bad assumption */
+        printf("recursing: %s\n", t->symbolname);
         return get_rhs(t->kids[0], st);
     }
 }
