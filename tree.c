@@ -203,7 +203,7 @@ void print_tree(struct tree * t, int depth)
     //printf("about to check if leaf is null\n");
     if(t->leaf != NULL)
     {   //printf("finna print leaf info\n");
-        printf("%s%d-LEAF category: %d, category: %s, value: %s, line: %d\n",spcs,depth, t->leaf->category, rev_token(t->leaf->category), t->leaf->text, t->leaf->lineno);
+        printf("%s%d-LEAF category: %d, category: %s, line: %d, value: %s\n",spcs,depth, t->leaf->category, rev_token(t->leaf->category), t->leaf->lineno, t->leaf->text);
         free(spcs);
         return;
     }
@@ -327,7 +327,10 @@ void print_graph2(struct tree *t, FILE *f) {
 }
 
 void print_graph(struct tree *t, char *filename){
-    FILE *f = fopen(filename, "w"); /* should check for NULL */
+    FILE *f = fopen(filename, "w"); /* Should check for NULL */
+    if(f == NULL) {
+        fprintf(stderr, "Failed to load file '%s'\n", filename);
+    }
     fprintf(f, "digraph {\n");
     print_graph2(t, f);
     fprintf(f,"}\n");

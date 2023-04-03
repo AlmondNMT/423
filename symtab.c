@@ -182,7 +182,7 @@ void handle_expr_stmt(struct tree *t, SymbolTable st)
         /* Get the rightmost RHS type of the assignment statement.
         *  Once we have the basetype, we have to verify that all left-hand 
         *  operands are valid */
-        printf("t->kids[1]: %s\n", t->kids[1]->kids[1]->kids[0]->symbolname);
+        //printf("t->kids[1]: %s\n", t->kids[1]->kids[1]->kids[0]->symbolname);
         basetype = get_rhs(t->kids[1]->kids[1], st);
         assign_lhs(basetype, t, st); // Pass the expr_stmt and basetype
         return;
@@ -249,7 +249,7 @@ int get_rhs(struct tree *t, SymbolTable st)
         /* It is assumed that we can just recurse the first child until one of 
          * the above three options is found 
          * TODO: Fix bad assumption */
-        printf("recursing: %s\n", t->symbolname);
+        //printf("recursing: %s\n", t->symbolname);
         return get_rhs(t->kids[0], st);
     }
 }
