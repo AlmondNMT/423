@@ -28,28 +28,29 @@ struct field {			/* members (fields) of structs */
 #define STRING_TYPE  1000008
 #define PACKAGE_TYPE 1000009
 #define ANY_TYPE     1000010
+#define FILE_TYPE    1000011
 
 #define LAST_TYPE    1000010
 
 typedef struct typeinfo {
-int basetype;
-union {
-    struct funcinfo {
-         char *name; /* ? */
-         int defined; /* 0 == prototype, 1 == not prototype; I don't know if this is necessary */
-         struct sym_table *st;
-         struct typeinfo *returntype;
-         int nparams;
-         struct param *parameters;
-    } f;
-    struct classinfo {
-        char *name;
-        int defined;
-        struct sym_table *st;
-        int nparams;                // For constructor?
-        struct param *parameters;
-    } cls;
-} u;
+    int basetype;
+    union {
+        struct funcinfo {
+             char *name; /* ? */
+             int defined; /* 0 == prototype, 1 == not prototype; I don't know if this is necessary */
+             struct sym_table *st;
+             struct typeinfo *returntype;
+             int nparams;
+             struct param *parameters;
+        } f;
+        struct classinfo {
+            char *name;
+            int defined;
+            struct sym_table *st;
+            int nparams;                // For constructor?
+            struct param *parameters;
+        } cls;
+    } u;
 } *typeptr;
 
 /* add constructors for other types as needed

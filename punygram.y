@@ -255,7 +255,7 @@ yield_OR_testlist: YIELD
     ;
 
 equal_OR_yield_OR_testlist_rep: {$$=make_tree("nulltree",0,NULL); }
-    | equal_OR_yield_OR_testlist_rep EQUAL yield_OR_testlist {$$=make_tree("equal_OR_yield_OR_testlist_rep", 3, $1,$2, $3);}
+    | equal_OR_yield_OR_testlist_rep EQUAL yield_OR_testlist {$$=make_tree("equal_OR_yield_OR_testlist_rep", 2, $1, $3);}
     ;
 
 augassign: PLUSEQUAL
@@ -435,9 +435,9 @@ trailer_rep: {$$=make_tree("nulltree",0,NULL);}
     | trailer_rep trailer {$$=make_tree("trailer_rep", 2,$1,$2);}
     ;
 
-trailer: LPAR arglist_opt RPAR {$$=make_tree("trailer", 1,$2);}
-    | LSQB subscriptlist RSQB {$$=make_tree("trailer", 1,$2);}
-    | DOT NAME {$$=make_tree("trailer", 1,$2);}
+trailer: LPAR arglist_opt RPAR {$$=make_tree("trailer", 1,$2);} // Function call
+    | LSQB subscriptlist RSQB {$$=make_tree("trailer", 1,$2);}  // List element access
+    | DOT NAME {$$=make_tree("trailer", 1, $2);}                 // Object member access
     ;
 
 arglist_opt: {$$=make_tree("nulltree",0,NULL);}

@@ -1,4 +1,1 @@
-b = 3
-
-def g(x):
-    return x + b
+[1, 2, 3] = a

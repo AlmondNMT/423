@@ -49,9 +49,13 @@ void get_import_symbols(struct tree *t, SymbolTable st);
 void get_decl_stmt(struct tree *t, SymbolTable st);
 int get_fpdef_type(struct tree *t, SymbolTable ftable);
 SymbolTable get_global_symtab(SymbolTable st);
+int get_rhs(struct tree *t, SymbolTable st);
+void assign_lhs(int basetype, struct tree *t, SymbolTable st);
+struct token *get_leftmost_token(struct tree *t, SymbolTable st);
 
 // FOr handling PunY builtins stuff
-int get_type_code(SymbolTableEntry e);
+int get_builtins_type_code(SymbolTableEntry e);
+int get_token_type_code(struct token *tok);
 int determine_hint_type(struct token *type, SymbolTable st);
 struct token get_assignment_rhs(struct tree *t, SymbolTable st);
 uint hash(SymbolTable st, char *s);
@@ -65,14 +69,17 @@ SymbolTable mksymtab(int nbuckets, char *table_name);
 SymbolTable mknested(struct tree *t, int nbuckets, SymbolTable parent, char *scope);
 void populate_symboltables(struct tree *t, SymbolTable st);
 void printsymbols(SymbolTable st, int level);
-const char* get_basetype(SymbolTableEntry entry);
+const char* get_basetype(int basetype);
 SymbolTableEntry removesymbol(SymbolTable st, char *s);
 void semantics(struct tree *t, SymbolTable st);
 
+// Get Symbol information from the table
 int symbol_exists(char *name, SymbolTable st);
 int symbol_exists_current(char *name, SymbolTable st);
 
 SymbolTableEntry lookup(char *name, SymbolTable st);
 SymbolTableEntry lookup_current(char *name, SymbolTable st);
 
+// Errors
 void semantic_error(char *filename, int lineno, char *msg, ...);
+void undeclared_error(struct token *tok);

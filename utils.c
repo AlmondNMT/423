@@ -266,7 +266,7 @@ int is_enclosed(int p, int sq, int cb)
 int yyerror(char *s)
 {
     fprintf(stderr, "%s:%d: SyntaxError: %s before '%s' token\n", yyfilename, yylineno, s, yytext);
-    exit(2);
+    exit(SYN_ERR);
 }
 
 /* Lexical error handling

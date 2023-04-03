@@ -333,4 +333,3 @@ void print_graph(struct tree *t, char *filename){
     fprintf(f,"}\n");
     fclose(f);
 }
-

@@ -94,7 +94,6 @@ void check_decls(struct tree *t, SymbolTable st)
     char *ident = t->leaf->text;
     if(st == NULL) { // It couldn't be found (global->parent = NULL)
         semantic_error(leaf->filename, leaf->lineno, "Name '%s' not defined\n", ident);
-        exit(SEM_ERR);
     }
     uint h = hash(st, ident);
     //printf("h: %d\n", h);
@@ -192,8 +191,26 @@ void get_assignment_symbols(struct tree *t, SymbolTable st)
 {
     if(t == NULL || st == NULL)
         return;
-    struct token *rhs = NULL;
-    if(strcmp(t->symbolname, "power") == 0) {
+    int basetype;
+    // 
+    if(t->nkids > 1 && strcmp(t->kids[1]->symbolname, "equal_OR_yield_OR_testlist_rep") == 0) {
+         /* Get the rightmost RHS type of the assignment statement.
+         *  Once we have the basetype, we have to verify that all left-hand 
+         *  operands are valid */
+         basetype = get_rhs(t->kids[1]->kids[1], st);
+         assign_lhs(basetype, t, st); // Pass the expr_stmt and basetype
+         return;
+    }
+    else if(strcmp(t->symbolname, "trailer") == 0) {
+        /* TODO: Handle function/method calls, list subscripting, and object member
+         * accesses */
+         return ;
+    } 
+    else if(strcmp(t->symbolname, "expr_conjunct") == 0) {
+        /** TODO: Handle stuff like +=, *=, etc. */
+        return;
+    }
+    else if(strcmp(t->symbolname, "power") == 0) {
         if(t->kids[0]->leaf != NULL && strcmp(t->kids[0]->symbolname, "NAME") == 0
                 && (t->nkids == 1 || strcmp(t->kids[1]->symbolname, "trailer_rep") != 0)) {
             // If the first child of power has a leaf, and it is a NAME, and either 
@@ -211,6 +228,124 @@ void get_assignment_symbols(struct tree *t, SymbolTable st)
         }
     }
     
+}
+
+
+/**
+ * Get the rightmost right-hand side of an assignment expression. It should 
+ * return a basetype integer code. Our assumed starting point is
+ * testlist. If multiple consecutive assignments are found we need to verify 
+ * that these are also assigned correct types
+ */
+int get_rhs(struct tree *t, SymbolTable st)
+{
+    if(strcmp(t->symbolname, "power") == 0 && t->kids[0]->leaf != NULL) {
+        /* 'power' can only be reached if we haven't already recursed to a 
+         * listmaker or a dictorset_option_* tree node */ 
+        struct token *leaf = t->kids[0]->leaf;
+        if(leaf->category == NAME) {
+            SymbolTableEntry entry = lookup(leaf->text, st);
+            if(entry == NULL) 
+                semantic_error(leaf->filename, leaf->lineno, "Name '%s' is not defined\n", leaf->text);
+            return entry->typ->basetype;
+        }
+        return get_token_type_code(leaf);
+    } 
+    else if(strcmp(t->symbolname, "listmaker") == 0) {
+        /* Indicates that the right-hand side is a list */
+        return LIST_TYPE;
+    }
+    else if(strcmp(t->symbolname, "dictorset_option_1") == 0
+            || strcmp(t->symbolname, "dictorset_option_2") == 0) {
+        /* Right-hand side is a dictionary */
+        return DICT_TYPE;
+    }
+    else {
+        /* It is assumed that we can just recurse the first child until one of 
+         * the above three options is found */
+        return get_rhs(t->kids[0], st);
+    }
+}
+
+/**
+ * Add any valid assignments to the symbol table if they 
+ * aren't already present. If the types of LHS and RHS
+ * are not compatible, fail. Similarly, if any LHS tokens are not identifiers, 
+ * fail. 
+ */
+void assign_lhs(int basetype, struct tree *t, SymbolTable st)
+{
+    if(t == NULL || st == NULL) return;
+    struct token *leaf = NULL;
+    if(strcmp(t->symbolname, "expr_stmt") == 0) {
+        leaf = get_leftmost_token(t->kids[0], st); // Get the first token in LHS
+        // Once the leftmost token is obtained, only recurse further if EYTR 
+        // is a child of EYTR
+        if(t->kids[1]->kids[0] != NULL) {
+            if(strcmp(t->kids[1]->kids[0]->symbolname, "equal_OR_yield_OR_testlist_rep") == 0) {
+                assign_lhs(basetype, t->kids[1]->kids[0], st); // expr_conjunct | equal_OR_...
+            }
+        }
+        return;
+    } else if(strcmp(t->symbolname, "power") == 0) {
+        if(strcmp(t->kids[0]->symbolname, "NAME") == 0) {
+            leaf = t->kids[0]->leaf;
+            // Check if the name is in the symbol table
+        }
+        return;
+    } else if(strcmp(t->symbolname, "equal_OR_yield_OR_testlist_rep") == 0) {
+        leaf = get_leftmost_token(t->kids[1], st);
+    }
+    if(leaf != NULL) {
+        SymbolTableEntry entry = lookup(leaf->text, st);
+        if(entry == NULL) {
+            entry = insertsymbol(st, leaf->text, leaf->lineno, ANY_TYPE);
+        } 
+        else {
+            if(entry->typ->basetype != ANY_TYPE && entry->typ->basetype != basetype) {
+                // If the existing entry is not type ANY and it's base type does not 
+                // match the basetype of the RHS
+                semantic_error(leaf->filename, leaf->lineno,
+                    "Type '%s' cannot be assigned to variable of type '%s'\n",
+                    get_basetype(basetype), 
+                    get_basetype(entry->typ->basetype)
+                );
+            }
+        }
+        return;
+    }
+    for(int i = 0; i < t->nkids; i++) {
+        assign_lhs(basetype, t->kids[i], st);
+    }
+}
+
+
+/** 
+ * Get leftmost token in LHS of assignment
+ */
+struct token *get_leftmost_token(struct tree *t, SymbolTable st)
+{
+    struct token *tok = NULL;
+    if(t == NULL || st == NULL) 
+        return tok;
+    if(strcmp(t->symbolname, "power") == 0) {
+        // Expect that the first power in the leftmost assignment is a NAME.
+        // If it isn't a NAME or it's NULL, throw a syntax error
+        if(strcmp(t->kids[0]->symbolname, "atom") == 0) {
+            // This happens if the left-hand side contains a list or dict or something
+            fprintf(stderr, "LHS of assignment must be a name\n");
+            exit(SEM_ERR);
+        }
+        tok = t->kids[0]->leaf;
+        if(tok->category != NAME) {
+            // If we find a token on the LHS that isn't a name, e.g., 4 = a = 3
+            semantic_error(tok->filename, tok->lineno, "Cannot assign to a literal\n");
+        }
+        return tok;
+    }
+    else {
+        return get_leftmost_token(t->kids[0], st);
+    }
 }
 
 
@@ -252,7 +387,7 @@ int determine_hint_type(struct token *type, SymbolTable st)
         // a class, we obtain the class define code if it's a builtin, or ANY_TYPE 
         // otherwise.
         if(type_entry->typ->basetype == CLASS_TYPE) {
-            basetype = get_type_code(type_entry);
+            basetype = get_builtins_type_code(type_entry);
         } else {
             // If it's not a class type then let it inherit the type of the RHS
             basetype = type_entry->typ->basetype;
@@ -479,7 +614,7 @@ void printsymbols(SymbolTable st, int level)
                 printf("   ");
             }
             printf("%d %s: ", i, entry->ident);
-            printf("%s type\n", get_basetype(entry)); // Switch statements for base types
+            printf("%s type\n", get_basetype(entry->typ->basetype)); // Switch statements for base types
             if(entry->nested != NULL) {
                 printsymbols(entry->nested, level + 1);
             }
@@ -487,9 +622,9 @@ void printsymbols(SymbolTable st, int level)
     }
 }
 
-const char *get_basetype(SymbolTableEntry entry)
+const char *get_basetype(int basetype)
 {
-    switch(entry->typ->basetype) {
+    switch(basetype) {
         case NONE_TYPE:
             return "None";
         case INT_TYPE:
@@ -617,7 +752,7 @@ SymbolTableEntry lookup_current(char *name, SymbolTable st)
  * This is called if the entry is a CLASS_TYPE, to determine if it is also a 
  * builtin. If it is a builtin, return the integer code, otherwise return ANY_TYPE
  */
-int get_type_code(SymbolTableEntry entry)
+int get_builtins_type_code(SymbolTableEntry entry)
 {
     if(entry == NULL)
         return 0;
@@ -635,6 +770,29 @@ int get_type_code(SymbolTableEntry entry)
     else if(strcmp(ident, "str") == 0)
         return STRING_TYPE;
     return ANY_TYPE;
+}
+
+/**
+ * Get the base type code from the token 
+ * integer codes we used in lexical analysis
+ */
+int get_token_type_code(struct token *tok)
+{
+    switch(tok->category) {
+        case INTLIT:
+            return INT_TYPE;
+        case FLOATLIT:
+            return FLOAT_TYPE;
+        case STRINGLIT:
+            return STRING_TYPE;
+        case NONE:
+            return NONE_TYPE;
+        case PYTRUE:
+        case PYFALSE:
+            return BOOL_TYPE;
+        default:
+            return ANY_TYPE;
+    }
 }
 
 void add_puny_builtins(SymbolTable st) {

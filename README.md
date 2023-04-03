@@ -23,8 +23,10 @@ class Consciousness:
 
 ### symtab.c
 - [x] Hash function obtained from https://stackoverflow.com/questions/7666509/hash-function-for-string
-- [ ] Pre-runtime typing
-- [ ] Grab for loop variables
+- [x] Grab for loop variables
+- [ ] Verify assignment types
+- [ ] Verify the LHS and RHS types for decl\_stmt with an optional assignment
+- [ ] Determine whether we are using homogeneous or heterogeneous loops
 - [ ] Solve the dotted name problem
-- [ ] Imports
+- [ ] Imports (we should do this part last)
 ### symtab.h
