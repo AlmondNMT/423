@@ -1,5 +1,3 @@
-a: float
+a: int = 2
 b: int
-
-a = b = c = d = e = 2
-b = c = 2
+a = 34

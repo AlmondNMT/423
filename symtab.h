@@ -62,7 +62,8 @@ uint hash(SymbolTable st, char *s);
 
 void insertclass(struct tree *t, SymbolTable st);
 void insertfunction(struct tree *t, SymbolTable st);
-SymbolTableEntry insertsymbol(SymbolTable st, char *s, int lineno, int basetype); // TODO: Add typeptr later
+SymbolTableEntry insertsymbol(SymbolTable st, char *s, int lineno); // TODO: Add typeptr later
+SymbolTableEntry insertbuiltin(SymbolTable global, char *s, int lineno, int basetype);
 void locate_undeclared(struct tree *t, SymbolTable st);
 void mark_undeclared(SymbolTable st);
 SymbolTable mksymtab(int nbuckets, char *table_name);

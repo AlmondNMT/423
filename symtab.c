@@ -108,11 +108,11 @@ void add_global_names(SymbolTable st, tree_t *t)
         return;
     }
     if(strcmp(t->kids[0]->symbolname, "NAME") == 0) {
-        insertsymbol(global, t->kids[0]->leaf->text, t->kids[0]->leaf->lineno, ANY_TYPE);
+        insertsymbol(global, t->kids[0]->leaf->text, t->kids[0]->leaf->lineno);
         add_global_names(global, t->kids[1]);
     }
     else {
-        insertsymbol(global, t->kids[1]->leaf->text, t->kids[1]->leaf->lineno, ANY_TYPE);
+        insertsymbol(global, t->kids[1]->leaf->text, t->kids[1]->leaf->lineno);
         add_global_names(global, t->kids[0]);
     }
 }
@@ -129,7 +129,7 @@ void insertfunction(struct tree *t, SymbolTable st)
     if(st == NULL || t == NULL)
         return;
     char *name = t->kids[0]->leaf->text;
-    SymbolTableEntry entry = insertsymbol(st, name, t->kids[0]->leaf->lineno, FUNC_TYPE);
+    SymbolTableEntry entry = insertsymbol(st, name, t->kids[0]->leaf->lineno);
     free_symtab(entry->nested); // In case a function was already, overwrite its symboltable
     entry->nested = mknested(t, HASH_TABLE_SIZE, st, "function");
     entry->nested->parent = st;
@@ -147,13 +147,13 @@ void get_function_params(struct tree *t, SymbolTable ftable)
 {
     if(t == NULL || ftable == NULL)
         return;
+    int basetype = ANY_TYPE;
     if(strcmp(t->symbolname, "fpdef") == 0) {
-        int basetype = ANY_TYPE;
         if(strcmp(t->kids[1]->symbolname, "colon_test_opt") == 0) {
             // The function param has a type hint
             basetype = get_fpdef_type(t->kids[1], ftable);
         }
-        insertsymbol(ftable, t->kids[0]->leaf->text, t->kids[0]->leaf->lineno, basetype);
+        insertsymbol(ftable, t->kids[0]->leaf->text, t->kids[0]->leaf->lineno);
     } else if(strcmp(t->symbolname, "") == 0) {
 
     }
@@ -286,7 +286,7 @@ void assign_lhs(int basetype, struct tree *t, SymbolTable st)
     if(leaf != NULL) {
         SymbolTableEntry entry = lookup(leaf->text, st);
         if(entry == NULL) {
-            entry = insertsymbol(st, leaf->text, leaf->lineno, ANY_TYPE);
+            entry = insertsymbol(st, leaf->text, leaf->lineno);
         } 
         else {
             if(entry->typ->basetype != ANY_TYPE && entry->typ->basetype != basetype) {
@@ -353,8 +353,7 @@ void get_decl_stmt(struct tree *t, SymbolTable st)
         // Redeclaration error
         semantic_error(var->filename, var->lineno, "Redeclaration for name '%s' in scope '%s'\n", name, st->scope);
     }
-    int basetype = determine_hint_type(type, st);
-    insertsymbol(st, var->text, var->lineno, basetype);
+    insertsymbol(st, var->text, var->lineno);
 }
 
 /**
@@ -466,10 +465,10 @@ void get_import_symbols(struct tree *t, SymbolTable st)
     }
     if(strcmp(dotted_as_name->kids[1]->symbolname, "as_name_opt") == 0) { 
         struct token *alias = dotted_as_name->kids[1]->kids[0]->leaf;
-        insertsymbol(st, alias->text, alias->lineno, PACKAGE_TYPE);
+        insertsymbol(st, alias->text, alias->lineno);
 
     } else {
-        insertsymbol(st, import_name, dotted_as_name->kids[0]->leaf->lineno, PACKAGE_TYPE);
+        insertsymbol(st, import_name, dotted_as_name->kids[0]->leaf->lineno);
     }
 }
 
@@ -491,7 +490,7 @@ void get_for_iterator(struct tree *t, SymbolTable st)
         get_for_iterator(t->kids[0], st);
         return;
     } else {
-        insertsymbol(st, t->kids[0]->leaf->text, t->kids[0]->leaf->lineno, INT_TYPE);
+        insertsymbol(st, t->kids[0]->leaf->text, t->kids[0]->leaf->lineno);
     }
 }
 
@@ -504,7 +503,7 @@ void insertclass(struct tree *t, SymbolTable st)
     if(st == NULL || t == NULL)
         return;
     char *name = t->kids[0]->leaf->text;
-    SymbolTableEntry entry = insertsymbol(st, name, t->kids[0]->leaf->lineno, CLASS_TYPE);
+    SymbolTableEntry entry = insertsymbol(st, name, t->kids[0]->leaf->lineno);
     free_symtab(entry->nested);
     entry->nested = mknested(t, HASH_TABLE_SIZE, st, "class");
     t->stab = entry->nested;
@@ -564,21 +563,20 @@ SymbolTable mknested(struct tree *t, int nbuckets, SymbolTable parent, char *sco
  * Create SymbolTableEntry for the NAME. Add the current table to the entry.
  * Set the relevant fields (s, next, st->tbl[idx])
  */
-SymbolTableEntry insertsymbol(SymbolTable st, char *s, int lineno, int basetype) {
+SymbolTableEntry insertsymbol(SymbolTable st, char *name, int lineno) {
     if(st == NULL)
         return 0;
-    int idx = hash(st, s);
+    int idx = hash(st, name);
     SymbolTableEntry prev = NULL;
     for (SymbolTableEntry e = st->tbl[idx]; e != NULL; prev = e, e = e->next) {
-        if (strcmp(e->ident, s) == 0) {
+        if (strcmp(e->ident, name) == 0) {
             return e;
         }
     }
     SymbolTableEntry entry = ckalloc(1, sizeof(struct sym_entry));
     entry->typ = ckalloc(1, sizeof(struct typeinfo));
-    entry->typ->basetype = basetype;
     entry->table = st;
-    entry->ident = strdup(s);
+    entry->ident = strdup(name);
     entry->lineno = lineno;
     entry->next = NULL;
     if(prev != NULL)
@@ -587,6 +585,16 @@ SymbolTableEntry insertsymbol(SymbolTable st, char *s, int lineno, int basetype)
         st->tbl[idx] = entry;
     //printf("%s\n", entry->ident);
     st->nEntries++;
+    return entry;
+}
+
+
+SymbolTableEntry insertbuiltin(SymbolTable st, char *name, int lineno, int basetype)
+{
+    if(st == NULL)
+        return 0;
+    SymbolTableEntry entry = insertsymbol(st, name, lineno);
+    entry->typ->basetype = basetype;
     return entry;
 }
 
@@ -783,25 +791,25 @@ int get_token_type_code(struct token *tok)
 }
 
 void add_puny_builtins(SymbolTable st) {
-    insertsymbol(st, "print", -1, FUNC_TYPE);
-    insertsymbol(st, "int", -1, CLASS_TYPE);
-    insertsymbol(st, "abs", -1, FUNC_TYPE);
-    insertsymbol(st, "bool", -1, CLASS_TYPE);  
-    insertsymbol(st, "chr", -1, FUNC_TYPE);
-    insertsymbol(st, "dict", -1, CLASS_TYPE);
-    insertsymbol(st, "float", -1, CLASS_TYPE);
-    insertsymbol(st, "input", -1, FUNC_TYPE);
-    insertsymbol(st, "int", -1, CLASS_TYPE);    
-    insertsymbol(st, "len", -1, FUNC_TYPE);
-    insertsymbol(st, "list", -1, CLASS_TYPE);
-    insertsymbol(st, "max", -1, FUNC_TYPE);
-    insertsymbol(st, "min", -1, FUNC_TYPE);
-    insertsymbol(st, "open", -1, FUNC_TYPE);
-    insertsymbol(st, "ord", -1, FUNC_TYPE);
-    insertsymbol(st, "pow", -1, FUNC_TYPE);
-    insertsymbol(st, "range", -1, CLASS_TYPE);
-    insertsymbol(st, "round", -1, FUNC_TYPE);
-    insertsymbol(st, "str", -1, CLASS_TYPE);
-    insertsymbol(st, "type", -1, CLASS_TYPE);
+    insertbuiltin(st, "print", -1, FUNC_TYPE);
+    insertbuiltin(st, "int", -1, CLASS_TYPE);
+    insertbuiltin(st, "abs", -1, FUNC_TYPE);
+    insertbuiltin(st, "bool", -1, CLASS_TYPE);  
+    insertbuiltin(st, "chr", -1, FUNC_TYPE);
+    insertbuiltin(st, "dict", -1, CLASS_TYPE);
+    insertbuiltin(st, "float", -1, CLASS_TYPE);
+    insertbuiltin(st, "input", -1, FUNC_TYPE);
+    insertbuiltin(st, "int", -1, CLASS_TYPE);    
+    insertbuiltin(st, "len", -1, FUNC_TYPE);
+    insertbuiltin(st, "list", -1, CLASS_TYPE);
+    insertbuiltin(st, "max", -1, FUNC_TYPE);
+    insertbuiltin(st, "min", -1, FUNC_TYPE);
+    insertbuiltin(st, "open", -1, FUNC_TYPE);
+    insertbuiltin(st, "ord", -1, FUNC_TYPE);
+    insertbuiltin(st, "pow", -1, FUNC_TYPE);
+    insertbuiltin(st, "range", -1, CLASS_TYPE);
+    insertbuiltin(st, "round", -1, FUNC_TYPE);
+    insertbuiltin(st, "str", -1, CLASS_TYPE);
+    insertbuiltin(st, "type", -1, CLASS_TYPE);
 }
 
