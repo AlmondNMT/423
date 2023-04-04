@@ -68,10 +68,15 @@ void semantics(struct tree *tree, SymbolTable st)
     //  literals on the LHS of assignments. Python2.7 and Python3 both handle 
     //  invalid expressions before populating ST and type-checking
     locate_invalid_expr(tree);
+    
+    // Add puny builtins like 'int', 'str' and 'open'
+    add_puny_builtins(st);          
 
-    add_puny_builtins(st);          // Add puny builtins like 'int', 'str' and 'open'
-    populate_symboltables(tree, st);   // Populate symbol table and add type information
-    locate_undeclared(tree, st);       // Find names that are used, but not declared
+    // Populate symbol table and add type information
+    populate_symboltables(tree, st);   
+
+    // Find names that are used, but not declared
+    locate_undeclared(tree, st);       
 }
 
 /**
@@ -346,12 +351,13 @@ void locate_invalid_nested(struct tree *t)
 void locate_invalid_nested_aux(struct tree *t)
 {
     if(t == NULL) return;
-    // If the first child of power is not a child, then check for an invalid trailer
+    // If the first child of power is not an identifier, then check for an invalid trailer
     if(strcmp(t->symbolname, "power") == 0) {
         locate_invalid_trailer(t->kids[1]);
         locate_invalid_token(t->kids[0]);
         return;
     }
+    // 
     if(strcmp(t->symbolname, "equal_OR_yield_OR_testlist_rep") == 0) {
         locate_invalid_nested_aux(t->kids[0]);
         locate_invalid_nested_aux(t->kids[1]);
@@ -679,7 +685,8 @@ void get_import_symbols(struct tree *t, SymbolTable st)
     char filename[PATHMAX];
     strcpy(filename, import_name);
     strcat(filename, ".py");
-    printf("finna do dat\n");
+
+    // If the file is not found in the current AND it is not a builtin
     if(access(filename, F_OK) != 0 && !is_built_in(import_name)) {
         semantic_error(leaf->filename, leaf->lineno, "No module named '%s'\n", import_name);
     }
