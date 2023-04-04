@@ -26,7 +26,7 @@ class Consciousness:
 - [x] Grab for loop variables
 - [ ] Verify assignment types
 - [ ] Verify the LHS and RHS types for decl\_stmt with an optional assignment
-- [ ] Determine whether we are using homogeneous or heterogeneous loops
+- [x] We are using lists with objects of type any, and loops with an iterator of type any
 - [ ] Solve the dotted name problem
 - [ ] Imports (we should do this part last)
 ### symtab.h

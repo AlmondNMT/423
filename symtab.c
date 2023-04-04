@@ -385,7 +385,7 @@ void locate_invalid_trailer(struct tree *t)
 }
 
 /**
- * Starting point: power->kids[0]
+ * Starting point: power->kids[0]. If the current node is not a name, and 
  */
 void locate_invalid_token(struct tree *t)
 {
