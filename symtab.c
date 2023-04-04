@@ -10,6 +10,7 @@
 #include "tree.h"
 #include "type.h"
 #include "utils.h"
+#include "built_in_list.h"
 
 extern tree_t* tree;
 
@@ -606,6 +607,29 @@ void semantic_error(char *filename, int lineno, char *msg, ...)
     exit(SEM_ERR);
 }
 
+/*
+Checks if given import_name is a built_in liberry
+Depends on #include "built_in_list.h"
+*/
+int is_built_in(char *import_name) {
+    
+    
+    // Create a pointer to iterate over the elements of built_in_list
+    char **iterator = built_in_list;
+    
+    //will iterate until it finds LIST_END in the built in list, if it does return 0
+    while (strcmp(*iterator, "LIST_END") != 0) {
+        
+        //if import_name was found in built in list, return 1
+        if (strcmp(import_name, *iterator) == 0)
+            return 1;
+        
+        iterator++;
+    }
+    
+    return 0;
+}
+
 /**
  * TODO: Not sure how to handle attribute accesses yet
  * Search for packages (other python files) in current directory, then 
@@ -620,7 +644,8 @@ void get_import_symbols(struct tree *t, SymbolTable st)
     char filename[PATHMAX];
     strcpy(filename, import_name);
     strcat(filename, ".py");
-    if(access(filename, F_OK) != 0) {
+    printf("finna do dat\n");
+    if(access(filename, F_OK) != 0 && !is_built_in(import_name)) {
         semantic_error(leaf->filename, leaf->lineno, "No module named '%s'\n", import_name);
     }
     if(strcmp(dotted_as_name->kids[1]->symbolname, "as_name_opt") == 0) { 
