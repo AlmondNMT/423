@@ -42,6 +42,7 @@ comment                     #+[^\n]*
 unmatched_dquotes           \"([^\"\n]|(\"{2}))*[\n]?
 unmatched_squotes           \'([^\'\n]|(\'{2}))*[\n]?
 unmatched_quotes            {unmatched_dquotes}|{unmatched_squotes}
+forbidden_identifiers       [0-9]+[a-zA-Z0-9]+
 %%
 
 {comment}			{ column += strlen(yytext); } // comments
@@ -227,7 +228,6 @@ unmatched_quotes            {unmatched_dquotes}|{unmatched_squotes}
 
 [a-zA-Z_][a-zA-Z0-9_]* { column += strlen(yytext); return alctoken(NAME); }
 {integer}                 { column += strlen(yytext); return alctoken(INTLIT); }
-[A-Za-z0-9]+	{column += strlen(yytext); words++; return alctoken(NAME);}
 {float} { column += strlen(yytext); return alctoken(FLOATLIT); }
 {fstring} { yylexerror(puny_support_err); }
 {rstring}   { yylexerror(puny_support_err); }
@@ -248,6 +248,7 @@ unmatched_quotes            {unmatched_dquotes}|{unmatched_squotes}
 (\n|\r\n)      {column = 1; yylineno++;}
 
 {unmatched_quotes} {yylexerror("EOL while scanning literal"); }
+{forbidden_identifiers} {yylexerror("Forbidden identifier token");}
 %%
 
 

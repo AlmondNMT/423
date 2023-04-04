@@ -440,8 +440,8 @@ trailer: LPAR arglist_opt RPAR {$$=make_tree("trailer", 1,$2);} // Function call
     | DOT NAME {$$=make_tree("trailer", 1, $2);}                 // Object member access
     ;
 
-arglist_opt: {$$=make_tree("nulltree",0,NULL);}
-    | arglist
+arglist_opt: {$$=make_tree("arglist_opt",0,NULL);}
+    | arglist {$$=make_tree("arglist_opt", 1, $1); }
     ;
 
 arglist: arg_comma_rep arg_ORS {$$=make_tree("arglist", 2,$1,$2);}

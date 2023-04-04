@@ -3,6 +3,8 @@
 fifa=test1.py
 if [[ -e $fifa ]] 
 then
+    echo "python3 $fifa"
     python3 $fifa
+    echo "./puny $fifa"
     ./puny $fifa
 fi

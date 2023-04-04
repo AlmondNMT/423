@@ -55,15 +55,16 @@ struct token *get_leftmost_token(struct tree *t, SymbolTable st);
 // expr_stmts: Very complex python expressions, e.g., assignments, function calls
 void handle_expr_stmt(struct tree *t, SymbolTable st);
 void handle_testlist(struct tree *t, SymbolTable st);
+
 // Invalid expr_stmt handling
 void locate_invalid_expr(struct tree *t);
 void locate_invalid_leftmost(struct tree *t);
 void locate_invalid_nested(struct tree *t);
+void locate_invalid_nested_aux(struct tree *t);
 void locate_invalid_trailer(struct tree *t);
 void locate_invalid_token(struct tree *t);
 
-
-// Type adding 
+// Type annotations
 void add_func_type(struct tree *t, SymbolTable st);
 
 // FOr handling PunY builtins stuff

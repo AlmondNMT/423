@@ -320,11 +320,45 @@ void locate_invalid_leftmost(struct tree *t)
 
         // Throw a semantic error if a non-NAME token is found in a LHS 
         // expression
-        locate_invalid_token(t);
+        locate_invalid_token(t->kids[0]);
     }
     else {
         // The leftmost branch contains the first token/item in an assignment
         locate_invalid_leftmost(t->kids[0]);
+    }
+}
+
+/**
+ * Assumed starting point is expr_stmt
+ */
+void locate_invalid_nested(struct tree *t)
+{
+    if(t == NULL) return;
+    // If the first child of EYTR is another EYTR, search for any violations
+    if(strcmp(t->kids[1]->kids[0]->symbolname, "equal_OR_yield_OR_testlist_rep") == 0) {
+        locate_invalid_nested_aux(t->kids[1]->kids[0]);
+    }
+}
+
+/**
+ * This one is called if there are nested EYTR nodes, i.e., chained assignments
+ */
+void locate_invalid_nested_aux(struct tree *t)
+{
+    if(t == NULL) return;
+    // If the first child of power is not a child, then check for an invalid trailer
+    if(strcmp(t->symbolname, "power") == 0) {
+        locate_invalid_trailer(t->kids[1]);
+        locate_invalid_token(t->kids[0]);
+        return;
+    }
+    if(strcmp(t->symbolname, "equal_OR_yield_OR_testlist_rep") == 0) {
+        locate_invalid_nested_aux(t->kids[0]);
+        locate_invalid_nested_aux(t->kids[1]);
+        return;
+    }
+    for(int i = 0; i < t->nkids; i++) {
+        locate_invalid_nested_aux(t->kids[i]);
     }
 }
 
@@ -334,31 +368,32 @@ void locate_invalid_leftmost(struct tree *t)
 void locate_invalid_trailer(struct tree *t)
 {
     if(t == NULL) return;
+    
     // If we find a trailer, we throw an error if it's first child is not a NAME
     if(strcmp(t->symbolname, "trailer") == 0) {
-        // 
-        if(strcmp(t->kids[0]->symbolname, "NAME") != 0) {
+
+        // arglist_opt denotes a function call, which is illegal on the LHS of assignments
+        if(strcmp(t->kids[0]->symbolname, "arglist_opt") == 0) {
             fprintf(stderr, "Cannot assign to function call\n");
             exit(SEM_ERR);
         }
     }
-    // 
+    // If we're at a trailer_rep, we must search further
     else if(strcmp(t->symbolname, "trailer_rep") == 0) {
         for(int i = 0; i < t->nkids; i++)
             locate_invalid_trailer(t->kids[i]);
     }
 }
 
-void locate_invalid_nested(struct tree *t)
-{
-    if(t == NULL) return;
-}
-
+/**
+ * Starting point: power->kids[0]
+ */
 void locate_invalid_token(struct tree *t)
 {
     if(t == NULL) return;
-
-}
+    if(strcmp(t->symbolname, "NAME") != 0 && t->leaf != NULL)
+        semantic_error(t->leaf->filename, t->leaf->lineno, "Cannot assign to literal\n");
+}   
 
 
 /**
