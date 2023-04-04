@@ -608,3 +608,4 @@ class kinematic: ### Assumes constant acceleration
 
 def find_g(L,h,t): # Calculate g for the given values of L (length of the incline), h (vertical distance from one photogate to the other), t (elapsed time)
     return 2 * L / (t ** 2 * h)
+f()

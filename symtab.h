@@ -42,7 +42,6 @@ void check_decls(struct tree *t, SymbolTable st);
 void free_symtab(SymbolTable st);
 
 // Specialized tree traversals for populating symbol table 
-void handle_expr_stmt(struct tree *t, SymbolTable st);
 void get_function_params(struct tree *t, SymbolTable ftable);
 void get_for_iterator(struct tree *t, SymbolTable table);
 void get_import_symbols(struct tree *t, SymbolTable st);
@@ -52,6 +51,17 @@ SymbolTable get_global_symtab(SymbolTable st);
 int get_rhs(struct tree *t, SymbolTable st);
 void assign_lhs(int basetype, struct tree *t, SymbolTable st);
 struct token *get_leftmost_token(struct tree *t, SymbolTable st);
+
+// expr_stmts: Very complex python expressions, e.g., assignments, function calls
+void handle_expr_stmt(struct tree *t, SymbolTable st);
+void handle_testlist(struct tree *t, SymbolTable st);
+// Invalid expr_stmt handling
+void locate_invalid_expr(struct tree *t);
+void locate_invalid_leftmost(struct tree *t);
+void locate_invalid_nested(struct tree *t);
+void locate_invalid_trailer(struct tree *t);
+void locate_invalid_token(struct tree *t);
+
 
 // Type adding 
 void add_func_type(struct tree *t, SymbolTable st);
@@ -65,7 +75,7 @@ uint hash(SymbolTable st, char *s);
 
 void insertclass(struct tree *t, SymbolTable st);
 void insertfunction(struct tree *t, SymbolTable st);
-SymbolTableEntry insertsymbol(SymbolTable st, char *s, int lineno); // TODO: Add typeptr later
+SymbolTableEntry insertsymbol(SymbolTable st, char *s, int lineno, int basetype); // TODO: Add typeptr later
 SymbolTableEntry insertbuiltin(SymbolTable global, char *s, int lineno, int basetype);
 void locate_undeclared(struct tree *t, SymbolTable st);
 void mark_undeclared(SymbolTable st);

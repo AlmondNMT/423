@@ -1,0 +1,8 @@
+#! /bin/bash
+
+fifa=test1.py
+if [[ -e $fifa ]] 
+then
+    python3 $fifa
+    ./puny $fifa
+fi

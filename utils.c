@@ -273,7 +273,7 @@ int yyerror(char *s)
  */
 int yylexerror(char *s)
 {
-    fprintf(stderr, "%s:%d: Lexical error: %s before '%s' token\n", yyfilename, yylineno, s, yytext);
+    fprintf(stderr, "%s:%d: Lexical error: %s: before '%s' token\n", yyfilename, yylineno, s, yytext);
     exit(LEX_ERR);
 }
 

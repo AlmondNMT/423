@@ -8,7 +8,7 @@
     extern int yyerror(char *);
     extern int yychar;
     extern char *yytext;
-    char *puny_support_err = "This Python feature is not in puny\n";
+    char *puny_support_err = "This Python feature is not in puny";
     
     #include "tree.h"
     extern struct tree *root;
@@ -247,7 +247,7 @@ expr_stmt: testlist expr_conjunct {$$=make_tree("expr_stmt", 2, $1, $2);}
     ;
 
 expr_conjunct: augassign yield_OR_testlist {$$=make_tree("expr_conjunct", 2, $1, $2);} 
-    | equal_OR_yield_OR_testlist_rep
+    | equal_OR_yield_OR_testlist_rep 
     ;
 
 yield_OR_testlist: YIELD
@@ -255,7 +255,7 @@ yield_OR_testlist: YIELD
     ;
 
 equal_OR_yield_OR_testlist_rep: {$$=make_tree("nulltree",0,NULL); }
-    | equal_OR_yield_OR_testlist_rep EQUAL yield_OR_testlist {$$=make_tree("equal_OR_yield_OR_testlist_rep", 3, $1, $2, $3);}
+    | equal_OR_yield_OR_testlist_rep EQUAL yield_OR_testlist {$$=make_tree("equal_OR_yield_OR_testlist_rep", 2, $1, $3);}
     ;
 
 augassign: PLUSEQUAL
