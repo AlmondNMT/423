@@ -29,8 +29,9 @@ struct field {			/* members (fields) of structs */
 #define PACKAGE_TYPE 1000009
 #define ANY_TYPE     1000010
 #define FILE_TYPE    1000011
+#define USER_DEF     1000012 // For any user-defined classes
 
-#define LAST_TYPE    1000010
+#define LAST_TYPE    1000013
 
 typedef struct typeinfo {
     int basetype;

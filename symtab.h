@@ -41,7 +41,7 @@ void check_undeclared_variables(SymbolTable st);
 void check_decls(struct tree *t, SymbolTable st);
 void free_symtab(SymbolTable st);
 
-// Specialized tree traversals for populating symbol table and getting type info
+// Specialized tree traversals for populating symbol table 
 void handle_expr_stmt(struct tree *t, SymbolTable st);
 void get_function_params(struct tree *t, SymbolTable ftable);
 void get_for_iterator(struct tree *t, SymbolTable table);
@@ -52,6 +52,9 @@ SymbolTable get_global_symtab(SymbolTable st);
 int get_rhs(struct tree *t, SymbolTable st);
 void assign_lhs(int basetype, struct tree *t, SymbolTable st);
 struct token *get_leftmost_token(struct tree *t, SymbolTable st);
+
+// Type adding 
+void add_func_type(struct tree *t, SymbolTable st);
 
 // FOr handling PunY builtins stuff
 int get_builtins_type_code(SymbolTableEntry e);

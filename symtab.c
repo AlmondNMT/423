@@ -15,31 +15,38 @@ extern tree_t* tree;
 
 // Populate symbol tables from AST
 void populate_symboltables(struct tree *t, SymbolTable st) {
-    if (t == NULL) {
+    if (t == NULL || st == NULL) {
         return;
     }
     // For functions, we add the name of the function to the current symbol 
     // table, then create a symbol table for the function.
     if(strcmp(t->symbolname, "funcdef") == 0) {
         insertfunction(t, st);
+        //add_func_type(t, st);
         return;
-    } else if(strcmp(t->symbolname, "classdef") == 0) {
+    }
+    if(strcmp(t->symbolname, "classdef") == 0) {
         insertclass(t, st);
         return;
-    } else if(strcmp(t->symbolname, "global_stmt") == 0) {
+    } 
+    if(strcmp(t->symbolname, "global_stmt") == 0) {
         add_global_names(st, t);
         return;
-    } else if(strcmp(t->symbolname, "expr_stmt") == 0) {
+    } 
+    if(strcmp(t->symbolname, "expr_stmt") == 0) {
         handle_expr_stmt(t, st);
         return;
-    } else if(strcmp(t->symbolname, "dotted_as_names") == 0) {
+    } 
+    if(strcmp(t->symbolname, "dotted_as_names") == 0) {
         // Import statements
         get_import_symbols(t, st);
         return;
-    } else if(strcmp(t->symbolname, "for_stmt") == 0) {
+    } 
+    if(strcmp(t->symbolname, "for_stmt") == 0) {
         get_for_iterator(t, st);
         return;
-    } else if(strcmp(t->symbolname, "decl_stmt") == 0) {
+    }
+    if(strcmp(t->symbolname, "decl_stmt") == 0) {
         get_decl_stmt(t, st);
         return;
     }
@@ -47,7 +54,6 @@ void populate_symboltables(struct tree *t, SymbolTable st) {
         populate_symboltables(t->kids[i], st);
     }
 }
-
 
 /**
  * Do semantic analysis here 
@@ -128,15 +134,26 @@ void insertfunction(struct tree *t, SymbolTable st)
 {
     if(st == NULL || t == NULL)
         return;
-    char *name = t->kids[0]->leaf->text;
+
+    // Get the name of function in the first child leaf, then add it to the symbol table.
+    // If the symboltable already contains the name in either the 
+    char *name = t->kids[0]->leaf->text; 
     SymbolTableEntry entry = insertsymbol(st, name, t->kids[0]->leaf->lineno);
-    free_symtab(entry->nested); // In case a function was already, overwrite its symboltable
+    
+    // In case a function was already defined, free its symbol table and 
+    // make a new one
+    free_symtab(entry->nested); 
     entry->nested = mknested(t, HASH_TABLE_SIZE, st, "function");
+
+    // The parent of the function's scope will be the current scope
     entry->nested->parent = st;
+
+    // We will also annotate the tree node with this scope
     t->stab = entry->nested;    // Assign function's scope to the current tree node
-    get_function_params(t->kids[1], entry->nested); // Add parameters
+    get_function_params(t->kids[1], entry->nested); // Add parameters to function scope
     populate_symboltables(t->kids[3], entry->nested); // Add suite to function scope
 }
+
 
 /**
  * Starting from the parameters rule, navigate to fpdef_equal_test_comma_rep,
@@ -147,7 +164,12 @@ void get_function_params(struct tree *t, SymbolTable ftable)
 {
     if(t == NULL || ftable == NULL)
         return;
+    
+    // This is the default base type
     int basetype = ANY_TYPE;
+
+    // The fpdef nonterminal contains quite a bit of information about the parameter 
+    // and its type, including its name
     if(strcmp(t->symbolname, "fpdef") == 0) {
         if(strcmp(t->kids[1]->symbolname, "colon_test_opt") == 0) {
             // The function param has a type hint
@@ -165,6 +187,23 @@ void get_function_params(struct tree *t, SymbolTable ftable)
 }
 
 /**
+ * Get function type information
+ */
+void add_func_type(struct tree *t, SymbolTable st)
+{
+    if(t == NULL || st == NULL)
+        return;
+    
+    // Function name
+    char *name = t->kids[0]->leaf->text;
+
+    // FFFFFFFFFF
+    SymbolTableEntry entry = lookup_current(name, st);
+    
+}
+
+/**
+ * DEPRECATED
  * For handling assignment semantics
  * Starting subtree is expr_stmt
  * TODO: 
@@ -172,7 +211,7 @@ void get_function_params(struct tree *t, SymbolTable ftable)
  *  2. If it was and it's not type ANY, check that the type of RHS is valid
  *  3. Otherwise, assign type ANY
  */
-void handle_expr_stmt(struct tree *t, SymbolTable st)
+void handle_expr_stmt_depr(struct tree *t, SymbolTable st)
 {
     if(t == NULL || st == NULL)
         return;
@@ -212,6 +251,22 @@ void handle_expr_stmt(struct tree *t, SymbolTable st)
                 //rhs = get_assignment_rhs(t->kids[i], st);
             }
         }
+    }
+}
+
+
+/**
+ * Inside of expr_stmt
+ */
+void handle_expr_stmt(struct tree *t, SymbolTable st)
+{
+    if(t == NULL || st == NULL)
+        return;
+    // We need check that the current tree has more than one child, and it is an 
+    // EYTR
+    if(t->nkids > 1 && strcmp(t->kids[1]->symbolname, "equal_OR_yield_OR_testlist_rep") == 0)
+    {
+        int basetype = get_rhs(t->kids[1]->kids[1], st);
     }
 }
 
@@ -566,6 +621,9 @@ SymbolTable mknested(struct tree *t, int nbuckets, SymbolTable parent, char *sco
 SymbolTableEntry insertsymbol(SymbolTable st, char *name, int lineno) {
     if(st == NULL)
         return 0;
+        
+    // Get the hash index of the given name then find it in the current scope if it exists.
+    // If we find the symbol in this loop, we just return its entry. 
     int idx = hash(st, name);
     SymbolTableEntry prev = NULL;
     for (SymbolTableEntry e = st->tbl[idx]; e != NULL; prev = e, e = e->next) {
@@ -573,12 +631,17 @@ SymbolTableEntry insertsymbol(SymbolTable st, char *name, int lineno) {
             return e;
         }
     }
+    
+    // If we reach this point, we didn't find the symbol in the current scope.
+    // Create a symbol table entry, 
     SymbolTableEntry entry = ckalloc(1, sizeof(struct sym_entry));
     entry->typ = ckalloc(1, sizeof(struct typeinfo));
     entry->table = st;
     entry->ident = strdup(name);
     entry->lineno = lineno;
     entry->next = NULL;
+    
+    // If prev is not NULL we had a collision in the symbol, so we link the list
     if(prev != NULL)
         prev->next = entry;
     else
@@ -643,7 +706,7 @@ const char *get_basetype(int basetype)
         case PACKAGE_TYPE:
             return "package";
         default:
-            return "Mystery type";
+            return "mystery";
     }
 }
 

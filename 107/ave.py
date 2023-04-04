@@ -26,11 +26,6 @@ def main():
     hadrian = ""
     print(sample_message.readline())
     
-    with open("sample_message.txt", "r") as sample_message:
-        while claud !=  "":
-            hadrian = hadrian + claud
-            claud = sample_message.readline()
-    print(hadrian)
     #target.write("Secret message here")
 
 if __name__ == "__main__":
