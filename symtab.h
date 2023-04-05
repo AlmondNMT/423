@@ -55,6 +55,10 @@ struct token *get_leftmost_token(struct tree *t, SymbolTable st);
 // expr_stmts: Very complex python expressions, e.g., assignments, function calls
 void handle_expr_stmt(struct tree *t, SymbolTable st);
 void handle_testlist(struct tree *t, SymbolTable st);
+void check_var_type(SymbolTableEntry e, int basetype);
+void handle_eytr_chain(struct tree *t, SymbolTable st, int basetype);
+void handle_trailer(struct tree *t, SymbolTable st);
+void handle_token(struct tree *t, SymbolTable st);
 
 // Invalid expr_stmt handling
 void locate_invalid_expr(struct tree *t);
@@ -68,7 +72,7 @@ void locate_invalid_token(struct tree *t);
 void add_func_type(struct tree *t, SymbolTable st);
 
 // FOr handling PunY builtins stuff
-int get_builtins_type_code(SymbolTableEntry e);
+int get_builtins_type_code(char *name);
 int get_token_type_code(struct token *tok);
 int determine_hint_type(struct token *type, SymbolTable st);
 struct token get_assignment_rhs(struct tree *t, SymbolTable st);
@@ -83,7 +87,7 @@ void mark_undeclared(SymbolTable st);
 SymbolTable mksymtab(int nbuckets, char *table_name);
 SymbolTable mknested(struct tree *t, int nbuckets, SymbolTable parent, char *scope);
 void populate_symboltables(struct tree *t, SymbolTable st);
-void printsymbols(SymbolTable st, int level);
+void printsymbols(SymbolTable st);
 const char* get_basetype(int basetype);
 SymbolTableEntry removesymbol(SymbolTable st, char *s);
 void semantics(struct tree *t, SymbolTable st);
