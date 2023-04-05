@@ -1083,12 +1083,42 @@ char *type_for_bin_op(char *lhs, char *rhs, char* operator)
         ret = type_for_bin_op_plus(rhs, lhs);
     }
 
+    if(strcmp(operator, "-") == 0)
+    {
+        ret = type_for_bin_op_minus(rhs, lhs);
+    }
+
+    if(strcmp(operator, "*") == 0)
+    {
+        ret = type_for_bin_op_times(rhs, lhs);
+    }
+
+    if(strcmp(operator, "/") == 0)
+    {
+        ret = type_for_bin_op_div(rhs, lhs);
+    }    
+
+    if(strcmp(operator, ">") == 0 || strcmp(operator, "<") == 0 )
+    {
+        ret = type_for_bin_op_great_less(rhs, lhs);
+    }
+
+    if( strcmp(operator, "==") == 0 )
+    {
+        ret = type_for_bin_op_equals(rhs, lhs);
+    }
+
+    if( strcmp(operator, "and") == 0 || strcmp(operator, "or") == 0)
+    {
+        ret = type_for_bin_op_logical(rhs, lhs);
+    }
+
+    //all the above funcs will return ERROR if no match is found
     if(strcmp("ERROR", ret)==0){
         fprintf(stderr, "Mismatched type between %s and %s or operator %s inappllcable\n", lhs, rhs, operator);
         exit(SEM_ERR);
     }
-
-    
+  
 }
 
 
