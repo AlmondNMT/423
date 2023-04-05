@@ -281,24 +281,21 @@ void handle_expr_stmt(struct tree *t, SymbolTable st)
     //    2. Aug-assigns (expr_conjunct)
     //    3. Plain function calls, list accesses, and arithmetic expressions
     // EYTR indicates an assignment. It can be the second child of expr_stmt
-    printf("%s\n", t->symbolname);
     if(strcmp(t->kids[1]->symbolname, "equal_OR_yield_OR_testlist_rep") == 0) {
         // Get the leftmost token first due to the shape of the tree
         struct token *leftmost = get_leftmost_token(t, st);
 
-        // Get the type of the rightmost argument
-        int basetype = get_rhs_type(t, st);
+        // Get the type of the rightmost argument by passing 'testlist' node
+        int basetype = get_rhs_type(t->kids[1]->kids[1], st);
 
         // Add the leftmost op to the symbol table if it doesn't already exist, 
         //   then verify type compatibility with the rightmost operand
         entry = insertsymbol(st, leftmost->text, leftmost->lineno, ANY_TYPE);
-        printf("%s\n", entry->ident);
         check_var_type(entry, basetype);
 
         // If there's any assignment chaining, verify the types of those 
         //   operands, and potentially add them to the table
         handle_eytr_chain(t->kids[1]->kids[0], st, basetype);
-        //printf("%s\n", leftmost->text);
     }
 }
 
@@ -306,6 +303,7 @@ void handle_expr_stmt(struct tree *t, SymbolTable st)
 /**
  * Verify type compatibility between LHS operands and the type of the rightmost
  * operand
+ * TODO: Finishing variable type checking
  */
 void check_var_type(SymbolTableEntry entry, int rhs_type)
 {
@@ -330,16 +328,40 @@ void handle_eytr_chain(struct tree *t, SymbolTable st, int basetype)
         handle_token(t->kids[0], st);
         return;
     }
+    // For nested EYTR assignment chains
+    if(strcmp(t->symbolname, "equal_OR_yield_OR_testlist_rep") == 0) {
+        handle_eytr_chain(t->kids[0], st, basetype);
+        handle_eytr_chain(t->kids[1], st, basetype);
+    }
+    for(int i = 0; i < t->nkids; i++) {
+        handle_eytr_chain(t->kids[i], st, basetype);
+    }
 }
 
 
 void handle_trailer(struct tree *t, SymbolTable st)
 {
+    if(t == NULL || st == NULL) return;
+    
+    printf("asdf\n");
+    // If we find a trailer, we need to obtain all the names 
+    if(strcmp(t->symbolname, "trailer") == 0) {
 
+        print_tree(t, 0);
+        // arglist_opt denotes a function call, which is illegal on the LHS of assignments
+        if(strcmp(t->kids[0]->symbolname, "arglist_opt") == 0) {
+
+        }
+    }
+    else if(strcmp(t->symbolname, "trailer_rep") == 0) {
+        for(int i = 0; i < t->nkids; i++) 
+            handle_trailer(t->kids[i], st);
+    }
 }
 
 void handle_token(struct tree *t, SymbolTable st)
 {
+
 }
 
 
@@ -579,6 +601,9 @@ struct token *get_leftmost_token(struct tree *t, SymbolTable st)
         // If it isn't a NAME or it's NULL, throw a syntax error
         tok = t->kids[0]->leaf;
         return tok;
+    }
+    if(strcmp(t->symbolname, "trailer_rep") == 0) {
+
     }
     else {
         return get_leftmost_token(t->kids[0], st);

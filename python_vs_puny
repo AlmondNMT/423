@@ -1,6 +1,6 @@
 #! /bin/bash
 
-fifa=test1.py
+fifa=test.py
 if [[ -e $fifa ]] 
 then
     echo "python3 $fifa"
