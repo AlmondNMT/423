@@ -1113,7 +1113,7 @@ char *type_for_bin_op(char *lhs, char *rhs, char* operator)
         exit(SEM_ERR);
     }
 
-    
+    return ret;
 }
 
 
