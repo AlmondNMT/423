@@ -4,7 +4,7 @@
 #include "symtab.h"
 #include "tree.h"
 #include "punygram.tab.h"
-   
+ 
 struct typeinfo none_type = { NONE_TYPE };
 struct typeinfo integer_type = { INT_TYPE };
 struct typeinfo class_type = { CLASS_TYPE };

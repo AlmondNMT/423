@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include "errdef.h"
 #include "punygram.tab.h"
 #include "symtab.h"
 #include "tree.h"

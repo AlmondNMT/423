@@ -1,5 +1,6 @@
 #ifndef TYPE_H
 #define TYPE_H
+#include "errdef.h"
 
 struct tree;
 
