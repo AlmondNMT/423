@@ -6,7 +6,6 @@ old/
 puny
 punygram.tab.*
 test.c
-tests
 *~
 swearcheck.sh
 *.zip
