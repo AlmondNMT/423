@@ -239,6 +239,7 @@ void handle_expr_stmt(struct tree *t, SymbolTable st)
     if(strcmp(t->kids[1]->symbolname, "equal_OR_yield_OR_testlist_rep") == 0) {
         // Get the leftmost token first due to the shape of the tree
         struct token *leftmost = get_leftmost_token(t, st);
+        printf("%s\n", leftmost);
 
         // Get the type of the rightmost argument by passing 'testlist' node
         int basetype = get_rhs_type(t->kids[1]->kids[1], st);
