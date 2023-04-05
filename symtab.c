@@ -846,9 +846,11 @@ void printsymbols(SymbolTable st, int level)
             for(int j = 0; j < entry->table->level; j++) {
                 printf("   ");
             }
+            
             printf("%d %s: ", i, entry->ident);
             printf("%s type\n", get_basetype(entry->typ->basetype)); // Switch statements for base types
             if(entry->nested != NULL) {
+                
                 printsymbols(entry->nested, level + 1);
             }
         }
@@ -1028,6 +1030,343 @@ int get_token_type_code(struct token *tok)
     }
 }
 
+//returns the type for two operands based on operator or error
+char *type_for_bin_op(char *lhs, char *rhs, char* operator)
+{
+
+    char* ret = "ERROR"; //default error
+
+    if(strcmp(operator, "+") == 0)
+    {
+        ret = type_for_bin_op_plus(rhs, lhs);
+    }
+
+    if(strcmp("ERROR", ret)==0){
+        fprintf(stderr, "Mismatched type between %s and %s or operator %s inappllcable\n", lhs, rhs, operator);
+        exit(SEM_ERR);
+    }
+
+    
+}
+
+
+//operand match check for plus
+char *type_for_bin_op_plus(char *lhs, char *rhs)
+{
+    //if anything is Any, don't bother, just return Any anyways
+    if(strcmp(lhs, "Any") == 0 || strcmp(rhs, "Any") == 0)
+        return "Any";
+
+    //handle int plus something
+    if(strcmp(lhs, "int") == 0)
+    {
+        if(strcmp(rhs, "int") == 0)
+            return "int";
+
+        if(strcmp(rhs, "float") == 0)
+            return "float";
+
+        if(strcmp(rhs, "bool") == 0)
+            return "int";
+
+    }
+
+    //handle float plus something
+    if(strcmp(lhs, "float") == 0)
+    {
+        if(strcmp(rhs, "int") == 0)
+            return "float";
+
+        if(strcmp(rhs, "float") == 0)
+            return "float";
+
+        if(strcmp(rhs, "bool") == 0)
+            return "float";
+    }
+
+    //handle str plus something
+    if(strcmp(lhs, "str") == 0)
+    {
+        if(strcmp(rhs, "str") == 0)
+            return "str"; 
+    }
+
+    //handle bool plus something
+    if(strcmp(lhs, "bool") == 0)
+    {
+        if(strcmp(rhs, "int") == 0)
+            return "int"; 
+
+        if(strcmp(rhs, "float") == 0)
+            return "float"; 
+
+        if(strcmp(rhs, "bool") == 0)
+            return "bool"; 
+    }
+
+    //handle str plus something
+    if(strcmp(lhs, "list") == 0)
+    {
+        if(strcmp(rhs, "list") == 0)
+            return "list"; 
+    }
+    
+    return "ERROR";
+}
+
+//operand match check for minus
+char *type_for_bin_op_minus(char *lhs, char *rhs)
+{
+    //if anything is Any, don't bother, just return Any anyways
+    if(strcmp(lhs, "Any") == 0 || strcmp(rhs, "Any") == 0)
+        return "Any";
+
+    //handle int minus something
+    if(strcmp(lhs, "int") == 0)
+    {
+        if(strcmp(rhs, "int") == 0)
+            return "int";
+
+        if(strcmp(rhs, "float") == 0)
+            return "float";
+
+        if(strcmp(rhs, "bool") == 0)
+            return "int";
+
+    }
+
+    //handle float minus something
+    if(strcmp(lhs, "float") == 0)
+    {
+        if(strcmp(rhs, "int") == 0)
+            return "float";
+
+        if(strcmp(rhs, "float") == 0)
+            return "float";
+
+        if(strcmp(rhs, "bool") == 0)
+            return "float";
+    }
+
+
+    //handle bool minus something
+    if(strcmp(lhs, "bool") == 0)
+    {
+        if(strcmp(rhs, "int") == 0)
+            return "int"; 
+
+        if(strcmp(rhs, "float") == 0)
+            return "float"; 
+
+        if(strcmp(rhs, "bool") == 0)
+            return "bool"; 
+    }
+    
+    return "ERROR";
+}
+
+//operand match check for times
+char *type_for_bin_op_times(char *lhs, char *rhs)
+{
+    //if anything is Any, don't bother, just return Any anyways
+    if(strcmp(lhs, "Any") == 0 || strcmp(rhs, "Any") == 0)
+        return "Any";
+
+    //handle int times something
+    if(strcmp(lhs, "int") == 0)
+    {
+        if(strcmp(rhs, "int") == 0)
+            return "int";
+
+        if(strcmp(rhs, "float") == 0)
+            return "float";
+
+        if(strcmp(rhs, "bool") == 0)
+            return "int";
+
+    }
+
+    //handle float times something
+    if(strcmp(lhs, "float") == 0)
+    {
+        if(strcmp(rhs, "int") == 0)
+            return "float";
+
+        if(strcmp(rhs, "float") == 0)
+            return "float";
+
+        if(strcmp(rhs, "bool") == 0)
+            return "float";
+    }
+
+    //handle str times something
+    if(strcmp(lhs, "str") == 0)
+    {
+        if(strcmp(rhs, "int") == 0)
+            return "str"; 
+    }
+
+    //handle bool times something
+    if(strcmp(lhs, "bool") == 0)
+    {
+        if(strcmp(rhs, "int") == 0)
+            return "int"; 
+
+        if(strcmp(rhs, "float") == 0)
+            return "float"; 
+
+        if(strcmp(rhs, "bool") == 0)
+            return "bool"; 
+    }
+
+    //handle list times something
+    if(strcmp(lhs, "list") == 0)
+    {
+        if(strcmp(rhs, "int") == 0)
+            return "list"; 
+    }
+    
+    return "ERROR";
+}
+
+//operand match check for times
+char *type_for_bin_op_div(char *lhs, char *rhs)
+{
+    //if anything is Any, don't bother, just return Any anyways
+    if(strcmp(lhs, "Any") == 0 || strcmp(rhs, "Any") == 0)
+        return "Any";
+
+    //handle int by something
+    if(strcmp(lhs, "int") == 0)
+    {
+        if(strcmp(rhs, "int") == 0)
+            return "int";
+
+        if(strcmp(rhs, "float") == 0)
+            return "float";
+
+        if(strcmp(rhs, "bool") == 0)
+            return "int";
+
+    }
+
+    //handle float by something
+    if(strcmp(lhs, "float") == 0)
+    {
+        if(strcmp(rhs, "int") == 0)
+            return "float";
+
+        if(strcmp(rhs, "float") == 0)
+            return "float";
+
+        if(strcmp(rhs, "bool") == 0)
+            return "float";
+    }
+
+
+    //handle bool by something
+    if(strcmp(lhs, "bool") == 0)
+    {
+        if(strcmp(rhs, "int") == 0)
+            return "int"; 
+
+        if(strcmp(rhs, "float") == 0)
+            return "float"; 
+
+        if(strcmp(rhs, "bool") == 0)
+            return "bool"; 
+    }
+    
+    return "ERROR";
+}
+
+//operand match check for ==, will always return bool because python is amazing
+char *type_for_bin_op_equals(char *lhs, char *rhs)
+{
+        return "bool";
+}
+
+//operand match check for greater and less kind of operators
+char *type_for_bin_op_great_less(char *lhs, char *rhs)
+{
+    //if anything is Any, don't bother, just return Any anyways
+    if(strcmp(lhs, "Any") == 0 || strcmp(rhs, "Any") == 0)
+        return "Any";
+
+    //handle int grless something
+    if(strcmp(lhs, "int") == 0)
+    {
+        if(strcmp(rhs, "int") == 0)
+            return "bool";
+
+        if(strcmp(rhs, "float") == 0)
+            return "bool";
+
+        if(strcmp(rhs, "bool") == 0)
+            return "bool";
+
+    }
+
+    //handle float grless something
+    if(strcmp(lhs, "float") == 0)
+    {
+        if(strcmp(rhs, "int") == 0)
+            return "bool";
+
+        if(strcmp(rhs, "float") == 0)
+            return "bool";
+
+        if(strcmp(rhs, "bool") == 0)
+            return "bool";
+    }
+
+    //handle str times something
+    if(strcmp(lhs, "str") == 0)
+    {
+        if(strcmp(rhs, "int") == 0)
+            return "bool"; 
+
+        if(strcmp(rhs, "str") == 0)
+            return "bool"; 
+    }
+
+    //handle bool grless something
+    if(strcmp(lhs, "bool") == 0)
+    {
+        if(strcmp(rhs, "int") == 0)
+            return "bool"; 
+
+        if(strcmp(rhs, "float") == 0)
+            return "bool"; 
+
+        if(strcmp(rhs, "bool") == 0)
+            return "bool"; 
+    }
+
+    //handle list grless something
+    if(strcmp(lhs, "list") == 0)
+    {
+        if(strcmp(rhs, "list") == 0)
+            return "bool"; 
+    }
+    
+    return "ERROR";
+}
+
+//operand match check for logical operators
+//as in python these behave totally different from normal 
+//logical operators and types also depend on values
+//this just returns any if its not expressly two bools
+char *type_for_bin_op_logical(char *lhs, char *rhs)
+{       
+        //if both are bools, return a goddamn bool
+        if(strcmp(rhs,"bool") == 0 && strcmp(lhs,"bool") == 0)
+            return "bool";
+
+        return "Any";
+}
+
+
 void add_puny_builtins(SymbolTable st) {
     SymbolTableEntry entry = NULL;
     SymbolTable newtable = NULL;
@@ -1037,12 +1376,10 @@ void add_puny_builtins(SymbolTable st) {
     insertsymbol(st, "abs", -1, FUNC_TYPE);
     insertsymbol(st, "bool", -1, CLASS_TYPE);  
     insertsymbol(st, "chr", -1, FUNC_TYPE);
-    insertsymbol(st, "dict", -1, CLASS_TYPE);
     insertsymbol(st, "float", -1, CLASS_TYPE);
     insertsymbol(st, "input", -1, FUNC_TYPE);
     insertsymbol(st, "int", -1, CLASS_TYPE);    
     insertsymbol(st, "len", -1, FUNC_TYPE);
-    insertsymbol(st, "list", -1, CLASS_TYPE);
     insertsymbol(st, "max", -1, FUNC_TYPE);
     insertsymbol(st, "min", -1, FUNC_TYPE);
     insertsymbol(st, "open", -1, FUNC_TYPE);
@@ -1050,6 +1387,7 @@ void add_puny_builtins(SymbolTable st) {
     insertsymbol(st, "pow", -1, FUNC_TYPE);
     insertsymbol(st, "range", -1, CLASS_TYPE);
     insertsymbol(st, "round", -1, FUNC_TYPE);
+    insertsymbol(st, "type", -1, CLASS_TYPE);
 
     // Add string methods to string
     entry = insertsymbol(st, "str", -1, CLASS_TYPE);
@@ -1059,6 +1397,30 @@ void add_puny_builtins(SymbolTable st) {
     insertsymbol(newtable, "replace", -1, FUNC_TYPE);
     insertsymbol(newtable, "split", -1, FUNC_TYPE);
     
-    insertsymbol(st, "type", -1, CLASS_TYPE);
+    // Add list methods to list
+    entry = insertsymbol(st, "list", -1, CLASS_TYPE);
+    newtable = mksymtab(HASH_TABLE_SIZE, "class");
+    entry->nested = newtable;
+    newtable->parent = st;
+    insertsymbol(newtable, "append", -1, FUNC_TYPE);
+    insertsymbol(newtable, "remove", -1, FUNC_TYPE);
+
+    // Add file methods to file
+    entry = insertsymbol(st, "file", -1, CLASS_TYPE);
+    newtable = mksymtab(HASH_TABLE_SIZE, "class");
+    entry->nested = newtable;
+    newtable->parent = st;
+    insertsymbol(newtable, "read", -1, FUNC_TYPE);
+    insertsymbol(newtable, "write", -1, FUNC_TYPE);
+    insertsymbol(newtable, "close", -1, FUNC_TYPE);;
+
+    // Add dict methods to dict
+    entry = insertsymbol(st, "dict", -1, CLASS_TYPE);
+    newtable = mksymtab(HASH_TABLE_SIZE, "class");
+    entry->nested = newtable;
+    newtable->parent = st;
+    insertsymbol(newtable, "keys", -1, FUNC_TYPE);
+    insertsymbol(newtable, "values", -1, FUNC_TYPE);
+
 }
 
