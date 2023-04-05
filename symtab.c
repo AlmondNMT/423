@@ -749,7 +749,7 @@ int is_built_in(char *import_name) {
     char **iterator = built_in_list;
     
     //will iterate until it finds LIST_END in the built in list, if it does return 0
-    while (strcmp(*iterator, "LIST_END") != 0) {
+     while (*iterator != NULL) {
         
         //if import_name was found in built in list, return 1
         if (strcmp(import_name, *iterator) == 0)
