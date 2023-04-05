@@ -87,7 +87,7 @@ SymbolTableEntry insertbuiltin(SymbolTable global, char *s, int lineno, int base
 void locate_undeclared(struct tree *t, SymbolTable st);
 void mark_undeclared(SymbolTable st);
 SymbolTable mksymtab(int nbuckets, char *table_name);
-SymbolTable mknested(struct tree *t, int nbuckets, SymbolTable parent, char *scope);
+SymbolTable mknested(char *filename, int lineno, int nbuckets, SymbolTable parent, char *scope);
 void populate_symboltables(struct tree *t, SymbolTable st);
 void printsymbols(SymbolTable st);
 SymbolTableEntry removesymbol(SymbolTable st, char *s);

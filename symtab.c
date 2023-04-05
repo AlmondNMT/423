@@ -164,14 +164,14 @@ void insertfunction(struct tree *t, SymbolTable st)
     // In case a function was already defined, free its symbol table and 
     // make a new one
     free_symtab(entry->nested); 
-    entry->nested = mknested(t, HASH_TABLE_SIZE, st, "function");
+    entry->nested = mknested(leaf->filename, leaf->lineno, HASH_TABLE_SIZE, st, "function");
 
     // The parent of the function's scope will be the current scope
     entry->nested->parent = st;
 
     // We will also annotate the tree node with this scope
     t->stab = entry->nested;    // Assign function's scope to the current tree node
-    get_function_params(t->kids[1], entry->nested); // Add parameters to function scope
+    get_function_params(t->kids[1], entry->nested);   // Add parameters to function scope
     populate_symboltables(t->kids[3], entry->nested); // Add suite to function scope
 }
 
@@ -221,59 +221,6 @@ void add_func_type(struct tree *t, SymbolTable st)
     SymbolTableEntry entry = lookup_current(name, st);
     
 }
-
-/**
- * DEPRECATED
- * For handling assignment semantics
- * Starting subtree is expr_stmt
- * TODO: 
- *  1. Check whether the symbol was previously declared
- *  2. If it was and it's not type ANY, check that the type of RHS is valid
- *  3. Otherwise, assign type ANY
- */
-void handle_expr_stmt_depr(struct tree *t, SymbolTable st)
-{
-    if(t == NULL || st == NULL)
-        return;
-    int basetype;
-    // 
-    if(t->nkids > 1 && strcmp(t->kids[1]->symbolname, "equal_OR_yield_OR_testlist_rep") == 0)   {
-        /* Get the rightmost RHS type of the assignment statement.
-        *  Once we have the basetype, we have to verify that all left-hand 
-        *  operands are valid */
-        //printf("t->kids[1]: %s\n", t->kids[1]->kids[1]->kids[0]->symbolname);
-        basetype = get_rhs_type(t->kids[1]->kids[1], st);
-        assign_lhs(basetype, t, st); // Pass the expr_stmt and basetype
-        return;
-    }
-    else if(strcmp(t->symbolname, "trailer") == 0) {
-        /* TODO: Handle function/method calls, list subscripting, and object member
-        * accesses */
-        return ;
-    } 
-    else if(strcmp(t->symbolname, "expr_conjunct") == 0) {
-        /** TODO: Handle stuff like +=, *=, etc. */
-        return;
-    }
-    else if(strcmp(t->symbolname, "power") == 0) {
-        if(t->kids[0]->leaf != NULL && strcmp(t->kids[0]->symbolname, "NAME") == 0
-        && (t->nkids == 1 || strcmp(t->kids[1]->symbolname, "trailer_rep") != 0)) {
-            // If the first child of power has a leaf, and it is a NAME, and either 
-            // the current tree has 1 child or its second child is not trailer_rep
-            struct token *tok = t->kids[0]->leaf;
-            char *ident = tok->text;
-        }
-    }
-    else {
-        for(int i = 0; i < t->nkids; i++) {
-            if(strcmp(t->kids[i]->symbolname, "equal_OR_yield_OR_testlist_rep") != 0) {
-                handle_expr_stmt(t->kids[i], st);
-                //rhs = get_assignment_rhs(t->kids[i], st);
-            }
-        }
-    }
-}
-
 
 /**
  * Inside of expr_stmt, a very complex branch of the syntax
@@ -353,16 +300,31 @@ void handle_eytr_chain(struct tree *t, SymbolTable st, int basetype)
 }
 
 
+/*
+ * For handling statements like these: 
+ *   "class Obj:
+ *        b: int
+ *        b = 1
+ *    
+ *    class Nest:
+ *        a: Obj
+ *        a = Obj()
+ *    c = Nest()
+ *    d: int
+ *    d = c.a.b
+ *   "
+ * TODO: 
 SymbolTableEntry get_trailer_entry(struct tree *t, SymbolTable st)
 {
-    if(t == NULL || st == NULL) return;
+    if(t == NULL || st == NULL) return NULL;
     
     // If we find a trailer, we need to 
     if(strcmp(t->symbolname, "trailer") == 0) {
+
     }
     else if(strcmp(t->symbolname, "trailer_rep") == 0) {
     }
-}
+} */
 
 /**
  * This function is called for handling "power" nonterminals in assignments. 
@@ -863,7 +825,7 @@ void insertclass(struct tree *t, SymbolTable st)
     char *name = t->kids[0]->leaf->text;
     SymbolTableEntry entry = insertsymbol(st, name, leaf->lineno, leaf->filename, CLASS_TYPE);
     free_symtab(entry->nested);
-    entry->nested = mknested(t, HASH_TABLE_SIZE, st, "class");
+    entry->nested = mknested(leaf->filename, leaf->lineno, HASH_TABLE_SIZE, st, "class");
     t->stab = entry->nested;
     populate_symboltables(t->kids[1], entry->nested); // Add class params?? TODO: Check this
     populate_symboltables(t->kids[2], entry->nested); // Add class suite
@@ -904,12 +866,12 @@ SymbolTable mksymtab(int nbuckets, char *scope)
 
 
 // Create a symbol table for functions/classes
-SymbolTable mknested(struct tree *t, int nbuckets, SymbolTable parent, char *scope)
+SymbolTable mknested(char *filename, int lineno, int nbuckets, SymbolTable parent, char *scope)
 {
     if(strcmp(parent->scope, "function") == 0) {
-        semantic_error(t->leaf->filename, t->leaf->lineno, "Function nesting not allowed in puny\n");
+        semantic_error(filename, lineno, "Function nesting not allowed in puny\n");
     } else if (strcmp(parent->scope, "class") == 0 && strcmp(scope, "class") == 0) {
-        semantic_error(t->leaf->filename, t->leaf->lineno, "Class nesting not allowed in puny\n");
+        semantic_error(filename, lineno, "Class nesting not allowed in puny\n");
     }
     SymbolTable ftable = mksymtab(nbuckets, scope);
     ftable->level = parent->level + 1;
