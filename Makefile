@@ -23,6 +23,7 @@ tests: tests.c punylex.l punygram.y utils.c back.c tree.c symtab.c tree.h type.c
 	bison -d punygram.y
 	flex punylex.l
 	$(CC) $(CFLAGS) $(CFILES)
+	./testrunner.sh
 	gcc -Wall -g lex.yy.o utils.o back.o tree.o punygram.tab.o symtab.o tests.c type.o -o pytest
 	./pytests
 
