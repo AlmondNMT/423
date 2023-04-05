@@ -102,3 +102,13 @@ SymbolTableEntry lookup_current(char *name, SymbolTable st);
 // Errors
 void semantic_error(char *filename, int lineno, char *msg, ...);
 void undeclared_error(struct token *tok);
+
+//types
+char *type_for_bin_op(char *lhs, char *rhs, char* operator);
+char *type_for_bin_op_plus(char *lhs, char *rhs);
+char *type_for_bin_op_minus(char *lhs, char *rhs);
+char *type_for_bin_op_times(char *lhs, char *rhs);
+char *type_for_bin_op_div(char *lhs, char *rhs);
+char *type_for_bin_op_equals(char *lhs, char *rhs);
+char *type_for_bin_op_great_less(char *lhs, char *rhs);
+char *type_for_bin_op_logical(char *lhs, char *rhs);
