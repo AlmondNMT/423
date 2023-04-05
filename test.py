@@ -1,3 +1,4 @@
+import os
 def f(x) -> int:
     return x
 class Obj:
@@ -9,5 +10,5 @@ class Bass:
     a = Obj()
 
 c = Bass()
-d: int
-c.a.b
+d: Any
+#d = c.a.b

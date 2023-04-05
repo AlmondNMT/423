@@ -23,15 +23,15 @@ tests: tests.c punylex.l punygram.y utils.c back.c tree.c symtab.c tree.h type.c
 	bison -d punygram.y
 	flex punylex.l
 	$(CC) $(CFLAGS) $(CFILES)
-	gcc -Wall -g lex.yy.o utils.o back.o tree.o punygram.tab.o symtab.o tests.c type.o -o tests
-	./tests
+	gcc -Wall -g lex.yy.o utils.o back.o tree.o punygram.tab.o symtab.o tests.c type.o -o pytest
+	./pytests
 
 testsnolexing:
 	gcc -Wall -g  utils.c back.c tree.c tests.c 
 	gcc -Wall -g  utils.o back.o tree.o tests.o type.o -o tests
 
 clean: 
-	rm -f lex.yy.c puny tests *.o a.out punygram.tab.* *.zip
+	rm -f lex.yy.c puny pytests *.o a.out punygram.tab.* *.zip
 
 zip: punylex.l punygram.y main.c utils.c back.c tree.c tree.h utils.h Makefile printsyms.c symtab.h symtab.c test.py built_in_list.h
 	zip lab7.zip punygram.y punylex.l main.c utils.c back.c tree.c tree.h utils.h Makefile symtab.h symtab.c printsyms.c errdef.h type.c type.h

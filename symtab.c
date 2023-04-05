@@ -658,7 +658,7 @@ int determine_hint_type(struct token *type, SymbolTable st)
     // If the type entry cannot be found in the symbol table, that's an error
     
     if(type_entry == NULL) 
-        semantic_error(type->filename, type->lineno, "Name '%s' is not defined for the provided type\n");
+        semantic_error(type->filename, type->lineno, "Name '%s' is not defined for the provided type\n", type->text);
     else {
         // When we find the type entry, we have to consider its type code. If it's 
         // a class, we obtain the class define code if it's a builtin, or ANY_TYPE 
@@ -1121,6 +1121,7 @@ void add_puny_builtins(SymbolTable st) {
     SymbolTableEntry entry = NULL;
     SymbolTable newtable = NULL;
 
+    insertsymbol(st, "Any", -1, "(builtins)", CLASS_TYPE);
     insertsymbol(st, "print", -1, "(builtins)", FUNC_TYPE);
     insertsymbol(st, "int", -1, "(builtins)", CLASS_TYPE);
     insertsymbol(st, "abs", -1, "(builtins)", FUNC_TYPE);
