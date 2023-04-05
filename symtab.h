@@ -102,3 +102,4 @@ SymbolTableEntry lookup_current(char *name, SymbolTable st);
 // Errors
 void semantic_error(char *filename, int lineno, char *msg, ...);
 void undeclared_error(struct token *tok);
+

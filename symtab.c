@@ -1097,19 +1097,51 @@ int get_token_type_code(struct token *tok)
     }
 }
 
+/*
 //returns the type for two operands based on operator or error
-char *type_for_bin_op(char *lhs, char *rhs, char* operator)
+char *type_for_bin_op(char *lhs, char *rhs, char* op)
 {
 
     char* ret = "ERROR"; //default error
 
-    if(strcmp(operator, "+") == 0)
+    if(strcmp(op, "+") == 0)
     {
         ret = type_for_bin_op_plus(rhs, lhs);
     }
 
+    if(strcmp(op, "-") == 0)
+    {
+        ret = type_for_bin_op_minus(rhs, lhs);
+    }
+
+    if(strcmp(op, "*") == 0)
+    {
+        ret = type_for_bin_op_times(rhs, lhs);
+    }
+
+    if(strcmp(op, "/") == 0)
+    {
+        ret = type_for_bin_op_div(rhs, lhs);
+    }    
+
+    if(strcmp(op, ">") == 0 || strcmp(op, "<") == 0 )
+    {
+        ret = type_for_bin_op_great_less(rhs, lhs);
+    }
+
+    if( strcmp(op, "==") == 0 )
+    {
+        ret = type_for_bin_op_equals(rhs, lhs);
+    }
+
+    if( strcmp(op, "and") == 0 || strcmp(op, "or") == 0)
+    {
+        ret = type_for_bin_op_logical(rhs, lhs);
+    }
+
+    //all the above funcs will return ERROR if no match is found
     if(strcmp("ERROR", ret)==0){
-        fprintf(stderr, "Mismatched type between %s and %s or operator %s inappllcable\n", lhs, rhs, operator);
+        fprintf(stderr, "Mismatched type between %s and %s or operator %s inappllcable\n", lhs, rhs, op);
         exit(SEM_ERR);
     }
 
@@ -1432,6 +1464,7 @@ char *type_for_bin_op_logical(char *lhs, char *rhs)
 
         return "Any";
 }
+*/
 
 
 void add_puny_builtins(SymbolTable st) {
