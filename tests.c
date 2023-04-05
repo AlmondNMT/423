@@ -222,10 +222,10 @@ void test_symtab() {
     insertsymbol(st, "var3", "bool");
 
     printf("Looking up variables in the symbol table...\n");
-    printf("var1: %s\n", lookup_variable(st, "var1"));
-    printf("var2: %s\n", lookup_variable(st, "var2"));
-    printf("var3: %s\n", lookup_variable(st, "var3"));
-    printf("var4 (not in table): %s\n", lookup_variable(st, "var4"));
+    printf("var1: %s\n", lookup(st, "var1"));
+    printf("var2: %s\n", lookup(st, "var2"));
+    printf("var3: %s\n", lookup(st, "var3"));
+    printf("var4 (not in table): %s\n", lookup(st, "var4"));
 
     printf("Adding functions to the symbol table...\n");
     insert_function(st, "func1", "int", NULL);
@@ -242,8 +242,8 @@ void test_symtab() {
     remove_function(st, "func1");
 
     printf("Looking up removed variables and functions in the symbol table...\n");
-    printf("var1 (removed): %s\n", lookup_variable(st, "var1"));
-    printf("var2 (removed): %s\n", lookup_variable(st, "var2"));
+    printf("var1 (removed): %s\n", lookup(st, "var1"));
+    printf("var2 (removed): %s\n", lookup(st, "var2"));
     printf("func1 (removed): %s\n", lookup(st, "func1")->ident);
 
     free_symtab(st);
@@ -489,10 +489,10 @@ void test_symtab() {
     insertsymbol(st, "var3", "bool");
 
     printf("Looking up variables in the symbol table...\n");
-    printf("var1: %s\n", lookup_variable(st, "var1"));
-    printf("var2: %s\n", lookup_variable(st, "var2"));
-    printf("var3: %s\n", lookup_variable(st, "var3"));
-    printf("var4 (not in table): %s\n", lookup_variable(st, "var4"));
+    printf("var1: %s\n", lookup(st, "var1"));
+    printf("var2: %s\n", lookup(st, "var2"));
+    printf("var3: %s\n", lookup(st, "var3"));
+    printf("var4 (not in table): %s\n", lookup(st, "var4"));
 
     printf("Adding functions to the symbol table...\n");
     insert_function(st, "func1", "int", NULL);
@@ -509,9 +509,9 @@ void test_symtab() {
     remove_function(st, "func1");
 
     printf("Looking up removed variables and functions in the symbol table...\n");
-    printf("var1 (removed): %s\n", lookup_variable(st, "var1"));
-    printf("var2 (removed): %s\n", lookup_variable(st, "var2"));
-    printf("func1 (removed): %s\n", lookup(st, "func1"));
+    printf("var1 (removed): %s\n", lookup("var1", st));
+    printf("var2 (removed): %s\n", lookup("var2", st));
+    printf("func1 (removed): %s\n", lookup("func1", st));
 
     free_symtab(st);
 }
