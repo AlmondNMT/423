@@ -59,6 +59,7 @@ typedef struct typeinfo {
 typeptr alctype(int);
 typeptr alclist(?);*/
 typeptr alcfunctype(struct tree * r, struct tree * p, struct sym_table * st);
+typeptr alcclasstype(struct tree *r, struct tree *p, struct sym_table *st);
 char *typename(typeptr t);
 
 extern struct sym_table *global_table;

@@ -77,6 +77,7 @@ int get_token_type_code(struct token *tok);
 int determine_hint_type(struct token *type, SymbolTable st);
 struct token get_assignment_rhs(struct tree *t, SymbolTable st);
 uint hash(SymbolTable st, char *s);
+const char* get_basetype(int basetype);
 
 void insertclass(struct tree *t, SymbolTable st);
 void insertfunction(struct tree *t, SymbolTable st);
@@ -88,7 +89,6 @@ SymbolTable mksymtab(int nbuckets, char *table_name);
 SymbolTable mknested(struct tree *t, int nbuckets, SymbolTable parent, char *scope);
 void populate_symboltables(struct tree *t, SymbolTable st);
 void printsymbols(SymbolTable st);
-const char* get_basetype(int basetype);
 SymbolTableEntry removesymbol(SymbolTable st, char *s);
 void semantics(struct tree *t, SymbolTable st);
 

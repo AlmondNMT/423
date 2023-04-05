@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "type.h"
 #include "symtab.h"
 #include "tree.h"
 #include "punygram.tab.h"
+#include "utils.h"
  
 struct typeinfo none_type = { NONE_TYPE };
 struct typeinfo integer_type = { INT_TYPE };
@@ -50,7 +52,7 @@ typeptr alctype(int base)
         case ANY_TYPE: return any_typeptr;
     }
 
-    rv = (typeptr) calloc(1, sizeof(struct typeinfo));
+    rv = (typeptr) ckalloc(1, sizeof(struct typeinfo));
     if (rv == NULL) return rv;
     rv->basetype = base;
     return rv;
@@ -78,11 +80,17 @@ typeptr alclist()
 typeptr alcfunctype(struct tree * r, struct tree * p, SymbolTable st)
 {
    typeptr rv = alctype(FUNC_TYPE);
-   if (rv == NULL) return NULL;
    rv->u.f.st = st;
    /* fill in return type and paramlist by traversing subtrees */
    /* rf->u.f.returntype = ... */
    return rv;
+}
+
+typeptr alcclasstype(struct tree *r, struct tree *p, SymbolTable st)
+{
+    typeptr rv = alctype(CLASS_TYPE);
+    rv->u.cls.st = st;
+    return rv;
 }
 
 char *typename(typeptr t)

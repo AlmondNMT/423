@@ -111,7 +111,7 @@ void check_decls(struct tree *t, SymbolTable st)
     if(t == NULL || st == NULL) return;
     if(t->leaf == NULL) return;
     SymbolTableEntry entry = lookup(t->leaf->text, st);
-    if(entry == NULL) {
+    if(entry == NULL || t->leaf->lineno < entry->lineno) {
         semantic_error(t->leaf->filename, t->leaf->lineno, "Name '%s' not defined\n", t->leaf->text);
     }
 }
@@ -286,6 +286,7 @@ void handle_expr_stmt(struct tree *t, SymbolTable st)
 
         // Get the type of the rightmost argument by passing 'testlist' node
         int basetype = get_rhs_type(t->kids[1]->kids[1], st);
+        printf("%s\n", get_basetype(basetype));
 
         // Add the leftmost op to the symbol table if it doesn't already exist, 
         //   then verify type compatibility with the rightmost operand
@@ -308,9 +309,15 @@ void check_var_type(SymbolTableEntry entry, int rhs_type)
 {
     if(entry == NULL || entry->typ == NULL) return;
 
-    // If the basetype of the entry is ANY_TYPE, then the RHS is valid
-    if(entry->typ->basetype == ANY_TYPE) {
-        return;
+    // If the basetype of the entry is not ANY_TYPE, then check it against
+    //   rhs type
+    if(entry->typ->basetype != ANY_TYPE) {
+        if(entry->typ->basetype != rhs_type) {
+            fprintf(stderr, 
+                    "incompatible assignment between '%s' and '%s'\n", 
+                    get_basetype(entry->typ->basetype), 
+                    get_basetype(rhs_type));
+        }
     }
 
 }
@@ -324,7 +331,7 @@ void handle_eytr_chain(struct tree *t, SymbolTable st, int basetype)
     if(t == NULL || st == NULL) return;
     if(strcmp(t->symbolname, "power") == 0) {
         handle_trailer(t->kids[1], st);
-        handle_token(t->kids[0], st);
+        handle_token(t, st);
         return;
     }
     // For nested EYTR assignment chains
@@ -342,15 +349,9 @@ void handle_trailer(struct tree *t, SymbolTable st)
 {
     if(t == NULL || st == NULL) return;
     
-    printf("asdf\n");
     // If we find a trailer, we need to obtain all the names 
     if(strcmp(t->symbolname, "trailer") == 0) {
-
-        print_tree(t, 0);
-        // arglist_opt denotes a function call, which is illegal on the LHS of assignments
-        if(strcmp(t->kids[0]->symbolname, "arglist_opt") == 0) {
-
-        }
+        
     }
     else if(strcmp(t->symbolname, "trailer_rep") == 0) {
         for(int i = 0; i < t->nkids; i++) 
@@ -358,9 +359,48 @@ void handle_trailer(struct tree *t, SymbolTable st)
     }
 }
 
+/**
+ * This function is called for handling "power" nonterminals in assignments. 
+ * For example, when `a` is found in the expression `a = b = c = 1`, this 
+ * function should be called to add it to the table. If we find a trailer,
+ * which indicates either a function call, a list access, or a member access,
+ * then the leftmost token must be in the symboltable
+ *
+ * ASSUMPTIONS: 
+ *   1. Our starting nonterminal is a 'power'
+ *   2. We do not expect to see an 'atom' nonterminal as the first child
+ */
 void handle_token(struct tree *t, SymbolTable st)
 {
+    // First check that we are currently at a power nonterminal
+    if(strcmp(t->symbolname, "power") == 0) {
 
+        // Then check if our first child is a NAME. If it is not, throw a fit
+        if(strcmp(t->kids[0]->symbolname, "NAME") != 0) {
+            fprintf(stderr, "LHS of assignment must contain an identifier\n");
+            exit(SEM_ERR);
+        }
+        
+        // Grab the leftmost identifier, then look it up in the symbol table
+        struct token *left = t->kids[0]->leaf;
+        SymbolTableEntry entry = lookup(left->text, st);
+
+        // Now check if "power" has a second child, "trailer_rep". 
+        if(strcmp(t->kids[1]->symbolname, "trailer_rep") == 0) {
+
+            // If we could not find an entry in the table for the leftmost 
+            //   token, throw a fit
+            if(entry == NULL) {
+                semantic_error(left->filename, left->lineno, "name '%s' is not defined\n", left->text);
+            }
+            
+            // Get the nested symbol table of the entry, then call an auxiliary 
+            //   function to locate the member being accessed
+            // l
+            
+        }
+        //SymbolTableEntry entry = insertsymbol(st, t->leaf->text, t->leaf->lineno, ANY_TYPE);
+    }
 }
 
 
@@ -600,9 +640,6 @@ struct token *get_leftmost_token(struct tree *t, SymbolTable st)
         // If it isn't a NAME or it's NULL, throw a syntax error
         tok = t->kids[0]->leaf;
         return tok;
-    }
-    if(strcmp(t->symbolname, "trailer_rep") == 0) {
-
     }
     else {
         return get_leftmost_token(t->kids[0], st);
@@ -1132,6 +1169,7 @@ void add_puny_builtins(SymbolTable st) {
     entry = insertsymbol(st, "list", -1, CLASS_TYPE);
     newtable = mksymtab(HASH_TABLE_SIZE, "class");
     entry->nested = newtable;
+    entry->nested->level = st->level + 1;
     newtable->parent = st;
     insertsymbol(newtable, "append", -1, FUNC_TYPE);
     insertsymbol(newtable, "remove", -1, FUNC_TYPE);
@@ -1140,6 +1178,7 @@ void add_puny_builtins(SymbolTable st) {
     entry = insertsymbol(st, "file", -1, CLASS_TYPE);
     newtable = mksymtab(HASH_TABLE_SIZE, "class");
     entry->nested = newtable;
+    entry->nested->level = st->level + 1;
     newtable->parent = st;
     insertsymbol(newtable, "read", -1, FUNC_TYPE);
     insertsymbol(newtable, "write", -1, FUNC_TYPE);
@@ -1149,6 +1188,7 @@ void add_puny_builtins(SymbolTable st) {
     entry = insertsymbol(st, "dict", -1, CLASS_TYPE);
     newtable = mksymtab(HASH_TABLE_SIZE, "class");
     entry->nested = newtable;
+    entry->nested->level = st->level + 1;
     newtable->parent = st;
     insertsymbol(newtable, "keys", -1, FUNC_TYPE);
     insertsymbol(newtable, "values", -1, FUNC_TYPE);
