@@ -1118,7 +1118,8 @@ char *type_for_bin_op(char *lhs, char *rhs, char* operator)
         fprintf(stderr, "Mismatched type between %s and %s or operator %s inappllcable\n", lhs, rhs, operator);
         exit(SEM_ERR);
     }
-  
+    
+    return ret;
 }
 
 
