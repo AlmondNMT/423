@@ -5,9 +5,67 @@
 #include "symtab.h"
 #include "tree.h"
 #include "utils.h"
+#include "type.h"
+
 
 //extern char *rev_token(int cat);
 //extern YYSTYPE yylsval;
+
+void test_type_for_bin_op() {
+    char *op;
+    char *lhs;
+    char *rhs;
+
+    printf("Testing type_for_bin_op...\n");
+
+    // Test 1: int + int
+    op = "+";
+    lhs = "int";
+    rhs = "int";
+    printf("Test 1: %s %s %s -> %s\n", lhs, op, rhs, type_for_bin_op(lhs, rhs, op));
+
+    // Test 2: int + float
+    op = "+";
+    lhs = "int";
+    rhs = "float";
+    printf("Test 2: %s %s %s -> %s\n", lhs, op, rhs, type_for_bin_op(lhs, rhs, op));
+
+    // Test 3: int * bool
+    op = "*";
+    lhs = "int";
+    rhs = "bool";
+    printf("Test 3: %s %s %s -> %s\n", lhs, op, rhs, type_for_bin_op(lhs, rhs, op));
+
+    // Test 4: float / int
+    op = "/";
+    lhs = "float";
+    rhs = "int";
+    printf("Test 4: %s %s %s -> %s\n", lhs, op, rhs, type_for_bin_op(lhs, rhs, op));
+
+    // Test 5: str + str
+    op = "+";
+    lhs = "str";
+    rhs = "str";
+    printf("Test 5: %s %s %s -> %s\n", lhs, op, rhs, type_for_bin_op(lhs, rhs, op));
+
+    // Test 6: int < bool
+    op = "<";
+    lhs = "int";
+    rhs = "bool";
+    printf("Test 6: %s %s %s -> %s\n", lhs, op, rhs, type_for_bin_op(lhs, rhs, op));
+
+    // Test 7: float == str
+    op = "==";
+    lhs = "float";
+    rhs = "str";
+    printf("Test 7: %s %s %s -> %s\n", lhs, op, rhs, type_for_bin_op(lhs, rhs, op));
+
+    // Test 8: bool and bool
+    op = "and";
+    lhs = "bool";
+    rhs = "bool";
+    printf("Test 8: %s %s %s -> %s\n", lhs, op, rhs, type_for_bin_op(lhs, rhs, op));
+}
 
 void test_ext_str()
 {   
@@ -174,4 +232,8 @@ int main()
     //test_tree();
     //test_make_tree();
     test_hash();
+//    test_type_for_bin_op();
+    return 0;
+
 }
+
