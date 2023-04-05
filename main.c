@@ -85,8 +85,9 @@ int main(int argc, char *argv[]) {
         }
         // Populate symbol tables and obtain type information
         semantics(tree, global);
+
         if(symtab_opt) {
-            printsymbols(global, 0);
+            printsymbols(global);
         }
         printf("No errors.\n");
         free_tree(yylval.treeptr);

@@ -274,18 +274,56 @@ void handle_expr_stmt(struct tree *t, SymbolTable st)
 {
     if(t == NULL || st == NULL)
         return;
-
+    
+    SymbolTableEntry entry = NULL;
     // At the highest level, there seems to be three kinds of expr_stmts: 
     //    1. Assignments (equal_OR_yield_OR_testlist_rep)
     //    2. Aug-assigns (expr_conjunct)
     //    3. Plain function calls, list accesses, and arithmetic expressions
     // EYTR indicates an assignment. It can be the second child of expr_stmt
     if(strcmp(t->kids[1]->symbolname, "equal_OR_yield_OR_testlist_rep") == 0) {
+        // Get the leftmost token first due to the shape of the tree
         struct token *leftmost = get_leftmost_token(t, st);
+
+        // Get the type of the rightmost argument
         int basetype = get_rhs_type(t, st);
+
+        // Add the leftmost op to the symbol table if it doesn't already exist, 
+        //   then verify type compatibility with the rightmost operand
+        entry = insertsymbol(st, leftmost->text, leftmost->lineno, ANY_TYPE);
+        check_var_type(entry, basetype);
+
+        // If there's any assignment chaining, verify the types of those 
+        //   operands, and potentially add them to the table
+        handle_eytr_chain(t->kids[1]->kids[0], st, basetype);
         printf("%s\n", leftmost->text);
     }
 }
+
+
+/**
+ * Verify type compatibility between LHS operands and the type of the rightmost
+ * operand
+ */
+void check_var_type(SymbolTableEntry entry, int rhs_type)
+{
+    if(entry == NULL || entry->typ == NULL) return;
+
+    // If the basetype of the entry is ANY_TYPE, then the RHS is valid
+    if(entry->typ->basetype == ANY_TYPE) {
+        return;
+    }
+}
+
+
+/**
+ * Auxiliary function for handling 
+ */
+void handle_eytr_chain(struct tree *t, SymbolTable st, int basetype)
+{
+    
+}
+
 
 /**
  * Search for expressions containing literals or function calls on the LHS of 
@@ -407,17 +445,6 @@ void locate_invalid_token(struct tree *t)
     if(strcmp(t->symbolname, "NAME") != 0 && t->leaf != NULL)
         semantic_error(t->leaf->filename, t->leaf->lineno, "Cannot assign to literal\n");
 }   
-
-
-/**
- * Handling testlist
- */
-void handle_testlist(struct tree *t, SymbolTable st)
-{
-    if(t == NULL || st == NULL)
-        return;
-    
-}
 
 
 /**
@@ -832,11 +859,11 @@ SymbolTableEntry insertsymbol(SymbolTable st, char *name, int lineno, int basety
 }
 
 
-void printsymbols(SymbolTable st, int level)
+void printsymbols(SymbolTable st)
 {
     if (st == NULL) return;
 
-    // Print every symbol in the current symbol, including all sub-tables
+    // Print every symbol in the current table, including all sub-tables
     for (int i = 0; i < st->nBuckets; i++) {
         
         // For every entry in a collision list...
@@ -849,7 +876,7 @@ void printsymbols(SymbolTable st, int level)
             printf("%d %s: ", i, entry->ident);
             printf("%s type\n", get_basetype(entry->typ->basetype)); // Switch statements for base types
             if(entry->nested != NULL) {
-                printsymbols(entry->nested, level + 1);
+                printsymbols(entry->nested);
             }
         }
     }
@@ -1055,6 +1082,7 @@ void add_puny_builtins(SymbolTable st) {
     entry = insertsymbol(st, "str", -1, CLASS_TYPE);
     newtable = mksymtab(HASH_TABLE_SIZE, "class");
     entry->nested = newtable;
+    entry->nested->level = st->level + 1;
     newtable->parent = st;
     insertsymbol(newtable, "replace", -1, FUNC_TYPE);
     insertsymbol(newtable, "split", -1, FUNC_TYPE);

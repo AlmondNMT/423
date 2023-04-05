@@ -55,6 +55,8 @@ struct token *get_leftmost_token(struct tree *t, SymbolTable st);
 // expr_stmts: Very complex python expressions, e.g., assignments, function calls
 void handle_expr_stmt(struct tree *t, SymbolTable st);
 void handle_testlist(struct tree *t, SymbolTable st);
+void check_var_type(SymbolTableEntry e, int basetype);
+void handle_eytr_chain(struct tree *t, SymbolTable st, int basetype);
 
 // Invalid expr_stmt handling
 void locate_invalid_expr(struct tree *t);
@@ -83,7 +85,7 @@ void mark_undeclared(SymbolTable st);
 SymbolTable mksymtab(int nbuckets, char *table_name);
 SymbolTable mknested(struct tree *t, int nbuckets, SymbolTable parent, char *scope);
 void populate_symboltables(struct tree *t, SymbolTable st);
-void printsymbols(SymbolTable st, int level);
+void printsymbols(SymbolTable st);
 const char* get_basetype(int basetype);
 SymbolTableEntry removesymbol(SymbolTable st, char *s);
 void semantics(struct tree *t, SymbolTable st);
