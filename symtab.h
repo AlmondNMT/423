@@ -18,6 +18,7 @@ typedef struct sym_table {
 typedef struct sym_entry {
     SymbolTable table;          /* what symbol table do we belong to */
     char *ident;                /* identifier name */
+    char *filename;             /* The filename origin of the entry */
     int lineno;                 /* One what line was this first found? */
     int declared;               /* is this symbol declared in this scope? */
     struct sym_table *nested;   /* nested symbol table (if any) */
@@ -55,7 +56,7 @@ struct token *get_leftmost_token(struct tree *t, SymbolTable st);
 // expr_stmts: Very complex python expressions, e.g., assignments, function calls
 void handle_expr_stmt(struct tree *t, SymbolTable st);
 void handle_testlist(struct tree *t, SymbolTable st);
-void check_var_type(SymbolTableEntry e, int basetype);
+void check_var_type(SymbolTableEntry e, int basetype, int lineno);
 void handle_eytr_chain(struct tree *t, SymbolTable st, int basetype);
 void handle_trailer(struct tree *t, SymbolTable st);
 void handle_token(struct tree *t, SymbolTable st);
@@ -81,7 +82,7 @@ const char* get_basetype(int basetype);
 
 void insertclass(struct tree *t, SymbolTable st);
 void insertfunction(struct tree *t, SymbolTable st);
-SymbolTableEntry insertsymbol(SymbolTable st, char *s, int lineno, int basetype); // TODO: Add typeptr later
+SymbolTableEntry insertsymbol(SymbolTable st, char *s, int lineno, char *filename, int basetype); // TODO: Add typeptr later
 SymbolTableEntry insertbuiltin(SymbolTable global, char *s, int lineno, int basetype);
 void locate_undeclared(struct tree *t, SymbolTable st);
 void mark_undeclared(SymbolTable st);

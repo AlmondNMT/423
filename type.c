@@ -35,6 +35,10 @@ char *typenam[] =
    {"none", "int", "class", "list", "float", "func", "dict", "bool",
     "string", "package", "any"};
 
+int calc_nparams(struct tree *t) {
+    return 0;
+}
+
 typeptr alctype(int base)
 {
     typeptr rv;

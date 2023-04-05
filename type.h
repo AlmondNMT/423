@@ -39,7 +39,7 @@ typedef struct typeinfo {
     union {
         struct funcinfo {
              char *name; /* ? */
-             int defined; /* 0 == prototype, 1 == not prototype; I don't know if this is necessary */
+             int defined; /* 0 == prototype, 1 == not prototype; we don't need this */
              struct sym_table *st;
              struct typeinfo *returntype;
              int nparams;
@@ -49,9 +49,13 @@ typedef struct typeinfo {
             char *name;
             int defined;
             struct sym_table *st;
-            int nparams;                // For constructor?
-            struct param *parameters;
+            int nparams;                // For constructor
+            struct param *parameters;   // Constructor params
         } cls;
+        struct packinfo {
+            char *name;
+            struct sym_table *st;
+        } p;
     } u;
 } *typeptr;
 
@@ -60,6 +64,7 @@ typeptr alctype(int);
 typeptr alclist(?);*/
 typeptr alcfunctype(struct tree * r, struct tree * p, struct sym_table * st);
 typeptr alcclasstype(struct tree *r, struct tree *p, struct sym_table *st);
+int calc_nparams(struct tree *t);
 char *typename(typeptr t);
 
 extern struct sym_table *global_table;
