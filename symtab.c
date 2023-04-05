@@ -281,6 +281,7 @@ void handle_expr_stmt(struct tree *t, SymbolTable st)
     //    2. Aug-assigns (expr_conjunct)
     //    3. Plain function calls, list accesses, and arithmetic expressions
     // EYTR indicates an assignment. It can be the second child of expr_stmt
+    printf("%s\n", t->symbolname);
     if(strcmp(t->kids[1]->symbolname, "equal_OR_yield_OR_testlist_rep") == 0) {
         // Get the leftmost token first due to the shape of the tree
         struct token *leftmost = get_leftmost_token(t, st);
@@ -291,12 +292,13 @@ void handle_expr_stmt(struct tree *t, SymbolTable st)
         // Add the leftmost op to the symbol table if it doesn't already exist, 
         //   then verify type compatibility with the rightmost operand
         entry = insertsymbol(st, leftmost->text, leftmost->lineno, ANY_TYPE);
+        printf("%s\n", entry->ident);
         check_var_type(entry, basetype);
 
         // If there's any assignment chaining, verify the types of those 
         //   operands, and potentially add them to the table
         handle_eytr_chain(t->kids[1]->kids[0], st, basetype);
-        printf("%s\n", leftmost->text);
+        //printf("%s\n", leftmost->text);
     }
 }
 
@@ -313,6 +315,7 @@ void check_var_type(SymbolTableEntry entry, int rhs_type)
     if(entry->typ->basetype == ANY_TYPE) {
         return;
     }
+
 }
 
 
@@ -321,8 +324,24 @@ void check_var_type(SymbolTableEntry entry, int rhs_type)
  */
 void handle_eytr_chain(struct tree *t, SymbolTable st, int basetype)
 {
-    
+    if(t == NULL || st == NULL) return;
+    if(strcmp(t->symbolname, "power") == 0) {
+        handle_trailer(t->kids[1], st);
+        handle_token(t->kids[0], st);
+        return;
+    }
 }
+
+
+void handle_trailer(struct tree *t, SymbolTable st)
+{
+
+}
+
+void handle_token(struct tree *t, SymbolTable st)
+{
+}
+
 
 
 /**
@@ -607,7 +626,7 @@ int determine_hint_type(struct token *type, SymbolTable st)
         // a class, we obtain the class define code if it's a builtin, or ANY_TYPE 
         // otherwise.
         if(type_entry->typ->basetype == CLASS_TYPE) {
-            basetype = get_builtins_type_code(type_entry);
+            basetype = get_builtins_type_code(type_entry->ident);
         } else {
             // If it's not a class type then let it inherit the type of the RHS
             basetype = type_entry->typ->basetype;
@@ -1012,11 +1031,8 @@ SymbolTableEntry lookup_current(char *name, SymbolTable st)
  * This is called if the entry is a CLASS_TYPE, to determine if it is also a 
  * builtin. If it is a builtin, return the integer code, otherwise return ANY_TYPE
  */
-int get_builtins_type_code(SymbolTableEntry entry)
+int get_builtins_type_code(char *ident)
 {
-    if(entry == NULL)
-        return 0;
-    char *ident = entry->ident;
     if(strcmp(ident, "int") == 0)
         return INT_TYPE;
     else if(strcmp(ident, "list") == 0)
