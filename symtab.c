@@ -77,6 +77,8 @@ void semantics(struct tree *tree, SymbolTable st)
 
     // Find names that are used, but not declared
     locate_undeclared(tree, st);       
+
+    // Ensure that operand types are valid
 }
 
 /**
@@ -232,7 +234,7 @@ void handle_expr_stmt_depr(struct tree *t, SymbolTable st)
         *  Once we have the basetype, we have to verify that all left-hand 
         *  operands are valid */
         //printf("t->kids[1]: %s\n", t->kids[1]->kids[1]->kids[0]->symbolname);
-        basetype = get_rhs(t->kids[1]->kids[1], st);
+        basetype = get_rhs_type(t->kids[1]->kids[1], st);
         assign_lhs(basetype, t, st); // Pass the expr_stmt and basetype
         return;
     }
@@ -277,7 +279,12 @@ void handle_expr_stmt(struct tree *t, SymbolTable st)
     //    1. Assignments (equal_OR_yield_OR_testlist_rep)
     //    2. Aug-assigns (expr_conjunct)
     //    3. Plain function calls, list accesses, and arithmetic expressions
-    
+    // EYTR indicates an assignment. It can be the second child of expr_stmt
+    if(strcmp(t->kids[1]->symbolname, "equal_OR_yield_OR_testlist_rep") == 0) {
+        struct token *leftmost = get_leftmost_token(t, st);
+        int basetype = get_rhs_type(t, st);
+        printf("%s\n", leftmost->text);
+    }
 }
 
 /**
@@ -323,8 +330,8 @@ void locate_invalid_leftmost(struct tree *t)
         // the rightmost function call in a dotted trailer occurs.
         locate_invalid_trailer(t->kids[1]);
 
-        // Throw a semantic error if a non-NAME token is found in a LHS 
-        // expression
+        // Throw a semantic error if a non-NAME token is found in the LHS of an 
+        // assignment
         locate_invalid_token(t->kids[0]);
     }
     else {
@@ -419,14 +426,18 @@ void handle_testlist(struct tree *t, SymbolTable st)
  * testlist. If multiple consecutive assignments are found we need to verify 
  * that these are also assigned correct types
  */
-int get_rhs(struct tree *t, SymbolTable st)
+int get_rhs_type(struct tree *t, SymbolTable st)
 {
-    if(t == NULL || st == NULL)
-        return ANY_TYPE;
+    if(t == NULL || st == NULL) return ANY_TYPE;
+
+    // Recurse until the "power" nonterminal is found
     if(strcmp(t->symbolname, "power") == 0 && t->kids[0]->leaf != NULL) {
-        /* 'power' can only be reached if we haven't already recursed to a 
-         * listmaker or a dictorset_option_* tree node */ 
+        // 'power' can only be reached if we haven't already recursed to a 
+        //   listmaker or a dictorset_option_* tree node 
+        // This leaf contains the leftmost name of the expr_stmt
         struct token *leaf = t->kids[0]->leaf;
+
+        // If the RHS token is a name
         if(leaf->category == NAME) {
             SymbolTableEntry entry = lookup(leaf->text, st);
             if(entry == NULL) {
@@ -436,10 +447,13 @@ int get_rhs(struct tree *t, SymbolTable st)
         }
         return get_token_type_code(leaf);
     } 
+
+    // If we see listmaker_opt, we know that it's a list
     else if(strcmp(t->symbolname, "listmaker_opt") == 0) {
-        /* Indicates that the right-hand side is a list */
         return LIST_TYPE;
     }
+
+    // Dictionary
     else if(strcmp(t->symbolname, "dictorsetmaker_opt") == 0) {
         /* Right-hand side is a dictionary */
         return DICT_TYPE;
@@ -449,7 +463,7 @@ int get_rhs(struct tree *t, SymbolTable st)
          * the above three options is found 
          * TODO: Fix bad assumption */
         //printf("recursing: %s\n", t->symbolname);
-        return get_rhs(t->kids[0], st);
+        return get_rhs_type(t->kids[0], st);
     }
 }
 
@@ -517,16 +531,7 @@ struct token *get_leftmost_token(struct tree *t, SymbolTable st)
     if(strcmp(t->symbolname, "power") == 0) {
         // Expect that the first power in the leftmost assignment is a NAME.
         // If it isn't a NAME or it's NULL, throw a syntax error
-        if(strcmp(t->kids[0]->symbolname, "atom") == 0) {
-            // This happens if the left-hand side contains a list or dict or something
-            fprintf(stderr, "LHS of assignment must be a name\n");
-            exit(SEM_ERR);
-        }
         tok = t->kids[0]->leaf;
-        if(tok->category != NAME) {
-            // If we find a token on the LHS that isn't a name, e.g., 4 = a = 3
-            semantic_error(tok->filename, tok->lineno, "Cannot assign to a literal\n");
-        }
         return tok;
     }
     else {
@@ -1024,6 +1029,9 @@ int get_token_type_code(struct token *tok)
 }
 
 void add_puny_builtins(SymbolTable st) {
+    SymbolTableEntry entry = NULL;
+    SymbolTable newtable = NULL;
+
     insertsymbol(st, "print", -1, FUNC_TYPE);
     insertsymbol(st, "int", -1, CLASS_TYPE);
     insertsymbol(st, "abs", -1, FUNC_TYPE);
@@ -1042,7 +1050,15 @@ void add_puny_builtins(SymbolTable st) {
     insertsymbol(st, "pow", -1, FUNC_TYPE);
     insertsymbol(st, "range", -1, CLASS_TYPE);
     insertsymbol(st, "round", -1, FUNC_TYPE);
-    insertsymbol(st, "str", -1, CLASS_TYPE);
+
+    // Add string methods to string
+    entry = insertsymbol(st, "str", -1, CLASS_TYPE);
+    newtable = mksymtab(HASH_TABLE_SIZE, "class");
+    entry->nested = newtable;
+    newtable->parent = st;
+    insertsymbol(newtable, "replace", -1, FUNC_TYPE);
+    insertsymbol(newtable, "split", -1, FUNC_TYPE);
+    
     insertsymbol(st, "type", -1, CLASS_TYPE);
 }
 

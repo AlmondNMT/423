@@ -1,1 +1,3 @@
-f[1].a = c = s = [] = c[2] = b()
+class Ass:
+    def __nihil__(self):
+        return self

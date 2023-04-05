@@ -48,7 +48,7 @@ void get_import_symbols(struct tree *t, SymbolTable st);
 void get_decl_stmt(struct tree *t, SymbolTable st);
 int get_fpdef_type(struct tree *t, SymbolTable ftable);
 SymbolTable get_global_symtab(SymbolTable st);
-int get_rhs(struct tree *t, SymbolTable st);
+int get_rhs_type(struct tree *t, SymbolTable st);
 void assign_lhs(int basetype, struct tree *t, SymbolTable st);
 struct token *get_leftmost_token(struct tree *t, SymbolTable st);
 
