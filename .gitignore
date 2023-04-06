@@ -3,6 +3,7 @@ a.out
 err.txt
 lex.yy.c
 old/
+./puny
 punygram.tab.*
 test.c
 *~
