@@ -872,11 +872,11 @@ SymbolTable mksymtab(int nbuckets, char *scope)
 // Create a symbol table for functions/classes
 SymbolTable mknested(char *filename, int lineno, int nbuckets, SymbolTable parent, char *scope)
 {
-    /*if(strcmp(parent->scope, "function") == 0) {
+    if(strcmp(parent->scope, "function") == 0) {
         semantic_error(filename, lineno, "Function nesting not allowed in puny\n");
     } else if (strcmp(parent->scope, "class") == 0 && strcmp(scope, "class") == 0) {
         semantic_error(filename, lineno, "Class nesting not allowed in puny\n");
-    }*/
+    }
     SymbolTable ftable = mksymtab(nbuckets, scope);
     ftable->level = parent->level + 1;
     ftable->parent = parent;
@@ -1123,7 +1123,6 @@ int get_token_type_code(struct token *tok)
 
 void add_puny_builtins(SymbolTable st) {
     SymbolTableEntry entry = NULL;
-    SymbolTable newtable = NULL;
 
     insertsymbol(st, "Any", -1, "(builtins)", CLASS_TYPE);
     insertsymbol(st, "print", -1, "(builtins)", FUNC_TYPE);
@@ -1146,41 +1145,28 @@ void add_puny_builtins(SymbolTable st) {
 
     // Add string methods to string
     entry = insertsymbol(st, "str", -1, "(builtins)", CLASS_TYPE);
-    newtable = mksymtab(HASH_TABLE_SIZE, "class");
-    entry->nested = newtable;
-    entry->nested->level = st->level + 1;
-    newtable->parent = st;
-    insertsymbol(newtable, "replace", -1, "(builtins)", FUNC_TYPE);
-    insertsymbol(newtable, "split", -1, "(builtins)", FUNC_TYPE);
+    entry->nested = mknested("(builtins)", -1, HASH_TABLE_SIZE, st, "class");
+    insertsymbol(entry->nested, "replace", -1, "(builtins)", FUNC_TYPE);
+    insertsymbol(entry->nested, "split", -1, "(builtins)", FUNC_TYPE);
     
     // Add list methods to list
     entry = insertsymbol(st, "list", -1, "(builtins)", CLASS_TYPE);
-    entry->nested = mknested("(builtins)", -1, HASH_TABLE_SIZE, st, "function");
-    newtable = mksymtab(HASH_TABLE_SIZE, "class");
-    entry->nested = newtable;
-    entry->nested->level = st->level + 1;
-    newtable->parent = st;
-    insertsymbol(newtable, "append", -1, "(builtins)", FUNC_TYPE);
-    insertsymbol(newtable, "remove", -1, "(builtins)", FUNC_TYPE);
+    entry->nested = mknested("(builtins)", -1, HASH_TABLE_SIZE, st, "class");
+    insertsymbol(entry->nested, "append", -1, "(builtins)", FUNC_TYPE);
+    insertsymbol(entry->nested, "remove", -1, "(builtins)", FUNC_TYPE);
 
     // Add file methods to file
     entry = insertsymbol(st, "file", -1, "(builtins)", CLASS_TYPE);
-    newtable = mksymtab(HASH_TABLE_SIZE, "class");
-    entry->nested = newtable;
-    entry->nested->level = st->level + 1;
-    newtable->parent = st;
-    insertsymbol(newtable, "read", -1, "(builtins)", FUNC_TYPE);
-    insertsymbol(newtable, "write", -1, "(builtins)", FUNC_TYPE);
-    insertsymbol(newtable, "close", -1, "(builtins)", FUNC_TYPE);;
+    entry->nested = mknested("(builtins)", -1, HASH_TABLE_SIZE, st, "class");
+    insertsymbol(entry->nested, "read", -1, "(builtins)", FUNC_TYPE);
+    insertsymbol(entry->nested, "write", -1, "(builtins)", FUNC_TYPE);
+    insertsymbol(entry->nested, "close", -1, "(builtins)", FUNC_TYPE);;
 
     // Add dict methods to dict
     entry = insertsymbol(st, "dict", -1, "(builtins)", CLASS_TYPE);
-    newtable = mksymtab(HASH_TABLE_SIZE, "class");
-    entry->nested = newtable;
-    entry->nested->level = st->level + 1;
-    newtable->parent = st;
-    insertsymbol(newtable, "keys", -1, "(builtins)", FUNC_TYPE);
-    insertsymbol(newtable, "values", -1, "(builtins)", FUNC_TYPE);
+    entry->nested = mknested("(builtins)", -1, HASH_TABLE_SIZE, st, "class");
+    insertsymbol(entry->nested, "keys", -1, "(builtins)", FUNC_TYPE);
+    insertsymbol(entry->nested, "values", -1, "(builtins)", FUNC_TYPE);
 
 }
 
