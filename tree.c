@@ -64,7 +64,10 @@ int alctoken(int category)
     
     int i = 0;
     while(i<9) {yylval.treeptr->kids[i] = NULL;i++;}
-    printf("%s\n", rev_token(category));
+    
+    // For lexical debugging
+    //printf("%s\n", rev_token(category));
+
     yylval.treeptr->prodrule = category;
     yylval.treeptr->nkids = 0;
     yylval.treeptr->leaf = ckalloc(1, sizeof(token_t));

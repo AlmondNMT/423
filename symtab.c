@@ -215,10 +215,10 @@ void add_func_type(struct tree *t, SymbolTable st)
         return;
     
     // Function name
-    char *name = t->kids[0]->leaf->text;
+    //char *name = t->kids[0]->leaf->text;
 
     // 
-    SymbolTableEntry entry = lookup_current(name, st);
+    //SymbolTableEntry entry = lookup_current(name, st);
     
 }
 
@@ -239,7 +239,6 @@ void handle_expr_stmt(struct tree *t, SymbolTable st)
     if(strcmp(t->kids[1]->symbolname, "equal_OR_yield_OR_testlist_rep") == 0) {
         // Get the leftmost token first due to the shape of the tree
         struct token *leftmost = get_leftmost_token(t, st);
-        printf("%s\n", leftmost);
 
         // Get the type of the rightmost argument by passing 'testlist' node
         int basetype = get_rhs_type(t->kids[1]->kids[1], st);
@@ -264,6 +263,10 @@ void handle_expr_stmt(struct tree *t, SymbolTable st)
 void check_var_type(SymbolTableEntry entry, int rhs_type, int lineno)
 {
     if(entry == NULL || entry->typ == NULL) return;
+
+    // If the right-hand-side of an assignment has type any, this is runtime's 
+    //   problem
+    if(rhs_type == ANY_TYPE) return;
 
     // If the basetype of the entry is not ANY_TYPE, then check it against
     //   rhs type
@@ -869,11 +872,11 @@ SymbolTable mksymtab(int nbuckets, char *scope)
 // Create a symbol table for functions/classes
 SymbolTable mknested(char *filename, int lineno, int nbuckets, SymbolTable parent, char *scope)
 {
-    if(strcmp(parent->scope, "function") == 0) {
+    /*if(strcmp(parent->scope, "function") == 0) {
         semantic_error(filename, lineno, "Function nesting not allowed in puny\n");
     } else if (strcmp(parent->scope, "class") == 0 && strcmp(scope, "class") == 0) {
         semantic_error(filename, lineno, "Class nesting not allowed in puny\n");
-    }
+    }*/
     SymbolTable ftable = mksymtab(nbuckets, scope);
     ftable->level = parent->level + 1;
     ftable->parent = parent;
@@ -1152,6 +1155,7 @@ void add_puny_builtins(SymbolTable st) {
     
     // Add list methods to list
     entry = insertsymbol(st, "list", -1, "(builtins)", CLASS_TYPE);
+    entry->nested = mknested("(builtins)", -1, HASH_TABLE_SIZE, st, "function");
     newtable = mksymtab(HASH_TABLE_SIZE, "class");
     entry->nested = newtable;
     entry->nested->level = st->level + 1;
