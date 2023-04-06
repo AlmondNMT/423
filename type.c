@@ -33,7 +33,7 @@ typeptr any_typeptr = &any_type;
 
 char *typenam[] =
    {"none", "int", "class", "list", "float", "func", "dict", "bool",
-    "string", "package", "any"};
+    "string", "package", "Any"};
 
 int calc_nparams(struct tree *t) {
     return 0;
@@ -105,6 +105,41 @@ char *typename(typeptr t)
    else return typenam[t->basetype-1000000];
 }
 
+
+int type_str_to_int(char *typestr){
+
+
+    if (strcmp(typestr, "class") == 0)
+        return CLASS_TYPE;
+
+    if (strcmp(typestr, "list") == 0)
+        return LIST_TYPE;
+
+    if (strcmp(typestr, "float") == 0)
+        return FLOAT_TYPE;
+
+    if (strcmp(typestr, "function") == 0)
+        return FUNC_TYPE;
+
+    if (strcmp(typestr, "dict") == 0)
+        return DICT_TYPE;
+
+    if (strcmp(typestr, "bool") == 0)
+        return BOOL_TYPE;
+
+    if (strcmp(typestr, "str") == 0)
+        return STRING_TYPE;
+
+    if (strcmp(typestr, "package") == 0)
+        return PACKAGE_TYPE;
+
+    if (strcmp(typestr, "Any") == 0)
+        return ANY_TYPE;
+
+    if (strcmp(typestr, "file") == 0)
+        return FILE_TYPE;
+
+}
 
 //returns the type for two operands based on operator or error
 char *type_for_bin_op(char *lhs, char *rhs, char* op)
