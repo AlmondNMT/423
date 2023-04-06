@@ -306,11 +306,14 @@ char *type_for_bin_op_times(char *lhs, char *rhs)
     }
 
     //handle str times something
+    //DECIDED NOT TO ALLOW THIS FOR NOW
+    //BUT KEEPING THE COMMENTED VERSION
+    /*
     if(strcmp(lhs, "str") == 0)
     {
         if(strcmp(rhs, "int") == 0)
             return "str"; 
-    }
+    }*/
 
     //handle bool times something
     if(strcmp(lhs, "bool") == 0)
