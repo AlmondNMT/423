@@ -77,6 +77,7 @@ extern typeptr string_typeptr;
 extern char *typenam[];
 
 // Prototypes
+int type_str_to_int(char *typestr);
 char *type_for_bin_op(char *lhs, char *rhs, char* op);
 char *type_for_bin_op_plus(char *lhs, char *rhs);
 char *type_for_bin_op_minus(char *lhs, char *rhs);

@@ -188,6 +188,7 @@ char *type_for_bin_op(char *lhs, char *rhs, char* op)
         exit(SEM_ERR);
     }
     return ret;
+    //return type_str_to_int(ret);
 }
 
 
