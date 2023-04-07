@@ -1,0 +1,1 @@
+thing = True or False

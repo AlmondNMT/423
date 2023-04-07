@@ -55,6 +55,40 @@ char *typename(typeptr t)
 }
 
 
+int type_str_to_int(char *typestr){
+
+    if (strcmp(typestr, "class") == 0)
+        return CLASS_TYPE;
+
+    if (strcmp(typestr, "list") == 0)
+        return LIST_TYPE;
+
+    if (strcmp(typestr, "float") == 0)
+        return FLOAT_TYPE;
+
+    if (strcmp(typestr, "function") == 0)
+        return FUNC_TYPE;
+
+    if (strcmp(typestr, "dict") == 0)
+        return DICT_TYPE;
+
+    if (strcmp(typestr, "bool") == 0)
+        return BOOL_TYPE;
+
+    if (strcmp(typestr, "str") == 0)
+        return STRING_TYPE;
+
+    if (strcmp(typestr, "package") == 0)
+        return PACKAGE_TYPE;
+
+    if (strcmp(typestr, "any") == 0)
+        return ANY_TYPE;
+
+    if (strcmp(typestr, "file") == 0)
+        return FILE_TYPE;
+
+}
+
 //returns the type for two operands based on operator or error
 char *type_for_bin_op(char *lhs, char *rhs, char* op)
 {
@@ -102,6 +136,7 @@ char *type_for_bin_op(char *lhs, char *rhs, char* op)
         exit(SEM_ERR);
     }
     return ret;
+    //return type_str_to_int(ret);
 }
 
 
@@ -109,8 +144,8 @@ char *type_for_bin_op(char *lhs, char *rhs, char* op)
 char *type_for_bin_op_plus(char *lhs, char *rhs)
 {
     //if anything is Any, don't bother, just return Any anyways
-    if(strcmp(lhs, "Any") == 0 || strcmp(rhs, "Any") == 0)
-        return "Any";
+    if(strcmp(lhs, "any") == 0 || strcmp(rhs, "any") == 0)
+        return "any";
 
     //handle int plus something
     if(strcmp(lhs, "int") == 0)
@@ -173,8 +208,8 @@ char *type_for_bin_op_plus(char *lhs, char *rhs)
 char *type_for_bin_op_minus(char *lhs, char *rhs)
 {
     //if anything is Any, don't bother, just return Any anyways
-    if(strcmp(lhs, "Any") == 0 || strcmp(rhs, "Any") == 0)
-        return "Any";
+    if(strcmp(lhs, "any") == 0 || strcmp(rhs, "any") == 0)
+        return "any";
 
     //handle int minus something
     if(strcmp(lhs, "int") == 0)
@@ -224,8 +259,8 @@ char *type_for_bin_op_minus(char *lhs, char *rhs)
 char *type_for_bin_op_times(char *lhs, char *rhs)
 {
     //if anything is Any, don't bother, just return Any anyways
-    if(strcmp(lhs, "Any") == 0 || strcmp(rhs, "Any") == 0)
-        return "Any";
+    if(strcmp(lhs, "any") == 0 || strcmp(rhs, "any") == 0)
+        return "any";
 
     //handle int times something
     if(strcmp(lhs, "int") == 0)
@@ -291,8 +326,8 @@ char *type_for_bin_op_times(char *lhs, char *rhs)
 char *type_for_bin_op_div(char *lhs, char *rhs)
 {
     //if anything is Any, don't bother, just return Any anyways
-    if(strcmp(lhs, "Any") == 0 || strcmp(rhs, "Any") == 0)
-        return "Any";
+    if(strcmp(lhs, "any") == 0 || strcmp(rhs, "any") == 0)
+        return "any";
 
     //handle int by something
     if(strcmp(lhs, "int") == 0)
@@ -348,8 +383,8 @@ char *type_for_bin_op_equals(char *lhs, char *rhs)
 char *type_for_bin_op_great_less(char *lhs, char *rhs)
 {
     //if anything is Any, don't bother, just return Any anyways
-    if(strcmp(lhs, "Any") == 0 || strcmp(rhs, "Any") == 0)
-        return "Any";
+    if(strcmp(lhs, "any") == 0 || strcmp(rhs, "any") == 0)
+        return "any";
 
     //handle int grless something
     if(strcmp(lhs, "int") == 0)
@@ -421,7 +456,7 @@ char *type_for_bin_op_logical(char *lhs, char *rhs)
         if(strcmp(rhs,"bool") == 0 && strcmp(lhs,"bool") == 0)
             return "bool";
 
-        return "Any";
+        return "any";
 }
 
 // builtin type allocations
