@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include "punygram.tab.h"
 #include "symtab.h"
+#include "nonterminal.h"
 #include "tree.h"
 #include "type.h"
 #include "utils.h"
@@ -148,7 +149,8 @@ void add_global_names(SymbolTable st, tree_t *t)
  * s in the table. This means free the nested symbol table. populate_symboltables
  * will recursively descend through the tree to collect identifiers for its 
  * local scope.
- * Assumptions: The first child should contain the function name
+ * Assumptions: The first child should contain the function name, cuz our 
+ *   starting nonterminal is funcdef
  */
 void insertfunction(struct tree *t, SymbolTable st)
 {
@@ -169,10 +171,18 @@ void insertfunction(struct tree *t, SymbolTable st)
     // The parent of the function's scope will be the current scope
     entry->nested->parent = st;
 
+    // allocate the function typeinfo pointer
+    if(entry->typ->u.f.returntype == NULL) {
+        entry->typ->u.f.returntype = ckalloc(1, sizeof(struct typeinfo));
+        entry->typ->u.f.st = entry->nested;
+    }
+    
     // We will also annotate the tree node with this scope
     t->stab = entry->nested;    // Assign function's scope to the current tree node
     get_function_params(t->kids[1], entry->nested);   // Add parameters to function scope
+    add_func_type(t->kids[2], st, entry);
     populate_symboltables(t->kids[3], entry->nested); // Add suite to function scope
+
 }
 
 
@@ -207,19 +217,17 @@ void get_function_params(struct tree *t, SymbolTable ftable)
 }
 
 /**
- * Get function type information
+ * Traverse the rarrow subtree and add the type information to the entry.
+ * We are starting at rarrow_opt here
  */
-void add_func_type(struct tree *t, SymbolTable st)
+void add_func_type(struct tree *t, SymbolTable st, SymbolTableEntry entry)
 {
-    if(t == NULL || st == NULL)
+    if(entry == NULL || st == NULL || t == NULL)
         return;
-    
-    // Function name
-    //char *name = t->kids[0]->leaf->text;
 
-    // 
-    //SymbolTableEntry entry = lookup_current(name, st);
-    
+    // If we reach a power 
+    int basetype = get_rhs_type(t, st)->basetype;
+    entry->typ->u.f.returntype->basetype = basetype;
 }
 
 /**
@@ -237,11 +245,14 @@ void handle_expr_stmt(struct tree *t, SymbolTable st)
     //    3. Plain function calls, list accesses, and arithmetic expressions
     // EYTR indicates an assignment. It can be the second child of expr_stmt
     if(strcmp(t->kids[1]->symbolname, "equal_OR_yield_OR_testlist_rep") == 0) {
-        // Get the leftmost token first due to the shape of the tree
-        struct token *leftmost = get_leftmost_token(t, st);
-
         // Get the type of the rightmost argument by passing 'testlist' node
-        int basetype = get_rhs_type(t->kids[1]->kids[1], st);
+        struct typeinfo *rhs_type = get_rhs_type(t->kids[1]->kids[1], st);
+        int basetype = rhs_type->basetype;
+        printf("rhs_type: %s\n", get_basetype(basetype));
+
+        // Get the leftmost token first due to the shape of the tree
+        struct token *leftmost = get_leftmost_token(t, st, basetype);
+        printf("%s: %s\n", leftmost->text, get_basetype(basetype));
 
         // Add the leftmost op to the symbol table if it doesn't already exist, 
         //   then verify type compatibility with the rightmost operand
@@ -271,11 +282,14 @@ void check_var_type(SymbolTableEntry entry, int rhs_type, int lineno)
     // If the basetype of the entry is not ANY_TYPE, then check it against
     //   rhs type
     if(entry->typ->basetype != ANY_TYPE) {
+        // TODO
         if(entry->typ->basetype != rhs_type) {
             semantic_error(entry->filename, lineno,
-                    "incompatible assignment between '%s' and '%s'\n", 
+                    "incompatible assignment between '%s' and '%s' near operand '%s'\n", 
                     get_basetype(entry->typ->basetype), 
-                    get_basetype(rhs_type));
+                    get_basetype(rhs_type),
+                    entry->ident
+                    );
         }
     }
 
@@ -289,7 +303,6 @@ void handle_eytr_chain(struct tree *t, SymbolTable st, int basetype)
 {
     if(t == NULL || st == NULL) return;
     if(strcmp(t->symbolname, "power") == 0) {
-        //handle_trailer(t->kids[1], st);
         handle_token(t, st);
         return;
     }
@@ -302,6 +315,7 @@ void handle_eytr_chain(struct tree *t, SymbolTable st, int basetype)
         handle_eytr_chain(t->kids[i], st, basetype);
     }
 }
+
 
 
 /*
@@ -377,13 +391,59 @@ void handle_token(struct tree *t, SymbolTable st)
             
             // Get the nested symbol table of the entry, then call an auxiliary 
             //   function to locate the member being accessed. 
-            
+            printf("entry->ident: %s\n", entry->ident);
+            entry = get_chained_dot_entry(t->kids[1], st, entry);
             
         }
-        //SymbolTableEntry entry = insertsymbol(st, t->leaf->text, t->leaf->lineno, ANY_TYPE);
+        // TODO: If you want chained assignments to work, uncomment this line below
+        //entry = insertsymbol(st, left->text, left->lineno, left->filename, ANY_TYPE);
     }
 }
 
+
+/**
+ * Auxiliary function for handling dot chains (i.e. "a.b.c")
+ * Called by 
+ *   get_leftmost_token
+ *   handle_token
+ *
+ * Assumed starting position: "trailer_rep"
+ */
+SymbolTableEntry get_chained_dot_entry(struct tree *t, SymbolTable st, SymbolTableEntry entry)
+{
+    if(t == NULL || st == NULL || entry->nested == NULL) return NULL;
+    SymbolTableEntry rhs = NULL;
+
+    // Perform DFS on trailer_rep to get the immediate RHS of the current entry
+    if(strcmp(t->symbolname, "trailer_rep") == 0) {
+        printf("entry->ident: %s\n", entry->ident);
+        rhs = get_chained_dot_entry(t->kids[0], st, entry);
+        
+        // Debugging print
+        
+        // The first out of two possible cases: the child of "trailer" is a 
+        //   name in a dot operation. 
+        // In this example here, the second child of "trailer_rep",
+        //   "t->kids[1]", is a "trailer". The first child of "trailer" is 
+        //   either a "NAME" or a "subscriptlist".
+        if(strcmp(t->kids[1]->kids[0]->symbolname, "NAME") == 0) {
+            struct token *rhs_tok = t->kids[1]->kids[0]->leaf;
+
+            // Get the symbol table of the rhs
+            rhs = lookup_current(rhs_tok->text, entry->nested);
+            if(rhs == NULL) {
+                semantic_error(rhs_tok->filename, rhs_tok->lineno, "Name '%s' does not belong to class: %s\n", rhs_tok->text, get_basetype(entry->typ->basetype));
+            }
+        }
+
+        // We've already checked for function/constructor calls on the LHS of 
+        //   assignments, so the other possibility is a "subscriptlist"
+        else {
+            
+        }
+    }
+    return rhs;
+}
 
 
 /**
@@ -514,9 +574,9 @@ void locate_invalid_token(struct tree *t)
  * testlist. If multiple consecutive assignments are found we need to verify 
  * that these are also assigned correct types
  */
-int get_rhs_type(struct tree *t, SymbolTable st)
+struct typeinfo *get_rhs_type(struct tree *t, SymbolTable st)
 {
-    if(t == NULL || st == NULL) return ANY_TYPE;
+    if(t == NULL || st == NULL) return alcbuiltin(ANY_TYPE);
 
     // Recurse until the "power" nonterminal is found
     if(strcmp(t->symbolname, "power") == 0 && t->kids[0]->leaf != NULL) {
@@ -531,20 +591,23 @@ int get_rhs_type(struct tree *t, SymbolTable st)
             if(entry == NULL) {
                 semantic_error(leaf->filename, leaf->lineno, "Name '%s' is not defined\n", leaf->text);
             }
-            return entry->typ->basetype;
+            return get_builtins_type(entry->ident);
         }
-        return get_token_type_code(leaf);
+
+        // If the RHS token is a literal, dict, list, bool, or None
+        return get_token_type(leaf);
     } 
 
     // If we see listmaker_opt, we know that it's a list
     else if(strcmp(t->symbolname, "listmaker_opt") == 0) {
-        return LIST_TYPE;
+        printf("asdfasdf\n");
+        return alclist();
     }
 
     // Dictionary
     else if(strcmp(t->symbolname, "dictorsetmaker_opt") == 0) {
         /* Right-hand side is a dictionary */
-        return DICT_TYPE;
+        return alcdict();
     }
     else {
         /* It is assumed that we can just recurse the first child until one of 
@@ -555,75 +618,25 @@ int get_rhs_type(struct tree *t, SymbolTable st)
     }
 }
 
-/**
- * Add any valid assignments to the symbol table if they 
- * aren't already present. If the types of LHS and RHS
- * are not compatible, fail. Similarly, if any LHS tokens are not identifiers, 
- * fail. 
- */
-void assign_lhs(int basetype, struct tree *t, SymbolTable st)
-{
-    if(t == NULL || st == NULL) return;
-    struct token *leaf = NULL;
-    if(strcmp(t->symbolname, "expr_stmt") == 0) {
-        leaf = get_leftmost_token(t->kids[0], st); // Get the first token in LHS
-        // Once the leftmost token is obtained, only recurse further if EYTR 
-        // is a child of EYTR
-        if(t->kids[1]->kids[0] != NULL) {
-            if(strcmp(t->kids[1]->kids[0]->symbolname, "equal_OR_yield_OR_testlist_rep") == 0) {
-                assign_lhs(basetype, t->kids[1]->kids[0], st); // expr_conjunct | equal_OR_...
-            }
-        }
-        return;
-    } else if(strcmp(t->symbolname, "power") == 0) {
-        if(strcmp(t->kids[0]->symbolname, "NAME") == 0) {
-            leaf = t->kids[0]->leaf;
-            // Check if the name is in the symbol table
-        }
-        return;
-    } else if(strcmp(t->symbolname, "equal_OR_yield_OR_testlist_rep") == 0) {
-        leaf = get_leftmost_token(t->kids[1], st);
-    }
-    if(leaf != NULL) {
-        SymbolTableEntry entry = lookup(leaf->text, st);
-        if(entry == NULL) {
-            entry = insertsymbol(st, leaf->text, leaf->lineno, leaf->filename, basetype);
-        } 
-        else {
-            if(entry->typ->basetype != ANY_TYPE && entry->typ->basetype != basetype) {
-                // If the existing entry is not type ANY and it's base type does not 
-                // match the basetype of the RHS
-                semantic_error(leaf->filename, leaf->lineno,
-                    "Type '%s' cannot be assigned to variable of type '%s'\n",
-                    get_basetype(basetype), 
-                    get_basetype(entry->typ->basetype)
-                );
-            }
-        }
-        return;
-    }
-    for(int i = 0; i < t->nkids; i++) {
-        assign_lhs(basetype, t->kids[i], st);
-    }
-}
-
-
 /** 
  * Get leftmost token in LHS of assignment
  */
-struct token *get_leftmost_token(struct tree *t, SymbolTable st)
+struct token *get_leftmost_token(struct tree *t, SymbolTable st, int basetype)
 {
     struct token *tok = NULL;
     if(t == NULL || st == NULL) 
         return tok;
+    
     if(strcmp(t->symbolname, "power") == 0) {
         // Expect that the first power in the leftmost assignment is a NAME.
         // If it isn't a NAME or it's NULL, throw a syntax error
+        
         tok = t->kids[0]->leaf;
+        handle_token(t, st);
         return tok;
     }
     else {
-        return get_leftmost_token(t->kids[0], st);
+        return get_leftmost_token(t->kids[0], st, basetype);
     }
 }
 
@@ -676,14 +689,6 @@ int determine_hint_type(struct token *type, SymbolTable st)
         }
     }
     return basetype;
-}
-
-/** 
- * Assign types to the tree nodes
- */
-void assigntype(struct tree *t, struct typeinfo *typ)
-{
-
 }
 
 /**
@@ -830,10 +835,15 @@ void insertclass(struct tree *t, SymbolTable st)
     SymbolTableEntry entry = insertsymbol(st, name, leaf->lineno, leaf->filename, CLASS_TYPE);
     free_symtab(entry->nested);
     entry->nested = mknested(leaf->filename, leaf->lineno, HASH_TABLE_SIZE, st, "class");
+    entry->typ = alcclass(name);
+
+    // Point the typeinfo symbol table to the class entry symbol table 
+    //   (possibly redundant)
+    entry->typ->u.cls.st = entry->nested;
+
     t->stab = entry->nested;
     populate_symboltables(t->kids[1], entry->nested); // Add class params?? TODO: Check this
     populate_symboltables(t->kids[2], entry->nested); // Add class suite
-
 }
 
 SymbolTable get_global_symtab(SymbolTable st) 
@@ -1082,19 +1092,25 @@ SymbolTableEntry lookup_current(char *name, SymbolTable st)
  */
 int get_builtins_type_code(char *ident)
 {
+    return get_builtins_type(ident)->basetype;
+}
+
+
+struct typeinfo *get_builtins_type(char *ident)
+{
     if(strcmp(ident, "int") == 0)
-        return INT_TYPE;
+        return alcbuiltin(INT_TYPE);
     else if(strcmp(ident, "list") == 0)
-        return LIST_TYPE;
+        return alclist();
     else if(strcmp(ident, "float") == 0)
-        return FLOAT_TYPE;
+        return alcbuiltin(FLOAT_TYPE);
     else if(strcmp(ident, "dict") == 0)
-        return DICT_TYPE;
+        return alcdict();
     else if(strcmp(ident, "bool") == 0)
-        return BOOL_TYPE;
+        return alcbuiltin(BOOL_TYPE);
     else if(strcmp(ident, "str") == 0)
-        return STRING_TYPE;
-    return ANY_TYPE;
+        return alcbuiltin(STRING_TYPE);
+    return alcbuiltin(ANY_TYPE);
 }
 
 /**
@@ -1103,28 +1119,32 @@ int get_builtins_type_code(char *ident)
  */
 int get_token_type_code(struct token *tok)
 {
-    switch(tok->category) {
-        case INTLIT:
-            return INT_TYPE;
-        case FLOATLIT:
-            return FLOAT_TYPE;
-        case STRINGLIT:
-            return STRING_TYPE;
-        case NONE:
-            return NONE_TYPE;
-        case PYTRUE:
-        case PYFALSE:
-            return BOOL_TYPE;
-        default:
-            return ANY_TYPE;
-    }
+   return get_token_type(tok)->basetype;
 }
 
+struct typeinfo *get_token_type(struct token *tok)
+{
+    switch(tok->category) {
+        case INTLIT:
+            return alcbuiltin(INT_TYPE);
+        case FLOATLIT:
+            return alcbuiltin(FLOAT_TYPE);
+        case STRINGLIT:
+            return alcbuiltin(STRING_TYPE);
+        case NONE:
+            return alcbuiltin(NONE_TYPE);
+        case PYTRUE:
+        case PYFALSE:
+            return alcbuiltin(BOOL_TYPE);
+        default:
+            return alcbuiltin(ANY_TYPE);
+    }
+}
 
 void add_puny_builtins(SymbolTable st) {
     SymbolTableEntry entry = NULL;
 
-    insertsymbol(st, "Any", -1, "(builtins)", CLASS_TYPE);
+    insertsymbol(st, "any", -1, "(builtins)", CLASS_TYPE);
     insertsymbol(st, "print", -1, "(builtins)", FUNC_TYPE);
     insertsymbol(st, "int", -1, "(builtins)", CLASS_TYPE);
     insertsymbol(st, "abs", -1, "(builtins)", FUNC_TYPE);

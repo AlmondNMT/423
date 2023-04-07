@@ -7,29 +7,9 @@
 #include "punygram.tab.h"
 #include "utils.h"
  
-struct typeinfo none_type = { NONE_TYPE };
-struct typeinfo integer_type = { INT_TYPE };
-struct typeinfo class_type = { CLASS_TYPE };
-struct typeinfo list_type = { LIST_TYPE };
-struct typeinfo float_type = { FLOAT_TYPE };
-struct typeinfo func_type = { FUNC_TYPE };
-struct typeinfo dict_type = { DICT_TYPE };
-struct typeinfo bool_type = { BOOL_TYPE };
-struct typeinfo string_type = { STRING_TYPE };
-struct typeinfo package_type = { PACKAGE_TYPE };
-struct typeinfo any_type = { ANY_TYPE };
+struct sym_table;
 
-typeptr none_typeptr = &none_type;
-typeptr integer_typeptr = &integer_type;
-typeptr class_typeptr = &class_type;
-typeptr list_typeptr = &list_type;
-typeptr float_typeptr = &float_type;
-typeptr func_typeptr = &func_type;
-typeptr dict_typeptr = &dict_type;
-typeptr bool_typeptr = &bool_type;
-typeptr string_typeptr = &string_type;
-typeptr package_typeptr = &package_type;
-typeptr any_typeptr = &any_type;
+extern struct sym_table *mknested(char *, int, int, struct sym_table *, char *);
 
 char *typenam[] =
    {"none", "int", "class", "list", "float", "func", "dict", "bool",
@@ -38,37 +18,6 @@ char *typenam[] =
 int calc_nparams(struct tree *t) {
     return 0;
 }
-
-typeptr alctype(int base)
-{
-    typeptr rv;
-    switch(base) {
-        case NONE_TYPE: return none_typeptr;
-        case INT_TYPE: return integer_typeptr;
-        case CLASS_TYPE: return class_typeptr;
-        case LIST_TYPE: return list_typeptr;
-        case FLOAT_TYPE: return float_typeptr;
-        case FUNC_TYPE: return func_typeptr;
-        case DICT_TYPE: return dict_typeptr;
-        case BOOL_TYPE: return bool_typeptr;
-        case STRING_TYPE: return string_typeptr;
-        case PACKAGE_TYPE: return package_typeptr;
-        case ANY_TYPE: return any_typeptr;
-    }
-
-    rv = (typeptr) ckalloc(1, sizeof(struct typeinfo));
-    if (rv == NULL) return rv;
-    rv->basetype = base;
-    return rv;
-}
-
-/* mebbe list size determination from a tree nodeptr is still reasonable? */
-typeptr alclist()
-{
-   typeptr rv = alctype(LIST_TYPE);
-   return rv;
-}
-
 
 /*typeptr alcstructtype()
 {
@@ -474,3 +423,65 @@ char *type_for_bin_op_logical(char *lhs, char *rhs)
 
         return "Any";
 }
+
+// builtin type allocations
+typeptr alctype(int basetype)
+{
+    typeptr ptr = ckalloc(1, sizeof(struct typeinfo));
+    ptr->basetype = basetype;
+    return ptr;
+}
+
+typeptr alcclass(char *name)
+{
+    typeptr ptr = alctype(CLASS_TYPE);
+    ptr->u.cls.name = strdup(name);
+    // The caller can determine whether it is an instance
+    return ptr;
+}
+
+typeptr alcfunc(char *name, int nparams, int pbasetype)
+{
+    typeptr ptr = alctype(FUNC_TYPE);
+    ptr->u.f.name = strdup(name);
+    ptr->u.f.nparams = nparams;
+    ptr->u.f.parameters = alcparam("p", pbasetype);
+    return ptr;
+}
+
+typeptr alcbuiltin(int basetype)
+{
+    typeptr ptr = alctype(basetype);
+    ptr->u.cls.nparams = 1;
+
+    // The constructor param is ANY_TYPE
+    ptr->u.cls.parameters = alcparam("p", ANY_TYPE);
+    return ptr;
+}
+
+typeptr alclist()
+{
+    typeptr list = alctype(LIST_TYPE);
+    list->u.cls.name = strdup("list");
+    return list;
+}
+
+typeptr alcdict()
+{
+    typeptr dict = alctype(DICT_TYPE);
+    dict->u.cls.name = strdup("dict");
+    return dict;
+}
+
+
+
+paramlist alcparam(char *name, int basetype)
+{
+    paramlist params = ckalloc(1, sizeof(struct param));
+    params->name = strdup(name);
+    params->type = ckalloc(1, sizeof(struct typeinfo));
+    params->type->basetype = basetype;
+    params->next = NULL;
+    return params;
+}
+

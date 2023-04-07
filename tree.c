@@ -198,7 +198,7 @@ void print_tree(struct tree * t, int depth)
     if(strcmp(t->symbolname, "nulltree")==0)
     {
         //printf("NULLTREE \n");
-        free(spcs);
+        //free(spcs);
         return;
     }
     //printf("about to check if leaf is null\n");

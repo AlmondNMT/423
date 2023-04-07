@@ -4,6 +4,7 @@
 
 struct tree;
 
+// Linked list of function/constructor parameters
 typedef struct param {
    char *name;
    struct typeinfo *type;
@@ -39,7 +40,6 @@ typedef struct typeinfo {
     union {
         struct funcinfo {
              char *name; /* ? */
-             int defined; /* 0 == prototype, 1 == not prototype; we don't need this */
              struct sym_table *st;
              struct typeinfo *returntype;
              int nparams;
@@ -47,7 +47,7 @@ typedef struct typeinfo {
         } f;
         struct classinfo {
             char *name;
-            int defined;
+            int instance;               // Is it an instance of the class?
             struct sym_table *st;
             int nparams;                // For constructor
             struct param *parameters;   // Constructor params
@@ -59,11 +59,16 @@ typedef struct typeinfo {
     } u;
 } *typeptr;
 
-/* add constructors for other types as needed
-typeptr alctype(int);
-typeptr alclist(?);*/
-typeptr alcfunctype(struct tree * r, struct tree * p, struct sym_table * st);
-typeptr alcclasstype(struct tree *r, struct tree *p, struct sym_table *st);
+/* add constructors for other types as needed */
+typeptr alctype(int basetype);
+paramlist alcparam(char *name, int basetype);
+typeptr alcclass(char *name);
+typeptr alcfunc(char *name, int nparams, int pbasetype);
+typeptr alclist();
+typeptr alcdict();
+typeptr alcbuiltin(); // For str, int, float, bool, None, any
+/*typeptr alcfunctype(struct tree * r, struct tree * p, struct sym_table * st);
+typeptr alcclasstype(struct tree *r, struct tree *p, struct sym_table *st);*/
 int calc_nparams(struct tree *t);
 char *typename(typeptr t);
 
@@ -85,5 +90,6 @@ char *type_for_bin_op_div(char *lhs, char *rhs);
 char *type_for_bin_op_equals(char *lhs, char *rhs);
 char *type_for_bin_op_great_less(char *lhs, char *rhs);
 char *type_for_bin_op_logical(char *lhs, char *rhs);
+
 
 #endif
