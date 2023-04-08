@@ -231,7 +231,7 @@ void add_func_type(struct tree *t, SymbolTable st, SymbolTableEntry entry)
 }
 
 /**
- * Inside of expr_stmt, a very complex branch of the syntax
+ * Starting position "expr_stmt"
  */
 void handle_expr_stmt(struct tree *t, SymbolTable st)
 {
@@ -261,6 +261,16 @@ void handle_expr_stmt(struct tree *t, SymbolTable st)
         // If there's any assignment chaining, verify the types of those 
         //   operands, and potentially add them to the table
         handle_eytr_chain(t->kids[1]->kids[0], st, basetype);
+    }
+
+    // Now we check the validity of augassigns (e.g., a += 1, b *= a, etc.)
+    else if(strcmp(t->kids[1]->symbolname, "expr_conjunct") == 0) {
+        //TODO: augassigns
+    }
+
+    // Function/constructor calls, list accesses, arithmetic expressions
+    else {
+        
     }
 }
 
@@ -626,7 +636,6 @@ struct typeinfo *get_rhs_type(struct tree *t, SymbolTable st)
             if(entry == NULL) {
                 semantic_error(leaf->filename, leaf->lineno, "Name '%s' is not defined\n", leaf->text);
             }
-            printf("get builtins\n");
             return entry->typ;
         }
 

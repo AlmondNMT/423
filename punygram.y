@@ -73,6 +73,7 @@ stmt: simple_stmt
 simple_stmt: small_stmt semi_small_stmt_rep semi_opt NEWLINE {$$=make_tree("simple_stmt", 3, $1,$2,$3);}
     ;
 
+
 semi_small_stmt_rep: {$$=make_tree("nulltree",0,NULL);}
     | semi_small_stmt_rep SEMI small_stmt {$$=make_tree("semi_small_stmt_rep", 2, $1,$3);}
     ;
