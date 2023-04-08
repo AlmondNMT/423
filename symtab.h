@@ -69,6 +69,7 @@ void locate_invalid_nested(struct tree *t);
 void locate_invalid_nested_aux(struct tree *t);
 void locate_invalid_trailer(struct tree *t);
 void locate_invalid_token(struct tree *t);
+void locate_invalid_arith(struct tree *t);
 
 // Type annotations
 void add_func_type(struct tree *t, SymbolTable st, SymbolTableEntry entry);

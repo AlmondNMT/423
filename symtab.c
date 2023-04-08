@@ -248,7 +248,6 @@ void handle_expr_stmt(struct tree *t, SymbolTable st)
         // Get the type of the rightmost argument by passing 'testlist' node
         struct typeinfo *rhs_type = get_rhs_type(t->kids[1]->kids[1], st);
         int basetype = rhs_type->basetype;
-        printf("rhs_type: %s\n", get_basetype(basetype));
 
         // Get the leftmost token first due to the shape of the tree
         struct token *leftmost = get_leftmost_token(t, st, basetype);
@@ -417,9 +416,8 @@ SymbolTableEntry get_chained_dot_entry(struct tree *t, SymbolTable st, SymbolTab
     // Perform DFS on trailer_rep to get the immediate RHS of the current entry
     if(strcmp(t->symbolname, "trailer_rep") == 0) {
         printf("entry->ident: %s\n", entry->ident);
+        // DFS
         rhs = get_chained_dot_entry(t->kids[0], st, entry);
-        
-        // Debugging print
         
         // The first out of two possible cases: the child of "trailer" is a 
         //   name in a dot operation. 
@@ -436,10 +434,14 @@ SymbolTableEntry get_chained_dot_entry(struct tree *t, SymbolTable st, SymbolTab
             }
         }
 
-        // We've already checked for function/constructor calls on the LHS of 
-        //   assignments, so the other possibility is a "subscriptlist"
-        else {
+        // For lists
+        else if(strcmp(t->kids[1]->kids[0]->symbolname, "subscriptlist") == 0){
             
+        }
+
+        // For function/constructor calls
+        else {
+
         }
     }
     return rhs;
@@ -458,7 +460,7 @@ void locate_invalid_expr(struct tree *t)
         //   nonterminal, which can be the second child of an expr_stmt
         if(strcmp(t->kids[1]->symbolname, "equal_OR_yield_OR_testlist_rep") == 0) {
             // We now search everywhere except the RHS for any literals, lists,
-            //  or dicts
+            //  or dicts, or arithmetic expressions
             locate_invalid_leftmost(t);
             locate_invalid_nested(t);
         }
@@ -481,6 +483,13 @@ void locate_invalid_expr(struct tree *t)
 void locate_invalid_leftmost(struct tree *t)
 {
     if(t == NULL) return;
+
+    // This makes it illegal to have weird arithmetic and logical expressions
+    //   to the left of an assignment
+    locate_invalid_arith(t);
+
+    // If we encounter power nonterms, we must ensure there are no 
+    //   function/constructor to the LHS of assignments
     if(strcmp(t->symbolname, "power") == 0) {
         //   If we find a trailer nonterminal and it doesn't have a child NAME, 
         // throw an error saying 'cannot assign to function call'. This behavior
@@ -496,6 +505,29 @@ void locate_invalid_leftmost(struct tree *t)
     else {
         // The leftmost branch contains the first token/item in an assignment
         locate_invalid_leftmost(t->kids[0]);
+    }
+}
+
+
+/**
+ * One child policy for LHS of assignments: no arithmetic on the left side of 
+ *   assignments
+ */
+void locate_invalid_arith(struct tree *t)
+{
+    if(strcmp(t->symbolname, "or_test") == 0 
+            || strcmp(t->symbolname, "and_test") == 0
+            || strcmp(t->symbolname, "comparison") == 0
+            || strcmp(t->symbolname, "expr") == 0
+            || strcmp(t->symbolname, "xor_expr") == 0
+            || strcmp(t->symbolname, "and_expr") == 0
+            || strcmp(t->symbolname, "shift_expr") == 0
+            || strcmp(t->symbolname, "arith_expr") == 0
+            || strcmp(t->symbolname, "term") == 0) {
+        if(strcmp(t->kids[1]->symbolname, "nulltree") != 0) {
+            fprintf(stderr, "cannot assign to operator\n");
+            exit(SEM_ERR);
+        }
     }
 }
 
@@ -517,6 +549,9 @@ void locate_invalid_nested(struct tree *t)
 void locate_invalid_nested_aux(struct tree *t)
 {
     if(t == NULL) return;
+    // Ensure there is no illegal arithmetic/logical operators on LHS
+    locate_invalid_arith(t);
+
     // If the first child of power is not an identifier, then check for an invalid trailer
     if(strcmp(t->symbolname, "power") == 0) {
         locate_invalid_trailer(t->kids[1]);
@@ -598,7 +633,7 @@ struct typeinfo *get_rhs_type(struct tree *t, SymbolTable st)
         return get_token_type(leaf);
     } 
 
-    // If we see listmaker_opt, we know that it's a list
+    // If we see listmaker_opt, we know that it's a list (e.g., [1, 2, b])
     else if(strcmp(t->symbolname, "listmaker_opt") == 0) {
         printf("asdfasdf\n");
         return alclist();
