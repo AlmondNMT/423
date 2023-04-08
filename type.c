@@ -86,7 +86,7 @@ int type_str_to_int(char *typestr){
 
     if (strcmp(typestr, "file") == 0)
         return FILE_TYPE;
-
+    return ANY_TYPE;
 }
 
 //returns the type for two operands based on operator or error

@@ -395,7 +395,7 @@ void handle_token(struct tree *t, SymbolTable st)
             
         }
         // TODO: If you want chained assignments to work, uncomment this line below
-        //entry = insertsymbol(st, left->text, left->lineno, left->filename, ANY_TYPE);
+        entry = insertsymbol(st, left->text, left->lineno, left->filename, ANY_TYPE);
     }
 }
 
@@ -626,7 +626,8 @@ struct typeinfo *get_rhs_type(struct tree *t, SymbolTable st)
             if(entry == NULL) {
                 semantic_error(leaf->filename, leaf->lineno, "Name '%s' is not defined\n", leaf->text);
             }
-            return get_builtins_type(entry->ident);
+            printf("get builtins\n");
+            return entry->typ;
         }
 
         // If the RHS token is a literal, dict, list, bool, or None
@@ -681,6 +682,8 @@ struct token *get_leftmost_token(struct tree *t, SymbolTable st, int basetype)
  * Gather type info: 
  *  1. Check that the type declaration and optional assignment are consistent
  *  2. Add type information to SymbolTableEntry
+ *
+ *  Assumed start position: "decl_stmt"
  */
 void get_decl_stmt(struct tree *t, SymbolTable st)
 {
@@ -696,7 +699,14 @@ void get_decl_stmt(struct tree *t, SymbolTable st)
         semantic_error(var->filename, var->lineno, "Redeclaration for name '%s' in scope '%s'\n", name, st->scope);
     }
     int basetype = determine_hint_type(type, st);
-    insertsymbol(st, var->text, var->lineno, var->filename, basetype);
+
+    // rhs_type is used for the case where an assignment is performed with a declaration
+    int rhs_type = ANY_TYPE;
+    if(strcmp(t->kids[2]->symbolname, "equal_test_opt") == 0) {
+        rhs_type = get_rhs_type(t->kids[2]->kids[1], st)->basetype;
+    }
+    SymbolTableEntry e = insertsymbol(st, var->text, var->lineno, var->filename, basetype);
+    check_var_type(e, rhs_type, var->lineno);
 }
 
 /**
@@ -951,7 +961,7 @@ SymbolTableEntry insertsymbol(SymbolTable st, char *name, int lineno, char *file
     // Create a symbol table entry and add its members
     SymbolTableEntry entry = ckalloc(1, sizeof(struct sym_entry));
     entry->typ = ckalloc(1, sizeof(struct typeinfo));
-    entry->typ->basetype = basetype;
+    entry->typ->basetype = basetype; // All entries default to type ANY on the first pass
     entry->table = st;
     entry->ident = strdup(name);
     entry->lineno = lineno;
@@ -967,6 +977,17 @@ SymbolTableEntry insertsymbol(SymbolTable st, char *name, int lineno, char *file
 
     // Increase the number of entries in the symbol table
     st->nEntries++;
+    return entry;
+}
+
+/** 
+ * Wrapper function for insertsymbol that adds builtins
+ */
+SymbolTableEntry insertbuiltin(SymbolTable st, char *name, int lineno, char *filename, int basetype)
+{
+    if(st == NULL) return NULL;
+    SymbolTableEntry entry = insertsymbol(st, name, lineno, filename, basetype);
+    entry->typ->basetype = basetype;
     return entry;
 }
 
@@ -1179,49 +1200,49 @@ struct typeinfo *get_token_type(struct token *tok)
 void add_puny_builtins(SymbolTable st) {
     SymbolTableEntry entry = NULL;
 
-    insertsymbol(st, "any", -1, "(builtins)", CLASS_TYPE);
-    insertsymbol(st, "print", -1, "(builtins)", FUNC_TYPE);
-    insertsymbol(st, "int", -1, "(builtins)", CLASS_TYPE);
-    insertsymbol(st, "abs", -1, "(builtins)", FUNC_TYPE);
-    insertsymbol(st, "bool", -1, "(builtins)", CLASS_TYPE);  
-    insertsymbol(st, "chr", -1, "(builtins)", FUNC_TYPE);
-    insertsymbol(st, "float", -1, "(builtins)", CLASS_TYPE);
-    insertsymbol(st, "input", -1, "(builtins)", FUNC_TYPE);
-    insertsymbol(st, "int", -1, "(builtins)", CLASS_TYPE);    
-    insertsymbol(st, "len", -1, "(builtins)", FUNC_TYPE);
-    insertsymbol(st, "max", -1, "(builtins)", FUNC_TYPE);
-    insertsymbol(st, "min", -1, "(builtins)", FUNC_TYPE);
-    insertsymbol(st, "open", -1, "(builtins)", FUNC_TYPE);
-    insertsymbol(st, "ord", -1, "(builtins)", FUNC_TYPE);
-    insertsymbol(st, "pow", -1, "(builtins)", FUNC_TYPE);
-    insertsymbol(st, "range", -1, "(builtins)", CLASS_TYPE);
-    insertsymbol(st, "round", -1, "(builtins)", FUNC_TYPE);
-    insertsymbol(st, "type", -1, "(builtins)", CLASS_TYPE);
+    insertbuiltin(st, "any", -1, "(builtins)", CLASS_TYPE);
+    insertbuiltin(st, "print", -1, "(builtins)", FUNC_TYPE);
+    insertbuiltin(st, "int", -1, "(builtins)", CLASS_TYPE);
+    insertbuiltin(st, "abs", -1, "(builtins)", FUNC_TYPE);
+    insertbuiltin(st, "bool", -1, "(builtins)", CLASS_TYPE);  
+    insertbuiltin(st, "chr", -1, "(builtins)", FUNC_TYPE);
+    insertbuiltin(st, "float", -1, "(builtins)", CLASS_TYPE);
+    insertbuiltin(st, "input", -1, "(builtins)", FUNC_TYPE);
+    insertbuiltin(st, "int", -1, "(builtins)", CLASS_TYPE);    
+    insertbuiltin(st, "len", -1, "(builtins)", FUNC_TYPE);
+    insertbuiltin(st, "max", -1, "(builtins)", FUNC_TYPE);
+    insertbuiltin(st, "min", -1, "(builtins)", FUNC_TYPE);
+    insertbuiltin(st, "open", -1, "(builtins)", FUNC_TYPE);
+    insertbuiltin(st, "ord", -1, "(builtins)", FUNC_TYPE);
+    insertbuiltin(st, "pow", -1, "(builtins)", FUNC_TYPE);
+    insertbuiltin(st, "range", -1, "(builtins)", CLASS_TYPE);
+    insertbuiltin(st, "round", -1, "(builtins)", FUNC_TYPE);
+    insertbuiltin(st, "type", -1, "(builtins)", CLASS_TYPE);
 
     // Add string methods to string
-    entry = insertsymbol(st, "str", -1, "(builtins)", CLASS_TYPE);
+    entry = insertbuiltin(st, "str", -1, "(builtins)", CLASS_TYPE);
     entry->nested = mknested("(builtins)", -1, HASH_TABLE_SIZE, st, "class");
-    insertsymbol(entry->nested, "replace", -1, "(builtins)", FUNC_TYPE);
-    insertsymbol(entry->nested, "split", -1, "(builtins)", FUNC_TYPE);
+    insertbuiltin(entry->nested, "replace", -1, "(builtins)", FUNC_TYPE);
+    insertbuiltin(entry->nested, "split", -1, "(builtins)", FUNC_TYPE);
     
     // Add list methods to list
-    entry = insertsymbol(st, "list", -1, "(builtins)", CLASS_TYPE);
+    entry = insertbuiltin(st, "list", -1, "(builtins)", CLASS_TYPE);
     entry->nested = mknested("(builtins)", -1, HASH_TABLE_SIZE, st, "class");
-    insertsymbol(entry->nested, "append", -1, "(builtins)", FUNC_TYPE);
-    insertsymbol(entry->nested, "remove", -1, "(builtins)", FUNC_TYPE);
+    insertbuiltin(entry->nested, "append", -1, "(builtins)", FUNC_TYPE);
+    insertbuiltin(entry->nested, "remove", -1, "(builtins)", FUNC_TYPE);
 
     // Add file methods to file
-    entry = insertsymbol(st, "file", -1, "(builtins)", CLASS_TYPE);
+    entry = insertbuiltin(st, "file", -1, "(builtins)", CLASS_TYPE);
     entry->nested = mknested("(builtins)", -1, HASH_TABLE_SIZE, st, "class");
-    insertsymbol(entry->nested, "read", -1, "(builtins)", FUNC_TYPE);
-    insertsymbol(entry->nested, "write", -1, "(builtins)", FUNC_TYPE);
-    insertsymbol(entry->nested, "close", -1, "(builtins)", FUNC_TYPE);;
+    insertbuiltin(entry->nested, "read", -1, "(builtins)", FUNC_TYPE);
+    insertbuiltin(entry->nested, "write", -1, "(builtins)", FUNC_TYPE);
+    insertbuiltin(entry->nested, "close", -1, "(builtins)", FUNC_TYPE);;
 
     // Add dict methods to dict
-    entry = insertsymbol(st, "dict", -1, "(builtins)", CLASS_TYPE);
+    entry = insertbuiltin(st, "dict", -1, "(builtins)", CLASS_TYPE);
     entry->nested = mknested("(builtins)", -1, HASH_TABLE_SIZE, st, "class");
-    insertsymbol(entry->nested, "keys", -1, "(builtins)", FUNC_TYPE);
-    insertsymbol(entry->nested, "values", -1, "(builtins)", FUNC_TYPE);
+    insertbuiltin(entry->nested, "keys", -1, "(builtins)", FUNC_TYPE);
+    insertbuiltin(entry->nested, "values", -1, "(builtins)", FUNC_TYPE);
 
 }
 
