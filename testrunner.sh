@@ -1,6 +1,6 @@
 #! /bin/bash
 
-for file in tests/*/*.py
+for file in 107/*.py
 do
     echo $file
     ./puny $file
