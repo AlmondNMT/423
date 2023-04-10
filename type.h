@@ -66,6 +66,9 @@ typeptr alcclass(char *name);
 typeptr alcfunc(char *name, int nparams, int pbasetype);
 typeptr alclist();
 typeptr alcdict();
+typeptr alcfile();
+typeptr alcstr();
+typeptr alcnone();
 typeptr alcbuiltin(); // For str, int, float, bool, None, any
 /*typeptr alcfunctype(struct tree * r, struct tree * p, struct sym_table * st);
 typeptr alcclasstype(struct tree *r, struct tree *p, struct sym_table *st);*/

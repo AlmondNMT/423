@@ -511,11 +511,44 @@ typeptr alclist()
 typeptr alcdict()
 {
     typeptr dict = alctype(DICT_TYPE);
+    struct sym_table *st = mksymtab(HASH_TABLE_SIZE, "class");
     dict->u.cls.name = strdup("dict");
+    dict->u.cls.st = st;
+    insertsymbol(st, "keys", -1, "(builtins)", FUNC_TYPE);
+    insertsymbol(st, "values", -1, "(builtins)", FUNC_TYPE);
     return dict;
 }
 
 
+typeptr alcfile()
+{
+    typeptr file = (typeptr) alctype(FILE_TYPE);
+    struct sym_table *st = mksymtab(HASH_TABLE_SIZE, "class");
+    file->u.cls.name = strdup("file");
+    file->u.cls.st = st;
+    insertsymbol(st, "write", -1, "(builtins)", FUNC_TYPE);
+    insertsymbol(st, "close", -1, "(builtins)", FUNC_TYPE);
+    insertsymbol(st, "read", -1, "(builtins)", FUNC_TYPE);
+    return file;
+}
+
+typeptr alcstr()
+{
+    typeptr str = (typeptr) alctype(STRING_TYPE);
+    struct sym_table *st = mksymtab(HASH_TABLE_SIZE, "class)");
+    str->u.cls.name = strdup("str");
+    str->u.cls.st = st;
+    insertsymbol(st, "replace", -1, "(builtins)", FUNC_TYPE);
+    insertsymbol(st, "split", -1, "(builtins)", FUNC_TYPE);
+    return str;
+}
+
+typeptr alcnone()
+{
+    typeptr none = (typeptr) alctype(NONE_TYPE);
+    none->u.cls.name = strdup("None");
+    return none;
+}
 
 paramlist alcparam(char *name, int basetype)
 {

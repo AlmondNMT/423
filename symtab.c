@@ -36,7 +36,7 @@ void semantics(struct tree *tree, SymbolTable st)
     // Find names that are used, but not declared
     locate_undeclared(tree, st);       
 
-    // Ensure that operand types are valid
+    // Ensure that operand types are valid for arithmetic and logical expressions
     validate_operand_types(tree, st);
 }
 
@@ -239,6 +239,7 @@ void add_func_type(struct tree *t, SymbolTable st, SymbolTableEntry entry)
 
 /**
  * Starting position "expr_stmt"
+ * This handles function calls, assignments, and list accesses
  */
 void handle_expr_stmt(struct tree *t, SymbolTable st)
 {
@@ -253,7 +254,7 @@ void handle_expr_stmt(struct tree *t, SymbolTable st)
     // EYTR indicates an assignment. It can be the second child of expr_stmt
     struct typeinfo *rhs_type = NULL;
     if(strcmp(t->kids[1]->symbolname, "equal_OR_yield_OR_testlist_rep") == 0) {
-        // Get the type of the rightmost argument by passing 'testlist' node
+        // Get the type of the rightmost branch by passing 'testlist' node
         rhs_type = get_rhs_type(t->kids[1]->kids[1], st);
 
         // Get the leftmost token first due to the shape of the tree
@@ -670,7 +671,7 @@ struct typeinfo *get_rhs_type(struct tree *t, SymbolTable st)
             
             SymbolTableEntry entry = lookup(leaf->text, st);
 
-            // Throw an error if entry coud not be found
+            // Throw an error if entry could not be found
             if(entry == NULL) {
                 semantic_error(leaf->filename, leaf->lineno, "Name '%s' is not defined\n", leaf->text);
             }
@@ -749,8 +750,9 @@ struct typeinfo *get_trailer_type(struct tree *t, SymbolTable st, SymbolTableEnt
         type = get_trailer_type(t->kids[0], st, entry);
     }
 
-    
-
+    // Hot fix: just make it ANY_TYPE to avoid the segfault
+    if(type == NULL)
+        return alcbuiltin(ANY_TYPE);
     return type;
 }
 
@@ -1466,7 +1468,11 @@ void add_puny_builtins(SymbolTable st) {
     SymbolTableEntry entry = NULL;
 
     insertbuiltin(st, "any", -1, "(builtins)", CLASS_TYPE);
-    insertbuiltin(st, "print", -1, "(builtins)", FUNC_TYPE);
+
+    entry = insertbuiltin(st, "print", -1, "(builtins)", FUNC_TYPE);
+    entry->typ->u.f.returntype = alcnone();
+
+    insertbuiltin(st, "None", -1, "(builtins)", CLASS_TYPE);
     insertbuiltin(st, "int", -1, "(builtins)", CLASS_TYPE);
     insertbuiltin(st, "abs", -1, "(builtins)", FUNC_TYPE);
     insertbuiltin(st, "bool", -1, "(builtins)", CLASS_TYPE);  
@@ -1486,9 +1492,11 @@ void add_puny_builtins(SymbolTable st) {
 
     // Add string methods to string
     entry = insertbuiltin(st, "str", -1, "(builtins)", CLASS_TYPE);
-    entry->nested = mknested("(builtins)", -1, HASH_TABLE_SIZE, st, "class");
-    insertbuiltin(entry->nested, "replace", -1, "(builtins)", FUNC_TYPE);
-    insertbuiltin(entry->nested, "split", -1, "(builtins)", FUNC_TYPE);
+    entry->typ = alcstr();
+    entry->typ->basetype = CLASS_TYPE;
+    entry->nested = entry->typ->u.cls.st;
+    entry->nested->parent = st;
+    entry->nested->level = st->level + 1;
     
     // Add list methods to list
     entry = insertbuiltin(st, "list", -1, "(builtins)", CLASS_TYPE);
@@ -1501,15 +1509,20 @@ void add_puny_builtins(SymbolTable st) {
 
     // Add file methods to file
     entry = insertbuiltin(st, "file", -1, "(builtins)", CLASS_TYPE);
-    entry->nested = mknested("(builtins)", -1, HASH_TABLE_SIZE, st, "class");
-    insertbuiltin(entry->nested, "read", -1, "(builtins)", FUNC_TYPE);
-    insertbuiltin(entry->nested, "write", -1, "(builtins)", FUNC_TYPE);
-    insertbuiltin(entry->nested, "close", -1, "(builtins)", FUNC_TYPE);;
+    entry->typ = NULL;
+    entry->typ = alcfile();
+    entry->typ->basetype = CLASS_TYPE;
+    entry->nested = entry->typ->u.cls.st;
+    entry->nested->parent = st;
+    entry->nested->level = st->level + 1;
 
     // Add dict methods to dict
     entry = insertbuiltin(st, "dict", -1, "(builtins)", CLASS_TYPE);
-    entry->nested = mknested("(builtins)", -1, HASH_TABLE_SIZE, st, "class");
-    insertbuiltin(entry->nested, "keys", -1, "(builtins)", FUNC_TYPE);
-    insertbuiltin(entry->nested, "values", -1, "(builtins)", FUNC_TYPE);
+    free(entry->typ);
+    entry->typ = (struct typeinfo *) alcdict();
+    entry->typ->basetype = CLASS_TYPE;
+    entry->nested = entry->typ->u.cls.st;
+    entry->nested->parent = st;
+    entry->nested->level = st->level + 1;
 
 }
