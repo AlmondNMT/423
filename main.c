@@ -74,7 +74,7 @@ int main(int argc, char *argv[]) {
 
         // Print syntax tree option
         if(tree_opt) {
-            print_tree(tree, 0, 1); // print full
+            print_tree(tree, 0, 1, 0); // print full
         }
         // Make pretty debugging graph of tree
         if(dot_opt) {

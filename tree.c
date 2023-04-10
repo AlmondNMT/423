@@ -145,6 +145,7 @@ struct tree* append_kid(struct tree * kidspassed[], char * symbnam)
     while(i < 9 && kidspassed[i] != NULL)
     {
         newtree->kids[i] = kidspassed[i];
+        newtree->kids[i]->parent = newtree;
         i++;
     }
     newtree->nkids = i;
@@ -191,9 +192,13 @@ char *get_spaces(int n)
     return s;
 }
 
-
-void print_tree(struct tree * t, int depth, int print_full)
+//what_kid param keeps track of which one of the goddamn kids
+//we are actually printing, relative to parent, for printing purposes only. 
+//These nulltrees are a nightmare, im sorry i did this shit
+void print_tree(struct tree * t, int depth, int print_full, int what_kid)
 {  // printf("entering print tree\n");
+    if(strcmp(t->symbolname, "trailer_rep") == 0)
+        printf("foundtraillerep");
     char * spcs = get_spaces(depth);
     if(strcmp(t->symbolname, "nulltree")==0)
     {
@@ -211,7 +216,7 @@ void print_tree(struct tree * t, int depth, int print_full)
         //printf("about to check if leaf is null\n");
         if(t->leaf != NULL)
         {   //printf("finna print leaf info\n");
-            printf("%s%d-LEAF category: %d, category: %s, line: %d, value: %s\n",spcs,depth, t->leaf->category, rev_token(t->leaf->category), t->leaf->lineno, t->leaf->text);
+            printf("%s%d-LEAF category: %d, category: %s, line: %d, VALUE: %s\n",spcs,depth, t->leaf->category, rev_token(t->leaf->category), t->leaf->lineno, t->leaf->text);
             free(spcs);
             return;
         }
@@ -231,7 +236,7 @@ void print_tree(struct tree * t, int depth, int print_full)
 
         if(t->symbolname != NULL)
         {   //printf("somehow made it past this\n");
-            printf("%s%d-INNER: symbname: %s\n", spcs, depth, t->symbolname); 
+            printf("%s%d-INNER: symbname: %s (kid %d of parent)\n", spcs, depth, t->symbolname, what_kid); 
             //printf("existence has concluded in segmentation fault\n");
         }
 
@@ -240,10 +245,10 @@ void print_tree(struct tree * t, int depth, int print_full)
     while(i < 9 && t->kids[i] != NULL)
     {   
         if(t->nkids - nulltreecount > 1 || print_full)
-            print_tree(t->kids[i], depth+1, print_full);
+            print_tree(t->kids[i], depth+1, print_full, i);
         //printf("inner depth %d\n",depth);
         else 
-            print_tree(t->kids[i], depth, print_full);
+            print_tree(t->kids[i], depth, print_full, i);
         i++;
     }
     free(spcs);

@@ -69,6 +69,8 @@ void handle_token(struct tree *t, SymbolTable st);
 SymbolTableEntry get_chained_dot_entry(struct tree *t, SymbolTable st, SymbolTableEntry entry);
 int is_function_call(struct tree *t);
 int does_tr_have_trailer_child(struct tree *t);
+struct typeinfo *get_type_of_node(struct tree *t, SymbolTable st, SymbolTableEntry entry);
+int tr_has_tr_child(struct tree *t);
 
 // Invalid expr_stmt handling
 void locate_invalid_expr(struct tree *t);

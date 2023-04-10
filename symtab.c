@@ -475,7 +475,7 @@ SymbolTableEntry get_chained_dot_entry(struct tree *t, SymbolTable st, SymbolTab
         
         // For function/constructor calls
         else {
-
+            
         }
     }
     return rhs;
@@ -746,8 +746,18 @@ struct typeinfo *get_trailer_type(struct tree *t, SymbolTable st, SymbolTableEnt
 
     // Assume function calls occur on the rightmost trailer, if they happen
    
+    //if this is a function call, the node with the relevant type info is either
+    // a sibling (if trailer_rep has no dots, like a plain function call f())
+    // or it is in the first nested trailer_rep. 
+    //so we just need to see if it's got a trailer rep child
     if(is_function_call(t)) {
-        type = get_trailer_type(t->kids[0], st, entry);
+       // printf("IS FUNCTION CALL APPLIES\n");
+        if(tr_has_tr_child(t))
+            type = t->kids[0]->kids[1]->type;
+        else   
+            type = alctype(ANY_TYPE); //for debug for now, just do any, needs to change
+        
+       // printf("is thisnull\n");
     }
 
     // Hot fix: just make it ANY_TYPE to avoid the segfault
@@ -756,12 +766,20 @@ struct typeinfo *get_trailer_type(struct tree *t, SymbolTable st, SymbolTableEnt
     return type;
 }
 
-int is_function_call(struct tree *t)
+/*struct typeinfo *get_type_of_node(struct tree *t, SymbolTable st, SymbolTableEntry entry)
 {
+   
+}*/
+
+int is_function_call(struct tree *t)
+{   
     if(does_tr_have_trailer_child(t)) {
+
+        //case: function call has arguments, then arglist is in inner node
         if(strcmp(t->kids[1]->kids[0]->symbolname, "arglist_opt") == 0)
             return 1;
     }
+
     return 0;
 }
 
@@ -772,6 +790,16 @@ int does_tr_have_trailer_child(struct tree *t)
             return 1;
     return 0;
 }
+
+//see if trailer rep has immediate trailer rep kid
+//Assumption: we're feeding a confirmed trailer_rep node to this
+int tr_has_tr_child(struct tree *t) 
+{
+        if(t->kids[0] != NULL && strcmp(t->kids[0]->symbolname, "trailer_rep") == 0)
+            return 1;
+    return 0;
+}
+
 
 struct typeinfo *get_trailer_type_list(struct tree *t, SymbolTable st)
 {
@@ -791,7 +819,6 @@ struct typeinfo *get_trailer_type_list(struct tree *t, SymbolTable st)
             type = rhs;
         }
     }
-
     return type;
 }
 
