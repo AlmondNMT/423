@@ -42,7 +42,7 @@ void printsymbol(char *s);
 int get_lineno(char *text, int rows);
 int get_column(char *text, int column);
 struct tree* append_kid(struct tree * kidspassed[], char * symbnam);
-void print_tree(struct tree * t, int depth, int print_full);
+void print_tree(struct tree * t, int depth, int print_full, int what_kid);
 struct tree* make_tree(char * symbname, int argc, ...);
 
 // Graphviz prototypes
