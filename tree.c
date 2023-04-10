@@ -192,7 +192,7 @@ char *get_spaces(int n)
 }
 
 
-void print_tree(struct tree * t, int depth)
+void print_tree(struct tree * t, int depth, int print_full)
 {  // printf("entering print tree\n");
     char * spcs = get_spaces(depth);
     if(strcmp(t->symbolname, "nulltree")==0)
@@ -201,38 +201,49 @@ void print_tree(struct tree * t, int depth)
         //free(spcs);
         return;
     }
-    //printf("about to check if leaf is null\n");
-    if(t->leaf != NULL)
-    {   //printf("finna print leaf info\n");
-        printf("%s%d-LEAF category: %d, category: %s, line: %d, value: %s\n",spcs,depth, t->leaf->category, rev_token(t->leaf->category), t->leaf->lineno, t->leaf->text);
-        free(spcs);
-        return;
+    int nulltreecount = 0;
+    for(int i = 0; i < t->nkids; i++) {
+        if(strcmp(t->kids[i]->symbolname, "nulltree") == 0)
+            nulltreecount++;
     }
-    //printf("somehow past leaf print\n");
-    
-    if(t->kids[0]==NULL)
-    {   //printf("kids are null\n");
-        if(t->symbolname != NULL)
-        {
-            //printf("leaf depth %d\n",depth);
-            printf("%s%d-LEAF: symbname: %s\n", spcs, depth, t->symbolname);
-        }
-        free(spcs);
-        return;
-    }
-    //printf("see if symbname is null\n");
 
-    if(t->symbolname != NULL)
-    {   //printf("somehow made it past this\n");
-        printf("%s%d-INNER: symbname: %s\n", spcs, depth, t->symbolname); 
-        //printf("existence has concluded in segmentation fault\n");
+    if(t->nkids - nulltreecount > 1 || t->leaf != NULL || print_full) {
+        //printf("about to check if leaf is null\n");
+        if(t->leaf != NULL)
+        {   //printf("finna print leaf info\n");
+            printf("%s%d-LEAF category: %d, category: %s, line: %d, value: %s\n",spcs,depth, t->leaf->category, rev_token(t->leaf->category), t->leaf->lineno, t->leaf->text);
+            free(spcs);
+            return;
+        }
+        //printf("somehow past leaf print\n");
+        
+        if(t->kids[0]==NULL)
+        {   //printf("kids are null\n");
+            if(t->symbolname != NULL)
+            {
+                //printf("leaf depth %d\n",depth);
+                printf("%s%d-LEAF: symbname: %s\n", spcs, depth, t->symbolname);
+            }
+            free(spcs);
+            return;
+        }
+        //printf("see if symbname is null\n");
+
+        if(t->symbolname != NULL)
+        {   //printf("somehow made it past this\n");
+            printf("%s%d-INNER: symbname: %s\n", spcs, depth, t->symbolname); 
+            //printf("existence has concluded in segmentation fault\n");
+        }
+
     }
     int i = 0;
-
     while(i < 9 && t->kids[i] != NULL)
     {   
+        if(t->nkids - nulltreecount > 1 || print_full)
+            print_tree(t->kids[i], depth+1, print_full);
         //printf("inner depth %d\n",depth);
-        print_tree(t->kids[i], depth+1);
+        else 
+            print_tree(t->kids[i], depth, print_full);
         i++;
     }
     free(spcs);

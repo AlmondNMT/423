@@ -1,0 +1,228 @@
+File: test.py
+0-INNER: symbname: file_input
+ 1-INNER: symbname: nl_OR_stmt_rep
+  2-INNER: symbname: nl_OR_stmt_rep
+   3-INNER: symbname: nl_OR_stmt_rep
+    4-INNER: symbname: nl_OR_stmt_rep
+     5-INNER: symbname: nl_OR_stmt_rep
+      6-INNER: symbname: classdef
+       7-LEAF category: 265, category: NAME, line: 1, value: Ass
+       7-INNER: symbname: suite
+        8-INNER: symbname: stmt_rep
+         9-INNER: symbname: simple_stmt
+          10-INNER: symbname: expr_stmt
+           11-INNER: symbname: testlist
+            12-INNER: symbname: test
+             13-INNER: symbname: or_test
+              14-INNER: symbname: and_test
+               15-INNER: symbname: comparison
+                16-INNER: symbname: expr
+                 17-INNER: symbname: xor_expr
+                  18-INNER: symbname: and_expr
+                   19-INNER: symbname: shift_expr
+                    20-INNER: symbname: arith_expr
+                     21-INNER: symbname: term
+                      22-INNER: symbname: power
+                       23-LEAF category: 265, category: NAME, line: 2, value: b
+           11-INNER: symbname: equal_OR_yield_OR_testlist_rep
+            12-INNER: symbname: testlist
+             13-INNER: symbname: test
+              14-INNER: symbname: or_test
+               15-INNER: symbname: and_test
+                16-INNER: symbname: comparison
+                 17-INNER: symbname: expr
+                  18-INNER: symbname: xor_expr
+                   19-INNER: symbname: and_expr
+                    20-INNER: symbname: shift_expr
+                     21-INNER: symbname: arith_expr
+                      22-INNER: symbname: term
+                       23-INNER: symbname: power
+                        24-LEAF category: 259, category: INTLIT, line: 2, value: 1
+         9-INNER: symbname: funcdef
+          10-LEAF category: 265, category: NAME, line: 3, value: f
+          10-INNER: symbname: parameters
+           11-INNER: symbname: varargslist
+            12-INNER: symbname: fpdef_equal_test_comma_rep
+             13-INNER: symbname: fpdef_equal_test_comma_rep
+              14-INNER: symbname: fpdef
+               15-LEAF category: 265, category: NAME, line: 3, value: self
+             13-INNER: symbname: fpdef
+              14-LEAF category: 265, category: NAME, line: 3, value: x
+              14-INNER: symbname: colon_test_opt
+               15-INNER: symbname: test
+                16-INNER: symbname: or_test
+                 17-INNER: symbname: and_test
+                  18-INNER: symbname: comparison
+                   19-INNER: symbname: expr
+                    20-INNER: symbname: xor_expr
+                     21-INNER: symbname: and_expr
+                      22-INNER: symbname: shift_expr
+                       23-INNER: symbname: arith_expr
+                        24-INNER: symbname: term
+                         25-INNER: symbname: power
+                          26-LEAF category: 265, category: NAME, line: 3, value: float
+            12-INNER: symbname: fpdef_options
+             13-INNER: symbname: fpdef
+              14-LEAF category: 265, category: NAME, line: 3, value: y
+              14-INNER: symbname: colon_test_opt
+               15-INNER: symbname: test
+                16-INNER: symbname: or_test
+                 17-INNER: symbname: and_test
+                  18-INNER: symbname: comparison
+                   19-INNER: symbname: expr
+                    20-INNER: symbname: xor_expr
+                     21-INNER: symbname: and_expr
+                      22-INNER: symbname: shift_expr
+                       23-INNER: symbname: arith_expr
+                        24-INNER: symbname: term
+                         25-INNER: symbname: power
+                          26-LEAF category: 265, category: NAME, line: 3, value: int
+          10-INNER: symbname: rarrow_test_opt
+           11-INNER: symbname: test
+            12-INNER: symbname: or_test
+             13-INNER: symbname: and_test
+              14-INNER: symbname: comparison
+               15-INNER: symbname: expr
+                16-INNER: symbname: xor_expr
+                 17-INNER: symbname: and_expr
+                  18-INNER: symbname: shift_expr
+                   19-INNER: symbname: arith_expr
+                    20-INNER: symbname: term
+                     21-INNER: symbname: power
+                      22-LEAF category: 265, category: NAME, line: 3, value: int
+          10-INNER: symbname: suite
+           11-INNER: symbname: simple_stmt
+            12-INNER: symbname: return_stmt
+             13-INNER: symbname: testlist
+              14-INNER: symbname: test
+               15-INNER: symbname: or_test
+                16-INNER: symbname: and_test
+                 17-INNER: symbname: comparison
+                  18-INNER: symbname: expr
+                   19-INNER: symbname: xor_expr
+                    20-INNER: symbname: and_expr
+                     21-INNER: symbname: shift_expr
+                      22-INNER: symbname: arith_expr
+                       23-INNER: symbname: term
+                        24-INNER: symbname: power
+                         25-LEAF category: 265, category: NAME, line: 4, value: x
+                       23-INNER: symbname: pm_term_rep
+                        24-LEAF category: 276, category: PLUS, line: 4, value: +
+                        24-INNER: symbname: term
+                         25-INNER: symbname: power
+                          26-LEAF category: 265, category: NAME, line: 4, value: y
+     5-INNER: symbname: classdef
+      6-LEAF category: 265, category: NAME, line: 6, value: Bass
+      6-INNER: symbname: suite
+       7-INNER: symbname: simple_stmt
+        8-INNER: symbname: decl_stmt
+         9-LEAF category: 265, category: NAME, line: 7, value: a
+         9-LEAF category: 265, category: NAME, line: 7, value: Ass
+    4-INNER: symbname: simple_stmt
+     5-INNER: symbname: expr_stmt
+      6-INNER: symbname: testlist
+       7-INNER: symbname: test
+        8-INNER: symbname: or_test
+         9-INNER: symbname: and_test
+          10-INNER: symbname: comparison
+           11-INNER: symbname: expr
+            12-INNER: symbname: xor_expr
+             13-INNER: symbname: and_expr
+              14-INNER: symbname: shift_expr
+               15-INNER: symbname: arith_expr
+                16-INNER: symbname: term
+                 17-INNER: symbname: power
+                  18-LEAF category: 265, category: NAME, line: 9, value: c
+      6-INNER: symbname: equal_OR_yield_OR_testlist_rep
+       7-INNER: symbname: testlist
+        8-INNER: symbname: test
+         9-INNER: symbname: or_test
+          10-INNER: symbname: and_test
+           11-INNER: symbname: comparison
+            12-INNER: symbname: expr
+             13-INNER: symbname: xor_expr
+              14-INNER: symbname: and_expr
+               15-INNER: symbname: shift_expr
+                16-INNER: symbname: arith_expr
+                 17-INNER: symbname: term
+                  18-INNER: symbname: power
+                   19-LEAF category: 265, category: NAME, line: 9, value: Bass
+                   19-INNER: symbname: trailer_rep
+                    20-INNER: symbname: trailer
+                     21-LEAF: symbname: arglist_opt
+   3-INNER: symbname: simple_stmt
+    4-INNER: symbname: decl_stmt
+     5-LEAF category: 265, category: NAME, line: 10, value: d
+     5-LEAF category: 265, category: NAME, line: 10, value: int
+  2-INNER: symbname: simple_stmt
+   3-INNER: symbname: expr_stmt
+    4-INNER: symbname: testlist
+     5-INNER: symbname: test
+      6-INNER: symbname: or_test
+       7-INNER: symbname: and_test
+        8-INNER: symbname: comparison
+         9-INNER: symbname: expr
+          10-INNER: symbname: xor_expr
+           11-INNER: symbname: and_expr
+            12-INNER: symbname: shift_expr
+             13-INNER: symbname: arith_expr
+              14-INNER: symbname: term
+               15-INNER: symbname: power
+                16-LEAF category: 265, category: NAME, line: 11, value: d
+    4-INNER: symbname: equal_OR_yield_OR_testlist_rep
+     5-INNER: symbname: testlist
+      6-INNER: symbname: test
+       7-INNER: symbname: or_test
+        8-INNER: symbname: and_test
+         9-INNER: symbname: comparison
+          10-INNER: symbname: expr
+           11-INNER: symbname: xor_expr
+            12-INNER: symbname: and_expr
+             13-INNER: symbname: shift_expr
+              14-INNER: symbname: arith_expr
+               15-INNER: symbname: term
+                16-INNER: symbname: power
+                 17-LEAF category: 265, category: NAME, line: 11, value: c
+                 17-INNER: symbname: trailer_rep
+                  18-INNER: symbname: trailer_rep
+                   19-INNER: symbname: trailer_rep
+                    20-INNER: symbname: trailer
+                     21-LEAF category: 265, category: NAME, line: 11, value: a
+                   19-INNER: symbname: trailer
+                    20-LEAF category: 265, category: NAME, line: 11, value: f
+                  18-INNER: symbname: trailer
+                   19-INNER: symbname: arglist_opt
+                    20-INNER: symbname: arglist
+                     21-INNER: symbname: arg_comma_rep
+                      22-INNER: symbname: argument
+                       23-INNER: symbname: test
+                        24-INNER: symbname: or_test
+                         25-INNER: symbname: and_test
+                          26-INNER: symbname: comparison
+                           27-INNER: symbname: expr
+                            28-INNER: symbname: xor_expr
+                             29-INNER: symbname: and_expr
+                              30-INNER: symbname: shift_expr
+                               31-INNER: symbname: arith_expr
+                                32-INNER: symbname: term
+                                 33-INNER: symbname: power
+                                  34-LEAF category: 258, category: FLOATLIT, line: 11, value: 1.0
+                     21-INNER: symbname: arg_ORS
+                      22-INNER: symbname: argument
+                       23-INNER: symbname: test
+                        24-INNER: symbname: or_test
+                         25-INNER: symbname: and_test
+                          26-INNER: symbname: comparison
+                           27-INNER: symbname: expr
+                            28-INNER: symbname: xor_expr
+                             29-INNER: symbname: and_expr
+                              30-INNER: symbname: shift_expr
+                               31-INNER: symbname: arith_expr
+                                32-INNER: symbname: term
+                                 33-INNER: symbname: power
+                                  34-LEAF category: 259, category: INTLIT, line: 11, value: 12
+typ->basetype: float
+typ->basetype: int
+entry: Bass	type: class
+entry->ident: Bass
+token: a

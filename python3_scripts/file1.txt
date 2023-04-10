@@ -1,6 +1,0 @@
-$ cat file1.txt
-John goes to work.
-Keith and Kyle went to the Ensiferum concert. 
-Alice ate an apple pie.
-Joe cut down a tree.
-The dog jumped over the wall.

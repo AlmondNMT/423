@@ -8,8 +8,10 @@
 #include "utils.h"
  
 struct sym_table;
+struct sym_entry;
 
 extern struct sym_table *mknested(char *, int, int, struct sym_table *, char *);
+extern struct sym_entry *insertsymbol(struct sym_table *, char *s, int lineno, char *filename, int basetype);
 
 char *typenam[] =
    {"none", "int", "class", "list", "float", "func", "dict", "bool",
@@ -471,6 +473,7 @@ typeptr alcclass(char *name)
 {
     typeptr ptr = alctype(CLASS_TYPE);
     ptr->u.cls.name = strdup(name);
+
     // The caller can determine whether it is an instance
     return ptr;
 }
@@ -497,7 +500,11 @@ typeptr alcbuiltin(int basetype)
 typeptr alclist()
 {
     typeptr list = alctype(LIST_TYPE);
+    struct sym_table *st = mksymtab(HASH_TABLE_SIZE, "class");
     list->u.cls.name = strdup("list");
+    list->u.cls.st = st;
+    insertsymbol(st, "append", -1, "(builtins)", FUNC_TYPE);
+    insertsymbol(st, "remove", -1, "(builtins)", FUNC_TYPE);
     return list;
 }
 

@@ -433,7 +433,7 @@ power: atom trailer_rep dstar_factor_opt {$$=make_tree("power", 3,$1,$2,$3);}
     ;
 
 trailer_rep: {$$=make_tree("nulltree",0,NULL);}
-    | trailer_rep trailer {$$=make_tree("trailer_rep", 2,$1,$2);}
+    | trailer_rep trailer {$$=make_tree("trailer_rep", 2, $1, $2);}
     ;
 
 trailer: LPAR arglist_opt RPAR {$$=make_tree("trailer", 1,$2);} // Function call
@@ -441,6 +441,7 @@ trailer: LPAR arglist_opt RPAR {$$=make_tree("trailer", 1,$2);} // Function call
     | DOT NAME {$$=make_tree("trailer", 1, $2);}                 // Object member access
     ;
 
+//LEAVE the empty tree with arglist_opt do not change to nulltree this is not a bug
 arglist_opt: {$$=make_tree("arglist_opt",0,NULL);}
     | arglist {$$=make_tree("arglist_opt", 1, $1); }
     ;
@@ -530,7 +531,7 @@ and_not_test_rep: {$$=make_tree("nulltree",0,NULL);}
     | and_not_test_rep AND not_test {$$=make_tree("and_not_test_rep", 2,$1,$3);}
     ;
 
-not_test: NOT not_test {$$=make_tree("not_test", 1,$2);}
+not_test: NOT not_test {$$=make_tree("not_test", 1, $2);}
     | comparison
     ;
 

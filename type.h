@@ -31,7 +31,7 @@ struct field {			/* members (fields) of structs */
 #define PACKAGE_TYPE 1000009
 #define ANY_TYPE     1000010
 #define FILE_TYPE    1000011
-#define USER_DEF     1000012 // For any user-defined classes
+#define USER_DEF     1000012 // WE MAY NEVER HAVE TO USE THIS
 
 #define LAST_TYPE    1000013
 
@@ -47,8 +47,8 @@ typedef struct typeinfo {
         } f;
         struct classinfo {
             char *name;
-            int instance;               // Is it an instance of the class?
             struct sym_table *st;
+            int instance;               // Is it an instance of the class?
             int nparams;                // For constructor
             struct param *parameters;   // Constructor params
         } cls;

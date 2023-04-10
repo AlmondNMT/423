@@ -47,20 +47,28 @@ void get_function_params(struct tree *t, SymbolTable ftable);
 void get_for_iterator(struct tree *t, SymbolTable table);
 void get_import_symbols(struct tree *t, SymbolTable st);
 void get_decl_stmt(struct tree *t, SymbolTable st);
-int get_fpdef_type(struct tree *t, SymbolTable ftable);
+struct typeinfo* get_fpdef_type(struct tree *t, SymbolTable ftable);
 SymbolTable get_global_symtab(SymbolTable st);
 struct typeinfo *get_rhs_type(struct tree *t, SymbolTable st);
+SymbolTableEntry get_rhs_entry(struct tree *t, SymbolTable st, SymbolTableEntry entry);
 void assign_lhs(int basetype, struct tree *t, SymbolTable st);
-struct token *get_leftmost_token(struct tree *t, SymbolTable st, int basetype);
+struct token *get_leftmost_token(struct tree *t, SymbolTable st);
+void validate_operand_types(struct tree *t, SymbolTable st);
+void validate_or_test(struct tree *t, SymbolTable st);
+struct typeinfo *get_arglist_opt_type(struct tree *t, SymbolTable st, SymbolTableEntry entry);
+
 
 // expr_stmts: Very complex python expressions, e.g., assignments, function calls
 void handle_expr_stmt(struct tree *t, SymbolTable st);
 void handle_testlist(struct tree *t, SymbolTable st);
-void check_var_type(SymbolTableEntry e, int basetype, int lineno);
-void handle_eytr_chain(struct tree *t, SymbolTable st, int basetype);
-void handle_trailer(struct tree *t, SymbolTable st);
+void check_var_type(SymbolTableEntry e, struct typeinfo *rhs_type, int lineno);
+void handle_eytr_chain(struct tree *t, SymbolTable st, struct typeinfo *rhs_typ);
+struct typeinfo *get_trailer_type(struct tree *t, SymbolTable st, SymbolTableEntry entry);
+struct typeinfo *get_trailer_type_list(struct tree *t, SymbolTable st);
 void handle_token(struct tree *t, SymbolTable st);
 SymbolTableEntry get_chained_dot_entry(struct tree *t, SymbolTable st, SymbolTableEntry entry);
+int is_function_call(struct tree *t);
+int does_tr_have_trailer_child(struct tree *t);
 
 // Invalid expr_stmt handling
 void locate_invalid_expr(struct tree *t);
@@ -73,13 +81,14 @@ void locate_invalid_arith(struct tree *t);
 
 // Type annotations
 void add_func_type(struct tree *t, SymbolTable st, SymbolTableEntry entry);
+void add_nested_table(SymbolTableEntry, struct typeinfo *rhs_type);
 
 // FOr handling PunY builtins stuff
-int get_builtins_type_code(char *name);
-struct typeinfo *get_builtins_type(char *name);
+int get_ident_type_code(char *ident, SymbolTable st);
+struct typeinfo *get_ident_type(char *ident, SymbolTable st);
 int get_token_type_code(struct token *tok);
 struct typeinfo *get_token_type(struct token *tok);
-int determine_hint_type(struct token *type, SymbolTable st);
+struct typeinfo *determine_hint_type(struct token *type, SymbolTable st);
 struct token get_assignment_rhs(struct tree *t, SymbolTable st);
 uint hash(SymbolTable st, char *s);
 const char* get_basetype(int basetype);
@@ -96,6 +105,10 @@ void populate_symboltables(struct tree *t, SymbolTable st);
 void printsymbols(SymbolTable st);
 SymbolTableEntry removesymbol(SymbolTable st, char *s);
 void semantics(struct tree *t, SymbolTable st);
+
+// Copy functions
+struct sym_table *copy_symbol_table(struct sym_table *);
+struct typeinfo *type_copy(struct typeinfo *typ);
 
 // Get Symbol information from the table
 int symbol_exists(char *name, SymbolTable st);
