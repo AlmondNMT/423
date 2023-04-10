@@ -9,8 +9,8 @@
 #
 #   ./testrunner.sh
 
-for file in 107/*.py
+for file in tests/**/*.py
 do
     echo $file
-    ./puny $file
+    ./puny "$file"
 done
