@@ -19,7 +19,8 @@ def wordmatcher(chord, fret, b, c, k):
     C keeps track of the line. Every time a \ n character is encountered, b is reset to zero, and c is moved to
     1. k is the negative result tracker. If a positive match is found, k is moved up to the positives every 
     time the function is recalled. If no matches are found, a print statement will be issued stating that
-    the searched string is not found in the file. """
+    the searched string is not found in the file. 
+    """
     i = 0
     j = 0
     while i < len(chord):
