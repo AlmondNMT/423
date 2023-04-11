@@ -214,6 +214,11 @@ void get_function_params(struct tree *t, SymbolTable ftable)
             type = alcbuiltin(ANY_TYPE);
         }
         struct token *leaf = t->kids[0]->leaf;
+
+        // Propagate type information to the parameter and typehint names
+        t->kids[0]->type = type;
+        t->kids[1]->type = type;
+        t->type = type;
         insertsymbol(ftable, leaf->text, leaf->lineno, leaf->filename, type->basetype);
     } 
     else {
@@ -658,6 +663,7 @@ void locate_invalid_token(struct tree *t)
 struct typeinfo *get_rhs_type(struct tree *t, SymbolTable st)
 {
     if(t == NULL || st == NULL) return alcbuiltin(ANY_TYPE);
+    struct typeinfo *type = NULL;
 
     // Recurse until the "power" nonterminal is found
     if(strcmp(t->symbolname, "power") == 0 && t->kids[0]->leaf != NULL) {
@@ -678,33 +684,38 @@ struct typeinfo *get_rhs_type(struct tree *t, SymbolTable st)
             struct typeinfo *trailer_type = NULL;
             if(strcmp(t->kids[1]->symbolname, "trailer_rep") == 0) {
                 trailer_type = get_trailer_type(t->kids[1], st, entry);
-                return trailer_type;
+                type = trailer_type;
+                t->kids[1]->type = type;
             }
-
-            return entry->typ;
+            else {
+                type = entry->typ;
+            }
         }
 
         // If the RHS token is a literal, dict, list, bool, or None
-        return get_token_type(leaf);
+        else {
+            type = get_token_type(leaf);
+        }
     } 
 
     // If we see listmaker_opt, we know that it's a list (e.g., [1, 2, b])
     else if(strcmp(t->symbolname, "listmaker_opt") == 0) {
-        return alclist();
+        type = alclist();
     }
 
     // Dictionary
     else if(strcmp(t->symbolname, "dictorsetmaker_opt") == 0) {
         /* Right-hand side is a dictionary */
-        return alcdict();
+        type = alcdict();
     }
     else {
         /* It is assumed that we can just recurse the first child until one of 
          * the above three options is found 
          * TODO: Fix bad assumption */
         //printf("recursing: %s\n", t->symbolname);
-        return get_rhs_type(t->kids[0], st);
+        type = get_rhs_type(t->kids[0], st);
     }
+    return type;
 }
 
 /**
@@ -974,13 +985,17 @@ struct typeinfo *determine_hint_type(struct token *type, SymbolTable st)
  */
 struct typeinfo *get_fpdef_type(struct tree *t, SymbolTable ftable)
 {
+    struct typeinfo *ret = NULL;
     if(t == NULL || ftable == NULL) // This probably should never happen
         return alcbuiltin(ANY_TYPE);
     if(strcmp(t->symbolname, "power") == 0) {
-        return determine_hint_type(t->kids[0]->leaf, ftable);
+        ret = determine_hint_type(t->kids[0]->leaf, ftable);
+        t->kids[0]->type = ret;
+        return ret;
     } else {
-        return get_fpdef_type(t->kids[0], ftable);
+        ret = get_fpdef_type(t->kids[0], ftable);
     }
+    return ret;
 }
 
 /** 
@@ -1096,7 +1111,9 @@ void get_for_iterator(struct tree *t, SymbolTable st)
         return;
     } else {
         struct token *leaf = t->kids[0]->leaf;
-        insertsymbol(st, leaf->text, leaf->lineno, leaf->filename, ANY_TYPE);
+        struct typeinfo *type = alcbuiltin(ANY_TYPE);
+        t->kids[0]->type = type;
+        insertsymbol(st, leaf->text, leaf->lineno, leaf->filename, type->basetype);
     }
 }
 
