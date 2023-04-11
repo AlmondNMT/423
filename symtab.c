@@ -753,10 +753,15 @@ struct typeinfo *get_trailer_type(struct tree *t, SymbolTable st, SymbolTableEnt
     if(is_function_call(t)) {
        // printf("IS FUNCTION CALL APPLIES\n");
         if(tr_has_tr_child(t))
+        {
             type = t->kids[0]->kids[1]->type;
-        else   
-            type = alctype(ANY_TYPE); //for debug for now, just do any, needs to change
-        
+            printf("Dotted chain: %s, name %s\n", get_basetype(type->basetype), t->kids[0]->kids[1]->leaf->sval);
+        }
+        else 
+        {  
+            type = t->parent->kids[0]->type; //for debug for now, just do any, needs to change
+            printf("NON-Dotted chain: %s name %s\n", get_basetype(type->basetype), t->parent->kids[0]->leaf->sval);
+        }
        // printf("is thisnull\n");
     }
 
