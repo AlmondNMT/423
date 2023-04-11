@@ -13,4 +13,4 @@ class Booch:
 
 c = Booch()
 j = 1
-c.a.h.g(j)
+c.a.h.g.self

@@ -5,6 +5,7 @@
 #include "punygram.tab.h"
 #include "tree.h"
 #include "utils.h"
+#include "type.h"
 
 extern char *rev_token(int cat);
 extern char *yytext;
@@ -130,6 +131,7 @@ struct tree* append_kid(struct tree * kidspassed[], char * symbnam)
     newtree->symbolname = ckalloc(strlen(symbnam) + 1, sizeof(char));
     newtree->stab = NULL;
     newtree->id = serial++; // For graphical printing
+    newtree->type = alcbuiltin(ANY_TYPE);
     strcpy(newtree->symbolname, symbnam);
     while(i<9)
     {
@@ -146,6 +148,7 @@ struct tree* append_kid(struct tree * kidspassed[], char * symbnam)
     {
         newtree->kids[i] = kidspassed[i];
         newtree->kids[i]->parent = newtree;
+        newtree->kids[i]->type = alcbuiltin(ANY_TYPE);
         i++;
     }
     newtree->nkids = i;

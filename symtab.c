@@ -114,8 +114,9 @@ void check_decls(struct tree *t, SymbolTable st)
 {
     if(t == NULL || st == NULL) return;
     if(t->leaf == NULL) return;
-    SymbolTableEntry entry = lookup(t->leaf->text, st);
+    SymbolTableEntry entry = lookup(t->leaf->text, t->stab);
     if(entry == NULL || t->leaf->lineno < entry->lineno) {
+        printf("fifa\n");
         semantic_error(t->leaf->filename, t->leaf->lineno, "Name '%s' not defined\n", t->leaf->text);
     }
 }
@@ -177,12 +178,14 @@ void insertfunction(struct tree *t, SymbolTable st)
 
     // allocate the function typeinfo pointer
     if(entry->typ->u.f.returntype == NULL) {
-        entry->typ->u.f.returntype = ckalloc(1, sizeof(struct typeinfo));
+        entry->typ->u.f.returntype = alcbuiltin(ANY_TYPE);
         entry->typ->u.f.st = entry->nested;
     }
     
     // We will also annotate the tree node with this scope
-    t->stab = entry->nested;    // Assign function's scope to the current tree node
+    t->kids[0]->stab = st;
+    t->kids[1]->stab = st;
+    t->kids[2]->stab = st;
     get_function_params(t->kids[1], entry->nested);   // Add parameters to function scope
     add_func_type(t->kids[2], st, entry);
     populate_symboltables(t->kids[3], entry->nested); // Add suite to function scope
@@ -199,7 +202,6 @@ void get_function_params(struct tree *t, SymbolTable ftable)
 {
     if(t == NULL || ftable == NULL)
         return;
-    
     // This is the default base type
     struct typeinfo *type = NULL;
 
@@ -236,7 +238,7 @@ void add_func_type(struct tree *t, SymbolTable st, SymbolTableEntry entry)
 {
     if(entry == NULL || st == NULL || t == NULL)
         return;
-
+    t->stab = st;
     // If we reach a power 
     struct typeinfo *typ = get_rhs_type(t, st);
     entry->typ->u.f.returntype = typ;
@@ -408,6 +410,7 @@ void handle_token(struct tree *t, SymbolTable st)
         }
         
         // Grab the leftmost identifier, then look it up in the symbol table
+        // Add the typeinfo ptr to the leaf node
         struct token *left = t->kids[0]->leaf;
         SymbolTableEntry entry = lookup(left->text, st);
 
@@ -436,6 +439,7 @@ void handle_token(struct tree *t, SymbolTable st)
         }
         // TODO: If you want chained assignments to work, uncomment this line below
         entry = insertsymbol(st, left->text, left->lineno, left->filename, ANY_TYPE);
+        
     }
 }
 
@@ -457,7 +461,6 @@ SymbolTableEntry get_chained_dot_entry(struct tree *t, SymbolTable st, SymbolTab
     if(strcmp(t->symbolname, "trailer_rep") == 0) {
         // DFS
         rhs = get_chained_dot_entry(t->kids[0], st, entry);
-        
         // The first out of two possible cases: the child of "trailer" is a 
         //   name in a dot operation. 
         // In this example here, the second child of "trailer_rep",
@@ -653,6 +656,29 @@ void locate_invalid_token(struct tree *t)
     }
 }   
 
+void decorate_subtree_with_symbol_table(struct tree *t, SymbolTable st)
+{
+    SymbolTable nested = st;
+    SymbolTableEntry entry = NULL;
+    if(t == NULL || st == NULL) return;
+    t->stab = st;
+    if(strcmp(t->symbolname, "trailer") == 0) {
+        if(strcmp(t->kids[0]->symbolname, "NAME") == 0) {
+            struct token *tok = t->kids[0]->leaf;
+            entry = lookup(tok->text, st);
+            if(entry == NULL) 
+                semantic_error(tok->filename, tok->lineno, "Huh?\n");
+            if(entry->typ->basetype != FUNC_TYPE && entry->nested != NULL)
+                nested = entry->nested;
+            if(entry->typ->basetype == FUNC_TYPE) { // TODO: Ensure all builtins have returntypes
+
+            }
+        }
+    }
+    for(int i = 0; i < t->nkids; i++)
+        decorate_subtree_with_symbol_table(t->kids[i], nested);
+}
+
 
 /**
  * Get the rightmost right-hand side of an assignment expression. It should 
@@ -765,8 +791,8 @@ struct typeinfo *get_trailer_type(struct tree *t, SymbolTable st, SymbolTableEnt
        // printf("IS FUNCTION CALL APPLIES\n");
         if(tr_has_tr_child(t))
         {
-            type = t->kids[0]->kids[1]->type;
-            printf("Dotted chain: %s, name %s\n", get_basetype(type->basetype), t->kids[0]->kids[1]->leaf->sval);
+            type = t->kids[0]->kids[1]->kids[0]->type;
+            printf("Dotted chain: %s, name %s\n", get_basetype(type->basetype), t->kids[0]->kids[1]->kids[0]->leaf->sval);
         }
         else 
         {  
@@ -775,6 +801,8 @@ struct typeinfo *get_trailer_type(struct tree *t, SymbolTable st, SymbolTableEnt
         }
        // printf("is thisnull\n");
     }
+
+    
 
     // Hot fix: just make it ANY_TYPE to avoid the segfault
     if(type == NULL)
@@ -887,6 +915,25 @@ void validate_operand_types(struct tree *t, SymbolTable st)
     }
 }
 
+//one half of the two functions that should be able to handle
+// nested combinations of or_tests (which expand to anything arithmetic and logical) 
+//and trailer_reps
+void handle_or_test_types(struct tree *t, SymbolTable st)
+{  // printf("entering print tree\n");
+    if(strcmp(t->symbolname, "or_test") == 0) {
+        validate_or_test(t, st);
+        return;
+    }
+    if(strcmp(t->symbolname, "and_test") == 0) {
+
+        return;
+    }
+
+    for(int i = 0; i < t->nkids; i++) {
+        validate_operand_types(t->kids[i], st);
+    }
+}
+
 
 /**
 * Whatever node of type 'test' was found
@@ -931,6 +978,9 @@ void validate_or_test(struct tree *t, SymbolTable st)
 void get_decl_stmt(struct tree *t, SymbolTable st)
 {
     if(t == NULL || st == NULL) return;
+
+    // Decorate the tree with the current symbol table
+    decorate_subtree_with_symbol_table(t, st);
 
     // The 'var' token has the NAME of the identifier
     // The 'type' token has the NAME of the type
@@ -1142,6 +1192,7 @@ void insertclass(struct tree *t, SymbolTable st)
     entry->typ->u.cls.st = entry->nested;
 
     t->stab = entry->nested;
+    t->kids[0]->stab = entry->nested;
     populate_symboltables(t->kids[1], entry->nested); // Add class params?? TODO: Check this
     populate_symboltables(t->kids[2], entry->nested); // Add class suite
 }

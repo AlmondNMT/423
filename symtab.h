@@ -47,6 +47,7 @@ void get_function_params(struct tree *t, SymbolTable ftable);
 void get_for_iterator(struct tree *t, SymbolTable table);
 void get_import_symbols(struct tree *t, SymbolTable st);
 void get_decl_stmt(struct tree *t, SymbolTable st);
+void decorate_subtree_with_symbol_table(struct tree *t, SymbolTable st);
 struct typeinfo* get_fpdef_type(struct tree *t, SymbolTable ftable);
 SymbolTable get_global_symtab(SymbolTable st);
 struct typeinfo *get_rhs_type(struct tree *t, SymbolTable st);
@@ -71,6 +72,7 @@ int is_function_call(struct tree *t);
 int does_tr_have_trailer_child(struct tree *t);
 struct typeinfo *get_type_of_node(struct tree *t, SymbolTable st, SymbolTableEntry entry);
 int tr_has_tr_child(struct tree *t);
+void handle_or_test_types(struct tree *t, SymbolTable st);
 
 // Invalid expr_stmt handling
 void locate_invalid_expr(struct tree *t);
