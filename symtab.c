@@ -761,12 +761,15 @@ struct typeinfo *get_trailer_type(struct tree *t, SymbolTable st, SymbolTableEnt
     // a sibling (if trailer_rep has no dots, like a plain function call f())
     // or it is in the first nested trailer_rep. 
     //so we just need to see if it's got a trailer rep child
+    printf("here we are\n");
     if(is_function_call(t)) {
-       // printf("IS FUNCTION CALL APPLIES\n");
-        if(tr_has_tr_child(t))
+        printf("IS FUNCTION CALL APPLIES\n");
+        if(tr_has_tr_child(t)) {
             type = t->kids[0]->kids[1]->type;
-        else   
+        }
+        else {
             type = alctype(ANY_TYPE); //for debug for now, just do any, needs to change
+        }
         
        // printf("is thisnull\n");
     }
@@ -787,8 +790,10 @@ int is_function_call(struct tree *t)
     if(does_tr_have_trailer_child(t)) {
 
         //case: function call has arguments, then arglist is in inner node
-        if(strcmp(t->kids[1]->kids[0]->symbolname, "arglist_opt") == 0)
+        if(strcmp(t->kids[1]->kids[0]->symbolname, "arglist_opt") == 0) {
+            printf("%s\n", t->parent->kids[0]->leaf->text);
             return 1;
+        }
     }
 
     return 0;
