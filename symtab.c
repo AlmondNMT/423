@@ -321,7 +321,7 @@ void check_var_type(struct typeinfo *lhs_type, struct typeinfo *rhs_type, struct
     // If the basetype of the entry is not ANY_TYPE, then check it against
     //   rhs type
     if(lhs_type->basetype != ANY_TYPE) {
-        // TODO
+        // TODO 
         if(lhs_type->basetype != rhs_type->basetype) {
             semantic_error(tok->filename, tok->lineno,
                     "incompatible assignment between '%s' and '%s' near operand '%s'\n", 
@@ -1362,7 +1362,7 @@ const char *get_basetype(int basetype)
         case PACKAGE_TYPE:
             return "package";
         default:
-            return "any";
+            return "mystery type";
     }
 }
 

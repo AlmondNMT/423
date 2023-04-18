@@ -1,2 +1,2 @@
-h = open("asdf", "w")
-h.close()
+def f(x: int) -> int:
+    return x
