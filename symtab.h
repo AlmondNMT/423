@@ -27,15 +27,8 @@ typedef struct sym_entry {
     struct sym_entry *next;
 } *SymbolTableEntry;
 
-// Data structure for symbol table stack
-typedef struct symtab_stack {
-    int top;
-    struct sym_table **tstack;
-} *SymtabStack;
-
 // Prototypes
-void assigntype(struct tree *t, struct typeinfo *typ);
-void add_global_names(SymbolTable st, struct tree *t);
+void add_global_names(struct tree *t, SymbolTable st);
 void add_puny_builtins(SymbolTable st);
 void check_redeclared_variables(SymbolTable st);
 void check_undeclared_variables(SymbolTable st);
@@ -48,31 +41,18 @@ void get_for_iterator(struct tree *t, SymbolTable table);
 void get_import_symbols(struct tree *t, SymbolTable st);
 void get_decl_stmt(struct tree *t, SymbolTable st);
 void decorate_subtree_with_symbol_table(struct tree *t, SymbolTable st);
-struct typeinfo* get_fpdef_type(struct tree *t, SymbolTable ftable);
 SymbolTable get_global_symtab(SymbolTable st);
-struct typeinfo *get_rhs_type(struct tree *t, SymbolTable st);
-SymbolTableEntry get_rhs_entry(struct tree *t, SymbolTable st, SymbolTableEntry entry);
-void assign_lhs(int basetype, struct tree *t, SymbolTable st);
 struct token *get_leftmost_token(struct tree *t, SymbolTable st);
-void validate_operand_types(struct tree *t, SymbolTable st);
-void validate_or_test(struct tree *t, SymbolTable st);
-struct typeinfo *get_arglist_opt_type(struct tree *t, SymbolTable st, SymbolTableEntry entry);
-
 
 // expr_stmts: Very complex python expressions, e.g., assignments, function calls
 void handle_expr_stmt(struct tree *t, SymbolTable st);
 void handle_testlist(struct tree *t, SymbolTable st);
-void check_var_type(struct typeinfo *lhs_type, struct typeinfo *rhs_type, struct token *tok);
 void handle_eytr_chain(struct tree *t, SymbolTable st, struct typeinfo *rhs_typ);
-struct typeinfo *get_trailer_type(struct tree *t, SymbolTable st, SymbolTableEntry entry);
-struct typeinfo *get_trailer_type_list(struct tree *t, SymbolTable st);
 void handle_token(struct tree *t, SymbolTable st);
 SymbolTableEntry get_chained_dot_entry(struct tree *t, SymbolTable st, SymbolTableEntry entry);
 int is_function_call(struct tree *t);
 int does_tr_have_trailer_child(struct tree *t);
-struct typeinfo *get_type_of_node(struct tree *t, SymbolTable st, SymbolTableEntry entry);
 int tr_has_tr_child(struct tree *t);
-void handle_or_test_types(struct tree *t, SymbolTable st);
 
 // Invalid expr_stmt handling
 void locate_invalid_expr(struct tree *t);
@@ -82,10 +62,6 @@ void locate_invalid_nested_aux(struct tree *t);
 void locate_invalid_trailer(struct tree *t);
 void locate_invalid_token(struct tree *t);
 void locate_invalid_arith(struct tree *t);
-
-// Type annotations
-void add_func_type(struct tree *t, SymbolTable st, SymbolTableEntry entry);
-void add_nested_table(SymbolTableEntry, struct typeinfo *rhs_type);
 
 // FOr handling PunY builtins stuff
 int get_ident_type_code(char *ident, SymbolTable st);
@@ -99,15 +75,13 @@ const char* get_basetype(int basetype);
 
 void insertclass(struct tree *t, SymbolTable st);
 void insertfunction(struct tree *t, SymbolTable st);
-SymbolTableEntry insertsymbol(SymbolTable st, char *s, int lineno, char *filename, int basetype); 
+SymbolTableEntry insertsymbol(SymbolTable st, char *s, int lineno, char *filename); 
 SymbolTableEntry insertbuiltin(SymbolTable global, char *s, int lineno, char *filename, int basetype);
 void locate_undeclared(struct tree *t, SymbolTable st);
-void mark_undeclared(SymbolTable st);
 SymbolTable mksymtab(int nbuckets, char *table_name);
 SymbolTable mknested(char *filename, int lineno, int nbuckets, SymbolTable parent, char *scope);
 void populate_symboltables(struct tree *t, SymbolTable st);
 void printsymbols(SymbolTable st);
-SymbolTableEntry removesymbol(SymbolTable st, char *s);
 void semantics(struct tree *t, SymbolTable st);
 
 // Copy functions

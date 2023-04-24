@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include "punygram.tab.h"
+#include "nonterminal.h"
 #include "tree.h"
 #include "utils.h"
 #include "type.h"
@@ -142,7 +143,7 @@ struct tree* append_kid(struct tree * kidspassed[], char * symbnam)
     i=0;
 
     newtree->leaf = NULL;
-    newtree->prodrule = 0;
+    newtree->prodrule = get_nonterminal_prodrule(symbnam);
     
     while(i < 9 && kidspassed[i] != NULL)
     {

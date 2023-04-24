@@ -3,6 +3,8 @@
 #include "errdef.h"
 
 struct tree;
+struct token;
+struct sym_entry;
 
 // Linked list of function/constructor parameters
 typedef struct param {
@@ -31,7 +33,7 @@ struct field {			/* members (fields) of structs */
 #define PACKAGE_TYPE 1000009
 #define ANY_TYPE     1000010
 #define FILE_TYPE    1000011
-#define USER_DEF     1000012 // WE MAY NEVER HAVE TO USE THIS
+#define USER_DEF     1000012 // Use this for user-defined class instances
 
 #define LAST_TYPE    1000013
 
@@ -84,7 +86,7 @@ extern typeptr string_typeptr;
 
 extern char *typenam[];
 
-// Prototypes
+// Prototypes for arithmetical type-checking
 int type_str_to_int(char *typestr);
 char *type_for_bin_op(char *lhs, char *rhs, char* op);
 char *type_for_bin_op_plus(char *lhs, char *rhs);
@@ -95,5 +97,38 @@ char *type_for_bin_op_equals(char *lhs, char *rhs);
 char *type_for_bin_op_great_less(char *lhs, char *rhs);
 char *type_for_bin_op_logical(char *lhs, char *rhs);
 
+// Adding type info 
+void add_type_info(struct tree *t, struct sym_table *st);
+void validate_operand_types(struct tree *t, struct sym_table *st);
+void validate_or_test(struct tree *t, struct sym_table *st);
+struct typeinfo* get_fpdef_type(struct tree *t, struct sym_table * ftable);
+struct typeinfo *get_rhs_type(struct tree *t, struct sym_table * st);
+struct typeinfo *get_arglist_opt_type(struct tree *t, struct sym_table * st, struct sym_entry *entry);
+void check_var_type(struct typeinfo *lhs_type, struct typeinfo *rhs_type, struct token *tok);
+struct typeinfo *get_trailer_type(struct tree *t, struct sym_table * st, struct sym_entry *entry);
+struct typeinfo *get_trailer_type_list(struct tree *t, struct sym_table * st);
+struct typeinfo *get_type_of_node(struct tree *t, struct sym_table * st, struct sym_entry *entry);
+void handle_or_test_types(struct tree *t, struct sym_table * st);
 
+// Type annotations
+void add_func_type(struct tree *t, struct sym_table * st, struct sym_entry *entry);
+void add_nested_table(struct sym_entry *, struct typeinfo *rhs_type);
+
+// ex: "int" -> INT_TYPE
+const char* get_basetype(int basetype);
+
+// ex: "name" -> typeinfo*. Returns an allocated typeinfo pointer
+struct typeinfo *get_ident_type(char *ident, struct sym_table * st);
+
+// identifier type code
+int get_ident_type_code(char *ident, struct sym_table * st);
+struct typeinfo *get_token_type(struct token *tok);
+struct typeinfo *determine_hint_type(struct token *type, struct sym_table * st);
+
+// Factory type copier
+struct typeinfo *type_copy(struct typeinfo *typ);
+
+// Add builtins
+struct sym_entry *insertbuiltin(struct sym_table * global, char *s, int lineno, char *filename, int basetype);
+struct sym_entry *insertbuiltin_meth(struct sym_table *builtin_table, char *name, char *ret_type);
 #endif

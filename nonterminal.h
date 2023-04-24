@@ -142,3 +142,5 @@ enum {
     COLON_TEST_OPT,
     DECL_STMT
 };
+
+int get_nonterminal_prodrule(char *production);

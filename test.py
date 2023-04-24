@@ -1,2 +1,1 @@
-def f(x: int) -> int:
-    return x
+b = "asdf".replace([1, 2, 3].append(a))

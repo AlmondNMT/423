@@ -11,7 +11,7 @@ struct sym_table;
 struct sym_entry;
 
 extern struct sym_table *mknested(char *, int, int, struct sym_table *, char *);
-extern struct sym_entry *insertsymbol(struct sym_table *, char *s, int lineno, char *filename, int basetype);
+extern struct sym_entry *insertsymbol(struct sym_table *, char *s, int lineno, char *filename);
 
 char *typenam[] =
    {"none", "int", "class", "list", "float", "func", "dict", "bool",
@@ -503,9 +503,21 @@ typeptr alclist()
     struct sym_table *st = mksymtab(HASH_TABLE_SIZE, "class");
     list->u.cls.name = strdup("list");
     list->u.cls.st = st;
-    insertsymbol(st, "append", -1, "(builtins)", FUNC_TYPE);
-    insertsymbol(st, "remove", -1, "(builtins)", FUNC_TYPE);
+    insertbuiltin_meth(st, "append", "None");
+    insertbuiltin_meth(st, "remove", "None");
     return list;
+}
+
+/**
+ * Add methods to a builtin class
+ */
+struct sym_entry *insertbuiltin_meth(struct sym_table *btable, char *name, char *ret_type)
+{
+    struct sym_entry *entry = NULL;
+    entry = insertsymbol(btable, name, -1, "(builtins)");
+    entry->typ->basetype = FUNC_TYPE;
+    entry->typ->u.f.returntype = get_ident_type(ret_type, NULL); // This should be fine
+    return entry;
 }
 
 typeptr alcdict()
@@ -514,8 +526,8 @@ typeptr alcdict()
     struct sym_table *st = mksymtab(HASH_TABLE_SIZE, "class");
     dict->u.cls.name = strdup("dict");
     dict->u.cls.st = st;
-    insertsymbol(st, "keys", -1, "(builtins)", FUNC_TYPE);
-    insertsymbol(st, "values", -1, "(builtins)", FUNC_TYPE);
+    insertbuiltin_meth(st, "keys", "list");
+    insertbuiltin_meth(st, "values", "list");
     return dict;
 }
 
@@ -526,9 +538,9 @@ typeptr alcfile()
     struct sym_table *st = mksymtab(HASH_TABLE_SIZE, "class");
     file->u.cls.name = strdup("file");
     file->u.cls.st = st;
-    insertsymbol(st, "write", -1, "(builtins)", FUNC_TYPE);
-    insertsymbol(st, "close", -1, "(builtins)", FUNC_TYPE);
-    insertsymbol(st, "read", -1, "(builtins)", FUNC_TYPE);
+    insertbuiltin_meth(st, "write", "int");
+    insertbuiltin_meth(st, "close", "None");
+    insertbuiltin_meth(st, "read", "int");
     return file;
 }
 
@@ -538,8 +550,8 @@ typeptr alcstr()
     struct sym_table *st = mksymtab(HASH_TABLE_SIZE, "class)");
     str->u.cls.name = strdup("str");
     str->u.cls.st = st;
-    insertsymbol(st, "replace", -1, "(builtins)", FUNC_TYPE);
-    insertsymbol(st, "split", -1, "(builtins)", FUNC_TYPE);
+    insertbuiltin_meth(st, "replace", "str");
+    insertbuiltin_meth(st, "split", "list");
     return str;
 }
 
@@ -558,5 +570,174 @@ paramlist alcparam(char *name, int basetype)
     params->type->basetype = basetype;
     params->next = NULL;
     return params;
+}
+
+
+void add_type_info(struct tree *t, SymbolTable st)
+{
+    // TODO: Add type information to the populated tree nodes
+}
+
+
+/**
+ * Get the function param type hint
+ */
+struct typeinfo *get_fpdef_type(struct tree *t, SymbolTable ftable)
+{
+    struct typeinfo *ret = NULL;
+    if(t == NULL || ftable == NULL) // This probably should never happen
+        return alcbuiltin(ANY_TYPE);
+    if(strcmp(t->symbolname, "power") == 0) {
+        ret = determine_hint_type(t->kids[0]->leaf, ftable);
+        t->kids[0]->type = ret;
+        return ret;
+    } else {
+        ret = get_fpdef_type(t->kids[0], ftable);
+    }
+    return ret;
+}
+
+/**
+* Whatever node of type 'test' was found
+* will be validated in here. 
+* Assumed starting position: or_test
+*/
+void validate_or_test(struct tree *t, SymbolTable st)
+{   //if we find a power, and it has a child that is a NAME
+    //we found a terminal and will return its typeinfo   
+    // If the second child of or_test is "nulltree" don't check anything
+    struct typeinfo *lhs_type = NULL, *rhs_type = NULL;
+    if(strcmp(t->kids[1]->symbolname, "nulltree") == 0)
+    {
+        return;
+    }
+    else 
+    {
+        lhs_type = get_rhs_type(t, st);
+        rhs_type = get_rhs_type(t->kids[1], st);
+        printf("%s\n", get_basetype(lhs_type->basetype));
+        printf("%s\n", get_basetype(rhs_type->basetype));
+        if(strcmp(t->kids[1]->kids[0]->symbolname, "or_and_test_rep") == 0)
+        {                
+            validate_or_test(t->kids[1]->kids[0], st);
+            validate_or_test(t->kids[1], st);
+        }
+    }
+
+    return;
+}
+
+/**
+ * This is called if the entry is a CLASS_TYPE, to determine if it is also a 
+ * builtin. If it is a builtin, return the integer code, otherwise return ANY_TYPE
+ */
+int get_ident_type_code(char *ident, SymbolTable st)
+{
+    return get_ident_type(ident, st)->basetype;
+}
+
+
+struct typeinfo *get_ident_type(char *ident, SymbolTable st)
+{
+    if(strcmp(ident, "int") == 0)
+        return alcbuiltin(INT_TYPE);
+    else if(strcmp(ident, "list") == 0)
+        return alclist();
+    else if(strcmp(ident, "float") == 0)
+        return alcbuiltin(FLOAT_TYPE);
+    else if(strcmp(ident, "dict") == 0)
+        return alcdict();
+    else if(strcmp(ident, "bool") == 0)
+        return alcbuiltin(BOOL_TYPE);
+    else if(strcmp(ident, "str") == 0)
+        return alcbuiltin(STRING_TYPE);
+    else if(strcmp(ident, "None") == 0)
+        return alcnone();
+    else {
+        //here we know that it is NOT a builtin
+        //so we look up the entry of said name
+        //in an inside to outside direction (which is what lookup does)
+        SymbolTableEntry type_entry = lookup(ident, st);
+        if(type_entry != NULL) {
+            //get type info if entry found
+            return type_copy(type_entry->typ);
+        }
+        return alcbuiltin(ANY_TYPE);
+    }
+}
+
+
+/**
+ * Ensure that LHS and RHS of arithmetic/logical expressions 
+ * are valid
+ * This traverses the entire syntax tree looking
+ * for 'or_test' nodes 
+*/
+void validate_operand_types(struct tree *t, SymbolTable st)
+{  // printf("entering print tree\n");
+    if(strcmp(t->symbolname, "or_test") == 0) {
+        validate_or_test(t, st);
+        return;
+    }
+    if(strcmp(t->symbolname, "and_test") == 0) {
+
+        return;
+    }
+
+    for(int i = 0; i < t->nkids; i++) {
+        validate_operand_types(t->kids[i], st);
+    }
+}
+
+//one half of the two functions that should be able to handle
+// nested combinations of or_tests (which expand to anything arithmetic and logical) 
+//and trailer_reps
+void handle_or_test_types(struct tree *t, SymbolTable st)
+{  // printf("entering print tree\n");
+    if(strcmp(t->symbolname, "or_test") == 0) {
+        validate_or_test(t, st);
+        return;
+    }
+    if(strcmp(t->symbolname, "and_test") == 0) {
+
+        return;
+    }
+
+    for(int i = 0; i < t->nkids; i++) {
+        validate_operand_types(t->kids[i], st);
+    }
+}
+
+/**
+ * Some boilerplate for searching the symbol tables for valid type hints,
+ * then returning the corresponding type int
+ */
+struct typeinfo *determine_hint_type(struct token *type, SymbolTable st)
+{
+    if(type == NULL || st == NULL) {
+        fprintf(stderr, "Why is type or st NULL?\n");
+        exit(SEM_ERR);
+    }
+    struct typeinfo *typ = NULL;
+
+    // type_entry is the RHS of "a: int", for example
+    SymbolTableEntry type_entry = lookup(type->text, st);
+    // If the type entry cannot be found in the symbol table, that's an error
+    
+    if(type_entry == NULL) 
+        semantic_error(type->filename, type->lineno, "Name '%s' is not defined for the provided type\n", type->text);
+    else {
+        // When we find the type entry, we have to consider its type code. If it's 
+        // a class, we obtain the class define code if it's a builtin, or ANY_TYPE 
+        // otherwise.
+        if(type_entry->typ->basetype == CLASS_TYPE) {
+            typ = get_ident_type(type_entry->ident, st);
+
+        } else {
+            // If it's not a class type then let it inherit the type of the RHS
+            typ = type_entry->typ;
+        }
+    }
+    return typ;
 }
 
