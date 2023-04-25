@@ -1,2 +1,2 @@
-def f(x: str, y, z: str, w: float) -> int:
-    return x
+def f(x, y, z, w, t, u, v) -> int:
+    return 1

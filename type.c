@@ -969,3 +969,11 @@ const char *get_basetype(int basetype)
             return "mystery type";
     }
 }
+
+void print_paramlist(paramlist params) 
+{
+    if(params == NULL) return;
+    if(params->name != NULL && params->type != NULL) 
+        printf("%s: %s, ", params->name, get_basetype(params->type->basetype));
+    print_paramlist(params->next);
+}

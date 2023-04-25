@@ -137,4 +137,7 @@ struct typeinfo *type_copy(struct typeinfo *typ);
 // Add builtins
 struct sym_entry *insertbuiltin(struct sym_table * global, char *s, int lineno, char *filename, int basetype);
 struct sym_entry *insertbuiltin_meth(struct sym_table *builtin_table, char *name, char *ret_type);
+
+// Print params
+void print_paramlist(paramlist params);
 #endif

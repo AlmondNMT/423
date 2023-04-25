@@ -18,7 +18,6 @@ void add_builtin_func_info(SymbolTableEntry entry, int nparams, int returntype, 
         return;
     entry->typ->u.f.returntype = alcbuiltin(returntype);
     entry->typ->u.f.nparams = nparams;
-    entry->nested = mknested("(builtins)", -1, HASH_TABLE_SIZE, entry->table, "function");
     va_list args;
     va_start(args, fmt);
     paramlist params = NULL;
@@ -36,7 +35,6 @@ void add_builtin_func_info(SymbolTableEntry entry, int nparams, int returntype, 
                         int basetype = va_arg(args, int);
                         if(params == NULL && name != NULL) {
                             params = alcparam(name, basetype);
-                            insertsymbol(entry->nested, name, -1, "(builtins)");
                             entry->typ->u.f.parameters = params;
                         }
                         else if(params != NULL && name != NULL) {
@@ -56,9 +54,11 @@ void add_builtin_func_info(SymbolTableEntry entry, int nparams, int returntype, 
 /**
  * Add constructor information. This wraps add_builtin_func_info
 */
-void add_builtin_constructor_info(SymbolTableEntry entry, int nparams, char *fmt, ...)
+void add_builtin_class_info(SymbolTableEntry entry, int nparams, char *fmt, ...)
 {
-
+    if(entry == NULL || entry->typ == NULL) return;
+    
+    // We will not use an explicit __init__ method as is typically found in 
 }
 
 /**

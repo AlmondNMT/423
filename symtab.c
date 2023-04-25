@@ -169,7 +169,7 @@ void add_global_names(tree_t *t, SymbolTable st)
  * s in the table. This means free the nested symbol table. populate_symboltables
  * will recursively descend through the tree to collect identifiers for its 
  * local scope. The returntype of the function should be initialized to 
- * ANY_TYPE.
+ * ANY_TYPE. 
  * Assumptions: The first child should contain the function name, cuz our 
  *   starting nonterminal is funcdef
  */
@@ -196,7 +196,8 @@ void insertfunction(struct tree *t, SymbolTable st)
     entry->typ->u.f.returntype = alctype(ANY_TYPE);
 
     // Count the function parameters
-    //entry->typ->u.f.nparams = get_func_param_count(t, 0);
+    entry->typ->u.f.nparams = get_func_param_count(t, 0);
+    printf("%d\n", entry->typ->u.f.nparams);
 
     // We will also annotate the tree node with this scope
     t->kids[0]->stab = st;
@@ -212,11 +213,31 @@ void insertfunction(struct tree *t, SymbolTable st)
 
 /**
  * Count the function parameters
- * Starting position: 
+ * Starting position: funcdef
 */
 int get_func_param_count(struct tree *t, int count)
 {
-
+    if(t == NULL) return count;
+    switch(t->prodrule) {
+        case FUNCDEF: {
+            return get_func_param_count(t->kids[1]->kids[0], count);
+        }
+        case VARARGSLIST: {
+            int cnt = get_func_param_count(t->kids[0], count);
+            cnt += get_func_param_count(t->kids[1], count);
+            return cnt;
+        }
+        case FPDEF_OPTIONS:
+        case FPDEF_EQUAL_TEST_COMMA_REP: {
+            int cnt = get_func_param_count(t->kids[0], count);
+            cnt += get_func_param_count(t->kids[1], count);
+            return cnt;
+        }
+        case FPDEF: {
+            return count + 1;
+        }
+    }
+    return count;
 }
 
 /**
