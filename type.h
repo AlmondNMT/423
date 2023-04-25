@@ -43,16 +43,16 @@ typedef struct typeinfo {
         struct funcinfo {
              char *name; /* ? */
              struct sym_table *st;
-             struct typeinfo *returntype;
              int nparams;
              struct param *parameters;
+             struct typeinfo *returntype;
         } f;
         struct classinfo {
             char *name;
             struct sym_table *st;
-            int instance;               // Is it an instance of the class?
             int nparams;                // For constructor
             struct param *parameters;   // Constructor params
+            int instance;               // Is it an instance of the class?
         } cls;
         struct packinfo {
             char *name;
@@ -63,7 +63,9 @@ typedef struct typeinfo {
 
 /* add constructors for other types as needed */
 typeptr alctype(int basetype);
+void free_typeptr(typeptr typ);
 paramlist alcparam(char *name, int basetype);
+void free_params(paramlist params);
 typeptr alcclass(char *name);
 typeptr alcfunc(char *name, int nparams, int pbasetype);
 typeptr alclist();
@@ -99,6 +101,10 @@ char *type_for_bin_op_logical(char *lhs, char *rhs);
 
 // Adding type info 
 void add_type_info(struct tree *t, struct sym_table *st);
+void add_func_type_info(struct tree *t, struct sym_table *st);
+void add_class_type_info(struct tree *t, struct sym_table *st);
+void add_expr_type_info(struct tree *t, struct sym_table *st);
+
 void validate_operand_types(struct tree *t, struct sym_table *st);
 void validate_or_test(struct tree *t, struct sym_table *st);
 struct typeinfo* get_fpdef_type(struct tree *t, struct sym_table * ftable);

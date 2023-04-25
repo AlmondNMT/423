@@ -1,8 +1,65 @@
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "symtab.h"
 #include "type.h"
+
+/**
+ * 1. Add param count
+ * 2. Add param types
+ * 3. Add return type
+*/
+void add_builtin_func_info(SymbolTableEntry entry, int nparams, int returntype, char *fmt, ...)
+{
+    // Add the function return type
+    if(entry->typ == NULL)
+        return;
+    entry->typ->u.f.returntype = alcbuiltin(returntype);
+    entry->typ->u.f.nparams = nparams;
+    entry->nested = mknested("(builtins)", -1, HASH_TABLE_SIZE, entry->table, "function");
+    va_list args;
+    va_start(args, fmt);
+    paramlist params = NULL;
+    char *name = NULL;
+    // Search the format string for parameter names and their corresponding types
+    while(*fmt != '\0') {
+        switch(*fmt) {
+            case '%': {
+                switch(*(++fmt)) {
+                    case 's': {
+                        name = va_arg(args, char*);
+                        while(*(++fmt) == ':' || *fmt == ' ' || *fmt == '%') fmt++;
+                    }
+                    case 'd': {
+                        int basetype = va_arg(args, int);
+                        if(params == NULL && name != NULL) {
+                            params = alcparam(name, basetype);
+                            insertsymbol(entry->nested, name, -1, "(builtins)");
+                            entry->typ->u.f.parameters = params;
+                        }
+                        else if(params != NULL && name != NULL) {
+                            params->next = alcparam(name, basetype);
+                            params = params->next;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        ++fmt;
+    }
+    va_end(args);
+}
+
+/**
+ * Add constructor information. This wraps add_builtin_func_info
+*/
+void add_builtin_constructor_info(SymbolTableEntry entry, int nparams, char *fmt, ...)
+{
+
+}
 
 /**
  * Manually add every builtin and its associated fields
@@ -10,28 +67,50 @@
 void add_puny_builtins(SymbolTable st) {
     SymbolTableEntry entry = NULL;
 
-    insertbuiltin(st, "any", -1, "(builtins)", CLASS_TYPE);
+    entry = insertbuiltin(st, "any", -1, "(builtins)", CLASS_TYPE);
 
     entry = insertbuiltin(st, "print", -1, "(builtins)", FUNC_TYPE);
-    entry->typ->u.f.returntype = alcnone();
+    add_builtin_func_info(entry, 1, NONE_TYPE, "%s: %d", "s", ANY_TYPE);
 
     insertbuiltin(st, "None", -1, "(builtins)", CLASS_TYPE);
     insertbuiltin(st, "int", -1, "(builtins)", CLASS_TYPE);
+
     entry = insertbuiltin(st, "abs", -1, "(builtins)", FUNC_TYPE);
+    add_builtin_func_info(entry, 1, ANY_TYPE, "%s: %d", "n", ANY_TYPE);
+
     insertbuiltin(st, "bool", -1, "(builtins)", CLASS_TYPE);  
-    insertbuiltin(st, "chr", -1, "(builtins)", FUNC_TYPE);
+    entry = insertbuiltin(st, "chr", -1, "(builtins)", FUNC_TYPE);
+    add_builtin_func_info(entry, 1, STRING_TYPE, "%s: %d ", "n", INT_TYPE);
+
     insertbuiltin(st, "float", -1, "(builtins)", CLASS_TYPE);
-    insertbuiltin(st, "input", -1, "(builtins)", FUNC_TYPE);
+    entry = insertbuiltin(st, "input", -1, "(builtins)", FUNC_TYPE);
+    add_builtin_func_info(entry, 1, STRING_TYPE, "%s: %d", "s", STRING_TYPE);
+
     insertbuiltin(st, "int", -1, "(builtins)", CLASS_TYPE);    
-    insertbuiltin(st, "len", -1, "(builtins)", FUNC_TYPE);
-    insertbuiltin(st, "max", -1, "(builtins)", FUNC_TYPE);
-    insertbuiltin(st, "min", -1, "(builtins)", FUNC_TYPE);
+
+    entry = insertbuiltin(st, "len", -1, "(builtins)", FUNC_TYPE);
+    add_builtin_func_info(entry, 1, INT_TYPE, "%s: %d", "l", LIST_TYPE);
+
+    entry = insertbuiltin(st, "max", -1, "(builtins)", FUNC_TYPE);
+    add_builtin_func_info(entry, 1, INT_TYPE, "%s: %d", "l", LIST_TYPE);
+
+    entry = insertbuiltin(st, "min", -1, "(builtins)", FUNC_TYPE);
+    add_builtin_func_info(entry, 1, INT_TYPE, "%s: %d", "l", LIST_TYPE);
+
     entry = insertbuiltin(st, "open", -1, "(builtins)", FUNC_TYPE);
-    entry->typ->u.f.returntype = alcfile();
-    insertbuiltin(st, "ord", -1, "(builtins)", FUNC_TYPE);
-    insertbuiltin(st, "pow", -1, "(builtins)", FUNC_TYPE);
+    add_builtin_func_info(entry, 2, FILE_TYPE, "%s: %d, %s: %d", "pathname", STRING_TYPE, "mode", STRING_TYPE);
+
+    entry = insertbuiltin(st, "ord", -1, "(builtins)", FUNC_TYPE);
+    add_builtin_func_info(entry, 1, INT_TYPE, "%s: %d", "s", STRING_TYPE);
+
+    entry = insertbuiltin(st, "pow", -1, "(builtins)", FUNC_TYPE);
+    add_builtin_func_info(entry, 2, ANY_TYPE, "%s: %d, %s: %d", "b", ANY_TYPE, "e", ANY_TYPE);
+
     insertbuiltin(st, "range", -1, "(builtins)", CLASS_TYPE);
-    insertbuiltin(st, "round", -1, "(builtins)", FUNC_TYPE);
+
+    entry = insertbuiltin(st, "round", -1, "(builtins)", FUNC_TYPE);
+    add_builtin_func_info(entry, 2, ANY_TYPE, "%s: %d, %s: %d", "n", ANY_TYPE, "r", INT_TYPE);
+
     insertbuiltin(st, "type", -1, "(builtins)", CLASS_TYPE);
 
     // Add string methods to string

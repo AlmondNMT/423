@@ -37,6 +37,7 @@ void free_symtab(SymbolTable st);
 
 // Specialized tree traversals for populating symbol table 
 void get_function_params(struct tree *t, SymbolTable ftable);
+int get_func_param_count(struct tree *t, int count);
 void get_for_iterator(struct tree *t, SymbolTable table);
 void get_import_symbols(struct tree *t, SymbolTable st);
 void get_decl_stmt(struct tree *t, SymbolTable st);
@@ -64,19 +65,12 @@ void locate_invalid_token(struct tree *t);
 void locate_invalid_arith(struct tree *t);
 
 // FOr handling PunY builtins stuff
-int get_ident_type_code(char *ident, SymbolTable st);
-struct typeinfo *get_ident_type(char *ident, SymbolTable st);
-int get_token_type_code(struct token *tok);
-struct typeinfo *get_token_type(struct token *tok);
-struct typeinfo *determine_hint_type(struct token *type, SymbolTable st);
 struct token get_assignment_rhs(struct tree *t, SymbolTable st);
 uint hash(SymbolTable st, char *s);
-const char* get_basetype(int basetype);
 
 void insertclass(struct tree *t, SymbolTable st);
 void insertfunction(struct tree *t, SymbolTable st);
 SymbolTableEntry insertsymbol(SymbolTable st, char *s, int lineno, char *filename); 
-SymbolTableEntry insertbuiltin(SymbolTable global, char *s, int lineno, char *filename, int basetype);
 void locate_undeclared(struct tree *t, SymbolTable st);
 SymbolTable mksymtab(int nbuckets, char *table_name);
 SymbolTable mknested(char *filename, int lineno, int nbuckets, SymbolTable parent, char *scope);
@@ -86,7 +80,6 @@ void semantics(struct tree *t, SymbolTable st);
 
 // Copy functions
 struct sym_table *copy_symbol_table(struct sym_table *);
-struct typeinfo *type_copy(struct typeinfo *typ);
 
 // Get Symbol information from the table
 int symbol_exists(char *name, SymbolTable st);

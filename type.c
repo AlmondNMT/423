@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "type.h"
+#include "nonterminal.h"
+#include "punygram.tab.h"
 #include "symtab.h"
 #include "tree.h"
-#include "punygram.tab.h"
+#include "type.h"
 #include "utils.h"
  
 struct sym_table;
@@ -572,12 +573,86 @@ paramlist alcparam(char *name, int basetype)
     return params;
 }
 
-
-void add_type_info(struct tree *t, SymbolTable st)
+void free_params(paramlist params)
 {
-    // TODO: Add type information to the populated tree nodes
+    if(params == NULL)
+        return;
+    free_typeptr(params->type);
+    free_params(params->next);
+    free(params);
 }
 
+void free_typeptr(typeptr typ)
+{
+    if(typ == NULL) return;
+    if(typ->basetype == FUNC_TYPE) {
+        free_typeptr(typ->u.f.returntype);
+        free_symtab(typ->u.cls.st);
+        free_params(typ->u.f.parameters);
+    } 
+    else if(typ->basetype == CLASS_TYPE || typ->basetype == USER_DEF) {
+        free_params(typ->u.cls.parameters);
+        free_symtab(typ->u.cls.st);
+    } 
+    else if(typ->basetype == PACKAGE_TYPE) {
+        free_symtab(typ->u.p.st);
+    }
+    free(typ);
+}
+/**
+ * 
+ * Starting position: root
+ * Assumptions: The symbol table should have all 
+ * TODO:
+ *  1. 
+*/
+void add_type_info(struct tree *t, SymbolTable st)
+{
+    switch(t->prodrule) {
+        case FUNCDEF:
+            add_func_type_info(t, st);
+            return;
+        case CLASSDEF:
+            add_class_type_info(t, st);
+            return;
+        case EXPR_STMT:
+            add_expr_type_info(t, st);
+            return;
+    }
+    for(int i = 0; i < t->nkids; i++) {
+        add_type_info(t->kids[i], st);
+    }
+}
+
+
+/**
+ * TODO:
+ *  1. Function type info
+ *      - Number of parameters
+ *      - Types of parameters
+ *      - Return type of function
+ * 
+*/
+void add_func_type_info(struct tree *t, SymbolTable st)
+{
+    if(t == NULL || st == NULL) 
+        return;
+    // Get the symbol table entry
+    struct token *leaf = t->kids[0]->leaf;
+    SymbolTableEntry entry = lookup(leaf->text, st);
+    
+}
+
+
+void add_class_type_info(struct tree *t, SymbolTable st)
+{
+
+}
+
+void add_expr_type_info(struct tree *t, SymbolTable st)
+{
+
+}
 
 /**
  * Get the function param type hint
@@ -741,3 +816,156 @@ struct typeinfo *determine_hint_type(struct token *type, SymbolTable st)
     return typ;
 }
 
+/**
+ * Copy the typeptr of custom user classes
+ * 
+*/
+struct typeinfo *type_copy(struct typeinfo *typ)
+{
+    // It is very unexpected if the typeptr is NULL
+    if(typ == NULL) {
+        fprintf(stderr, "This typeptr should not be null\n");
+        exit(SEM_ERR);
+    }
+
+    struct typeinfo *copy = ckalloc(1, sizeof(struct typeinfo));
+    // We only want to copy the symbol table of classes for 
+    //   object instantiation, and not for functions and packages
+    // if we assign a function f to a var a, like a = f, we only 
+    // want to store a pointer. Same with packages.
+    if(typ->basetype == FUNC_TYPE || typ->basetype == PACKAGE_TYPE) {
+        return typ;
+    }
+    copy->u.cls.st = copy_symbol_table(typ->u.cls.st);
+    return copy;
+}
+
+/**
+* Make a copy of the symbol table, except leave the parent null
+* parent will have to be assigned outside the scope of this 
+* function
+*/
+SymbolTable copy_symbol_table(SymbolTable st)
+{
+    if(st == NULL) return NULL;
+    SymbolTable copy  = mksymtab(st->nBuckets, st->scope);
+    SymbolTableEntry old_entry = NULL, new_entry = NULL;
+    for(int i = 0; i < st->nBuckets; i++) {
+        if(st->tbl[i] != NULL) {
+            old_entry = st->tbl[i];
+            new_entry = insertsymbol(copy, old_entry->ident, old_entry->lineno, old_entry->filename);
+            
+            // If our current entry has its own nested symbol table
+            if(old_entry->nested != NULL)
+                new_entry->nested = copy_symbol_table(old_entry->nested);
+        }
+    }
+    return copy;
+}
+
+struct typeinfo *get_token_type(struct token *tok)
+{
+    switch(tok->category) {
+        case INTLIT:
+            return alcbuiltin(INT_TYPE);
+        case FLOATLIT:
+            return alcbuiltin(FLOAT_TYPE);
+        case STRINGLIT:
+            return alcbuiltin(STRING_TYPE);
+        case NONE:
+            return alcbuiltin(NONE_TYPE);
+        case PYTRUE:
+        case PYFALSE:
+            return alcbuiltin(BOOL_TYPE);
+        default:
+            return alcbuiltin(ANY_TYPE);
+    }
+}
+
+/**
+ * Get the base type code from the token 
+ * integer codes we used in lexical analysis
+ */
+int get_token_type_code(struct token *tok)
+{
+   return get_token_type(tok)->basetype;
+}
+
+/**
+ * Traverse the rarrow subtree and add the type information to the entry.
+ * We are starting at rarrow_opt here
+ */
+void add_func_type(struct tree *t, SymbolTable st, SymbolTableEntry entry)
+{
+    if(entry == NULL || st == NULL || t == NULL)
+        return;
+    t->stab = st;
+    // If we reach a power 
+    struct typeinfo *typ = get_rhs_type(t, st);
+    entry->typ->u.f.returntype = typ;
+    decorate_subtree_with_symbol_table(t, st);
+}
+
+/**
+ * Verify type compatibility between LHS operands and the type of the rightmost
+ * operand
+ * TODO: Finishing variable type checking
+ */
+void check_var_type(struct typeinfo *lhs_type, struct typeinfo *rhs_type, struct token *tok)
+{
+    if(lhs_type == NULL || rhs_type == NULL) return;
+
+
+    // If the right-hand-side of an assignment has type any, this is runtime's 
+    //   problem
+    if(lhs_type->basetype == ANY_TYPE || rhs_type->basetype == ANY_TYPE) return;
+
+    // If the basetype of the entry is not ANY_TYPE, then check it against
+    //   rhs type
+    if(lhs_type->basetype != ANY_TYPE) {
+        // TODO 
+        if(lhs_type->basetype != rhs_type->basetype) {
+            semantic_error(tok->filename, tok->lineno,
+                    "incompatible assignment between '%s' and '%s' near operand '%s'\n", 
+                    get_basetype(lhs_type->basetype), 
+                    get_basetype(rhs_type->basetype),
+                    tok->text
+                    );
+        }
+    }
+
+}
+
+/**
+ * BASETYPE -> "any"
+*/
+const char *get_basetype(int basetype)
+{
+    switch(basetype) {
+        case NONE_TYPE:
+            return "None";
+        case INT_TYPE:
+            return "int";
+        case ANY_TYPE:
+            return "any";
+        case CLASS_TYPE:
+            return "class";
+        case LIST_TYPE:
+            return "list";
+        case FLOAT_TYPE:
+            return "float";
+        case FUNC_TYPE:
+            return "func";
+        case DICT_TYPE:
+            return "dict";
+        case BOOL_TYPE:
+            return "bool";
+        case STRING_TYPE:
+            return "str";
+        case PACKAGE_TYPE:
+            return "package";
+        default:
+            // This usually means a type was not initialized correctly
+            return "mystery type";
+    }
+}

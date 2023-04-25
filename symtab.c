@@ -41,7 +41,8 @@ void semantics(struct tree *tree, SymbolTable st)
     add_type_info(tree, st);
 
     // Ensure that operand types are valid for arithmetic and logical expressions
-    //validate_operand_types(tree, st);
+    validate_operand_types(tree, st);
+    // TODO: verify correctness of operand types
 }
 
 // Populate symbol tables from AST
@@ -110,7 +111,7 @@ void locate_undeclared(struct tree *t, SymbolTable st)
         }
         return;
     }
-    else if(strcmp(t->symbolname, "NAME") == 0) {
+    else if(t->prodrule == NAME) {
         check_decls(t, st);
     }
     for(int i = 0; i < t->nkids; i++) {
@@ -167,7 +168,8 @@ void add_global_names(tree_t *t, SymbolTable st)
  * Insertfunction: Unlike insertsymbol, overwrite any previous definitions of 
  * s in the table. This means free the nested symbol table. populate_symboltables
  * will recursively descend through the tree to collect identifiers for its 
- * local scope.
+ * local scope. The returntype of the function should be initialized to 
+ * ANY_TYPE.
  * Assumptions: The first child should contain the function name, cuz our 
  *   starting nonterminal is funcdef
  */
@@ -190,12 +192,12 @@ void insertfunction(struct tree *t, SymbolTable st)
     // The parent of the function's scope will be the current scope
     entry->nested->parent = st;
 
-    // allocate the function typeinfo pointer
-    if(entry->typ->u.f.returntype == NULL) {
-        entry->typ->u.f.returntype = alcbuiltin(ANY_TYPE);
-        entry->typ->u.f.st = entry->nested;
-    }
-    
+    // Make function default return type ANY_TYPE
+    entry->typ->u.f.returntype = alctype(ANY_TYPE);
+
+    // Count the function parameters
+    //entry->typ->u.f.nparams = get_func_param_count(t, 0);
+
     // We will also annotate the tree node with this scope
     t->kids[0]->stab = st;
     t->kids[1]->stab = st;
@@ -203,11 +205,19 @@ void insertfunction(struct tree *t, SymbolTable st)
     t->kids[3]->stab = entry->nested;
 
     get_function_params(t->kids[1], entry->nested);   // Add parameters to function scope
-    add_func_type(t->kids[2], st, entry);
+    decorate_subtree_with_symbol_table(t->kids[2], st);
     populate_symboltables(t->kids[3], entry->nested); // Add suite to function scope
 
 }
 
+/**
+ * Count the function parameters
+ * Starting position: 
+*/
+int get_func_param_count(struct tree *t, int count)
+{
+
+}
 
 /**
  * Starting from the parameters rule, navigate to fpdef_equal_test_comma_rep,
@@ -245,21 +255,6 @@ void get_function_params(struct tree *t, SymbolTable ftable)
         }
     }
     decorate_subtree_with_symbol_table(t, ftable);
-}
-
-/**
- * Traverse the rarrow subtree and add the type information to the entry.
- * We are starting at rarrow_opt here
- */
-void add_func_type(struct tree *t, SymbolTable st, SymbolTableEntry entry)
-{
-    if(entry == NULL || st == NULL || t == NULL)
-        return;
-    t->stab = st;
-    // If we reach a power 
-    struct typeinfo *typ = get_rhs_type(t, st);
-    entry->typ->u.f.returntype = typ;
-    decorate_subtree_with_symbol_table(t, st);
 }
 
 /**
@@ -311,36 +306,6 @@ void handle_expr_stmt(struct tree *t, SymbolTable st)
         rhs_type = get_rhs_type(t->kids[0], st);
     }
     decorate_subtree_with_symbol_table(t, st);
-}
-
-/**
- * Verify type compatibility between LHS operands and the type of the rightmost
- * operand
- * TODO: Finishing variable type checking
- */
-void check_var_type(struct typeinfo *lhs_type, struct typeinfo *rhs_type, struct token *tok)
-{
-    if(lhs_type == NULL || rhs_type == NULL) return;
-
-
-    // If the right-hand-side of an assignment has type any, this is runtime's 
-    //   problem
-    if(lhs_type->basetype == ANY_TYPE || rhs_type->basetype == ANY_TYPE) return;
-
-    // If the basetype of the entry is not ANY_TYPE, then check it against
-    //   rhs type
-    if(lhs_type->basetype != ANY_TYPE) {
-        // TODO 
-        if(lhs_type->basetype != rhs_type->basetype) {
-            semantic_error(tok->filename, tok->lineno,
-                    "incompatible assignment between '%s' and '%s' near operand '%s'\n", 
-                    get_basetype(lhs_type->basetype), 
-                    get_basetype(rhs_type->basetype),
-                    tok->text
-                    );
-        }
-    }
-
 }
 
 void add_nested_table(SymbolTableEntry entry, struct typeinfo *rhs_type)
@@ -673,6 +638,9 @@ void locate_invalid_token(struct tree *t)
     }
 }   
 
+/**
+ * Add the appropriate symbol table to every node in the subtree
+*/
 void decorate_subtree_with_symbol_table(struct tree *t, SymbolTable st)
 {
     SymbolTable nested = st;
@@ -1206,37 +1174,6 @@ void printsymbols(SymbolTable st)
     }
 }
 
-const char *get_basetype(int basetype)
-{
-    switch(basetype) {
-        case NONE_TYPE:
-            return "None";
-        case INT_TYPE:
-            return "int";
-        case ANY_TYPE:
-            return "any";
-        case CLASS_TYPE:
-            return "class";
-        case LIST_TYPE:
-            return "list";
-        case FLOAT_TYPE:
-            return "float";
-        case FUNC_TYPE:
-            return "func";
-        case DICT_TYPE:
-            return "dict";
-        case BOOL_TYPE:
-            return "bool";
-        case STRING_TYPE:
-            return "str";
-        case PACKAGE_TYPE:
-            return "package";
-        default:
-            // This usually means a type was not initialized correctly
-            return "mystery type";
-    }
-}
-
 /** 
  * Liberate the symbol table
  */
@@ -1331,80 +1268,4 @@ SymbolTableEntry lookup_current(char *name, SymbolTable st)
             return e;
     }
     return e;
-}
-
-/**
- * Copy the typeptr of custom user classes
- * 
-*/
-struct typeinfo *type_copy(struct typeinfo *typ)
-{
-    // It is very unexpected if the typeptr is NULL
-    if(typ == NULL) {
-        fprintf(stderr, "This typeptr should not be null\n");
-        exit(SEM_ERR);
-    }
-
-    struct typeinfo *copy = ckalloc(1, sizeof(struct typeinfo));
-    // We only want to copy the symbol table of classes for 
-    //   object instantiation, and not for functions and packages
-    // if we assign a function f to a var a, like a = f, we only 
-    // want to store a pointer. Same with packages.
-    if(typ->basetype == FUNC_TYPE || typ->basetype == PACKAGE_TYPE) {
-        return typ;
-    }
-    copy->u.cls.st = copy_symbol_table(typ->u.cls.st);
-    return copy;
-}
-
-/**
-* Make a copy of the symbol table, except leave the parent null
-* parent will have to be assigned outside the scope of this 
-* function
-*/
-SymbolTable copy_symbol_table(SymbolTable st)
-{
-    if(st == NULL) return NULL;
-    SymbolTable copy  = mksymtab(st->nBuckets, st->scope);
-    SymbolTableEntry old_entry = NULL, new_entry = NULL;
-    for(int i = 0; i < st->nBuckets; i++) {
-        if(st->tbl[i] != NULL) {
-            old_entry = st->tbl[i];
-            new_entry = insertsymbol(copy, old_entry->ident, old_entry->lineno, old_entry->filename);
-            
-            // If our current entry has its own nested symbol table
-            if(old_entry->nested != NULL)
-                new_entry->nested = copy_symbol_table(old_entry->nested);
-        }
-    }
-    return copy;
-}
-
-
-/**
- * Get the base type code from the token 
- * integer codes we used in lexical analysis
- */
-int get_token_type_code(struct token *tok)
-{
-   return get_token_type(tok)->basetype;
-}
-
-struct typeinfo *get_token_type(struct token *tok)
-{
-    switch(tok->category) {
-        case INTLIT:
-            return alcbuiltin(INT_TYPE);
-        case FLOATLIT:
-            return alcbuiltin(FLOAT_TYPE);
-        case STRINGLIT:
-            return alcbuiltin(STRING_TYPE);
-        case NONE:
-            return alcbuiltin(NONE_TYPE);
-        case PYTRUE:
-        case PYFALSE:
-            return alcbuiltin(BOOL_TYPE);
-        default:
-            return alcbuiltin(ANY_TYPE);
-    }
 }

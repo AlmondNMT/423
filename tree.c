@@ -240,7 +240,7 @@ void print_tree(struct tree * t, int depth, int print_full, int what_kid)
 
         if(t->symbolname != NULL)
         {   //printf("somehow made it past this\n");
-            printf("%s%d-INNER: symbname: %s (kid %d of parent)\n", spcs, depth, t->symbolname, what_kid); 
+            printf("%s%d-INNER: symbname: %s \n", spcs, depth, t->symbolname); 
             //printf("existence has concluded in segmentation fault\n");
         }
 

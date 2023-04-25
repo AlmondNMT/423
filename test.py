@@ -1,1 +1,2 @@
-b = "asdf".replace([1, 2, 3].append(a))
+def f(x: str, y, z: str, w: float) -> int:
+    return x
