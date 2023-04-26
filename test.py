@@ -1,8 +1,8 @@
-def f(x, y: int, z) -> int:
+def f(x, y: int, z:str) -> int:
     return 2
 
-def g():
+def g() -> int:
     return 5
 
-g(1, 2)
-f(1, 23, 21, 2)
+g( )
+f( 23, 21, 2)

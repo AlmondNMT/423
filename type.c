@@ -600,11 +600,14 @@ void free_typeptr(typeptr typ)
     free(typ);
 }
 /**
- * 
+ * Another tree traversal for adding type information
  * Starting position: root
- * Assumptions: The symbol table should have all 
+ * Assumptions: The symbol table should be fully populated
  * TODO:
- *  1. 
+ *  ☐ Finish adding function type information
+ *  ☐ Add class type information (if you feel like it)
+ *  ☐ Propagate type information through assignments 
+ *  ☐ Get type information for declarations
 */
 void add_type_info(struct tree *t, SymbolTable st)
 {
@@ -618,6 +621,8 @@ void add_type_info(struct tree *t, SymbolTable st)
         case EXPR_STMT:
             add_expr_type_info(t, st);
             return;
+        case DECL_STMT:
+            return;
     }
     for(int i = 0; i < t->nkids; i++) {
         add_type_info(t->kids[i], st);
@@ -627,10 +632,9 @@ void add_type_info(struct tree *t, SymbolTable st)
 
 /**
  * TODO:
- *  1. Function type info
- *      - Number of parameters
- *      - Types of parameters
- *      - Return type of function
+ *  Function type info
+ *    - Types of parameters
+ *    - Return type of function
  * Starting position: FUNCDEF
 */
 void add_func_type_info(struct tree *t, SymbolTable st)
@@ -666,7 +670,7 @@ struct typeinfo *get_fpdef_type(struct tree *t, SymbolTable ftable)
     struct typeinfo *ret = NULL;
     if(t == NULL || ftable == NULL) // This probably should never happen
         return alcbuiltin(ANY_TYPE);
-    if(strcmp(t->symbolname, "power") == 0) {
+    if(t->prodrule == POWER) {
         ret = determine_hint_type(t->kids[0]->leaf, ftable);
         t->kids[0]->type = ret;
         return ret;
@@ -688,10 +692,10 @@ void get_function_params(struct tree *t, SymbolTable ftable)
     // This is the default base type
     struct typeinfo *type = NULL;
 
-    // The fpdef nonterminal contains quite a bit of information about the parameter 
-    // and its type, including its name
-    if(strcmp(t->symbolname, "fpdef") == 0) {
-        if(strcmp(t->kids[1]->symbolname, "colon_test_opt") == 0) {
+    // The fpdef nonterminal contains information about the parameter 
+    //   and its type, including its name
+    if(t->prodrule == FPDEF) {
+        if(t->kids[1]->prodrule == COLON_TEST_OPT) {
             // The function param has a type hint
             type = get_fpdef_type(t->kids[1], ftable);
         }
@@ -704,7 +708,9 @@ void get_function_params(struct tree *t, SymbolTable ftable)
         t->kids[0]->type = type;
         t->kids[1]->type = type;
         t->type = type;
-        insertsymbol(ftable, leaf->text, leaf->lineno, leaf->filename);
+        SymbolTableEntry entry = insertsymbol(ftable, leaf->text, leaf->lineno, leaf->filename);
+        free_typeptr(entry->typ);
+        entry->typ = type;
     } 
     else {
         for(int i = 0; i < t->nkids; i++) {
@@ -724,7 +730,7 @@ void validate_or_test(struct tree *t, SymbolTable st)
     //we found a terminal and will return its typeinfo   
     // If the second child of or_test is "nulltree" don't check anything
     struct typeinfo *lhs_type = NULL, *rhs_type = NULL;
-    if(strcmp(t->kids[1]->symbolname, "nulltree") == 0)
+    if(t->kids[1]->prodrule == NULLTREE)
     {
         return;
     }
@@ -949,6 +955,25 @@ void add_func_type(struct tree *t, SymbolTable st, SymbolTableEntry entry)
 }
 
 /**
+ * Get function return type
+ * Starting position
+*/
+typeptr get_func_return_type(struct tree *t, SymbolTable st)
+{
+    if(t == NULL || st == NULL) 
+        return alcbuiltin(ANY_TYPE);
+
+    typeptr type = NULL;
+    switch(t->prodrule) {
+    }
+
+    // If no valid type could be found, return ANY_TYPE
+    if(type == NULL)
+        return alcbuiltin(ANY_TYPE);
+    return type;
+}
+
+/**
  * Verify type compatibility between LHS operands and the type of the rightmost
  * operand
  * TODO: Finishing variable type checking
@@ -1032,53 +1057,54 @@ struct typeinfo *get_rhs_type(struct tree *t, SymbolTable st)
     struct typeinfo *type = NULL;
 
     // Recurse until the "power" nonterminal is found
-    if(strcmp(t->symbolname, "power") == 0 && t->kids[0]->leaf != NULL) {
-        // 'power' can only be reached if we haven't already recursed to a 
-        //   listmaker or a dictorset_option_* tree node 
-        // This leaf contains the leftmost name of the expr_stmt
-        struct token *leaf = t->kids[0]->leaf;
+    switch(t->prodrule) {
+    case POWER: { 
+        if(t->kids[0]->leaf != NULL) {
+            // 'power' can only be reached if we haven't already recursed to a 
+            //   listmaker or a dictorset_option_* tree node 
+            // This leaf contains the leftmost name of the expr_stmt
+            struct token *leaf = t->kids[0]->leaf;
 
-        // If the RHS token is a name
-        if(leaf->category == NAME) {
-            
-            SymbolTableEntry entry = lookup(leaf->text, st);
+            // If the RHS token is a name
+            if(leaf->category == NAME) {
+                
+                SymbolTableEntry entry = lookup(leaf->text, st);
 
-            // Throw an error if entry could not be found
-            if(entry == NULL) {
-                undeclared_error(leaf);
+                // Throw an error if entry could not be found
+                if(entry == NULL) {
+                    undeclared_error(leaf);
+                }
+
+                // Forget about trailer_reps here, just get the identifier type
+                type = get_ident_type(entry->ident, st);
             }
-            struct typeinfo *trailer_type = NULL;
-            if(strcmp(t->kids[1]->symbolname, "trailer_rep") == 0) {
-                trailer_type = get_trailer_type(t->kids[1], st, entry);
-                type = trailer_type;
-                t->kids[1]->type = type;
-            }
+
+            // If the RHS token is a literal, dict, list, bool, or None
             else {
-                type = type_copy(entry->typ);
+                type = get_token_type(leaf);
             }
         }
-
-        // If the RHS token is a literal, dict, list, bool, or None
-        else {
-            type = get_token_type(leaf);
-        }
+        break;
     } 
 
     // If we see listmaker_opt, we know that it's a list (e.g., [1, 2, b])
-    else if(strcmp(t->symbolname, "listmaker_opt") == 0) {
+    case LISTMAKER_OPT: {
         type = alclist();
+        break;
     }
 
     // Dictionary
-    else if(strcmp(t->symbolname, "dictorsetmaker_opt") == 0) {
+    case DICTORSETMAKER_OPT: {
         /* Right-hand side is a dictionary */
         type = alcdict();
+        break;
     }
-    else {
+    default: {
         /* It is assumed that we can just recurse the first child until one of 
          * the above three options is found 
          * TODO: Fix bad assumption */
         type = get_rhs_type(t->kids[0], st);
+    }
     }
     return type;
 }

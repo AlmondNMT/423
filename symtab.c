@@ -45,7 +45,6 @@ void semantics(struct tree *tree, SymbolTable st)
 
     // Ensure that operand types are valid for arithmetic and logical expressions
     validate_operand_types(tree, st);
-    // TODO: verify correctness of operand types
 }
 
 // Populate symbol tables from AST
@@ -202,8 +201,11 @@ void insertfunction(struct tree *t, SymbolTable st)
     // The parent of the function's scope will be the current scope
     entry->nested->parent = st;
 
-    // Make function default return type ANY_TYPE
-    entry->typ->u.f.returntype = alctype(ANY_TYPE);
+    // Pass the symbol table to every node in the rarrow branch
+    decorate_subtree_with_symbol_table(t->kids[2], st);
+
+    // Get function returntype 
+    entry->typ->u.f.returntype = get_rhs_type(t->kids[2], st);
 
     // Count the function parameters
     entry->typ->u.f.nparams = get_func_param_count(t, 0);
@@ -215,7 +217,6 @@ void insertfunction(struct tree *t, SymbolTable st)
     t->kids[3]->stab = entry->nested;
 
     get_function_params(t->kids[1], entry->nested);   // Add parameters to function scope
-    decorate_subtree_with_symbol_table(t->kids[2], st);
     populate_symboltables(t->kids[3], entry->nested); // Add suite to function scope
 
 }
@@ -975,13 +976,12 @@ void insertclass(struct tree *t, SymbolTable st)
     char *name = t->kids[0]->leaf->text;
     SymbolTableEntry entry = insertsymbol(st, name, leaf->lineno, leaf->filename);
 
-    // Default constructor has zero formal params
-    entry->typ->u.cls.nparams = 1;
-
     free_symtab(entry->nested);
     entry->nested = mknested(leaf->filename, leaf->lineno, HASH_TABLE_SIZE, st, "class");
     
     free(entry->typ);
+
+    // Create a new class with the given name (0 constructor params by default)
     entry->typ = alcclass(name);
     
 
