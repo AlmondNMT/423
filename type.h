@@ -101,14 +101,14 @@ char *type_for_bin_op_logical(char *lhs, char *rhs);
 
 // Adding type info 
 void add_type_info(struct tree *t, struct sym_table *st);
-void add_func_type_info(struct tree *t, struct sym_table *st);
 void add_class_type_info(struct tree *t, struct sym_table *st);
 void add_expr_type_info(struct tree *t, struct sym_table *st);
 
 void validate_operand_types(struct tree *t, struct sym_table *st);
 void validate_or_test(struct tree *t, struct sym_table *st);
+void verify_func_ret_type(struct tree *t, struct sym_table *st);
 struct typeinfo* get_fpdef_type(struct tree *t, struct sym_table * ftable);
-struct typeinfo *get_rhs_type(struct tree *t, struct sym_table * st);
+struct typeinfo *get_rhs_type(struct tree *t);
 struct typeinfo *get_arglist_opt_type(struct tree *t, struct sym_table * st, struct sym_entry *entry);
 void check_var_type(struct typeinfo *lhs_type, struct typeinfo *rhs_type, struct token *tok);
 struct typeinfo *get_trailer_type(struct tree *t, struct sym_table * st, struct sym_entry *entry);
@@ -117,8 +117,7 @@ struct typeinfo *get_type_of_node(struct tree *t, struct sym_table * st, struct 
 void handle_or_test_types(struct tree *t, struct sym_table * st);
 
 // Type annotations
-void add_func_type(struct tree *t, struct sym_table * st, struct sym_entry *entry);
-int get_func_param_count(struct tree *t, int count);
+void get_function_params(struct tree *t, struct sym_table *ftable);
 void add_nested_table(struct sym_entry *, struct typeinfo *rhs_type);
 
 // ex: "int" -> INT_TYPE

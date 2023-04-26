@@ -36,8 +36,6 @@ void check_decls(struct tree *t, SymbolTable st);
 void free_symtab(SymbolTable st);
 
 // Specialized tree traversals for populating symbol table 
-void get_function_params(struct tree *t, SymbolTable ftable);
-int get_func_param_count(struct tree *t, int count);
 void get_for_iterator(struct tree *t, SymbolTable table);
 void get_import_symbols(struct tree *t, SymbolTable st);
 void get_decl_stmt(struct tree *t, SymbolTable st);
@@ -63,6 +61,7 @@ void locate_invalid_nested_aux(struct tree *t);
 void locate_invalid_trailer(struct tree *t);
 void locate_invalid_token(struct tree *t);
 void locate_invalid_arith(struct tree *t);
+int has_ancestor(struct tree *t, int ANCESTOR);
 
 // FOr handling PunY builtins stuff
 struct token get_assignment_rhs(struct tree *t, SymbolTable st);
@@ -72,6 +71,8 @@ void insertclass(struct tree *t, SymbolTable st);
 void insertfunction(struct tree *t, SymbolTable st);
 SymbolTableEntry insertsymbol(SymbolTable st, char *s, int lineno, char *filename); 
 void locate_undeclared(struct tree *t, SymbolTable st);
+int get_func_param_count(struct tree *t, int count);
+int count_func_args(struct tree *t, int count);
 void verify_func_arg_count(struct tree *t, SymbolTable st);
 SymbolTable mksymtab(int nbuckets, char *table_name);
 SymbolTable mknested(char *filename, int lineno, int nbuckets, SymbolTable parent, char *scope);

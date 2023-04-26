@@ -22,10 +22,11 @@ void semantics(struct tree *tree, SymbolTable st)
 {
     if(tree == NULL || st == NULL) 
         return;
-    
+
     // We first search for invalid expressions containing either functions or
     //  literals on the LHS of assignments. Python2.7 and Python3 both handle 
-    //  invalid expressions before populating ST and type-checking
+    //  invalid expressions before populating ST and type-checking. These 
+    //  are syntactically valid, but don't make sense semantically.
     locate_invalid_expr(tree);
     
     // Add puny builtins like 'int', 'str' and 'open'
@@ -42,6 +43,10 @@ void semantics(struct tree *tree, SymbolTable st)
 
     // Add type information (kind of like populate, but just getting type info
     add_type_info(tree, st);
+
+    // Verify that the return type in a function matches the stated 
+    //   return type, if applicable
+    verify_func_ret_type(tree, st);
 
     // Ensure that operand types are valid for arithmetic and logical expressions
     validate_operand_types(tree, st);
@@ -83,6 +88,7 @@ void populate_symboltables(struct tree *t, SymbolTable st) {
             return;
 
         case FOR_STMT:
+            decorate_subtree_with_symbol_table(t, st);
             get_for_iterator(t, st);
             return;
 
@@ -205,7 +211,7 @@ void insertfunction(struct tree *t, SymbolTable st)
     decorate_subtree_with_symbol_table(t->kids[2], st);
 
     // Get function returntype 
-    entry->typ->u.f.returntype = get_rhs_type(t->kids[2], st);
+    entry->typ->u.f.returntype = get_rhs_type(t->kids[2]);
 
     // Count the function parameters
     entry->typ->u.f.nparams = get_func_param_count(t, 0);
@@ -268,7 +274,7 @@ void handle_expr_stmt(struct tree *t, SymbolTable st)
     struct typeinfo *rhs_type = NULL;
     if(strcmp(t->kids[1]->symbolname, "equal_OR_yield_OR_testlist_rep") == 0) {
         // Get the type of the rightmost branch by passing 'testlist' node
-        rhs_type = get_rhs_type(t->kids[1]->kids[1], st);
+        rhs_type = get_rhs_type(t->kids[1]->kids[1]);
 
         // Get the leftmost token first due to the shape of the tree
         struct token *leftmost = get_leftmost_token(t, st);
@@ -296,7 +302,7 @@ void handle_expr_stmt(struct tree *t, SymbolTable st)
     //   member accesses.
     // Assumption: expr_stmt only has one branch
     else {
-        rhs_type = get_rhs_type(t->kids[0], st);
+        rhs_type = get_rhs_type(t->kids[0]);
     }
     decorate_subtree_with_symbol_table(t, st);
 }
@@ -472,25 +478,58 @@ SymbolTableEntry get_chained_dot_entry(struct tree *t, SymbolTable st, SymbolTab
 void locate_invalid_expr(struct tree *t)
 {
     if(t == NULL) return;
-    if(strcmp(t->symbolname, "expr_stmt") == 0) {
-        // Assignments with EQUAL signs are indicated by this nasty EYTR 
-        //   nonterminal, which can be the second child of an expr_stmt
-        if(strcmp(t->kids[1]->symbolname, "equal_OR_yield_OR_testlist_rep") == 0) {
-            // We now search everywhere except the RHS for any literals, lists,
-            //  or dicts, or arithmetic expressions
-            locate_invalid_leftmost(t);
-            locate_invalid_nested(t);
+    switch(t->prodrule) {
+        case EXPR_STMT: {
+            // Assignments with EQUAL signs are indicated by this nasty EYTR 
+            //   nonterminal, which can be the second child of an expr_stmt
+            if(t->kids[1]->prodrule == EQUAL_OR_YIELD_OR_TESTLIST_REP) {
+                // We now search everywhere except the RHS for any literals, lists,
+                //  or dicts, or arithmetic expressions
+                locate_invalid_leftmost(t);
+                locate_invalid_nested(t);
+            }
+            // Once we find an expr_stmt, we return to avoid traversing its 
+            //   subtrees twice for no reason
+            return;
+        } 
+        case RETURN_STMT: {
+            // Return statements outside of function defs are invalid
+            if(!has_ancestor(t, FUNCDEF)) {
+                fprintf(stderr, "'return' outside function\n");
+                exit(SEM_ERR);
+            }
+            break;
         }
-        // Once we find an expr_stmt, we return to avoid traversing its 
-        //   subtrees twice for no reason
-        return;
-    } 
-    else {
-        for(int i = 0; i < t->nkids; i++) {
-            // Recurse all the children
-            locate_invalid_expr(t->kids[i]);
+        case CONTINUE_STMT: {
+            if(!has_ancestor(t, WHILE_STMT) && !has_ancestor(t, FOR_STMT)) {
+                fprintf(stderr, "'continue' not properly in loop\n");
+                exit(SEM_ERR);
+            }
+            break;
+        }
+        case BREAK_STMT: {
+            if(!has_ancestor(t, WHILE_STMT) && !has_ancestor(t, FOR_STMT)) {
+                fprintf(stderr, "'break' outside loop\n");
+                exit(SEM_ERR);
+            }
+        }
+        default: {
         }
     }
+    for(int i = 0; i < t->nkids; i++) {
+        // Recurse all the children
+        locate_invalid_expr(t->kids[i]);
+    }
+}
+
+/**
+ * Determine if funcdef is a parent of the current tree
+*/
+int has_ancestor(struct tree *t, int ANCESTOR)
+{
+    if(t == NULL) return 0;
+    if(t->prodrule == ANCESTOR) return 1;
+    return has_ancestor(t->parent, ANCESTOR);
 }
 
 /**
@@ -640,18 +679,26 @@ void decorate_subtree_with_symbol_table(struct tree *t, SymbolTable st)
     SymbolTableEntry entry = NULL;
     if(t == NULL || st == NULL) return;
     t->stab = st;
-    if(strcmp(t->symbolname, "power") == 0) {
-        if(strcmp(t->kids[0]->symbolname, "NAME") == 0) {
-            struct token *tok = t->kids[0]->leaf;
-            entry = lookup(tok->text, st);
-            if(entry == NULL) 
-                undeclared_error(tok);
-            if(entry->typ->basetype != FUNC_TYPE && entry->nested != NULL) {
-                nested = entry->nested;
+    switch(t->prodrule) {
+        case POWER: {
+            if(t->kids[0]->prodrule == NAME) {
+                struct token *tok = t->kids[0]->leaf;
+                entry = lookup(tok->text, st);
+                if(entry == NULL) 
+                    undeclared_error(tok);
+                if(entry->typ->basetype != FUNC_TYPE && entry->nested != NULL) {
+                    nested = entry->nested;
+                }
+                if(entry->typ->basetype == FUNC_TYPE) { // TODO: Ensure all builtins have returntypes
+                    
+                }
             }
-            if(entry->typ->basetype == FUNC_TYPE) { // TODO: Ensure all builtins have returntypes
-                
-            }
+            break;
+        }
+        case FOR_STMT: {
+            // This is here to add for statement iterators to the symtab
+            get_for_iterator(t, st);
+            break;
         }
     }
     for(int i = 0; i < t->nkids; i++)
@@ -829,7 +876,7 @@ void get_decl_stmt(struct tree *t, SymbolTable st)
     // rhs_type is used for the case where an assignment is performed with a declaration
     struct typeinfo *rhs_type = get_ident_type(type->text, st);
     if(t->kids[2]->prodrule == EQUAL_TEST_OPT) {
-        rhs_type = get_rhs_type(t->kids[2]->kids[1], st);
+        rhs_type = get_rhs_type(t->kids[2]->kids[1]);
     }
     SymbolTableEntry e = insertsymbol(st, var->text, var->lineno, var->filename);
     //check_var_type(e->typ, rhs_type, var);
@@ -953,13 +1000,10 @@ void get_for_iterator(struct tree *t, SymbolTable st)
 {
     if(t == NULL || st == NULL) 
         return;
-    if(strcmp(t->symbolname, "power") != 0) {
+    if(t->prodrule != POWER) {
         get_for_iterator(t->kids[0], st);
-        return;
     } else {
         struct token *leaf = t->kids[0]->leaf;
-        struct typeinfo *type = alcbuiltin(ANY_TYPE);
-        t->kids[0]->type = type;
         insertsymbol(st, leaf->text, leaf->lineno, leaf->filename);
     }
 }
@@ -1249,13 +1293,16 @@ void verify_func_arg_count(struct tree *t, SymbolTable st)
             // constructor param count
             if(entry->typ->basetype == CLASS_TYPE) {
                 param_count = entry->typ->u.cls.nparams;
-                printf("%d\n", param_count);
             }
             // regular function param count
             if(entry->typ->basetype == FUNC_TYPE)
                 param_count = entry->typ->u.f.nparams;
-            if(arg_count < param_count)
-                semantic_error(ftok->filename, ftok->lineno, "%s() missing %d required positional argument\n", ftok->text, param_count - arg_count);
+            if(arg_count < param_count) {
+                if(param_count - arg_count == 1)
+                    semantic_error(ftok->filename, ftok->lineno, "%s() missing 1 required positional argument\n", ftok->text);
+                else
+                    semantic_error(ftok->filename, ftok->lineno, "%s() missing %d required positional arguments\n", ftok->text, param_count - arg_count);
+            }
             else if(arg_count > param_count) {
                 if(arg_count > 1)
                     semantic_error(ftok->filename, ftok->lineno, "%s() takes %d positional arguments but %d were given\n", ftok->text, param_count, arg_count);

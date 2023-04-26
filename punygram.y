@@ -118,10 +118,10 @@ flow_stmt: break_stmt
 //assert_stmt: ASSERT test comma_test_opt {$$=make_tree("assert_stmt", 2,$1, $2);}
 //    ;
 
-break_stmt: BREAK
+break_stmt: BREAK {$$=make_tree("break_stmt", 1, $1);}
     ;
 
-continue_stmt: CONTINUE
+continue_stmt: CONTINUE {$$=make_tree("continue_stmt", 1, $1);}
     ;
 
 return_stmt: RETURN testlist_opt {$$=make_tree("return_stmt", 1, $2);}

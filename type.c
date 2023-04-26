@@ -612,9 +612,6 @@ void free_typeptr(typeptr typ)
 void add_type_info(struct tree *t, SymbolTable st)
 {
     switch(t->prodrule) {
-        case FUNCDEF:
-            add_func_type_info(t, st);
-            return;
         case CLASSDEF:
             add_class_type_info(t, st);
             return;
@@ -627,28 +624,6 @@ void add_type_info(struct tree *t, SymbolTable st)
     for(int i = 0; i < t->nkids; i++) {
         add_type_info(t->kids[i], st);
     }
-}
-
-
-/**
- * TODO:
- *  Function type info
- *    - Types of parameters
- *    - Return type of function
- * Starting position: FUNCDEF
-*/
-void add_func_type_info(struct tree *t, SymbolTable st)
-{
-    if(t == NULL || st == NULL) 
-        return;
-    switch(t->prodrule) {
-        case FUNCDEF: {
-            // Get the symbol table entry
-            struct token *leaf = t->kids[0]->leaf;
-            SymbolTableEntry entry = lookup(leaf->text, st);
-        }
-    }
-    
 }
 
 
@@ -736,8 +711,8 @@ void validate_or_test(struct tree *t, SymbolTable st)
     }
     else 
     {
-        lhs_type = get_rhs_type(t, st);
-        rhs_type = get_rhs_type(t->kids[1], st);
+        lhs_type = get_rhs_type(t);
+        rhs_type = get_rhs_type(t->kids[1]);
         printf("%s\n", get_basetype(lhs_type->basetype));
         printf("%s\n", get_basetype(rhs_type->basetype));
         if(strcmp(t->kids[1]->kids[0]->symbolname, "or_and_test_rep") == 0)
@@ -940,18 +915,24 @@ int get_token_type_code(struct token *tok)
 }
 
 /**
- * Traverse the rarrow subtree and add the type information to the entry.
- * We are starting at rarrow_opt here
- */
-void add_func_type(struct tree *t, SymbolTable st, SymbolTableEntry entry)
-{
-    if(entry == NULL || st == NULL || t == NULL)
-        return;
-    t->stab = st;
-    // If we reach a power 
-    struct typeinfo *typ = get_rhs_type(t, st);
-    entry->typ->u.f.returntype = typ;
-    decorate_subtree_with_symbol_table(t, st);
+ * Traverse the whole tree and verify that each function's returntype matches 
+ * the type of the actual returned value. 
+ * 
+*/
+void verify_func_ret_type(struct tree *t, SymbolTable st)
+{   
+    switch(t->prodrule) {
+        case RETURN_STMT: {
+            typeptr type = get_rhs_type(t->kids[0]);
+
+            break;
+        }
+        default: {                  
+            for(int i = 0; i < t->nkids; i++) {
+                verify_func_ret_type(t->kids[i], st);
+            }
+        }
+    }
 }
 
 /**
@@ -1051,9 +1032,9 @@ void print_paramlist(paramlist params)
  * testlist. If multiple consecutive assignments are found we need to verify 
  * that these are also assigned correct types
  */
-struct typeinfo *get_rhs_type(struct tree *t, SymbolTable st)
+struct typeinfo *get_rhs_type(struct tree *t)
 {
-    if(t == NULL || st == NULL) return alcbuiltin(ANY_TYPE);
+    if(t == NULL) return alcbuiltin(ANY_TYPE);
     struct typeinfo *type = NULL;
 
     // Recurse until the "power" nonterminal is found
@@ -1068,7 +1049,7 @@ struct typeinfo *get_rhs_type(struct tree *t, SymbolTable st)
             // If the RHS token is a name
             if(leaf->category == NAME) {
                 
-                SymbolTableEntry entry = lookup(leaf->text, st);
+                SymbolTableEntry entry = lookup(leaf->text, t->stab);
 
                 // Throw an error if entry could not be found
                 if(entry == NULL) {
@@ -1076,7 +1057,7 @@ struct typeinfo *get_rhs_type(struct tree *t, SymbolTable st)
                 }
 
                 // Forget about trailer_reps here, just get the identifier type
-                type = get_ident_type(entry->ident, st);
+                type = get_ident_type(entry->ident, t->stab);
             }
 
             // If the RHS token is a literal, dict, list, bool, or None
@@ -1103,7 +1084,7 @@ struct typeinfo *get_rhs_type(struct tree *t, SymbolTable st)
         /* It is assumed that we can just recurse the first child until one of 
          * the above three options is found 
          * TODO: Fix bad assumption */
-        type = get_rhs_type(t->kids[0], st);
+        type = get_rhs_type(t->kids[0]);
     }
     }
     return type;
