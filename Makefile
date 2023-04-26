@@ -16,7 +16,7 @@ compile: lex.yy.c punygram.tab.c utils.c main.c back.c tree.c symtab.c utils.h s
 
 link: lex.yy.o utils.o main.o back.o tree.o punygram.tab.o symtab.o type.o builtins.o nonterminal.o
 	gcc -g -Wall lex.yy.o punygram.tab.o utils.o tree.o main.o back.o type.o symtab.o builtins.o nonterminal.o -o puny
-	#./puny test.py
+	./puny test.py
 
 tests: all
 	./testrunner.sh

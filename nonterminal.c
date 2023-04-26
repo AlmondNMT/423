@@ -3,9 +3,9 @@
 
 int get_nonterminal_prodrule(char *production)
 {
-    int prodrule = 0;
+    int prodrule = NULLTREE;
     if(strcmp("file_input", production) == 0) return FILE_INPUT;
-    else if(strcmp("nl_or_stmt_rep", production) == 0) return NL_OR_STMT_REP;
+    else if(strcmp("nl_OR_stmt_rep", production) == 0) return NL_OR_STMT_REP;
     else if(strcmp("stmt", production) == 0) return STMT;
     else if(strcmp("simple_stmt", production) == 0) return SIMPLE_STMT;
     else if(strcmp("semi_small_stmt_rep", production) == 0) return SEMI_SMALL_STMT_REP;
@@ -21,7 +21,7 @@ int get_nonterminal_prodrule(char *production)
     else if(strcmp("return_stmt", production) == 0) return RETURN_STMT;
     else if(strcmp("yield_stmt", production) == 0) return YIELD_STMT;
     else if(strcmp("yield_expr", production) == 0) return YIELD_EXPR;
-    else if(strcmp("yield_expr_or_testlist_comp", production) == 0) return YIELD_EXPR_OR_TESTLIST_COMP;
+    else if(strcmp("yield_expr_OR_testlist_comp", production) == 0) return YIELD_EXPR_OR_TESTLIST_COMP;
     else if(strcmp("testlist_comp", production) == 0) return TESTLIST_COMP;
     else if(strcmp("tc_options", production) == 0) return TC_OPTIONS;
     else if(strcmp("compound_stmt", production) == 0) return COMPOUND_STMT;
@@ -39,7 +39,7 @@ int get_nonterminal_prodrule(char *production)
     else if(strcmp("fplist", production) == 0) return FPLIST;
     else if(strcmp("comma_fpdef_rep", production) == 0) return COMMA_FPDEF_REP;
     else if(strcmp("comma_dstar_name_opt", production) == 0) return COMMA_DSTAR_NAME_OPT;
-    else if(strcmp("star_name_opt_or_dstar_name", production) == 0) return STAR_NAME_OPT_OR_DSTAR_NAME;
+    else if(strcmp("star_name_opt_OR_dstar_name", production) == 0) return STAR_NAME_OPT_OR_DSTAR_NAME;
     else if(strcmp("if_stmt", production) == 0) return IF_STMT;
     else if(strcmp("elif_test_colon_suite_rep", production) == 0) return ELIF_TEST_COLON_SUITE_REP;
     else if(strcmp("else_colon_suite_opt", production) == 0) return ELSE_COLON_SUITE_OPT;
@@ -49,8 +49,8 @@ int get_nonterminal_prodrule(char *production)
     else if(strcmp("for_stmt", production) == 0) return FOR_STMT;
     else if(strcmp("expr_stmt", production) == 0) return EXPR_STMT;
     else if(strcmp("expr_conjunct", production) == 0) return EXPR_CONJUNCT;
-    else if(strcmp("yield_or_testlist", production) == 0) return YIELD_OR_TESTLIST;
-    else if(strcmp("equal_or_yield_or_testlist_rep", production) == 0) return EQUAL_OR_YIELD_OR_TESTLIST_REP;
+    else if(strcmp("yield_OR_testlist", production) == 0) return YIELD_OR_TESTLIST;
+    else if(strcmp("equal_OR_yield_OR_testlist_rep", production) == 0) return EQUAL_OR_YIELD_OR_TESTLIST_REP;
     else if(strcmp("augassign", production) == 0) return AUGASSIGN;
     else if(strcmp("import_stmt", production) == 0) return IMPORT_STMT;
     else if(strcmp("import_name", production) == 0) return IMPORT_NAME;
@@ -64,9 +64,9 @@ int get_nonterminal_prodrule(char *production)
     else if(strcmp("comma_dotted_as_name_rep", production) == 0) return COMMA_DOTTED_AS_NAME_REP;
     else if(strcmp("dotted_as_name", production) == 0) return DOTTED_AS_NAME;
     else if(strcmp("dotted_name", production) == 0) return DOTTED_NAME;
-    else if(strcmp("dot_or_ellipsis_rep_opt", production) == 0) return DOT_OR_ELLIPSIS_REP_OPT;
-    else if(strcmp("dot_or_ellipsis_rep", production) == 0) return DOT_OR_ELLIPSIS_REP;
-    else if(strcmp("dot_or_ellipsis", production) == 0) return DOT_OR_ELLIPSIS;
+    else if(strcmp("dot_OR_ellipsis_rep_opt", production) == 0) return DOT_OR_ELLIPSIS_REP_OPT;
+    else if(strcmp("dot_OR_ellipsis_rep", production) == 0) return DOT_OR_ELLIPSIS_REP;
+    else if(strcmp("dot_OR_ellipsis", production) == 0) return DOT_OR_ELLIPSIS;
     else if(strcmp("testlist_opt", production) == 0) return TESTLIST_OPT;
     else if(strcmp("testlist", production) == 0) return TESTLIST;
     else if(strcmp("comma_test_rep", production) == 0) return COMMA_TEST_REP;
@@ -84,7 +84,7 @@ int get_nonterminal_prodrule(char *production)
     else if(strcmp("shift", production) == 0) return SHIFT;
     else if(strcmp("arith_expr", production) == 0) return ARITH_EXPR;
     else if(strcmp("pm_term_rep", production) == 0) return PM_TERM_REP;
-    else if(strcmp("plus_or_minus", production) == 0) return PLUS_OR_MINUS;
+    else if(strcmp("plus_OR_minus", production) == 0) return PLUS_OR_MINUS;
     else if(strcmp("term", production) == 0) return TERM;
     else if(strcmp("factops_factor_rep", production) == 0) return FACTOPS_FACTOR_REP;
     else if(strcmp("factops", production) == 0) return FACTOPS;
@@ -96,7 +96,7 @@ int get_nonterminal_prodrule(char *production)
     else if(strcmp("arglist_opt", production) == 0) return ARGLIST_OPT;
     else if(strcmp("arglist", production) == 0) return ARGLIST;
     else if(strcmp("arg_comma_rep", production) == 0) return ARG_COMMA_REP;
-    else if(strcmp("arg_ors", production) == 0) return ARG_ORS;
+    else if(strcmp("arg_ORS", production) == 0) return ARG_ORS;
     else if(strcmp("comma_arg_rep", production) == 0) return COMMA_ARG_REP;
     else if(strcmp("comma_dstar_test_opt", production) == 0) return COMMA_DSTAR_TEST_OPT;
     else if(strcmp("argument", production) == 0) return ARGUMENT;
@@ -139,10 +139,10 @@ int get_nonterminal_prodrule(char *production)
     else if(strcmp("dictorsetmaker_opt", production) == 0) return DICTORSETMAKER_OPT;
     else if(strcmp("dictorsetmaker", production) == 0) return DICTORSETMAKER;
     else if(strcmp("dictorset_option_1", production) == 0) return DICTORSET_OPTION_1;
-    else if(strcmp("comp_for_or_ctctco", production) == 0) return COMP_FOR_OR_CTCTCO;
+    else if(strcmp("comp_for_OR_ctctco", production) == 0) return COMP_FOR_OR_CTCTCO;
     else if(strcmp("ctct_rep", production) == 0) return CTCT_REP;
     else if(strcmp("dictorset_option_2", production) == 0) return DICTORSET_OPTION_2;
-    else if(strcmp("comp_for_or_ctr_co", production) == 0) return COMP_FOR_OR_CTR_CO;
+    else if(strcmp("comp_for_OR_ctr_co", production) == 0) return COMP_FOR_OR_CTR_CO;
     else if(strcmp("rarrow_test_opt", production) == 0) return RARROW_TEST_OPT;
     else if(strcmp("colon_test_opt", production) == 0) return COLON_TEST_OPT;
     else if(strcmp("decl_stmt", production) == 0) return DECL_STMT;

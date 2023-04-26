@@ -72,6 +72,7 @@ void insertclass(struct tree *t, SymbolTable st);
 void insertfunction(struct tree *t, SymbolTable st);
 SymbolTableEntry insertsymbol(SymbolTable st, char *s, int lineno, char *filename); 
 void locate_undeclared(struct tree *t, SymbolTable st);
+void verify_func_arg_count(struct tree *t, SymbolTable st);
 SymbolTable mksymtab(int nbuckets, char *table_name);
 SymbolTable mknested(char *filename, int lineno, int nbuckets, SymbolTable parent, char *scope);
 void populate_symboltables(struct tree *t, SymbolTable st);

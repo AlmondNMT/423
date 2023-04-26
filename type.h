@@ -118,6 +118,7 @@ void handle_or_test_types(struct tree *t, struct sym_table * st);
 
 // Type annotations
 void add_func_type(struct tree *t, struct sym_table * st, struct sym_entry *entry);
+int get_func_param_count(struct tree *t, int count);
 void add_nested_table(struct sym_entry *, struct typeinfo *rhs_type);
 
 // ex: "int" -> INT_TYPE

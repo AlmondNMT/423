@@ -1,3 +1,4 @@
+#define NULLTREE 0
 enum {
     FILE_INPUT = 1000,
     NL_OR_STMT_REP,

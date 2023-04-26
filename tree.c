@@ -201,10 +201,10 @@ char *get_spaces(int n)
 //These nulltrees are a nightmare, im sorry i did this shit
 void print_tree(struct tree * t, int depth, int print_full, int what_kid)
 {  // printf("entering print tree\n");
-    if(strcmp(t->symbolname, "trailer_rep") == 0)
-        printf("foundtraillerep");
+    if(t->prodrule == TRAILER_REP);
+        //printf("foundtraillerep");
     char * spcs = get_spaces(depth);
-    if(strcmp(t->symbolname, "nulltree")==0)
+    if(t->prodrule == NULLTREE)
     {
         //printf("NULLTREE \n");
         //free(spcs);
@@ -212,7 +212,7 @@ void print_tree(struct tree * t, int depth, int print_full, int what_kid)
     }
     int nulltreecount = 0;
     for(int i = 0; i < t->nkids; i++) {
-        if(strcmp(t->kids[i]->symbolname, "nulltree") == 0)
+        if(t->kids[i]->prodrule == NULLTREE)
             nulltreecount++;
     }
 
@@ -240,7 +240,7 @@ void print_tree(struct tree * t, int depth, int print_full, int what_kid)
 
         if(t->symbolname != NULL)
         {   //printf("somehow made it past this\n");
-            printf("%s%d-INNER: symbname: %s \n", spcs, depth, t->symbolname); 
+            printf("%s%d-INNER: symbname: %s: %d \n", spcs, depth, t->symbolname, t->prodrule); 
             //printf("existence has concluded in segmentation fault\n");
         }
 
@@ -331,7 +331,7 @@ void print_graph2(struct tree *t, FILE *f) {
         return;
     }
     /* not a leaf ==> internal node */
-    if(strcmp(t->symbolname, "nulltree") != 0) {
+    if(t->prodrule == NULLTREE) {
         print_branch(t, f);
         for(i=0; i < t->nkids; i++) {
             if (t->kids[i] != NULL) {
