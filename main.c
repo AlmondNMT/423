@@ -72,6 +72,9 @@ int main(int argc, char *argv[]) {
             exit(SEM_ERR); // Cuz semantic error, right?
         }
 
+        // Prune parse tree (i.e. remove nulltrees and parents with only one child)
+        prune_tree(tree, 0);
+
         // Print syntax tree option
         if(tree_opt) {
             print_tree(tree, 0, 1, 0); // print full

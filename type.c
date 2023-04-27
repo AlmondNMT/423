@@ -923,8 +923,7 @@ void verify_func_ret_type(struct tree *t, SymbolTable st)
 {   
     switch(t->prodrule) {
         case RETURN_STMT: {
-            typeptr type = get_rhs_type(t->kids[0]);
-
+            typeptr ret_type = get_rhs_type(t->kids[0]);
             break;
         }
         default: {                  

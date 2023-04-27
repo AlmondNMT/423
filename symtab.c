@@ -1000,10 +1000,10 @@ void get_for_iterator(struct tree *t, SymbolTable st)
 {
     if(t == NULL || st == NULL) 
         return;
-    if(t->prodrule != POWER) {
+    if(t->prodrule != NAME) {
         get_for_iterator(t->kids[0], st);
     } else {
-        struct token *leaf = t->kids[0]->leaf;
+        struct token *leaf = t->leaf;
         insertsymbol(st, leaf->text, leaf->lineno, leaf->filename);
     }
 }

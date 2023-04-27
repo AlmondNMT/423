@@ -45,6 +45,7 @@ int get_column(char *text, int column);
 struct tree* append_kid(struct tree * kidspassed[], char * symbnam);
 void print_tree(struct tree * t, int depth, int print_full, int what_kid);
 struct tree* make_tree(char * symbname, int argc, ...);
+void prune_tree(struct tree *t, int childnumber);
 
 // Graphviz prototypes
 char *escape(char *s);

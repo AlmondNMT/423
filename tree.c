@@ -196,6 +196,31 @@ char *get_spaces(int n)
     return s;
 }
 
+void prune_tree(struct tree *t, int childnumber)
+{
+    // We mainly want to prune expression statements for easy 
+    //   arithmetical comprehension. 
+    if(t == NULL) return;
+    int i, child_count = 0, child_index = 0;
+    for(i = 0; i < t->nkids; i++) {
+        prune_tree(t->kids[i], i);
+    }
+    if(t->leaf == NULL && t->parent != NULL) {
+        for(i = 0; i < t->nkids; i++) {
+            if(t->kids[i]->prodrule != NULLTREE) {
+                child_count++;
+                child_index = i;
+            }
+        }
+        if(child_count == 1) {
+            // Attach the parent to its only grandchild
+            t->parent->kids[childnumber] = t->kids[child_index];
+            t->kids[0] = NULL;
+            free_tree(t);
+        }
+    }
+}
+
 //what_kid param keeps track of which one of the goddamn kids
 //we are actually printing, relative to parent, for printing purposes only. 
 //These nulltrees are a nightmare, im sorry i did this shit
@@ -240,7 +265,7 @@ void print_tree(struct tree * t, int depth, int print_full, int what_kid)
 
         if(t->symbolname != NULL)
         {   //printf("somehow made it past this\n");
-            printf("%s%d-INNER: symbname: %s: %d \n", spcs, depth, t->symbolname, t->prodrule); 
+            printf("%s%d-INNER: symbname: %s: %d\n", spcs, depth, t->symbolname, t->prodrule); 
             //printf("existence has concluded in segmentation fault\n");
         }
 
