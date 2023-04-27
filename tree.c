@@ -205,6 +205,11 @@ void prune_tree(struct tree *t, int childnumber)
     for(i = 0; i < t->nkids; i++) {
         prune_tree(t->kids[i], i);
     }
+    // Don't prune any of the trees in this switch statement
+    switch(t->prodrule) {
+        case RETURN_STMT:
+        return;
+    }
     if(t->leaf == NULL && t->parent != NULL) {
         for(i = 0; i < t->nkids; i++) {
             if(t->kids[i]->prodrule != NULLTREE) {

@@ -604,7 +604,7 @@ void free_typeptr(typeptr typ)
  * Starting position: root
  * Assumptions: The symbol table should be fully populated
  * TODO:
- *  ☐ Finish adding function type information
+ *  ☑ Finish adding function type information
  *  ☐ Add class type information (if you feel like it)
  *  ☐ Propagate type information through assignments 
  *  ☐ Get type information for declarations
@@ -618,8 +618,10 @@ void add_type_info(struct tree *t, SymbolTable st)
         case EXPR_STMT:
             add_expr_type_info(t, st);
             return;
-        case DECL_STMT:
+        case DECL_STMT: {
+            add_decl_type_info(t, st);
             return;
+        }
     }
     for(int i = 0; i < t->nkids; i++) {
         add_type_info(t->kids[i], st);
@@ -635,6 +637,19 @@ void add_class_type_info(struct tree *t, SymbolTable st)
 void add_expr_type_info(struct tree *t, SymbolTable st)
 {
 
+}
+
+/**
+ * DECL_STMT
+*/
+void add_decl_type_info(struct tree *t, SymbolTable st)
+{
+    if(t == NULL || st == NULL) return;
+    SymbolTableEntry lhs = lookup(t->kids[0]->leaf->text, t->stab);
+
+    // Free the default ANY_TYPE 
+    free_typeptr(lhs->typ);
+    lhs->typ = get_ident_type(t->kids[1]->leaf->text, t->stab);
 }
 
 /**
@@ -845,13 +860,11 @@ struct typeinfo *determine_hint_type(struct token *type, SymbolTable st)
 */
 struct typeinfo *type_copy(struct typeinfo *typ)
 {
-    // It is very unexpected if the typeptr is NULL
+    // End of recursion
     if(typ == NULL) {
-        fprintf(stderr, "This typeptr should not be null\n");
-        exit(SEM_ERR);
+        return NULL;
     }
 
-    struct typeinfo *copy = ckalloc(1, sizeof(struct typeinfo));
     // We only want to copy the symbol table of classes for 
     //   object instantiation, and not for functions and packages
     // if we assign a function f to a var a, like a = f, we only 
@@ -859,13 +872,19 @@ struct typeinfo *type_copy(struct typeinfo *typ)
     if(typ->basetype == FUNC_TYPE || typ->basetype == PACKAGE_TYPE) {
         return typ;
     }
+
+    // Instantiating an object
+    struct typeinfo *copy = ckalloc(1, sizeof(struct typeinfo));
+    copy->basetype = typ->basetype;
+    copy->u.cls.nparams = typ->u.cls.nparams;
+    copy->u.cls.parameters = copy_params(typ->u.cls.parameters);
     copy->u.cls.st = copy_symbol_table(typ->u.cls.st);
     return copy;
 }
 
 /**
 * Make a copy of the symbol table, except leave the parent null
-* parent will have to be assigned outside the scope of this 
+* parent will have to be assigned outside of this 
 * function
 */
 SymbolTable copy_symbol_table(SymbolTable st)
@@ -883,6 +902,14 @@ SymbolTable copy_symbol_table(SymbolTable st)
                 new_entry->nested = copy_symbol_table(old_entry->nested);
         }
     }
+    return copy;
+}
+
+paramlist copy_params(paramlist params)
+{
+    if(params == NULL) return NULL;
+    paramlist copy = alcparam(params->name, params->type->basetype);
+    copy->next = copy_params(params->next);
     return copy;
 }
 
@@ -923,7 +950,14 @@ void verify_func_ret_type(struct tree *t, SymbolTable st)
 {   
     switch(t->prodrule) {
         case RETURN_STMT: {
-            typeptr ret_type = get_rhs_type(t->kids[0]);
+            // If we find a return stmt, we need to confirm that the return types match
+            typeptr ret_val = get_rhs_type(t->kids[0]);
+            // Grab the parent function
+            struct token *ftok = t->parent->parent->parent->parent->kids[0]->leaf;
+            SymbolTableEntry fentry = lookup(ftok->text, t->stab);
+            int compatible = are_types_compatible(ret_val, fentry->typ->u.f.returntype);
+            if(!compatible)
+                semantic_error(ftok->filename, ftok->lineno, "'%s()' return type does not match type of value returned\n", ftok->text);
             break;
         }
         default: {                  
@@ -935,22 +969,42 @@ void verify_func_ret_type(struct tree *t, SymbolTable st)
 }
 
 /**
- * Get function return type
- * Starting position
+ * This can be used to check types for returns and assignments/decls
 */
-typeptr get_func_return_type(struct tree *t, SymbolTable st)
+int are_types_compatible(typeptr lhs, typeptr rhs)
 {
-    if(t == NULL || st == NULL) 
-        return alcbuiltin(ANY_TYPE);
+    // If either of the types are NULL, return false
+    if(lhs == NULL || rhs == NULL) return 0;
 
-    typeptr type = NULL;
-    switch(t->prodrule) {
+    // If the function returntype is ANY_TYPE then anything is allowed to 
+    //   be returned
+    // If the function 
+    switch(lhs->basetype) {
+        case ANY_TYPE: {
+            return 1;
+        }
+        case CLASS_TYPE: {
+            // If the LHS is a class type, ensure that the RHS is a  
+            //   class with the same name
+            if(rhs->basetype != CLASS_TYPE) {
+                return 0;
+            }
+            else {
+                if(rhs->basetype != CLASS_TYPE) return 0;
+                if(lhs->u.cls.name == NULL || rhs->u.cls.name == NULL) return 0;
+                    return 0;
+                if(strcmp(lhs->u.cls.name, rhs->u.cls.name) == 0) {
+                    return 1;
+                }
+                return 0;
+            }
+        }
+        default: {
+            if(lhs->basetype == rhs->basetype) 
+                return 1;
+        }
     }
-
-    // If no valid type could be found, return ANY_TYPE
-    if(type == NULL)
-        return alcbuiltin(ANY_TYPE);
-    return type;
+    return 0;
 }
 
 /**

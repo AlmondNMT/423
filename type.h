@@ -101,6 +101,7 @@ char *type_for_bin_op_logical(char *lhs, char *rhs);
 
 // Adding type info 
 void add_type_info(struct tree *t, struct sym_table *st);
+void add_decl_type_info(struct tree *t, struct sym_table *st);
 void add_class_type_info(struct tree *t, struct sym_table *st);
 void add_expr_type_info(struct tree *t, struct sym_table *st);
 
@@ -133,6 +134,10 @@ struct typeinfo *determine_hint_type(struct token *type, struct sym_table * st);
 
 // Factory type copier
 struct typeinfo *type_copy(struct typeinfo *typ);
+
+// Copy functions
+struct sym_table *copy_symbol_table(struct sym_table *);
+paramlist copy_params(paramlist params);
 
 // Add builtins
 struct sym_entry *insertbuiltin(struct sym_table * global, char *s, int lineno, char *filename, int basetype);

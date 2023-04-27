@@ -1,7 +1,8 @@
-def f(x: int) -> str:
-    for i in range(10):
-        break
-    return
+def f(x: str, y, z, w, t, u, v) -> int:
+    print(x)
+    a: int
+    b = a
+    c = b
+    return y
 
-a = 1
-b = a + 23 * a
+f(1, 2, 3, 4, 5, 6, 67)

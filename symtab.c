@@ -265,6 +265,7 @@ void handle_expr_stmt(struct tree *t, SymbolTable st)
     if(t == NULL || st == NULL)
         return;
     
+    decorate_subtree_with_symbol_table(t, st);
     SymbolTableEntry entry = NULL;
     // At the highest level, there seems to be three kinds of expr_stmts: 
     //    1. Assignments (equal_OR_yield_OR_testlist_rep)
@@ -285,7 +286,7 @@ void handle_expr_stmt(struct tree *t, SymbolTable st)
         // Verify type compatible of LHS and RHS in assignment
         //check_var_type(entry->typ, rhs_type, leftmost);
 
-        // 
+        // Add the table in the rhs_type to the symbol entry
         add_nested_table(entry, rhs_type);
 
         // If there's any assignment chaining, verify the types of those 
@@ -304,7 +305,6 @@ void handle_expr_stmt(struct tree *t, SymbolTable st)
     else {
         rhs_type = get_rhs_type(t->kids[0]);
     }
-    decorate_subtree_with_symbol_table(t, st);
 }
 
 void add_nested_table(SymbolTableEntry entry, struct typeinfo *rhs_type)
@@ -684,13 +684,13 @@ void decorate_subtree_with_symbol_table(struct tree *t, SymbolTable st)
             if(t->kids[0]->prodrule == NAME) {
                 struct token *tok = t->kids[0]->leaf;
                 entry = lookup(tok->text, st);
-                if(entry == NULL) 
-                    undeclared_error(tok);
-                if(entry->typ->basetype != FUNC_TYPE && entry->nested != NULL) {
-                    nested = entry->nested;
-                }
-                if(entry->typ->basetype == FUNC_TYPE) { // TODO: Ensure all builtins have returntypes
-                    
+                if(entry != NULL) {
+                    if(entry->typ->basetype != FUNC_TYPE && entry->nested != NULL) {
+                        nested = entry->nested;
+                    }
+                    if(entry->typ->basetype == FUNC_TYPE) { // TODO: Ensure all builtins have returntypes
+                        
+                    }
                 }
             }
             break;
@@ -839,7 +839,6 @@ struct token *get_leftmost_token(struct tree *t, SymbolTable st)
         
         tok = t->kids[0]->leaf;
         handle_token(t, st);
-        printf("%s\n", tok->text);
         return tok;
     }
     else {
@@ -1000,10 +999,10 @@ void get_for_iterator(struct tree *t, SymbolTable st)
 {
     if(t == NULL || st == NULL) 
         return;
-    if(t->prodrule != NAME) {
+    if(t->prodrule != POWER) {
         get_for_iterator(t->kids[0], st);
     } else {
-        struct token *leaf = t->leaf;
+        struct token *leaf = t->kids[0]->leaf;
         insertsymbol(st, leaf->text, leaf->lineno, leaf->filename);
     }
 }

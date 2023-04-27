@@ -561,7 +561,7 @@ is_not: IS NOT
     ;
 
 dstar_factor_opt: {$$=make_tree("nulltree",0,NULL);}
-    | DOUBLESTAR factor {$$=make_tree("dstar_factor_opt", 1,$2);}
+    | DOUBLESTAR factor {$$=make_tree("dstar_factor_opt", 2 , $1, $2);}
     ;
 
 atom: NAME 

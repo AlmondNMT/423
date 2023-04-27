@@ -73,7 +73,7 @@ int main(int argc, char *argv[]) {
         }
 
         // Prune parse tree (i.e. remove nulltrees and parents with only one child)
-        prune_tree(tree, 0);
+        //prune_tree(tree, 0);
 
         // Print syntax tree option
         if(tree_opt) {

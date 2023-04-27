@@ -2,5 +2,14 @@
     "C_Cpp.errorSquiggles": "enabled",
     "files.associations": {
         "utils.h": "c"
-    }
+    },
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "/home/jonaz/Documents/school/nmt/2023_spring/cse423/almond/423",
+            "binaryPath": "/home/jonaz/Documents/school/nmt/2023_spring/cse423/almond/423/puny",
+            "binaryArgs": [
+                "test.py"
+            ]
+        }
+    ]
 }
