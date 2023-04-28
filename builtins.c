@@ -67,54 +67,54 @@ void add_builtin_class_info(SymbolTableEntry entry, int nparams, char *fmt, ...)
 void add_puny_builtins(SymbolTable st) {
     SymbolTableEntry entry = NULL;
 
-    entry = insertbuiltin(st, "any", -1, "(builtins)", CLASS_TYPE);
+    entry = insertbuiltin(st, "any", CLASS_TYPE);
 
-    entry = insertbuiltin(st, "print", -1, "(builtins)", FUNC_TYPE);
+    entry = insertbuiltin(st, "print", FUNC_TYPE);
     add_builtin_func_info(entry, 1, NONE_TYPE, "%s: %d", "s", ANY_TYPE);
 
-    insertbuiltin(st, "None", -1, "(builtins)", CLASS_TYPE);
-    insertbuiltin(st, "int", -1, "(builtins)", CLASS_TYPE);
+    insertbuiltin(st, "None", CLASS_TYPE);
+    insertbuiltin(st, "int", CLASS_TYPE);
 
-    entry = insertbuiltin(st, "abs", -1, "(builtins)", FUNC_TYPE);
+    entry = insertbuiltin(st, "abs", FUNC_TYPE);
     add_builtin_func_info(entry, 1, ANY_TYPE, "%s: %d", "n", ANY_TYPE);
 
-    insertbuiltin(st, "bool", -1, "(builtins)", CLASS_TYPE);  
-    entry = insertbuiltin(st, "chr", -1, "(builtins)", FUNC_TYPE);
+    insertbuiltin(st, "bool", CLASS_TYPE);  
+    entry = insertbuiltin(st, "chr", FUNC_TYPE);
     add_builtin_func_info(entry, 1, STRING_TYPE, "%s: %d ", "n", INT_TYPE);
 
-    insertbuiltin(st, "float", -1, "(builtins)", CLASS_TYPE);
-    entry = insertbuiltin(st, "input", -1, "(builtins)", FUNC_TYPE);
+    insertbuiltin(st, "float", CLASS_TYPE);
+    entry = insertbuiltin(st, "input", FUNC_TYPE);
     add_builtin_func_info(entry, 1, STRING_TYPE, "%s: %d", "s", STRING_TYPE);
 
-    insertbuiltin(st, "int", -1, "(builtins)", CLASS_TYPE);    
+    insertbuiltin(st, "int", CLASS_TYPE);    
 
-    entry = insertbuiltin(st, "len", -1, "(builtins)", FUNC_TYPE);
+    entry = insertbuiltin(st, "len", FUNC_TYPE);
     add_builtin_func_info(entry, 1, INT_TYPE, "%s: %d", "l", LIST_TYPE);
 
-    entry = insertbuiltin(st, "max", -1, "(builtins)", FUNC_TYPE);
+    entry = insertbuiltin(st, "max", FUNC_TYPE);
     add_builtin_func_info(entry, 1, INT_TYPE, "%s: %d", "l", LIST_TYPE);
 
-    entry = insertbuiltin(st, "min", -1, "(builtins)", FUNC_TYPE);
+    entry = insertbuiltin(st, "min", FUNC_TYPE);
     add_builtin_func_info(entry, 1, INT_TYPE, "%s: %d", "l", LIST_TYPE);
 
-    entry = insertbuiltin(st, "open", -1, "(builtins)", FUNC_TYPE);
+    entry = insertbuiltin(st, "open", FUNC_TYPE);
     add_builtin_func_info(entry, 2, FILE_TYPE, "%s: %d, %s: %d", "pathname", STRING_TYPE, "mode", STRING_TYPE);
 
-    entry = insertbuiltin(st, "ord", -1, "(builtins)", FUNC_TYPE);
+    entry = insertbuiltin(st, "ord", FUNC_TYPE);
     add_builtin_func_info(entry, 1, INT_TYPE, "%s: %d", "s", STRING_TYPE);
 
-    entry = insertbuiltin(st, "pow", -1, "(builtins)", FUNC_TYPE);
+    entry = insertbuiltin(st, "pow", FUNC_TYPE);
     add_builtin_func_info(entry, 2, ANY_TYPE, "%s: %d, %s: %d", "b", ANY_TYPE, "e", ANY_TYPE);
 
-    insertbuiltin(st, "range", -1, "(builtins)", CLASS_TYPE);
+    insertbuiltin(st, "range", CLASS_TYPE);
 
-    entry = insertbuiltin(st, "round", -1, "(builtins)", FUNC_TYPE);
+    entry = insertbuiltin(st, "round", FUNC_TYPE);
     add_builtin_func_info(entry, 2, ANY_TYPE, "%s: %d, %s: %d", "n", ANY_TYPE, "r", INT_TYPE);
 
-    insertbuiltin(st, "type", -1, "(builtins)", CLASS_TYPE);
+    insertbuiltin(st, "type", CLASS_TYPE);
 
     // Add string methods to string
-    entry = insertbuiltin(st, "str", -1, "(builtins)", CLASS_TYPE);
+    entry = insertbuiltin(st, "str", CLASS_TYPE);
     entry->typ = alcstr();
     entry->typ->basetype = CLASS_TYPE;
     entry->nested = entry->typ->u.cls.st;
@@ -122,7 +122,7 @@ void add_puny_builtins(SymbolTable st) {
     entry->nested->level = st->level + 1;
     
     // Add list methods to list
-    entry = insertbuiltin(st, "list", -1, "(builtins)", CLASS_TYPE);
+    entry = insertbuiltin(st, "list", CLASS_TYPE);
     // This adds "append" and "remove" to the list type symbol table
     entry->typ = alclist();
     entry->typ->basetype = CLASS_TYPE;
@@ -131,7 +131,7 @@ void add_puny_builtins(SymbolTable st) {
     entry->nested->level = st->level + 1;
 
     // Add file methods to file
-    entry = insertbuiltin(st, "file", -1, "(builtins)", CLASS_TYPE);
+    entry = insertbuiltin(st, "file", CLASS_TYPE);
     entry->typ = NULL;
     entry->typ = alcfile();
     entry->typ->basetype = CLASS_TYPE;
@@ -140,7 +140,7 @@ void add_puny_builtins(SymbolTable st) {
     entry->nested->level = st->level + 1;
 
     // Add dict methods to dict
-    entry = insertbuiltin(st, "dict", -1, "(builtins)", CLASS_TYPE);
+    entry = insertbuiltin(st, "dict", CLASS_TYPE);
     free(entry->typ);
     entry->typ = (struct typeinfo *) alcdict();
     entry->typ->basetype = CLASS_TYPE;

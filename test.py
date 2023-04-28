@@ -1,8 +1,7 @@
-def f(x: str, y, z, w, t, u, v) -> int:
-    print(x)
-    a: int
-    b = a
-    c = b
-    return y
+def f(x: int, y: str) -> str:
+    b: x
+    return "asdf"
 
-f(1, 2, 3, 4, 5, 6, 67)
+f(1 + 3 | 2, "asdf" + "fdsa")
+a: str = []
+b: int

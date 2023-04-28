@@ -12,7 +12,7 @@ struct sym_table;
 struct sym_entry;
 
 extern struct sym_table *mknested(char *, int, int, struct sym_table *, char *);
-extern struct sym_entry *insertsymbol(struct sym_table *, char *s, int lineno, char *filename);
+extern struct sym_entry *insertsymbol(struct sym_table *, struct token *);
 
 char *typenam[] =
    {"none", "int", "class", "list", "float", "func", "dict", "bool",
@@ -515,7 +515,8 @@ typeptr alclist()
 struct sym_entry *insertbuiltin_meth(struct sym_table *btable, char *name, char *ret_type)
 {
     struct sym_entry *entry = NULL;
-    entry = insertsymbol(btable, name, -1, "(builtins)");
+    struct token *tok = create_builtin_token(name);
+    entry = insertsymbol(btable, tok);
     entry->typ->basetype = FUNC_TYPE;
     entry->typ->u.f.returntype = get_ident_type(ret_type, NULL); // This should be fine
     return entry;
@@ -571,6 +572,90 @@ paramlist alcparam(char *name, int basetype)
     params->type->basetype = basetype;
     params->next = NULL;
     return params;
+}
+
+/**
+ * Starting position: root
+ * 
+*/
+void type_check(struct tree *t, SymbolTable st)
+{
+    // Verify that the return type in a function matches the stated 
+    //   return type, if applicable
+    verify_func_ret_type(t, st);
+
+    // Verify the function argument types
+    verify_func_arg_types(t, st);
+
+    // Verify declarations with RHS assignments
+    verify_decl_types(t, st);
+
+    // Ensure that operand types are valid for arithmetic and logical expressions
+    validate_operand_types(t, st);
+}
+
+/**
+ * DECL type checking for decl+initialization
+*/
+void verify_decl_types(struct tree *t, SymbolTable st)
+{
+    if(t == NULL || st == NULL) return;
+    switch(t->prodrule) {
+        case DECL_STMT: {
+            if(t->kids[2]->prodrule == EQUAL_TEST_OPT) {
+                typeptr assignment_type = NULL, decl_type = NULL;
+
+                // Pass the second child of the equal_test_opt, cuz the 
+                //   first child is '='
+                assignment_type = get_rhs_type(t->kids[2]->kids[1]);
+                //decl_type = get_rhs_type()
+            }
+            break;
+        }
+        default: {
+            for(int i = 0; i < t->nkids; i++) {
+                verify_decl_types(t->kids[i], st);
+            }
+        }
+    }
+}
+
+/**
+ * Ensure that the types of the arguments in the function/constructor call match
+ *   those in the description
+*/
+void verify_func_arg_types(struct tree *t, SymbolTable st)
+{
+    if(t == NULL || st == NULL) return;
+    switch(t->prodrule) {
+        case ARGLIST_OPT: {
+            struct token *ftok = get_caller_ancestor(t);
+
+            // If we were actually able to find a caller ancestor token
+            if(ftok != NULL)  {
+                SymbolTableEntry fentry = lookup(ftok->text, t->stab);
+                if(fentry != NULL && fentry->typ != NULL) {
+                    // TODO: Verify params and args
+                }
+            }
+            break;
+        }
+        default: {
+            for(int i = 0; i < t->nkids; i++) {
+                verify_func_arg_types(t->kids[i], st);
+            }
+        }
+    }
+}
+
+/**
+ * 
+*/
+struct token *get_caller_ancestor(struct tree *t)
+{
+    if(t == NULL) return NULL;
+    switch(t->prodrule) {
+    }
 }
 
 void free_params(paramlist params)
@@ -698,7 +783,7 @@ void get_function_params(struct tree *t, SymbolTable ftable)
         t->kids[0]->type = type;
         t->kids[1]->type = type;
         t->type = type;
-        SymbolTableEntry entry = insertsymbol(ftable, leaf->text, leaf->lineno, leaf->filename);
+        SymbolTableEntry entry = insertsymbol(ftable, leaf);
         free_typeptr(entry->typ);
         entry->typ = type;
     } 
@@ -775,6 +860,11 @@ struct typeinfo *get_ident_type(char *ident, SymbolTable st)
             //get type info if entry found
             return type_copy(type_entry->typ);
         }
+        else {
+            fprintf(stderr, "'%s' not found\n", ident);
+            exit(SEM_ERR);
+        }
+        printf("%d\n", ANY_TYPE);
         return alcbuiltin(ANY_TYPE);
     }
 }
@@ -895,7 +985,8 @@ SymbolTable copy_symbol_table(SymbolTable st)
     for(int i = 0; i < st->nBuckets; i++) {
         if(st->tbl[i] != NULL) {
             old_entry = st->tbl[i];
-            new_entry = insertsymbol(copy, old_entry->ident, old_entry->lineno, old_entry->filename);
+            struct token *tok = create_token(old_entry->ident, old_entry->filename, old_entry->lineno, old_entry->column);
+            new_entry = insertsymbol(copy, tok);
             
             // If our current entry has its own nested symbol table
             if(old_entry->nested != NULL)
@@ -948,12 +1039,13 @@ int get_token_type_code(struct token *tok)
 */
 void verify_func_ret_type(struct tree *t, SymbolTable st)
 {   
+    if(t == NULL || st == NULL) return;
     switch(t->prodrule) {
         case RETURN_STMT: {
             // If we find a return stmt, we need to confirm that the return types match
             typeptr ret_val = get_rhs_type(t->kids[0]);
             // Grab the parent function
-            struct token *ftok = t->parent->parent->parent->parent->kids[0]->leaf;
+            struct token *ftok = get_func_ancestor(t);
             SymbolTableEntry fentry = lookup(ftok->text, t->stab);
             int compatible = are_types_compatible(ret_val, fentry->typ->u.f.returntype);
             if(!compatible)
@@ -964,6 +1056,21 @@ void verify_func_ret_type(struct tree *t, SymbolTable st)
             for(int i = 0; i < t->nkids; i++) {
                 verify_func_ret_type(t->kids[i], st);
             }
+        }
+    }
+}
+
+struct token *get_func_ancestor(struct tree *t) {
+    // Since we're starting from a return statement and we've already 
+    //   checked that all return statements have functions as parents,
+    //   t should never be NULL
+    if(t == NULL) return NULL;
+    switch(t->prodrule) {
+        case FUNCDEF: {
+            return t->kids[0]->leaf;
+        }
+        default: {
+            return get_func_ancestor(t->parent);
         }
     }
 }
@@ -1067,7 +1174,7 @@ const char *get_basetype(int basetype)
             return "package";
         default:
             // This usually means a type was not initialized correctly
-            return "mystery type";
+            return "mystery";
     }
 }
 
@@ -1092,53 +1199,61 @@ struct typeinfo *get_rhs_type(struct tree *t)
 
     // Recurse until the "power" nonterminal is found
     switch(t->prodrule) {
-    case POWER: { 
-        if(t->kids[0]->leaf != NULL) {
-            // 'power' can only be reached if we haven't already recursed to a 
-            //   listmaker or a dictorset_option_* tree node 
-            // This leaf contains the leftmost name of the expr_stmt
-            struct token *leaf = t->kids[0]->leaf;
+        case POWER: { 
 
-            // If the RHS token is a name
-            if(leaf->category == NAME) {
-                
-                SymbolTableEntry entry = lookup(leaf->text, t->stab);
+            // If we see an ATOM then we must traverse further to get the 
+            //   type 
+            if(t->kids[0]->prodrule == ATOM) {
+                return get_rhs_type(t->kids[0]);
+            }
+            if(t->kids[0]->leaf != NULL) {
+                // 'power' can only be reached if we haven't already recursed to a 
+                //   listmaker or a dictorset_option_* tree node 
+                // This leaf contains the leftmost name of the expr_stmt
+                struct token *leaf = t->kids[0]->leaf;
 
-                // Throw an error if entry could not be found
-                if(entry == NULL) {
-                    undeclared_error(leaf);
+                // If the RHS token is a name
+                if(leaf->category == NAME) {
+                    
+                    SymbolTableEntry entry = lookup(leaf->text, t->stab);
+
+                    // Throw an error if entry could not be found
+                    if(entry == NULL) {
+                        undeclared_error(leaf);
+                    }
+
+                    // Forget about trailer_reps here, just get the identifier type
+                    type = get_ident_type(entry->ident, t->stab);
                 }
 
-                // Forget about trailer_reps here, just get the identifier type
-                type = get_ident_type(entry->ident, t->stab);
+                // If the RHS token is a literal, dict, list, bool, or None
+                else {
+                    type = get_token_type(leaf);
+                }
             }
+            break;
+        } 
 
-            // If the RHS token is a literal, dict, list, bool, or None
-            else {
-                type = get_token_type(leaf);
-            }
+        // If we see listmaker_opt, we know that it's a list (e.g., [1, 2, b])
+        case LISTMAKER_OPT: {
+            type = alclist();
+            break;
         }
-        break;
-    } 
 
-    // If we see listmaker_opt, we know that it's a list (e.g., [1, 2, b])
-    case LISTMAKER_OPT: {
-        type = alclist();
-        break;
+        // Dictionary
+        case DICTORSETMAKER_OPT: {
+            /* Right-hand side is a dictionary */
+            type = alcdict();
+            break;
+        }
+        default: {
+            /* It is assumed that we can just recurse the first child until one of 
+            * the above three options is found 
+            * TODO: Fix bad assumption */
+            type = get_rhs_type(t->kids[0]);
+        }
     }
-
-    // Dictionary
-    case DICTORSETMAKER_OPT: {
-        /* Right-hand side is a dictionary */
-        type = alcdict();
-        break;
-    }
-    default: {
-        /* It is assumed that we can just recurse the first child until one of 
-         * the above three options is found 
-         * TODO: Fix bad assumption */
-        type = get_rhs_type(t->kids[0]);
-    }
-    }
+    if(type == NULL)
+        return alcbuiltin(ANY_TYPE);
     return type;
 }

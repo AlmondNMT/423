@@ -102,26 +102,54 @@ int alctoken(int category)
     return category;
 }
 
+/**
+ * This differs from alctoken because it allows the name of token, filename, lineno, and 
+ * column to be specified.
+*/
+struct token *create_token(char *name, char *filename, int lineno, int column)
+{
+    if(name == NULL || filename == NULL) return NULL; 
+    struct token *tok = ckalloc(1, sizeof(struct token *));
+    tok->text = ckalloc(strlen(name) + 1, sizeof(char));
+    tok->filename = ckalloc(strlen(filename) + 1, sizeof(char));
+    strcpy(tok->text, name);
+    strcpy(tok->filename, filename);
+    tok->lineno = lineno;
+    tok->column = column;
+    return tok;
+}
 
-/** Liberate the tree tokens.
- *
+struct token *create_builtin_token(char *name)
+{
+    struct token *tok = create_token(name, "(builtins)", -1, -1);
+    return tok;
+}
+
+
+/** 
+ * Liberate the tree nodes and their tokens.
  */
 void free_tree(struct tree *t)
 {
-    if(t->leaf != NULL) {
-        free(t->leaf->text);
-        free(t->leaf->filename);
-        if(t->leaf->category == STRINGLIT)
-            free(t->leaf->sval);
-        free(t->leaf);
-    }
-    for(int i = 0; i < t->nkids && t->kids[i] != NULL; i++) {
+    if(t == NULL) return;
+    free_token(t->leaf);
+    for(int i = 0; i < t->nkids; i++) {
         free_tree(t->kids[i]);
     }
     if(t->symbolname != NULL) {
         free(t->symbolname);
     }
     free(t);
+}
+
+void free_token(struct token *tok)
+{
+    if(tok == NULL) return;
+    free(tok->text);
+    free(tok->filename);
+    if(tok->category == STRINGLIT)
+        free(tok->sval);
+    free(tok);
 }
 
 
@@ -205,23 +233,32 @@ void prune_tree(struct tree *t, int childnumber)
     for(i = 0; i < t->nkids; i++) {
         prune_tree(t->kids[i], i);
     }
-    // Don't prune any of the trees in this switch statement
+    // Prune only the trees in this switch statement
     switch(t->prodrule) {
-        case RETURN_STMT:
-        return;
-    }
-    if(t->leaf == NULL && t->parent != NULL) {
-        for(i = 0; i < t->nkids; i++) {
-            if(t->kids[i]->prodrule != NULLTREE) {
-                child_count++;
-                child_index = i;
+        case TESTLIST:
+        case TEST:
+        case OR_TEST:
+        case AND_TEST:
+        case COMPARISON:
+        case EXPR:
+        case XOR_EXPR:
+        case AND_EXPR:
+        case SHIFT_EXPR:
+        case ARITH_EXPR:
+        case TERM:
+        if(t->leaf == NULL && t->parent != NULL) {
+            for(i = 0; i < t->nkids; i++) {
+                if(t->kids[i]->prodrule != NULLTREE) {
+                    child_count++;
+                    child_index = i;
+                }
             }
-        }
-        if(child_count == 1) {
-            // Attach the parent to its only grandchild
-            t->parent->kids[childnumber] = t->kids[child_index];
-            t->kids[0] = NULL;
-            free_tree(t);
+            if(child_count == 1) {
+                // Attach the parent to its only grandchild
+                t->parent->kids[childnumber] = t->kids[child_index];
+                t->kids[child_index] = NULL;
+                //free_tree(t);
+            }
         }
     }
 }
@@ -229,7 +266,7 @@ void prune_tree(struct tree *t, int childnumber)
 //what_kid param keeps track of which one of the goddamn kids
 //we are actually printing, relative to parent, for printing purposes only. 
 //These nulltrees are a nightmare, im sorry i did this shit
-void print_tree(struct tree * t, int depth, int print_full, int what_kid)
+void print_tree(struct tree * t, int depth, int print_full)
 {  // printf("entering print tree\n");
     if(t->prodrule == TRAILER_REP);
         //printf("foundtraillerep");
@@ -279,10 +316,10 @@ void print_tree(struct tree * t, int depth, int print_full, int what_kid)
     while(i < 9 && t->kids[i] != NULL)
     {   
         if(t->nkids - nulltreecount > 1 || print_full)
-            print_tree(t->kids[i], depth+1, print_full, i);
+            print_tree(t->kids[i], depth+1, print_full);
         //printf("inner depth %d\n",depth);
         else 
-            print_tree(t->kids[i], depth, print_full, i);
+            print_tree(t->kids[i], depth, print_full);
         i++;
     }
     free(spcs);

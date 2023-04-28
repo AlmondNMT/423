@@ -19,7 +19,8 @@ typedef struct sym_entry {
     SymbolTable table;          /* what symbol table do we belong to */
     char *ident;                /* identifier name */
     char *filename;             /* The filename origin of the entry */
-    int lineno;                 /* One what line was this first found? */
+    int lineno;                 /* On what line was this first found? */
+    int column;                 /* On what column was this entry declared/ first assigned */
     int declared;               /* is this symbol declared in this scope? */
     struct sym_table *nested;   /* nested symbol table (if any) */
     struct typeinfo *typ;
@@ -69,7 +70,7 @@ uint hash(SymbolTable st, char *s);
 
 void insertclass(struct tree *t, SymbolTable st);
 void insertfunction(struct tree *t, SymbolTable st);
-SymbolTableEntry insertsymbol(SymbolTable st, char *s, int lineno, char *filename); 
+SymbolTableEntry insertsymbol(SymbolTable st, struct token *tok); 
 void locate_undeclared(struct tree *t, SymbolTable st);
 int get_func_param_count(struct tree *t, int count);
 int count_func_args(struct tree *t, int count);
@@ -79,9 +80,6 @@ SymbolTable mknested(char *filename, int lineno, int nbuckets, SymbolTable paren
 void populate_symboltables(struct tree *t, SymbolTable st);
 void printsymbols(SymbolTable st);
 void semantics(struct tree *t, SymbolTable st);
-
-// Copy functions
-struct sym_table *copy_symbol_table(struct sym_table *);
 
 // Get Symbol information from the table
 int symbol_exists(char *name, SymbolTable st);

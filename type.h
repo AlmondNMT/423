@@ -105,9 +105,18 @@ void add_decl_type_info(struct tree *t, struct sym_table *st);
 void add_class_type_info(struct tree *t, struct sym_table *st);
 void add_expr_type_info(struct tree *t, struct sym_table *st);
 
+// Type-checking
+void type_check(struct tree *t, struct sym_table *st);
+
 void validate_operand_types(struct tree *t, struct sym_table *st);
 void validate_or_test(struct tree *t, struct sym_table *st);
 void verify_func_ret_type(struct tree *t, struct sym_table *st);
+void verify_func_arg_types(struct tree *t, struct sym_table *st);
+void verify_decl_types(struct tree *t, struct sym_table *st);
+
+struct token *get_func_ancestor(struct tree *t);
+struct token *get_caller_ancestor(struct tree *t);
+int are_types_compatible(typeptr lhs, typeptr rhs);
 struct typeinfo* get_fpdef_type(struct tree *t, struct sym_table * ftable);
 struct typeinfo *get_rhs_type(struct tree *t);
 struct typeinfo *get_arglist_opt_type(struct tree *t, struct sym_table * st, struct sym_entry *entry);
@@ -140,7 +149,7 @@ struct sym_table *copy_symbol_table(struct sym_table *);
 paramlist copy_params(paramlist params);
 
 // Add builtins
-struct sym_entry *insertbuiltin(struct sym_table * global, char *s, int lineno, char *filename, int basetype);
+struct sym_entry *insertbuiltin(struct sym_table * global, char *s, int basetype);
 struct sym_entry *insertbuiltin_meth(struct sym_table *builtin_table, char *name, char *ret_type);
 
 // Print params

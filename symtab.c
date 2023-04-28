@@ -44,12 +44,9 @@ void semantics(struct tree *tree, SymbolTable st)
     // Add type information (kind of like populate, but just getting type info
     add_type_info(tree, st);
 
-    // Verify that the return type in a function matches the stated 
-    //   return type, if applicable
-    verify_func_ret_type(tree, st);
-
-    // Ensure that operand types are valid for arithmetic and logical expressions
-    validate_operand_types(tree, st);
+    // Perform type-checking; function return types, function call argument 
+    //   types, arithmetical operand types, chained dot operator accesses
+    type_check(tree, st);
 }
 
 // Populate symbol tables from AST
@@ -138,14 +135,18 @@ void locate_undeclared(struct tree *t, SymbolTable st)
 
 
 /**
- * Assumption: symbol is NAME
+ * Assumption: 
+ *    symbol is NAME. 
  */
 void check_decls(struct tree *t, SymbolTable st)
 {
     if(t == NULL || st == NULL) return;
     if(t->leaf == NULL) return;
     SymbolTableEntry entry = lookup(t->leaf->text, t->stab);
-    if(entry == NULL || t->leaf->lineno < entry->lineno) {
+    if(entry == NULL || 
+            t->leaf->lineno < entry->lineno || 
+            (t->leaf->lineno == entry->lineno && 
+            t->leaf->column > entry->column)) {
         undeclared_error(t->leaf);
     }
 }
@@ -168,12 +169,12 @@ void add_global_names(tree_t *t, SymbolTable st)
     // The symbol name
     if(strcmp(t->kids[0]->symbolname, "NAME") == 0) {
         leaf = t->kids[0]->leaf;
-        insertsymbol(global, leaf->text, leaf->lineno, leaf->filename);
+        insertsymbol(global, leaf);
         add_global_names(t->kids[1], global);
     }
     else {
         leaf = t->kids[1]->leaf; 
-        insertsymbol(global, leaf->text, leaf->lineno, leaf->filename);
+        insertsymbol(global, leaf);
         add_global_names(t->kids[0], global);
     }
 }
@@ -196,7 +197,7 @@ void insertfunction(struct tree *t, SymbolTable st)
     // If the symboltable already contains the name in either the 
     struct token *leaf = t->kids[0]->leaf;
     char *name = leaf->text; 
-    SymbolTableEntry entry = insertsymbol(st, name, leaf->lineno, leaf->filename);
+    SymbolTableEntry entry = insertsymbol(st, leaf);
     entry->typ->basetype = FUNC_TYPE;
     
     // In case a function was already defined, free its symbol table and 
@@ -273,37 +274,44 @@ void handle_expr_stmt(struct tree *t, SymbolTable st)
     //    3. Plain function calls, list accesses, and arithmetic expressions
     // EYTR indicates an assignment. It can be the second child of expr_stmt
     struct typeinfo *rhs_type = NULL;
-    if(strcmp(t->kids[1]->symbolname, "equal_OR_yield_OR_testlist_rep") == 0) {
-        // Get the type of the rightmost branch by passing 'testlist' node
-        rhs_type = get_rhs_type(t->kids[1]->kids[1]);
+    switch(t->kids[1]->prodrule) {
+        case EQUAL_OR_YIELD_OR_TESTLIST_REP: {
+            // Get the type of the rightmost branch by passing 'testlist' node
+            rhs_type = get_rhs_type(t->kids[1]->kids[1]);
 
-        // Get the leftmost token first due to the shape of the tree
-        struct token *leftmost = get_leftmost_token(t, st);
+            // Get the leftmost token first due to the shape of the tree
+            struct token *leftmost = get_leftmost_token(t, st);
 
-        // Add the leftmost op to the symbol table if it doesn't already exist, 
-        entry = insertsymbol(st, leftmost->text, leftmost->lineno, leftmost->filename);
-        
-        // Verify type compatible of LHS and RHS in assignment
-        //check_var_type(entry->typ, rhs_type, leftmost);
+            // Add the leftmost op to the symbol table if it doesn't already exist, 
+            entry = insertsymbol(st, leftmost);
+            
+            // Verify type compatible of LHS and RHS in assignment
+            //check_var_type(entry->typ, rhs_type, leftmost);
+            int compatible = are_types_compatible(entry->typ, rhs_type);
+            if(!compatible)
+                semantic_error(leftmost->filename, leftmost->lineno, "incompatible assignment between '%s' and '%s'\n", get_basetype(entry->typ->basetype), get_basetype(rhs_type->basetype));
 
-        // Add the table in the rhs_type to the symbol entry
-        add_nested_table(entry, rhs_type);
+            // Add the table in the rhs_type to the symbol entry
+            add_nested_table(entry, rhs_type);
 
-        // If there's any assignment chaining, verify the types of those 
-        //   operands, and potentially add them to the table
-        handle_eytr_chain(t->kids[1]->kids[0], st, rhs_type);
-    }
+            // If there's any assignment chaining, verify the types of those 
+            //   operands, and potentially add them to the table
+            handle_eytr_chain(t->kids[1]->kids[0], st, rhs_type);
+            break;
+        }
 
-    // Now we check the validity of augassigns (e.g., a += 1, b *= a, etc.)
-    else if(strcmp(t->kids[1]->symbolname, "expr_conjunct") == 0) {
-        //TODO: augassigns
-    }
+        // Now we check the validity of augassigns (e.g., a += 1, b *= a, etc.)
+        case EXPR_CONJUNCT: {
+            // TODO: augassigns
+            break;
+        }
 
-    // Function/constructor calls, list accesses, arithmetic expressions, dot 
-    //   member accesses.
-    // Assumption: expr_stmt only has one branch
-    else {
-        rhs_type = get_rhs_type(t->kids[0]);
+        // Function/constructor calls, list accesses, arithmetic expressions, dot 
+        //   member accesses.
+        // Assumption: expr_stmt only has one branch
+        default: {
+            rhs_type = get_rhs_type(t->kids[0]);
+        }
     }
 }
 
@@ -419,7 +427,7 @@ void handle_token(struct tree *t, SymbolTable st)
             
         }
         // TODO: If you want chained assignments to work, uncomment this line below
-        entry = insertsymbol(st, left->text, left->lineno, left->filename);
+        entry = insertsymbol(st, left);
         
     }
 }
@@ -877,7 +885,7 @@ void get_decl_stmt(struct tree *t, SymbolTable st)
     if(t->kids[2]->prodrule == EQUAL_TEST_OPT) {
         rhs_type = get_rhs_type(t->kids[2]->kids[1]);
     }
-    SymbolTableEntry e = insertsymbol(st, var->text, var->lineno, var->filename);
+    SymbolTableEntry e = insertsymbol(st, var);
     //check_var_type(e->typ, rhs_type, var);
     add_nested_table(e, rhs_type);
 }
@@ -977,11 +985,11 @@ void get_import_symbols(struct tree *t, SymbolTable st)
     }
     if(strcmp(dotted_as_name->kids[1]->symbolname, "as_name_opt") == 0) { 
         struct token *alias = dotted_as_name->kids[1]->kids[0]->leaf;
-        insertsymbol(st, alias->text, alias->lineno, alias->filename);
+        insertsymbol(st, alias);
 
     } else {
         struct token *tok = dotted_as_name->kids[0]->leaf;
-        insertsymbol(st, import_name, tok->lineno, tok->filename);
+        insertsymbol(st, leaf);
     }
 }
 
@@ -1003,7 +1011,7 @@ void get_for_iterator(struct tree *t, SymbolTable st)
         get_for_iterator(t->kids[0], st);
     } else {
         struct token *leaf = t->kids[0]->leaf;
-        insertsymbol(st, leaf->text, leaf->lineno, leaf->filename);
+        insertsymbol(st, leaf);
     }
 }
 
@@ -1017,7 +1025,7 @@ void insertclass(struct tree *t, SymbolTable st)
         return;
     struct token *leaf = t->kids[0]->leaf;
     char *name = t->kids[0]->leaf->text;
-    SymbolTableEntry entry = insertsymbol(st, name, leaf->lineno, leaf->filename);
+    SymbolTableEntry entry = insertsymbol(st, leaf);
 
     free_symtab(entry->nested);
     entry->nested = mknested(leaf->filename, leaf->lineno, HASH_TABLE_SIZE, st, "class");
@@ -1090,12 +1098,15 @@ SymbolTable mknested(char *filename, int lineno, int nbuckets, SymbolTable paren
  * Create SymbolTableEntry for the NAME. Add the current table to the entry.
  * Set the relevant fields (s, next, st->tbl[idx])
  */
-SymbolTableEntry insertsymbol(SymbolTable st, char *name, int lineno, char *filename) {
-    if(st == NULL)
-        return 0;
+SymbolTableEntry insertsymbol(SymbolTable st, struct token *tok) {
+    if(st == NULL || tok == NULL)
+        return NULL;
         
     // Get the hash index of the given name then find it in the current scope if it exists.
     // If we find the symbol in this loop, we just return its entry. 
+    char *name = tok->text;
+    int lineno = tok->lineno;
+    int column = tok->column;
     int idx = hash(st, name);
     SymbolTableEntry prev = NULL;
     for (SymbolTableEntry e = st->tbl[idx]; e != NULL; prev = e, e = e->next) {
@@ -1112,7 +1123,8 @@ SymbolTableEntry insertsymbol(SymbolTable st, char *name, int lineno, char *file
     entry->table = st;
     entry->ident = strdup(name);
     entry->lineno = lineno;
-    entry->filename = strdup(filename);
+    entry->column = column;
+    entry->filename = strdup(tok->filename);
     entry->next = NULL;
     
     // If prev is not NULL we had a collision in the table, so we link the 
@@ -1130,11 +1142,13 @@ SymbolTableEntry insertsymbol(SymbolTable st, char *name, int lineno, char *file
 /** 
  * Wrapper function for insertsymbol that adds builtins
  */
-SymbolTableEntry insertbuiltin(SymbolTable st, char *name, int lineno, char *filename, int basetype)
+SymbolTableEntry insertbuiltin(SymbolTable st, char *name, int basetype)
 {
     if(st == NULL) return NULL;
-    SymbolTableEntry entry = insertsymbol(st, name, lineno, filename);
+    struct token *tok = create_builtin_token(name);
+    SymbolTableEntry entry = insertsymbol(st, tok);
     entry->typ->basetype = basetype;
+    //free_token(tok);
     return entry;
 }
 
@@ -1155,7 +1169,12 @@ void printsymbols(SymbolTable st)
             }
             
             printf("%d %s: ", i, entry->ident);
-            printf("%s type\n", get_basetype(entry->typ->basetype)); // Switch statements for base types
+            if(entry->typ->basetype == FUNC_TYPE && entry->typ->u.f.returntype != NULL) {
+                printf("%s type ", get_basetype(entry->typ->basetype)); // Switch statements for base types
+                printf("-> %s\n", get_basetype(entry->typ->u.f.returntype->basetype));
+            }
+            else 
+                printf("%s type\n", get_basetype(entry->typ->basetype)); // Switch statements for base types
             if(entry->nested != NULL) {
                 printsymbols(entry->nested);
             }
@@ -1180,11 +1199,6 @@ void free_symtab(SymbolTable st) {
             // Free nested symbol table
             if (entry->nested != NULL) {
                 free_symtab(entry->nested);
-            }
-
-            // Free entry attributes
-            if (entry->ident != NULL) {
-                free(entry->ident);
             }
 
             // Free entry
@@ -1296,17 +1310,19 @@ void verify_func_arg_count(struct tree *t, SymbolTable st)
             // regular function param count
             if(entry->typ->basetype == FUNC_TYPE)
                 param_count = entry->typ->u.f.nparams;
-            if(arg_count < param_count) {
-                if(param_count - arg_count == 1)
-                    semantic_error(ftok->filename, ftok->lineno, "%s() missing 1 required positional argument\n", ftok->text);
-                else
-                    semantic_error(ftok->filename, ftok->lineno, "%s() missing %d required positional arguments\n", ftok->text, param_count - arg_count);
-            }
-            else if(arg_count > param_count) {
-                if(arg_count > 1)
-                    semantic_error(ftok->filename, ftok->lineno, "%s() takes %d positional arguments but %d were given\n", ftok->text, param_count, arg_count);
-                else
-                    semantic_error(ftok->filename, ftok->lineno, "%s() takes 0 positional arguments but 1 was given\n", ftok->text);
+            if(entry->typ->basetype == FUNC_TYPE || entry->typ->basetype == CLASS_TYPE) {
+                if(arg_count < param_count) {
+                    if(param_count - arg_count == 1)
+                        semantic_error(ftok->filename, ftok->lineno, "%s() missing 1 required positional argument\n", ftok->text);
+                    else
+                        semantic_error(ftok->filename, ftok->lineno, "%s() missing %d required positional arguments\n", ftok->text, param_count - arg_count);
+                }
+                else if(arg_count > param_count) {
+                    if(arg_count > 1)
+                        semantic_error(ftok->filename, ftok->lineno, "%s() takes %d positional arguments but %d were given\n", ftok->text, param_count, arg_count);
+                    else
+                        semantic_error(ftok->filename, ftok->lineno, "%s() takes 0 positional arguments but 1 was given\n", ftok->text);
+                }
             }
             
             return;
