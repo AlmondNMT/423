@@ -196,7 +196,6 @@ void insertfunction(struct tree *t, SymbolTable st)
     // Get the name of function in the first child leaf, then add it to the symbol table.
     // If the symboltable already contains the name in either the 
     struct token *leaf = t->kids[0]->leaf;
-    char *name = leaf->text; 
     SymbolTableEntry entry = insertsymbol(st, leaf);
     entry->typ->basetype = FUNC_TYPE;
     
@@ -976,6 +975,7 @@ void get_import_symbols(struct tree *t, SymbolTable st)
     struct token *leaf = dotted_as_name->kids[0]->leaf;
     char *import_name = leaf->text;
     char filename[PATHMAX];
+    SymbolTableEntry entry = NULL;
     strcpy(filename, import_name);
     strcat(filename, ".py");
 
@@ -985,12 +985,15 @@ void get_import_symbols(struct tree *t, SymbolTable st)
     }
     if(strcmp(dotted_as_name->kids[1]->symbolname, "as_name_opt") == 0) { 
         struct token *alias = dotted_as_name->kids[1]->kids[0]->leaf;
-        insertsymbol(st, alias);
+        entry = insertsymbol(st, alias);
 
     } else {
-        struct token *tok = dotted_as_name->kids[0]->leaf;
-        insertsymbol(st, leaf);
+        entry = insertsymbol(st, leaf);
     }
+    
+    // Insert package type information
+    free_typeptr(entry->typ);
+    entry->typ = alcbuiltin(PACKAGE_TYPE);
 }
 
 /**

@@ -1178,6 +1178,8 @@ const char *get_basetype(int basetype)
             return "str";
         case PACKAGE_TYPE:
             return "package";
+        case FILE_TYPE: 
+            return "file";
         default:
             // This usually means a type was not initialized correctly
             return "mystery";
