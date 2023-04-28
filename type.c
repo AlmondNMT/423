@@ -602,13 +602,19 @@ void verify_decl_types(struct tree *t, SymbolTable st)
     if(t == NULL || st == NULL) return;
     switch(t->prodrule) {
         case DECL_STMT: {
+            typeptr assignment_type = NULL, decl_type = NULL;
             if(t->kids[2]->prodrule == EQUAL_TEST_OPT) {
-                typeptr assignment_type = NULL, decl_type = NULL;
 
                 // Pass the second child of the equal_test_opt, cuz the 
                 //   first child is '='
                 assignment_type = get_rhs_type(t->kids[2]->kids[1]);
-                //decl_type = get_rhs_type()
+                decl_type = get_rhs_type(t->kids[1]);
+                int compatible = are_types_compatible(decl_type, assignment_type);
+                if(!compatible) {
+                    fprintf(stderr, "Incompatible assignment between '%s' and '%s'\n", get_basetype(decl_type->basetype), get_basetype(assignment_type->basetype));
+                    exit(SEM_ERR);
+                }
+
             }
             break;
         }
@@ -1233,6 +1239,11 @@ struct typeinfo *get_rhs_type(struct tree *t)
             }
             break;
         } 
+
+        case NAME: {
+            type = get_ident_type(t->leaf->text, t->stab);
+            break;
+        }
 
         // If we see listmaker_opt, we know that it's a list (e.g., [1, 2, b])
         case LISTMAKER_OPT: {

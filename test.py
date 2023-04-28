@@ -3,5 +3,5 @@ def f(x: int, y: str) -> str:
     return "asdf"
 
 f(1 + 3 | 2, "asdf" + "fdsa")
-a: str = []
+a: str = 1.2
 b: int
