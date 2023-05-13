@@ -73,12 +73,12 @@ void add_puny_builtins(SymbolTable st) {
     add_builtin_func_info(entry, 1, NONE_TYPE, "%s: %d", "s", ANY_TYPE);
 
     insertbuiltin(st, "None", CLASS_TYPE);
-    insertbuiltin(st, "int", CLASS_TYPE);
 
     entry = insertbuiltin(st, "abs", FUNC_TYPE);
     add_builtin_func_info(entry, 1, ANY_TYPE, "%s: %d", "n", ANY_TYPE);
 
     insertbuiltin(st, "bool", CLASS_TYPE);  
+
     entry = insertbuiltin(st, "chr", FUNC_TYPE);
     add_builtin_func_info(entry, 1, STRING_TYPE, "%s: %d ", "n", INT_TYPE);
 

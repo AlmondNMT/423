@@ -1,6 +1,11 @@
-import os
-def f(x: int, y: str) -> str:
-    b: x
-    return "asdf"
+def f(x: int) -> float:
+    b = 1
+    return b
 
-f(1 + 3 | 2, "asdf" + "fdsa")
+def g() -> float:
+    b = 2
+    return b
+
+a = 1
+a + g()
+a = f

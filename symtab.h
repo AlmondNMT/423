@@ -74,7 +74,7 @@ SymbolTableEntry insertsymbol(SymbolTable st, struct token *tok);
 void locate_undeclared(struct tree *t, SymbolTable st);
 int get_func_param_count(struct tree *t, int count);
 int count_func_args(struct tree *t, int count);
-void verify_func_arg_count(struct tree *t, SymbolTable st);
+void verify_func_arg_count(struct tree *t);
 SymbolTable mksymtab(int nbuckets, char *table_name);
 SymbolTable mknested(char *filename, int lineno, int nbuckets, SymbolTable parent, char *scope);
 void populate_symboltables(struct tree *t, SymbolTable st);

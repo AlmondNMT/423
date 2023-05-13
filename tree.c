@@ -5,6 +5,7 @@
 #include "punygram.tab.h"
 #include "nonterminal.h"
 #include "tree.h"
+#include "symtab.h"
 #include "utils.h"
 #include "type.h"
 
@@ -287,7 +288,11 @@ void print_tree(struct tree * t, int depth, int print_full)
         //printf("about to check if leaf is null\n");
         if(t->leaf != NULL)
         {   //printf("finna print leaf info\n");
-            printf("%s%d-LEAF category: %d, category: %s, line: %d, VALUE: %s\n",spcs,depth, t->leaf->category, rev_token(t->leaf->category), t->leaf->lineno, t->leaf->text);
+            printf("%s%d-LEAF category: %d, catname: %s, line: %d, VALUE: %s",spcs,depth, t->leaf->category, rev_token(t->leaf->category), t->leaf->lineno, t->leaf->text);
+            if(t->stab != NULL)
+                printf(" : %s\n", t->stab->scope);
+            else
+                printf("\n");
             free(spcs);
             return;
         }
@@ -307,7 +312,11 @@ void print_tree(struct tree * t, int depth, int print_full)
 
         if(t->symbolname != NULL)
         {   //printf("somehow made it past this\n");
-            printf("%s%d-INNER: symbname: %s: %d\n", spcs, depth, t->symbolname, t->prodrule); 
+            printf("%s%d-INNER: symbname: %s: %d", spcs, depth, t->symbolname, t->prodrule); 
+            if(t->stab != NULL)
+                printf(" : %s\n", t->stab->scope);
+            else
+                printf("\n");
             //printf("existence has concluded in segmentation fault\n");
         }
 

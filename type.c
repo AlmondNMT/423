@@ -552,6 +552,7 @@ typeptr alcstr()
     struct sym_table *st = mksymtab(HASH_TABLE_SIZE, "class)");
     str->u.cls.name = strdup("str");
     str->u.cls.st = st;
+    str->u.cls.nparams = 1;
     insertbuiltin_meth(st, "replace", "str");
     insertbuiltin_meth(st, "split", "list");
     return str;
@@ -638,6 +639,7 @@ void verify_func_arg_types(struct tree *t, SymbolTable st)
             struct token *ftok = get_caller_ancestor(t);
 
             // If we were actually able to find a caller ancestor token
+            //   otherwise there is nothing to check, because it/locat 
             if(ftok != NULL)  {
                 SymbolTableEntry fentry = lookup(ftok->text, t->stab);
                 if(fentry != NULL && fentry->typ != NULL) {
@@ -661,6 +663,9 @@ struct token *get_caller_ancestor(struct tree *t)
 {
     if(t == NULL) return NULL;
     switch(t->prodrule) {
+        case POWER: {
+            
+        }
     }
 }
 
@@ -819,8 +824,6 @@ void validate_or_test(struct tree *t, SymbolTable st)
     {
         lhs_type = get_rhs_type(t);
         rhs_type = get_rhs_type(t->kids[1]);
-        printf("%s\n", get_basetype(lhs_type->basetype));
-        printf("%s\n", get_basetype(rhs_type->basetype));
         if(strcmp(t->kids[1]->kids[0]->symbolname, "or_and_test_rep") == 0)
         {                
             validate_or_test(t->kids[1]->kids[0], st);
@@ -1053,9 +1056,9 @@ void verify_func_ret_type(struct tree *t, SymbolTable st)
             // Grab the parent function
             struct token *ftok = get_func_ancestor(t);
             SymbolTableEntry fentry = lookup(ftok->text, t->stab);
-            int compatible = are_types_compatible(ret_val, fentry->typ->u.f.returntype);
+            int compatible = are_types_compatible(fentry->typ->u.f.returntype, ret_val);
             if(!compatible)
-                semantic_error(ftok->filename, ftok->lineno, "'%s()' return type does not match type of value returned\n", ftok->text);
+                semantic_error(ftok->filename, ftok->lineno, "'%s()' return type '%s' does not match type of value returned: '%s'\n", ftok->text, get_basetype(fentry->typ->u.f.returntype->basetype), get_basetype(ret_val->basetype));
             break;
         }
         default: {                  
@@ -1082,16 +1085,22 @@ struct token *get_func_ancestor(struct tree *t) {
 }
 
 /**
- * This can be used to check types for returns and assignments/decls
+ * This can be used to check types for returns and assignments/decls.
+ * In the context of function returns, the returntype is the lhs, since 
+ * assignments with a float on the LHS are allowed to be assigned integers.
+ * Similarly, functions that specify a float return type can return explicit
+ * integers. If type ANY is involved, then return true
 */
 int are_types_compatible(typeptr lhs, typeptr rhs)
 {
     // If either of the types are NULL, return false
     if(lhs == NULL || rhs == NULL) return 0;
 
+    // If the rhs has ANY_TYPE, return 1
+    if(rhs->basetype == ANY_TYPE) return 1;
+
     // If the function returntype is ANY_TYPE then anything is allowed to 
     //   be returned
-    // If the function 
     switch(lhs->basetype) {
         case ANY_TYPE: {
             return 1;
@@ -1111,6 +1120,17 @@ int are_types_compatible(typeptr lhs, typeptr rhs)
                 }
                 return 0;
             }
+        }
+        case FLOAT_TYPE: {
+            // If the function's specified returntype is a FLOAT return true 
+            // if the function actually returns ANY_TYPE, INT_TYPE, or 
+            // FLOAT_TYPE.
+            switch(rhs->basetype) {
+                case FLOAT_TYPE:
+                case INT_TYPE:
+                    return 1;
+            }
+            return 0;
         }
         default: {
             if(lhs->basetype == rhs->basetype) 

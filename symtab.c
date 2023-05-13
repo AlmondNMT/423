@@ -35,8 +35,11 @@ void semantics(struct tree *tree, SymbolTable st)
     // Populate symbol table and add type information
     populate_symboltables(tree, st);   
 
+    // (FOR DEBUGGING) verify that every node in the tree has a symtab
+    //print_tree(tree, 0, 1);
+
     // Verify that argcount of function call matches formal param count
-    verify_func_arg_count(tree, st);
+    verify_func_arg_count(tree);
 
     // Find names that are used, but not declared
     locate_undeclared(tree, st);       
@@ -135,16 +138,27 @@ void locate_undeclared(struct tree *t, SymbolTable st)
 
 
 /**
- * Assumption: 
- *    symbol is NAME. 
+ * Assumption: symbol is NAME. 
+ *   
+ * Throw an error if the symbol cannot be found in the symtab, or if it is an
+ *   instance that occurs before its declared line number, or if it is used on 
+ *   the same line that it is declared, and appears in a later column than where
+ *   it's defined.
  */
 void check_decls(struct tree *t, SymbolTable st)
 {
     if(t == NULL || st == NULL) return;
     if(t->leaf == NULL) return;
     SymbolTableEntry entry = lookup(t->leaf->text, t->stab);
+
+    // If the entry is not null, there are two conditions under which an undeclared
+    //   error will be thrown. 
+    //   1. NAME token is found on a line that precedes the location it was 
+    //      defined on, and it isn't a function or class
+    //   2. 
     if(entry == NULL || 
-            t->leaf->lineno < entry->lineno || 
+            (t->leaf->lineno < entry->lineno && 
+             (entry->typ->basetype != FUNC_TYPE && entry->typ->basetype != CLASS_TYPE)) || 
             (t->leaf->lineno == entry->lineno && 
             t->leaf->column > entry->column)) {
         undeclared_error(t->leaf);
@@ -283,7 +297,7 @@ void handle_expr_stmt(struct tree *t, SymbolTable st)
 
             // Add the leftmost op to the symbol table if it doesn't already exist, 
             entry = insertsymbol(st, leftmost);
-            
+
             // Verify type compatible of LHS and RHS in assignment
             //check_var_type(entry->typ, rhs_type, leftmost);
             int compatible = are_types_compatible(entry->typ, rhs_type);
@@ -309,7 +323,7 @@ void handle_expr_stmt(struct tree *t, SymbolTable st)
         //   member accesses.
         // Assumption: expr_stmt only has one branch
         default: {
-            rhs_type = get_rhs_type(t->kids[0]);
+            //rhs_type = get_rhs_type(t->kids[0]);
         }
     }
 }
@@ -493,7 +507,7 @@ void locate_invalid_expr(struct tree *t)
                 // We now search everywhere except the RHS for any literals, lists,
                 //  or dicts, or arithmetic expressions
                 locate_invalid_leftmost(t);
-                locate_invalid_nested(t);
+                //locate_invalid_nested(t);
             }
             // Once we find an expr_stmt, we return to avoid traversing its 
             //   subtrees twice for no reason
@@ -1016,6 +1030,9 @@ void get_for_iterator(struct tree *t, SymbolTable st)
         struct token *leaf = t->kids[0]->leaf;
         insertsymbol(st, leaf);
     }
+    // Continue populating the subtrees of the `for` suite 
+    for(int i = 0; i < t->nkids; i++) 
+        populate_symboltables(t->kids[i], st);
 }
 
 /**
@@ -1265,7 +1282,7 @@ SymbolTableEntry lookup(char *name, SymbolTable st)
 
 SymbolTableEntry lookup_current(char *name, SymbolTable st)
 {
-    if(name == NULL) 
+    if(name == NULL || st == NULL) 
         return NULL;
     uint h = hash(st, name);
     SymbolTableEntry e = NULL;
@@ -1279,15 +1296,15 @@ SymbolTableEntry lookup_current(char *name, SymbolTable st)
 /**
  * Starting position: root
 */
-void verify_func_arg_count(struct tree *t, SymbolTable st)
+void verify_func_arg_count(struct tree *t)
 {
-    if(t == NULL || st == NULL) return;
+    if(t == NULL) return;
     switch(t->prodrule) {
         // This indicates a function call
         case ARGLIST_OPT: {
             // Get the function ident
             struct token *ftok = t->parent->parent->parent->kids[0]->leaf;
-            SymbolTableEntry entry = lookup(ftok->text, st);
+            SymbolTableEntry entry = lookup(ftok->text, t->stab);
             
             // If entry is not found throw 'name not found' error
             if(entry == NULL)
@@ -1332,7 +1349,7 @@ void verify_func_arg_count(struct tree *t, SymbolTable st)
         }
     }
     for(int i = 0; i < t->nkids; i++) {
-        verify_func_arg_count(t->kids[i], st);
+        verify_func_arg_count(t->kids[i]);
     }
 }
 

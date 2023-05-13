@@ -73,8 +73,13 @@ int main(int argc, char *argv[]) {
         }
 
         // Prune parse tree (i.e. remove parents with only one child)
-        // The pruned tree looks much nicer, but we'd need to do a lot more 
-        //   work to refit our code to this, and there's not enough time.
+        //   This prunes everything between TESTLIST and TERM, inclusive, for 
+        //   each nonterminal with only one child. This should make it a bit
+        //   easier to perform type-checking on arithment/logical expressions.
+        //   The first argument is the root-level tree, and the second arg is 
+        //   the child number of the given tree relative to its parent. Root 
+        //   doesn't have a parent, so the second argument is only relevant for 
+        //   non-root nodes.
         prune_tree(tree, 0);
 
         // Print syntax tree option
