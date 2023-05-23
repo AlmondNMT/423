@@ -701,16 +701,25 @@ void decorate_subtree_with_symbol_table(struct tree *t, SymbolTable st)
     if(t == NULL || st == NULL) return;
     t->stab = st;
     switch(t->prodrule) {
+
+        // Powers appear within EXPR_STMTs. 
         case POWER: {
             if(t->kids[0]->prodrule == NAME) {
                 struct token *tok = t->kids[0]->leaf;
                 entry = lookup(tok->text, st);
                 if(entry != NULL) {
+
+                    // If our entry has a nested symbol table, we want to decorate 
+                    //   the subtrees with that one. I'm not sure this is being 
+                    //   done correctly
                     if(entry->typ->basetype != FUNC_TYPE && entry->nested != NULL) {
                         nested = entry->nested;
                     }
+
+                    // I can't remember why I wanted to require that the builtins
+                    //   had return types.
                     if(entry->typ->basetype == FUNC_TYPE) { // TODO: Ensure all builtins have returntypes
-                        
+
                     }
                 }
             }
@@ -726,67 +735,6 @@ void decorate_subtree_with_symbol_table(struct tree *t, SymbolTable st)
         decorate_subtree_with_symbol_table(t->kids[i], nested);
 }
 
-
-
-/**
- * Assumption: Starting position is "trailer_rep"
- *   1. "arglist_opt": Function calls
- *   2. "subscriptlist": List/dict accesses
- *   3. "NAME": Dot operands
-*/
-struct typeinfo *get_trailer_type(struct tree *t, SymbolTable st, SymbolTableEntry entry)
-{   
-
-    if(t == NULL || st == NULL ||  entry == NULL)
-    {   
-        fprintf(stderr, "ERROR get_trailer_type: one or more arguments is null\n");
-        exit(SEM_ERR);
-    }
-    
-    struct typeinfo *type = NULL;
-    
-    // If we find a subscript list anywhere, the type returned will be ANY_TYPE
-    type = get_trailer_type_list(t, st);
-
-    // If the return of the previous is not NULL just return it (ANY_TYPE)
-    if(type != NULL) {
-        return type;
-    }
-
-    // Assume function calls occur on the rightmost trailer, if they happen
-   
-    //if this is a function call, the node with the relevant type info is either
-    // a sibling (if trailer_rep has no dots, like a plain function call f())
-    // or it is in the first nested trailer_rep. 
-    //so we just need to see if it's got a trailer rep child
-    //printf("here we are\n");
-    if(is_function_call(t)) {
-       // printf("IS FUNCTION CALL APPLIES\n");
-        if(tr_has_tr_child(t))
-        {
-            type = t->kids[0]->kids[1]->kids[0]->type;
-            //printf("Dotted chain: %s, name %s\n", get_basetype(type->basetype), t->kids[0]->kids[1]->kids[0]->leaf->sval);
-        }
-        else 
-        {  
-            type = t->parent->kids[0]->type; //for debug for now, just do any, needs to change
-            //printf("NON-Dotted chain: %s name %s\n", get_basetype(type->basetype), t->parent->kids[0]->leaf->sval);
-        }
-       // printf("is thisnull\n");
-    }
-
-    
-
-    // Hot fix: just make it ANY_TYPE to avoid the segfault
-    if(type == NULL)
-        return alcbuiltin(ANY_TYPE);
-    return type;
-}
-
-/*struct typeinfo *get_type_of_node(struct tree *t, SymbolTable st, SymbolTableEntry entry)
-{
-   
-}*/
 
 int is_function_call(struct tree *t)
 {   

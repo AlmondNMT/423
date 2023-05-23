@@ -502,10 +502,13 @@ typeptr alclist()
 {
     typeptr list = alctype(LIST_TYPE);
     struct sym_table *st = mksymtab(HASH_TABLE_SIZE, "class");
+    struct sym_entry *entry = NULL;
     list->u.cls.name = strdup("list");
     list->u.cls.st = st;
-    insertbuiltin_meth(st, "append", "None");
-    insertbuiltin_meth(st, "remove", "None");
+    entry = insertbuiltin_meth(st, "append", "None");
+    add_builtin_func_info(entry, 1, NONE_TYPE, "%s: %d", "e", ANY_TYPE);
+    entry = insertbuiltin_meth(st, "remove", "None");
+    add_builtin_func_info(entry, 1, NONE_TYPE, "%s: %d", "e", ANY_TYPE);
     return list;
 }
 
@@ -549,7 +552,7 @@ typeptr alcfile()
 typeptr alcstr()
 {
     typeptr str = (typeptr) alctype(STRING_TYPE);
-    struct sym_table *st = mksymtab(HASH_TABLE_SIZE, "class)");
+    struct sym_table *st = mksymtab(HASH_TABLE_SIZE, "class");
     str->u.cls.name = strdup("str");
     str->u.cls.st = st;
     str->u.cls.nparams = 1;
@@ -577,27 +580,165 @@ paramlist alcparam(char *name, int basetype)
 
 /**
  * Starting position: root
- * 
-*/
+ */
 void type_check(struct tree *t, SymbolTable st)
 {
     // Verify that the return type in a function matches the stated 
     //   return type, if applicable
     verify_func_ret_type(t, st);
 
-    // Verify the function argument types
+    // Function argument types
     verify_func_arg_types(t, st);
 
-    // Verify declarations with RHS assignments
+    // Declarations with RHS assignments
     verify_decl_types(t, st);
+
+    // Disallow function names from appearing within expr_stmts without parentheses
+    disallow_funccall_no_parenth(t);
 
     // Ensure that operand types are valid for arithmetic and logical expressions
     validate_operand_types(t, st);
 }
 
 /**
- * DECL type checking for decl+initialization
+ * For any functions in expr_stmts without parentheses, throw an error.
+ * This prevents scenarios such as assigning functions to other variables, using
+ */
+void disallow_funccall_no_parenth(struct tree *t)
+{
+    if(t == NULL) return;
+    switch(t->prodrule) {
+        case EXPR_STMT: {
+            for(int i = 0; i < t->nkids; i++)
+                disallow_funccall_no_parenth_aux(t->kids[i]);
+            return;
+        }
+
+    }
+}
+
+/**
+ * Get the type of a POWER nonterm
+ */
+typeptr get_power_type(struct tree *t)
+{
+    typeptr type = NULL;
+    // If we see an ATOM then we must traverse further to get the 
+    //   type 
+    if(t->kids[0]->prodrule == ATOM) {
+
+        return get_rhs_type(t->kids[0]);
+    }
+    if(t->kids[0]->leaf != NULL) {
+        // 'power' can only be reached if we haven't already recursed to a 
+        //   listmaker or a dictorset_option_* tree node 
+        // This leaf contains the leftmost name of the expr_stmt
+        struct token *leaf = t->kids[0]->leaf;
+
+        // If the RHS token is a name
+        if(leaf->category == NAME) {
+            
+            SymbolTableEntry entry = lookup(leaf->text, t->stab);
+
+            // Throw an error if entry could not be found
+            if(entry == NULL) {
+                undeclared_error(leaf);
+            }
+
+            // Forget about trailer_reps here, just get the identifier type
+            type = get_ident_type(entry->ident, t->stab);
+        }
+
+        // If the RHS token is a literal, dict, list, bool, or None
+        else {
+            type = get_token_type(leaf);
+        }
+    }
+    return type;
+}
+
+
+/**
+ * Assumption: Starting position is "trailer_rep"
+ *   1. "arglist_opt": Function calls
+ *   2. "subscriptlist": List/dict accesses
+ *   3. "NAME": Dot operands
+ *   TODO: Fix this piece of shit function
 */
+struct typeinfo *get_trailer_type(struct tree *t, SymbolTableEntry entry)
+{   
+
+    if(t == NULL || entry == NULL)
+    {   
+        // TODO: Make this more robust
+        fprintf(stderr, "ERROR get_trailer_type: one or more arguments is null\n");
+        exit(SEM_ERR);
+    }
+    
+    struct typeinfo *type = NULL;
+    
+    // If we find a subscript list anywhere, the type returned will be ANY_TYPE
+    type = get_trailer_type_list(t, t->stab);
+
+    // If the return of the previous is not NULL just return it (ANY_TYPE)
+    if(type != NULL) {
+        return type;
+    }
+
+    // Assume function calls occur on the rightmost trailer, if they happen
+   
+    //if this is a function call, the node with the relevant type info is either
+    // a sibling (if trailer_rep has no dots, like a plain function call f())
+    // or it is in the first nested trailer_rep. 
+    //so we just need to see if it's got a trailer rep child
+    //printf("here we are\n");
+    if(is_function_call(t)) {
+       // printf("IS FUNCTION CALL APPLIES\n");
+        if(tr_has_tr_child(t))
+        {
+            type = t->kids[0]->kids[1]->kids[0]->type;
+            //printf("Dotted chain: %s, name %s\n", get_basetype(type->basetype), t->kids[0]->kids[1]->kids[0]->leaf->sval);
+        }
+        else 
+        {  
+            type = t->parent->kids[0]->type; //for debug for now, just do any, needs to change
+            //printf("NON-Dotted chain: %s name %s\n", get_basetype(type->basetype), t->parent->kids[0]->leaf->sval);
+        }
+       // printf("is thisnull\n");
+    }
+
+    
+
+    // Hot fix: just make it ANY_TYPE to avoid the segfault
+    if(type == NULL)
+        return alcbuiltin(ANY_TYPE);
+    return type;
+}
+
+
+/**
+ * Auxiliary function disallow_funccall_np. 
+ * Starting position: EXPR_STMT
+ */
+void disallow_funccall_no_parenth_aux(struct tree *t)
+{
+    switch(t->prodrule) {
+        case POWER: {
+            if(t->kids[0]->prodrule == NAME) {
+                SymbolTableEntry entry = lookup(t->kids[0]->leaf->text, t->stab);
+                if(entry == NULL)
+                    undeclared_error(t->kids[0]->leaf);
+                if(entry->typ->basetype == FUNC_TYPE) {
+
+                }
+            }
+        }
+    }
+}
+
+/**
+ * DECL type checking for decl+initialization
+ */
 void verify_decl_types(struct tree *t, SymbolTable st)
 {
     if(t == NULL || st == NULL) return;
@@ -861,9 +1002,9 @@ struct typeinfo *get_ident_type(char *ident, SymbolTable st)
     else if(strcmp(ident, "None") == 0)
         return alcnone();
     else {
-        //here we know that it is NOT a builtin
-        //so we look up the entry of said name
-        //in an inside to outside direction (which is what lookup does)
+        // here we know that it is NOT a builtin
+        // so we look up the entry of said name
+        // from the inner symtab to the outer
         SymbolTableEntry type_entry = lookup(ident, st);
         if(type_entry != NULL) {
             //get type info if entry found
@@ -886,14 +1027,14 @@ struct typeinfo *get_ident_type(char *ident, SymbolTable st)
  * for 'or_test' nodes 
 */
 void validate_operand_types(struct tree *t, SymbolTable st)
-{  // printf("entering print tree\n");
-    if(strcmp(t->symbolname, "or_test") == 0) {
-        validate_or_test(t, st);
-        return;
-    }
-    if(strcmp(t->symbolname, "and_test") == 0) {
-
-        return;
+{  
+    switch(t->prodrule) {
+        case OR_TEST:
+            validate_or_test(t, st);
+            return;
+        case AND_TEST:
+            // TODO: Add the rest of the fucking tests
+            return;
     }
 
     for(int i = 0; i < t->nkids; i++) {
@@ -963,12 +1104,12 @@ struct typeinfo *type_copy(struct typeinfo *typ)
     if(typ == NULL) {
         return NULL;
     }
-
     // We only want to copy the symbol table of classes for 
     //   object instantiation, and not for functions and packages
     // if we assign a function f to a var a, like a = f, we only 
     // want to store a pointer. Same with packages.
     if(typ->basetype == FUNC_TYPE || typ->basetype == PACKAGE_TYPE) {
+        printf("huh??\n");
         return typ;
     }
 
@@ -998,8 +1139,10 @@ SymbolTable copy_symbol_table(SymbolTable st)
             new_entry = insertsymbol(copy, tok);
             
             // If our current entry has its own nested symbol table
-            if(old_entry->nested != NULL)
+            if(old_entry->nested != NULL) {
                 new_entry->nested = copy_symbol_table(old_entry->nested);
+                printf("Copying the nested symbol table of %s\n", new_entry->ident);
+            }
         }
     }
     return copy;
@@ -1228,37 +1371,7 @@ struct typeinfo *get_rhs_type(struct tree *t)
     // Recurse until the "power" nonterminal is found
     switch(t->prodrule) {
         case POWER: { 
-
-            // If we see an ATOM then we must traverse further to get the 
-            //   type 
-            if(t->kids[0]->prodrule == ATOM) {
-                return get_rhs_type(t->kids[0]);
-            }
-            if(t->kids[0]->leaf != NULL) {
-                // 'power' can only be reached if we haven't already recursed to a 
-                //   listmaker or a dictorset_option_* tree node 
-                // This leaf contains the leftmost name of the expr_stmt
-                struct token *leaf = t->kids[0]->leaf;
-
-                // If the RHS token is a name
-                if(leaf->category == NAME) {
-                    
-                    SymbolTableEntry entry = lookup(leaf->text, t->stab);
-
-                    // Throw an error if entry could not be found
-                    if(entry == NULL) {
-                        undeclared_error(leaf);
-                    }
-
-                    // Forget about trailer_reps here, just get the identifier type
-                    type = get_ident_type(entry->ident, t->stab);
-                }
-
-                // If the RHS token is a literal, dict, list, bool, or None
-                else {
-                    type = get_token_type(leaf);
-                }
-            }
+            type = get_power_type(t);
             break;
         } 
 

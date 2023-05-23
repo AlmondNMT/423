@@ -24,11 +24,53 @@ a % b % c
 a ** b ** c
 #[1, 2, 3] & [2, 3]
 
-"""
-In our first pass, we should detect meaningless expressions like the following:
-"""
 '''
 a = 2 = b
 a + b = 2
 a * b = 2
+
+∙ Disallow function/class names from appearing in expr_stmts without parentheses
+  (trailer_rep)
+∙ For POWER nonterminals, we need to determine the nature of its derivation, 
+  i.e., is it a dotted operator, a list access
+
+Typechecking (Essentially the same as B-minor, but with ANY_TYPE
+∙ A value may only be assigned to a value of the same type, unless either is
+  ANY_TYPE
+∙ A function parameter must only accept a value of the same type or ANY_TYPE
+∙ The type of a return statement must match the function return type or ANY_TYPE
+∙ All binary operators must have compatible types on the left and right hand 
+  sides. The type-checking should be commutative.
+ + 
+  str + str
+  int + int
+  int + float
+  float + float
+ - 
+  int - int
+  int - float
+  float - float
+ * 
+  int * float
+  str * int
+  int * int
+  float * float
+ / 
+  int / int
+  float / int
+  float / float
+ //
+  int // int
+  float // int 
+  float // float
+ 
+  int ^ int
+  int | int
+  int & int
+
+ or
+  ANY or ANY
+ and 
+  ANY and ANY
+
 '''

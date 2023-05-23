@@ -110,7 +110,8 @@ int alctoken(int category)
 struct token *create_token(char *name, char *filename, int lineno, int column)
 {
     if(name == NULL || filename == NULL) return NULL; 
-    struct token *tok = ckalloc(1, sizeof(struct token *));
+    struct token *tok = ckalloc(1, sizeof(struct token));
+    tok->text = NULL;
     tok->text = ckalloc(strlen(name) + 1, sizeof(char));
     tok->filename = ckalloc(strlen(filename) + 1, sizeof(char));
     strcpy(tok->text, name);
