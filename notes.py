@@ -25,7 +25,7 @@ a ** b ** c
 #[1, 2, 3] & [2, 3]
 
 '''
-a = 2 = b
+a = 2 = b # we're finna forbid these, since they're not in the 107 folder
 a + b = 2
 a * b = 2
 
@@ -33,6 +33,9 @@ a * b = 2
   (trailer_rep)
 ∙ For POWER nonterminals, we need to determine the nature of its derivation, 
   i.e., is it a dotted operator, a list access
+∙ Disallow assignments to instance attributes, similar to function calls on the LHS
+  of an assignment
+∙ Do not support chained assignments, even though they are syntactically valid
 
 Typechecking (Essentially the same as B-minor, but with ANY_TYPE
 ∙ A value may only be assigned to a value of the same type, unless either is

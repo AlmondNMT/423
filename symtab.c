@@ -147,8 +147,7 @@ void locate_undeclared(struct tree *t, SymbolTable st)
  */
 void check_decls(struct tree *t, SymbolTable st)
 {
-    if(t == NULL || st == NULL) return;
-    if(t->leaf == NULL) return;
+    if(t == NULL || st == NULL || t->leaf == NULL) return;
     SymbolTableEntry entry = lookup(t->leaf->text, t->stab);
 
     // If the entry is not null, there are two conditions under which an undeclared
@@ -181,7 +180,7 @@ void add_global_names(tree_t *t, SymbolTable st)
     struct token *leaf = NULL;
 
     // The symbol name
-    if(strcmp(t->kids[0]->symbolname, "NAME") == 0) {
+    if(t->kids[0]->prodrule == NAME) {
         leaf = t->kids[0]->leaf;
         insertsymbol(global, leaf);
         add_global_names(t->kids[1], global);
@@ -272,7 +271,8 @@ int get_func_param_count(struct tree *t, int count)
 
 /**
  * Starting position "expr_stmt"
- * This handles function calls, assignments, and list accesses
+ * This handles function calls, assignments, and list accesses. It's absolutely 
+ *   massive.
  */
 void handle_expr_stmt(struct tree *t, SymbolTable st)
 {
@@ -289,13 +289,13 @@ void handle_expr_stmt(struct tree *t, SymbolTable st)
     struct typeinfo *rhs_type = NULL;
     switch(t->kids[1]->prodrule) {
         case EQUAL_OR_YIELD_OR_TESTLIST_REP: {
-            // Get the type of the rightmost branch by passing 'testlist' node
+            // Get the type of the RHS through the 'testlist' node
             rhs_type = get_rhs_type(t->kids[1]->kids[1]);
 
-            // Get the leftmost token first due to the shape of the tree
             struct token *leftmost = get_leftmost_token(t, st);
 
             // Add the leftmost op to the symbol table if it doesn't already exist, 
+            // TODO: Disallow assignments to object attributes
             entry = insertsymbol(st, leftmost);
 
             // Verify type compatible of LHS and RHS in assignment
@@ -315,7 +315,9 @@ void handle_expr_stmt(struct tree *t, SymbolTable st)
 
         // Now we check the validity of augassigns (e.g., a += 1, b *= a, etc.)
         case EXPR_CONJUNCT: {
-            // TODO: augassigns
+            // TODO: augassigns. These will most likely require a similar method
+            //   as with arithmetic/logical operator checking. EXPR_CONJUNCT 
+            //   appears only if there is an augassign
             break;
         }
 
@@ -347,12 +349,12 @@ void add_nested_table(SymbolTableEntry entry, struct typeinfo *rhs_type)
 void handle_eytr_chain(struct tree *t, SymbolTable st, struct typeinfo *rhs_type)
 {
     if(t == NULL || st == NULL) return;
-    if(strcmp(t->symbolname, "power") == 0) {
+    if(t->prodrule == POWER) {
         handle_token(t, st);
         return;
     }
     // For nested EYTR assignment chains
-    if(strcmp(t->symbolname, "equal_OR_yield_OR_testlist_rep") == 0) {
+    if(t->prodrule == EQUAL_OR_YIELD_OR_TESTLIST_REP) {
         handle_eytr_chain(t->kids[0], st, rhs_type);
         handle_eytr_chain(t->kids[1], st, rhs_type);
     }
@@ -403,11 +405,11 @@ SymbolTableEntry get_trailer_entry(struct tree *t, SymbolTable st)
 void handle_token(struct tree *t, SymbolTable st)
 {
     // First check that we are currently at a power nonterminal
-    if(strcmp(t->symbolname, "power") == 0) {
+    if(t->prodrule == POWER) {
         // Then check if our first child is a NAME. If it is not, throw a fit,
         //   because this violates the assumption that only NAMES will be found,
         //   and not listmaker_opts, dictorsetmaker_opts, or literals
-        if(strcmp(t->kids[0]->symbolname, "NAME") != 0) {
+        if(t->kids[0]->prodrule != NAME) {
             fprintf(stderr, "LHS of assignment must contain an identifier\n");
             exit(SEM_ERR);
         }
@@ -425,11 +427,11 @@ void handle_token(struct tree *t, SymbolTable st)
         //        "trailer_rep" token that is found. This is done with an 
         //        auxiliary function. This should return a single table entry
         //        that can be type-annotated
-        if(strcmp(t->kids[0]->symbolname, "trailer_rep") == 0) {
+        if(t->kids[1]->prodrule == TRAILER_REP) {
 
             // If we could not find an entry in the table for the leftmost 
             //   token, throw a fit. For example, "a.b = 2" is only valid if 
-            //   "a" is previously defined
+            //   "a" is previously defined. 
             if(entry == NULL) {
                 semantic_error(left->filename, left->lineno, "name '%s' is not defined\n", left->text);
             }
@@ -460,7 +462,7 @@ SymbolTableEntry get_chained_dot_entry(struct tree *t, SymbolTable st, SymbolTab
     SymbolTableEntry rhs = NULL;
 
     // Perform DFS on trailer_rep to get the immediate RHS of the current entry
-    if(strcmp(t->symbolname, "trailer_rep") == 0) {
+    if(t->prodrule == TRAILER_REP) {
         // DFS
         rhs = get_chained_dot_entry(t->kids[0], st, entry);
         // The first out of two possible cases: the child of "trailer" is a 
@@ -468,7 +470,7 @@ SymbolTableEntry get_chained_dot_entry(struct tree *t, SymbolTable st, SymbolTab
         // In this example here, the second child of "trailer_rep",
         //   "t->kids[1]", is a "trailer". The first child of "trailer" is 
         //   either a "NAME" or a "subscriptlist".
-        if(strcmp(t->kids[1]->kids[0]->symbolname, "NAME") == 0) {
+        if(t->kids[1]->kids[0]->prodrule == NAME) {
             struct token *rhs_tok = t->kids[1]->kids[0]->leaf;
 
             // Get the symbol table of the rhs
@@ -479,7 +481,7 @@ SymbolTableEntry get_chained_dot_entry(struct tree *t, SymbolTable st, SymbolTab
         }
 
         // For lists
-        else if(strcmp(t->kids[1]->kids[0]->symbolname, "subscriptlist") == 0){
+        else if(t->kids[1]->kids[0]->prodrule == SUBSCRIPTLIST) {
             
         }
         
@@ -494,7 +496,8 @@ SymbolTableEntry get_chained_dot_entry(struct tree *t, SymbolTable st, SymbolTab
 
 /**
  * Search for expressions containing literals or function calls on the LHS of 
- * assignments. This can begin in the topmost node
+ * assignments. This can begin in the topmost node. This function's primary job 
+ * is to restrict the permissiveness of the python2.7 syntax
  */
 void locate_invalid_expr(struct tree *t)
 {
@@ -504,6 +507,11 @@ void locate_invalid_expr(struct tree *t)
             // Assignments with EQUAL signs are indicated by this nasty EYTR 
             //   nonterminal, which can be the second child of an expr_stmt
             if(t->kids[1]->prodrule == EQUAL_OR_YIELD_OR_TESTLIST_REP) {
+                // Disallow chained assignments
+                if(t->kids[1]->kids[0]->prodrule == EQUAL_OR_YIELD_OR_TESTLIST_REP) {
+                    fprintf(stderr, "Cannot perform chained assignment\n");
+                    exit(SEM_ERR);
+                }
                 // We now search everywhere except the RHS for any literals, lists,
                 //  or dicts, or arithmetic expressions
                 locate_invalid_leftmost(t);
@@ -567,13 +575,13 @@ void locate_invalid_leftmost(struct tree *t)
 
     // If we encounter power nonterms, we must ensure there are no 
     //   function/constructor to the LHS of assignments
-    if(strcmp(t->symbolname, "power") == 0) {
+    if(t->prodrule == POWER) {
         //   If we find a trailer nonterminal and it doesn't have a child NAME, 
         // throw an error saying 'cannot assign to function call'. This behavior
         // differs from Python's in that any puny function calls on the LHS of  
         // an assignment are erroneous, whereas Python only throws an error if 
         // the rightmost function call in a dotted trailer occurs.
-        locate_invalid_trailer(t->kids[1]);
+        locate_invalid_trailer(t->kids[1], t->kids[0]->leaf);
 
         // Throw a semantic error if a non-NAME token is found in the LHS of an 
         // assignment
@@ -592,24 +600,26 @@ void locate_invalid_leftmost(struct tree *t)
  */
 void locate_invalid_arith(struct tree *t)
 {
-    if(strcmp(t->symbolname, "or_test") == 0 
-            || strcmp(t->symbolname, "and_test") == 0
-            || strcmp(t->symbolname, "comparison") == 0
-            || strcmp(t->symbolname, "expr") == 0
-            || strcmp(t->symbolname, "xor_expr") == 0
-            || strcmp(t->symbolname, "and_expr") == 0
-            || strcmp(t->symbolname, "shift_expr") == 0
-            || strcmp(t->symbolname, "arith_expr") == 0
-            || strcmp(t->symbolname, "term") == 0) {
-        if(strcmp(t->kids[1]->symbolname, "nulltree") != 0) {
-            fprintf(stderr, "cannot assign to operator\n");
-            exit(SEM_ERR);
-        }
+    switch(t->prodrule) {
+        case OR_TEST:
+        case AND_TEST:
+        case COMPARISON:
+        case EXPR:
+        case XOR_EXPR:
+        case AND_EXPR:
+        case SHIFT_EXPR:
+        case ARITH_EXPR:
+        case TERM:
+            if(t->kids[1]->prodrule != NULLTREE) {
+                fprintf(stderr, "cannot assign to operator\n");
+                exit(SEM_ERR);
+            }
     }
 }
 
 /**
  * Assumed starting point is expr_stmt
+ * TODO: Idk what this was for
  */
 void locate_invalid_nested(struct tree *t)
 {
@@ -630,16 +640,15 @@ void locate_invalid_nested_aux(struct tree *t)
     locate_invalid_arith(t);
 
     // If the first child of power is not an identifier, then check for an invalid trailer
-    if(strcmp(t->symbolname, "power") == 0) {
-        locate_invalid_trailer(t->kids[1]);
-        locate_invalid_token(t->kids[0]);
-        return;
-    }
-    // 
-    if(strcmp(t->symbolname, "equal_OR_yield_OR_testlist_rep") == 0) {
-        locate_invalid_nested_aux(t->kids[0]);
-        locate_invalid_nested_aux(t->kids[1]);
-        return;
+    switch(t->prodrule) {
+        case POWER:
+            locate_invalid_trailer(t->kids[1], t->kids[0]->leaf);
+            locate_invalid_token(t->kids[0]);
+            return;
+        case EQUAL_OR_YIELD_OR_TESTLIST_REP:
+            locate_invalid_nested_aux(t->kids[0]);
+            locate_invalid_nested_aux(t->kids[1]);
+            return;
     }
     for(int i = 0; i < t->nkids; i++) {
         locate_invalid_nested_aux(t->kids[i]);
@@ -649,23 +658,26 @@ void locate_invalid_nested_aux(struct tree *t)
 /**
  * Starting point is either a nulltree, a trailer_rep, or a trailer 
  */
-void locate_invalid_trailer(struct tree *t)
+void locate_invalid_trailer(struct tree *t, struct token *tok)
 {
     if(t == NULL) return;
     
     // If we find a trailer, we throw an error if it's first child is not a NAME
-    if(strcmp(t->symbolname, "trailer") == 0) {
+    switch(t->prodrule) {
+        case TRAILER:
+            // arglist_opt denotes a function call, which is illegal on the LHS of assignments
+            switch(t->kids[0]->prodrule) {
+                case ARGLIST_OPT:
+                    fprintf(stderr, "%s:%d: Cannot assign to function call\n", tok->filename, tok->lineno);
+                    exit(SEM_ERR);
+                case NAME:
+                    fprintf(stderr, "%s:%d: Cannot assign to instance attribute\n", tok->filename, tok->lineno);
+                    exit(SEM_ERR);
+            }
 
-        // arglist_opt denotes a function call, which is illegal on the LHS of assignments
-        if(strcmp(t->kids[0]->symbolname, "arglist_opt") == 0) {
-            fprintf(stderr, "Cannot assign to function call\n");
-            exit(SEM_ERR);
-        }
-    }
-    // If we're at a trailer_rep, we must search further
-    else if(strcmp(t->symbolname, "trailer_rep") == 0) {
-        for(int i = 0; i < t->nkids; i++)
-            locate_invalid_trailer(t->kids[i]);
+        case TRAILER_REP:
+            for(int i = 0; i < t->nkids; i++)
+                locate_invalid_trailer(t->kids[i], tok);
     }
 }
 
@@ -678,16 +690,19 @@ void locate_invalid_token(struct tree *t)
 
     // If we find that the first child is not a name, but the leaf 
     //   is not NULL 
-    if(strcmp(t->symbolname, "NAME") != 0 && t->leaf != NULL)
+    if(t->prodrule != NAME && t->leaf != NULL)
         semantic_error(t->leaf->filename, t->leaf->lineno, "Cannot assign to literal\n");
-    if(strcmp(t->symbolname, "atom") == 0) {
+    if(t->prodrule == ATOM) {
         // For invalid LHS list assignments
-        if(strcmp(t->kids[0]->symbolname, "listmaker_opt") == 0)
+        if(t->prodrule == LISTMAKER_OPT) {
             fprintf(stderr, "list created on LHS of assignment\n");
+            exit(SEM_ERR);
+        }
         // For invalid LHS dict assignments
-        if(strcmp(t->kids[0]->symbolname, "dictorsetmaker_opt") == 0)
+        if(t->kids[0]->prodrule == DICTORSETMAKER_OPT) {
             fprintf(stderr, "dict created on LHS of assignment\n");
-        exit(SEM_ERR);
+            exit(SEM_ERR);
+        }
     }
 }   
 
@@ -955,6 +970,7 @@ void get_import_symbols(struct tree *t, SymbolTable st)
     
     // Insert package type information
     free_typeptr(entry->typ);
+    entry->typ = NULL;
     entry->typ = alcbuiltin(PACKAGE_TYPE);
 }
 
@@ -1168,6 +1184,10 @@ void free_symtab(SymbolTable st) {
             if (entry->nested != NULL) {
                 free_symtab(entry->nested);
             }
+
+
+            // I was going to free the goddamn typeptrs, but that caused all
+            //   sorts of nihil for some reason
 
             // Free entry
             free(entry);

@@ -50,6 +50,7 @@ void handle_testlist(struct tree *t, SymbolTable st);
 void handle_eytr_chain(struct tree *t, SymbolTable st, struct typeinfo *rhs_typ);
 void handle_token(struct tree *t, SymbolTable st);
 SymbolTableEntry get_chained_dot_entry(struct tree *t, SymbolTable st, SymbolTableEntry entry);
+SymbolTableEntry insert_dotted_entry(struct tree *t, SymbolTable st, SymbolTableEntry entry);
 int is_function_call(struct tree *t);
 int does_tr_have_trailer_child(struct tree *t);
 int tr_has_tr_child(struct tree *t);
@@ -59,10 +60,10 @@ void locate_invalid_expr(struct tree *t);
 void locate_invalid_leftmost(struct tree *t);
 void locate_invalid_nested(struct tree *t);
 void locate_invalid_nested_aux(struct tree *t);
-void locate_invalid_trailer(struct tree *t);
+void locate_invalid_trailer(struct tree *t, struct token *tok);
 void locate_invalid_token(struct tree *t);
 void locate_invalid_arith(struct tree *t);
-int has_ancestor(struct tree *t, int ANCESTOR);
+int has_ancestor(struct tree *t, int ancestor);
 
 // FOr handling PunY builtins stuff
 struct token get_assignment_rhs(struct tree *t, SymbolTable st);

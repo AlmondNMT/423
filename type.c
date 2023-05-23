@@ -502,13 +502,10 @@ typeptr alclist()
 {
     typeptr list = alctype(LIST_TYPE);
     struct sym_table *st = mksymtab(HASH_TABLE_SIZE, "class");
-    struct sym_entry *entry = NULL;
     list->u.cls.name = strdup("list");
     list->u.cls.st = st;
-    entry = insertbuiltin_meth(st, "append", "None");
-    add_builtin_func_info(entry, 1, NONE_TYPE, "%s: %d", "e", ANY_TYPE);
-    entry = insertbuiltin_meth(st, "remove", "None");
-    add_builtin_func_info(entry, 1, NONE_TYPE, "%s: %d", "e", ANY_TYPE);
+    insertbuiltin_meth(st, "append", "None");
+    insertbuiltin_meth(st, "remove", "None");
     return list;
 }
 
@@ -580,6 +577,12 @@ paramlist alcparam(char *name, int basetype)
 
 /**
  * Starting position: root
+ *
+ * After associating types with identifiers, we have to perform checks similar
+ *   in nature to those in the first phase of semantic analysis. It should now 
+ *   be possible to verify all function/method calls (numargs = numparams and 
+ *   type compatibility), 
+ *   
  */
 void type_check(struct tree *t, SymbolTable st)
 {
@@ -587,7 +590,7 @@ void type_check(struct tree *t, SymbolTable st)
     //   return type, if applicable
     verify_func_ret_type(t, st);
 
-    // Function argument types
+    // TODO: Function argument types
     verify_func_arg_types(t, st);
 
     // Declarations with RHS assignments
@@ -687,9 +690,9 @@ struct typeinfo *get_trailer_type(struct tree *t, SymbolTableEntry entry)
 
     // Assume function calls occur on the rightmost trailer, if they happen
    
-    //if this is a function call, the node with the relevant type info is either
-    // a sibling (if trailer_rep has no dots, like a plain function call f())
-    // or it is in the first nested trailer_rep. 
+    // if this is a function call, the node with the relevant type info is either
+    //   a sibling (if TRAILER_REP has no dots, like a plain function call f())
+    //   or it is in the first nested TRAILER_REP. 
     //so we just need to see if it's got a trailer rep child
     //printf("here we are\n");
     if(is_function_call(t)) {
