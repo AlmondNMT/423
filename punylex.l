@@ -148,10 +148,10 @@ forbidden_identifiers       [0-9]+[a-zA-Z0-9]+
 "finally"              { yylexerror(puny_support_err); }
 "nonlocal"             { yylexerror(puny_support_err); }
 "yield"                { yylexerror(puny_support_err); }
-"break"                { column += strlen(yytext);words++; return alctoken(BREAK); }
-"for"                  { column += strlen(yytext);words++; return alctoken(FOR); }
-"not"                  { column += strlen(yytext);words++; return alctoken(NOT); }
-"class"                { column += strlen(yytext);words++; return alctoken(CLASS); }
+"break"                { column += strlen(yytext); words++; return alctoken(BREAK); }
+"for"                  { column += strlen(yytext); words++; return alctoken(FOR); }
+"not"                  { column += strlen(yytext); words++; return alctoken(NOT); }
+"class"                { column += strlen(yytext); words++; return alctoken(CLASS); }
 "from"                 { yylexerror(puny_support_err); }
 "or"                   { column += strlen(yytext);words++; return alctoken(OR); }
 "continue"             { column += strlen(yytext);words++; return alctoken(CONTINUE); }

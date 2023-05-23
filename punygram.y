@@ -1,6 +1,7 @@
 %{
     #include <stdio.h>
     #include <stdlib.h>
+    #include "errdef.h"
     #include "utils.h"
     
     #define YYDEBUG 1
@@ -152,10 +153,10 @@ compound_stmt: if_stmt
     | while_stmt
     | for_stmt
     | funcdef
-    | classdef
+    | classdef { fprintf(stderr, "SyntaxError: user-defined classes not supported in PunY\n"); exit(SYN_ERR);}
     ;
 
-classdef: CLASS NAME lpar_testlist_rpar_opt COLON suite {$$=make_tree("classdef", 3, $2, $3, $5);}
+classdef: CLASS NAME lpar_testlist_rpar_opt COLON suite {$$=make_tree("classdef", 3, $2, $3, $5); }
     ;
 
 lpar_testlist_rpar_opt: {$$=make_tree("nulltree",0,NULL);}

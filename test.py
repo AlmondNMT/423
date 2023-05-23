@@ -1,3 +1,6 @@
+class Ass:
+    def __init__(self, x):
+        print(x)
 a = 1
 def f(x: int, y, z):
     return x**y * z
