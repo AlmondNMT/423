@@ -1,11 +1,11 @@
-class Ass:
-    def __init__(self, x):
-        print(x)
-a = 1
 def f(x: int, y, z):
     return x**y * z
 
-a: int = 3
-a.b = 2
+a: list = [[1, 2 ,3], [1, 2, 3]]
+a[1][2] = 2
+a[1, 2] = 1
+
+e = 4, 5
+a,b,c,d = 2, 3, 4, 5
 
 f(1.2, 2, 3)

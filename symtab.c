@@ -32,7 +32,7 @@ void semantics(struct tree *tree, SymbolTable st)
     // Add puny builtins like 'int', 'str' and 'open'
     add_puny_builtins(st);          
 
-    // Populate symbol table and add type information
+    // Populate symbol tables
     populate_symboltables(tree, st);   
 
     // (FOR DEBUGGING) verify that every node in the tree has a symtab
@@ -295,11 +295,9 @@ void handle_expr_stmt(struct tree *t, SymbolTable st)
             struct token *leftmost = get_leftmost_token(t, st);
 
             // Add the leftmost op to the symbol table if it doesn't already exist, 
-            // TODO: Disallow assignments to object attributes
             entry = insertsymbol(st, leftmost);
 
             // Verify type compatible of LHS and RHS in assignment
-            //check_var_type(entry->typ, rhs_type, leftmost);
             int compatible = are_types_compatible(entry->typ, rhs_type);
             if(!compatible)
                 semantic_error(leftmost->filename, leftmost->lineno, "incompatible assignment between '%s' and '%s'\n", get_basetype(entry->typ->basetype), get_basetype(rhs_type->basetype));
@@ -862,7 +860,6 @@ void get_decl_stmt(struct tree *t, SymbolTable st)
         rhs_type = get_rhs_type(t->kids[2]->kids[1]);
     }
     SymbolTableEntry e = insertsymbol(st, var);
-    //check_var_type(e->typ, rhs_type, var);
     add_nested_table(e, rhs_type);
 }
 

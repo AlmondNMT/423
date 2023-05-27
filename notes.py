@@ -77,3 +77,4 @@ Typechecking (Essentially the same as B-minor, but with ANY_TYPE
   ANY and ANY
 
 '''
+a.b = 1

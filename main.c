@@ -93,7 +93,7 @@ int main(int argc, char *argv[]) {
             print_graph(tree, graphname);
             free(graphname);
         }
-        // Populate symbol tables and obtain type information
+        // Populate symbol tables - obtain type information - validate operand types
         semantics(tree, global);
 
         if(symtab_opt) {
