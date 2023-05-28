@@ -181,12 +181,12 @@ varargslist: fpdef_equal_test_comma_rep fpdef_options {$$=make_tree("varargslist
     ;
 
 fpdef_equal_test_comma_rep: {$$=make_tree("nulltree",0,NULL);}     // (fpdef ['=' test] ',')*
-    | fpdef_equal_test_comma_rep fpdef equal_test_opt COMMA {$$=make_tree("fpdef_equal_test_comma_rep", 3, $1, $2, $3);}
+    | fpdef_equal_test_comma_rep fpdef COMMA {$$=make_tree("fpdef_equal_test_comma_rep", 2, $1, $2);}
     ;
 
 fpdef_options: 
       star_name_opt_OR_dstar_name { yyerror("Starred and double-starred parameters not allowed"); }
-    | fpdef equal_test_opt com_fpdef_eq_t_rep comma_opt  {$$=make_tree("fpdef_options", 4, $1, $2, $3, $4);}
+    | fpdef com_fpdef_eq_t_rep comma_opt  {$$=make_tree("fpdef_options", 2, $1, $2);}
     ;
 
 equal_test_opt: {$$=make_tree("nulltree",0,NULL);}
@@ -194,7 +194,7 @@ equal_test_opt: {$$=make_tree("nulltree",0,NULL);}
     ;
 
 com_fpdef_eq_t_rep: {$$=make_tree("nulltree",0,NULL);} 
-    | com_fpdef_eq_t_rep COMMA fpdef equal_test_opt {$$=make_tree("com_fpdef_eq_t_rep", 3, $1, $3, $4);}
+    | com_fpdef_eq_t_rep COMMA fpdef {$$=make_tree("com_fpdef_eq_t_rep", 2, $1, $3);}
     ;
 
 fpdef: NAME colon_test_opt {$$=make_tree("fpdef", 2, $1, $2);}
