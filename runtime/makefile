@@ -1,5 +1,5 @@
-CC=unicon
+CC=unicon -s
 
-all: float.icn
-	$(CC) float.icn
-	./float
+all: float.icn range.icn
+	$(CC) float.icn -x
+	$(CC) range.icn -x

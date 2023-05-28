@@ -1,0 +1,16 @@
+procedure buncha(vals)
+    every i := vals do
+        write(i)
+end
+
+procedure main()
+    a := table(0)
+    a["asdf"] := 1
+    a["fdsa"] := 2
+    if a["asdf"] = 3 then
+        write("fifa")
+    else
+        write("chinga")
+    b := [1, 2, 3]
+    write(b[100])
+end

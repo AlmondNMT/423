@@ -1,0 +1,6 @@
+procedure main()
+    w := open("hello-graphics", "g")
+    writes(w, "Let's take a look")
+    Event(w)
+    close(w)
+end
