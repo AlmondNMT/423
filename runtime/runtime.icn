@@ -1,0 +1,45 @@
+# Sumer over a list
+procedure sum_1(iterable)
+    total := 0
+    every i := !iterable do {
+        total +:= i
+    }
+    return total
+end
+
+# Sum over list with a starting total
+procedure sum_2(iterable, start)
+    return start + sum_1(iterable)
+end
+
+# No-arg float function call
+procedure float_0()
+    return 0.0
+end 
+
+# Single-argument float function call
+# This implicitly converts the argument to a float, if
+#   possible
+procedure float_1(arg)
+    return arg * 1.0
+end
+
+# Default no-arg `bool` return false
+procedure bool_0()
+end
+
+# Single-arg `bool` return false only for &null, 0, and False
+procedure bool_1(arg)
+    if arg == ("0" | "" | "None" | 0 | "False") then {
+        return "False"
+    }
+    return "True"
+end
+
+procedure str()
+    return "";
+end
+
+procedure str_1(arg)
+    return string(arg)
+end

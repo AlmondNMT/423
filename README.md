@@ -8,25 +8,19 @@ class Consciousness:
 ```
 
 ## Tasks
-
-### utils.c
-- [x] Fix string deescaping and add tests
-
-### tree.c
-- [x] Finish writing alctoken (I think this is done)
-- [x] alctree
-- [x] Fix memory leak between append\_child and alctoken (IGNORED)
-- [ ] 
-
-### GRAMMAR
-- [x] Add type hints to grammar
-
-### symtab.c
-- [x] Hash function obtained from https://stackoverflow.com/questions/7666509/hash-function-for-string
-- [x] Grab for loop variables
-- [ ] Verify assignment types
-- [ ] Verify the LHS and RHS types for decl\_stmt with an optional assignment
-- [x] We are using lists with objects of type any, and loops with an iterator of type any
-- [ ] Solve the dotted name problem
-- [ ] Imports (we should do this part last)
-### symtab.h
+- [ ] Type-checking
+    - [ ] Imports: transpile imports and link them with main source. 
+    - [ ] Function type-checking
+        - [x] Verify that function return types match return types of values actually returned
+        - [ ] Verify that arguments match the types of formal parameters
+        - [ ] Prevent function/classes in expressions without parentheses. This disallows 
+              assigning functions to variables, as well as several other complex tasks.
+    - [ ] Ensure that assignments are compatible
+    - [ ] 
+- [ ] Code Generation
+    - [ ] Finish building runtime library (in Unicon)
+        - [ ] Builtin imports
+        - [ ] Builtin classes and functions
+    - [ ] Local imports (like import hangman as h. This sort of requires that we can 
+          already transpile the imported file into Unicon)
+    - [ ] Figure out how to generate code using the tree and symbol tables.

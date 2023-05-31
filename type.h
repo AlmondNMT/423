@@ -1,5 +1,6 @@
 #ifndef TYPE_H
 #define TYPE_H
+#include <stdbool.h>
 #include "errdef.h"
 
 struct tree;
@@ -44,6 +45,8 @@ typedef struct typeinfo {
              char *name; /* ? */
              struct sym_table *st;
              int nparams;
+             int max_params;
+             bool vararg;
              struct param *parameters;
              struct typeinfo *returntype;
         } f;
@@ -110,6 +113,9 @@ void type_check(struct tree *t, struct sym_table *st);
 
 void validate_operand_types(struct tree *t, struct sym_table *st);
 void validate_or_test(struct tree *t, struct sym_table *st);
+
+// Correct function usage
+void verify_correct_func_use(struct tree *t, struct sym_table *st);
 void verify_func_ret_type(struct tree *t, struct sym_table *st);
 void verify_func_arg_types(struct tree *t, struct sym_table *st);
 void verify_decl_types(struct tree *t, struct sym_table *st);

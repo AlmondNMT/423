@@ -1,0 +1,17 @@
+# This is the analog to Python's randint function
+procedure randint(a, b)
+    if b < a then {
+        write(&errout, "Empty range for a=", a, " and b=", b)
+        exit(1)
+    }
+    return ?(b - a + 1) + a - 1
+end
+
+procedure choice(a)
+    size := len(a)
+    if size = 0 then {
+        write(&errout, "Cannot choose from an empty sequence")
+        exit(1)
+    }
+    return a[randint(1, size)]
+end

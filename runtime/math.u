@@ -1,0 +1,91 @@
+version	U12.1.00
+uid	math.u1-1685405716-0
+impl	local
+global	1
+	0,000005,gcd,2
+
+proc gcd
+	local	0,001000,a
+	local	1,001000,b
+	local	2,000000,temp
+	con	0,002000,1,0
+	declend
+	filen	math.icn
+	line	1
+	colm	12
+	synt	any
+	mark	L1
+lab L2
+	line	2
+	colm	5
+	synt	while
+	mark0
+	pnull
+	var	1
+	int	0
+	line	2
+	colm	13
+	synt	any
+	numne
+	unmark
+	mark	L2
+	mark	L5
+	pnull
+	var	2
+	var	1
+	line	3
+	colm	14
+	synt	any
+	asgn
+	unmark
+lab L5
+	mark	L6
+	pnull
+	var	1
+	pnull
+	var	0
+	var	1
+	line	4
+	colm	16
+	synt	any
+	mod
+	line	4
+	colm	11
+	synt	any
+	asgn
+	unmark
+lab L6
+	pnull
+	var	0
+	var	2
+	line	5
+	colm	11
+	synt	any
+	asgn
+lab L3
+	unmark
+	goto	L2
+lab L4
+	line	2
+	colm	5
+	synt	endwhile
+	unmark
+lab L1
+	mark	L7
+	mark	L8
+	var	0
+	line	7
+	colm	5
+	synt	any
+	pret
+lab L8
+	synt	any
+	pfail
+	unmark
+lab L7
+	pnull
+	line	8
+	colm	2
+	synt	any
+	pfail
+	end

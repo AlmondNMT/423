@@ -586,21 +586,34 @@ paramlist alcparam(char *name, int basetype)
  */
 void type_check(struct tree *t, SymbolTable st)
 {
+    // Verify that functions are defined and used correctly
+    verify_correct_func_use(t, st);
+
+    // Declarations with RHS assignments
+    verify_decl_types(t, st);
+
+    // Ensure that operand types are valid for arithmetic and logical expressions
+    validate_operand_types(t, st);
+}
+
+/**
+ * For functions we want to guarantee the following things
+ * 1. The return types and the actual returned value match
+ * 2. The arguments and parameters are type-compatible
+ * 3. Defined functions cannot be used without parentheses
+ *
+ */
+void verify_correct_func_use(struct tree *t, SymbolTable st)
+{
+    // Disallow function names from appearing within expr_stmts without parentheses
+    disallow_funccall_no_parenth(t);
+
     // Verify that the return type in a function matches the stated 
     //   return type, if applicable
     verify_func_ret_type(t, st);
 
     // TODO: Function argument types
     verify_func_arg_types(t, st);
-
-    // Declarations with RHS assignments
-    verify_decl_types(t, st);
-
-    // Disallow function names from appearing within expr_stmts without parentheses
-    disallow_funccall_no_parenth(t);
-
-    // Ensure that operand types are valid for arithmetic and logical expressions
-    validate_operand_types(t, st);
 }
 
 /**
@@ -621,13 +634,35 @@ void disallow_funccall_no_parenth(struct tree *t)
 }
 
 /**
+ * Auxiliary function for disallow_funccall_np. 
+ * Starting position: EXPR_STMT
+ */
+void disallow_funccall_no_parenth_aux(struct tree *t)
+{
+    switch(t->prodrule) {
+        case POWER: {
+            if(t->kids[0]->prodrule == NAME) {
+                SymbolTableEntry entry = lookup(t->kids[0]->leaf->text, t->stab);
+                if(entry == NULL)
+                    undeclared_error(t->kids[0]->leaf);
+                if(entry->typ->basetype == FUNC_TYPE) {
+                    
+                }
+            }
+        }
+    }
+}
+
+/**
  * Get the type of a POWER nonterm
  */
 typeptr get_power_type(struct tree *t)
 {
     typeptr type = NULL;
     // If we see an ATOM then we must traverse further to get the 
-    //   type 
+    //   type, because this indicates that we've encountered 
+    //   a yield_expr_OR_testlist_comp, a listmaker_opt, or a 
+    //   dictorsetmaker_opt
     if(t->kids[0]->prodrule == ATOM) {
 
         return get_rhs_type(t->kids[0]);
@@ -718,26 +753,6 @@ struct typeinfo *get_trailer_type(struct tree *t, SymbolTableEntry entry)
     return type;
 }
 
-
-/**
- * Auxiliary function disallow_funccall_np. 
- * Starting position: EXPR_STMT
- */
-void disallow_funccall_no_parenth_aux(struct tree *t)
-{
-    switch(t->prodrule) {
-        case POWER: {
-            if(t->kids[0]->prodrule == NAME) {
-                SymbolTableEntry entry = lookup(t->kids[0]->leaf->text, t->stab);
-                if(entry == NULL)
-                    undeclared_error(t->kids[0]->leaf);
-                if(entry->typ->basetype == FUNC_TYPE) {
-
-                }
-            }
-        }
-    }
-}
 
 /**
  * DECL type checking for decl+initialization

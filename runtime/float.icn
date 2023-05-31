@@ -1,7 +1,0 @@
-procedure main()
-    write(shit(1, 2))
-end
-
-procedure shit(a, b)
-    return (a + b)
-end
