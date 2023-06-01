@@ -39,6 +39,7 @@ void free_symtab(SymbolTable st);
 // Specialized tree traversals for populating symbol table 
 void get_for_iterator(struct tree *t, SymbolTable table);
 void get_import_symbols(struct tree *t, SymbolTable st);
+void get_imported_tree(char *filename);
 void get_decl_stmt(struct tree *t, SymbolTable st);
 void decorate_subtree_with_symbol_table(struct tree *t, SymbolTable st);
 SymbolTable get_global_symtab(SymbolTable st);
@@ -80,7 +81,7 @@ SymbolTable mksymtab(int nbuckets, char *table_name);
 SymbolTable mknested(char *filename, int lineno, int nbuckets, SymbolTable parent, char *scope);
 void populate_symboltables(struct tree *t, SymbolTable st);
 void printsymbols(SymbolTable st);
-void semantics(struct tree *t, SymbolTable st);
+void semantics(struct tree *t, SymbolTable st, int add_builtins);
 
 // Get Symbol information from the table
 int symbol_exists(char *name, SymbolTable st);

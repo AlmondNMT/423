@@ -14,11 +14,16 @@
 
 extern tree_t* tree;
 extern void add_puny_builtins(SymbolTable st);
+extern char yyfilename[PATHMAX];
+extern FILE *yyin;
+
+// Global hash table for import names. Used to prevent circular imports
+extern struct sym_table global_names;
 
 /**
  * Do semantic analysis here 
  */
-void semantics(struct tree *tree, SymbolTable st)
+void semantics(struct tree *tree, SymbolTable st, int add_builtins)
 {
     if(tree == NULL || st == NULL) 
         return;
@@ -30,7 +35,8 @@ void semantics(struct tree *tree, SymbolTable st)
     locate_invalid_expr(tree);
     
     // Add puny builtins like 'int', 'str' and 'open'
-    add_puny_builtins(st);          
+    if(add_builtins)
+        add_puny_builtins(st);          
 
     // Populate symbol tables
     populate_symboltables(tree, st);   
@@ -953,22 +959,74 @@ void get_import_symbols(struct tree *t, SymbolTable st)
     strcpy(filename, import_name);
     strcat(filename, ".py");
 
-    // If the file is not found in the current AND it is not a builtin
+    // If the file is not found in the current AND it is not a builtin, throw an error
     if(access(filename, F_OK) != 0 && !is_built_in(import_name)) {
         semantic_error(leaf->filename, leaf->lineno, "No module named '%s'\n", import_name);
     }
-    if(strcmp(dotted_as_name->kids[1]->symbolname, "as_name_opt") == 0) { 
+
+    // If we see an AS_NAME_OPT nonterminal we add the alias for the module
+    if(dotted_as_name->kids[1]->prodrule == AS_NAME_OPT) { 
         struct token *alias = dotted_as_name->kids[1]->kids[0]->leaf;
         entry = insertsymbol(st, alias);
+    } 
 
-    } else {
+    // Otherwise just use the original name
+    else {
         entry = insertsymbol(st, leaf);
     }
-    
+
     // Insert package type information
     free_typeptr(entry->typ);
     entry->typ = NULL;
     entry->typ = alcbuiltin(PACKAGE_TYPE);
+    
+    // If the imported file exists in the current directory attempt to compile it
+    if(access(filename, F_OK) == 0) {
+        // Copy the current tree to a temporary variable, as it will be 
+        //   overwritten by the following function call
+        struct tree *current = tree, *tmp = NULL;
+        
+        printf("File: %s\n", filename);
+        
+        // `tree` now points to the parse tree of the imported module
+        get_imported_tree(filename);
+
+        // Prune the new tree
+        prune_tree(tree, 0);
+
+        // Debugging shit
+        /*print_tree(current, 0, 1);
+        printf("-------\n");
+        print_tree(tree, 0, 1);*/
+
+        // Package symbol table
+        int dont_add_builtins = 0;
+        SymbolTable package_symtab = mknested(filename, entry->lineno, HASH_TABLE_SIZE, st, "package");
+        entry->nested = package_symtab;
+        semantics(tree, package_symtab, dont_add_builtins);
+
+        // TODO: Generate transpiled code for packages with name mangling
+        //printsymbols(st);
+        tmp = tree;
+        tree = current;
+
+        print_tree(tree, 0, 1);
+    }
+}
+
+void get_imported_tree(char *filename)
+{
+
+    // Initialize yyin for imported file
+    check_access(filename);
+
+    // Reset the global variables
+    reset_globals();
+
+    // Attempt to parse the imported file
+    yyparse();
+
+    // Prune 
 }
 
 /**
@@ -1270,10 +1328,11 @@ void verify_func_arg_count(struct tree *t)
             // Get the function ident
             struct token *ftok = t->parent->parent->parent->kids[0]->leaf;
             SymbolTableEntry entry = lookup(ftok->text, t->stab);
-            
+            //printsymbols(t->stab);
             // If entry is not found throw 'name not found' error
             if(entry == NULL)
                 undeclared_error(ftok);
+            printf("%s\n", entry->ident);
 
             // Use auxiliary function to count arguments
             int arg_count;

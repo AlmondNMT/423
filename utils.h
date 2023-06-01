@@ -22,3 +22,5 @@ int yylexerror(char *s);
 char *rand_string(int min_len, int max_len);
 int get_rand_ascii();
 void *ckalloc(int n, size_t size);
+void reset_globals();
+int check_access(char *filename);

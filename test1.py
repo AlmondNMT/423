@@ -1,3 +1,4 @@
-class Ass:
-    def __nihil__(self):
-        return self
+h: list = [1, 2, 3]
+
+def f(x):
+    return x

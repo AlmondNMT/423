@@ -640,6 +640,7 @@ void disallow_funccall_no_parenth(struct tree *t)
 void disallow_funccall_no_parenth_aux(struct tree *t)
 {
     switch(t->prodrule) {
+        // When we find a POWER within an EXPR_STMT, we have to get 
         case POWER: {
             if(t->kids[0]->prodrule == NAME) {
                 SymbolTableEntry entry = lookup(t->kids[0]->leaf->text, t->stab);
@@ -649,6 +650,7 @@ void disallow_funccall_no_parenth_aux(struct tree *t)
                     
                 }
             }
+            
         }
     }
 }

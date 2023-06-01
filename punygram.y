@@ -12,8 +12,6 @@
     char *puny_support_err = "This Python feature is not in puny";
     
     #include "tree.h"
-    extern struct tree *root;
-
     tree_t *tree;
 
 %}
@@ -53,7 +51,7 @@
 %token <treeptr> ASSIGNMENT
 %token <treeptr> DECORATOR
 
-%type <treeptr> file_input  nl_OR_stmt_rep   stmt   simple_stmt   semi_small_stmt_rep  semi_opt  small_stmt  global_stmt   comma_name_rep   pass_stmt  del_stmt   flow_stmt   break_stmt  continue_stmt   return_stmt     yield_expr_OR_testlist_comp   testlist_comp  tc_options  compound_stmt   classdef   lpar_testlist_rpar_opt   funcdef   parameters   varargslist_opt   varargslist   fpdef_equal_test_comma_rep   fpdef_options   equal_test_opt   com_fpdef_eq_t_rep   fpdef   fplist   comma_fpdef_rep   comma_dstar_name_opt  star_name_opt_OR_dstar_name   if_stmt   elif_test_colon_suite_rep   else_colon_suite_opt   suite   stmt_rep  while_stmt   for_stmt expr_stmt  expr_conjunct   yield_OR_testlist  equal_OR_yield_OR_testlist_rep   augassign  import_stmt   import_name   import_from   import_from_targets import_from_as_names  comma_import_from_as_name_rep   import_from_as_name  as_name_opt   dotted_as_names  comma_dotted_as_name_rep   dotted_as_name  dotted_name  dot_OR_ellipsis_rep_opt   dot_OR_ellipsis_rep  dot_OR_ellipsis     testlist_opt   testlist   comma_test_rep   exprlist   comma_expr_rep  comma_opt   expr   vbar_xor_expr_rep   xor_expr  caret_and_expr_rep  and_expr   amper_shift_expr_rep   shift_expr   shift_arith_expr_rep   shift   arith_expr  pm_term_rep   plus_OR_minus   term   factops_factor_rep   factops   factor  pmt   power   trailer_rep  trailer   arglist_opt   arglist  arg_comma_rep   arg_ORS   comma_arg_rep   comma_dstar_test_opt   argument  comp_for_opt comp_for   comp_iter_opt  comp_iter  comp_if   subscriptlist  comma_subscript_rep  subscript sliceop_opt       sliceop   test_opt   test   or_test   or_and_test_rep  and_test  and_not_test_rep  not_test comparison  comp_op_expr_rep  comp_op  not_in   is_not  dstar_factor_opt atom  listmaker_opt listmaker  listmaker_options  list_for testlist_safe  old_test tl_safe_opt  comma_old_test_rep  list_iter_opt  list_iter list_if  dictorsetmaker_opt  dictorsetmaker  dictorset_option_1 comp_for_OR_ctctco  ctct_rep  rarrow_test_opt colon_test_opt decl_stmt
+%type <treeptr> file_input  nl_OR_stmt_rep   stmt   simple_stmt   semi_small_stmt_rep  semi_opt  small_stmt  global_stmt   comma_name_rep   pass_stmt  del_stmt   flow_stmt   break_stmt  continue_stmt   return_stmt     yield_expr_OR_testlist_comp   testlist_comp  tc_options  compound_stmt   classdef   lpar_testlist_rpar_opt   funcdef   parameters   varargslist_opt   varargslist   fpdef_equal_test_comma_rep   fpdef_options   equal_test_opt   com_fpdef_eq_t_rep   fpdef   fplist   comma_fpdef_rep   comma_dstar_name_opt  star_name_opt_OR_dstar_name   if_stmt   elif_test_colon_suite_rep   else_colon_suite_opt   suite   stmt_rep  while_stmt   for_stmt expr_stmt  expr_conjunct   yield_OR_testlist  equal_OR_yield_OR_testlist_rep   augassign  import_stmt   import_name   as_name_opt   dotted_as_names  comma_dotted_as_name_rep   dotted_as_name  dotted_name  testlist_opt   testlist   comma_test_rep   exprlist   comma_expr_rep  comma_opt   expr   vbar_xor_expr_rep   xor_expr  caret_and_expr_rep  and_expr   amper_shift_expr_rep   shift_expr   shift_arith_expr_rep   shift   arith_expr  pm_term_rep   plus_OR_minus   term   factops_factor_rep   factops   factor  pmt   power   trailer_rep  trailer   arglist_opt   arglist  arg_comma_rep   arg_ORS   comma_arg_rep   comma_dstar_test_opt   argument  comp_for_opt comp_for   comp_iter_opt  comp_iter  comp_if   subscriptlist  comma_subscript_rep  subscript sliceop_opt       sliceop   test_opt   test   or_test   or_and_test_rep  and_test  and_not_test_rep  not_test comparison  comp_op_expr_rep  comp_op  not_in   is_not  dstar_factor_opt atom  listmaker_opt listmaker  listmaker_options  list_for testlist_safe  old_test tl_safe_opt  comma_old_test_rep  list_iter_opt  list_iter list_if  dictorsetmaker_opt  dictorsetmaker  dictorset_option_1 comp_for_OR_ctctco  ctct_rep  rarrow_test_opt colon_test_opt decl_stmt
 
 %start file_input
 
@@ -265,29 +263,9 @@ augassign: PLUSEQUAL
 
 // Import Stmts
 import_stmt: import_name
-    | import_from
     ;
 
 import_name: IMPORT dotted_as_names {$$=make_tree("import_name", 1, $2);}
-    ;
-
-import_from: FROM dot_OR_ellipsis_rep_opt dotted_name IMPORT import_from_targets {$$=make_tree("import_from", 3, $2,$3,$5);}
-    | FROM dot_OR_ellipsis_rep IMPORT import_from_targets {$$=make_tree("import_from", 2, $2,$4);}
-    ;
-
-import_from_targets: LPAR import_from_as_names comma_opt RPAR {$$=make_tree("import_from_targets", 2, $2,$3);}
-   | import_from_as_names {err_lookahead(yychar, 1, "", COMMA);}
-   | STAR
-   ;
-
-import_from_as_names: import_from_as_name comma_import_from_as_name_rep {$$=make_tree("import_from_as_names", 2, $1,$2);}
-   ;
-
-comma_import_from_as_name_rep: {$$=make_tree("nulltree",0,NULL);}
-    | comma_import_from_as_name_rep COMMA import_from_as_name {$$=make_tree("comma_import_from_as_name_rep", 2, $1,$3);}
-    ;
-
-import_from_as_name: NAME as_name_opt {$$=make_tree("import_from_as_name", 2, $1,$2);}
     ;
 
 as_name_opt: {$$=make_tree("nulltree",0,NULL);} 
@@ -306,18 +284,6 @@ dotted_as_name: dotted_name as_name_opt {$$=make_tree("dotted_as_name", 2, $1,$2
 
 dotted_name: dotted_name DOT NAME {$$=make_tree("dotted_name", 2, $1,$3);}
     | NAME
-    ;
-
-dot_OR_ellipsis_rep_opt: {$$=make_tree("nulltree",0,NULL);}
-    | dot_OR_ellipsis_rep
-    ;
-
-dot_OR_ellipsis_rep: dot_OR_ellipsis
-    | dot_OR_ellipsis_rep dot_OR_ellipsis {$$=make_tree("dot_OR_ellipsis_rep", 2, $1,$2);}
-    ;
-    
-dot_OR_ellipsis: DOT
-    | ELLIPSIS
     ;
 
 //test_triplet_opt: {$$=make_tree("nulltree",0,NULL);}

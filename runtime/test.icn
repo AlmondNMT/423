@@ -1,8 +1,5 @@
 procedure main()
-    a_pyname := str_1(1)
-    b_pyname := str_1("None")
-    c_pyname := str_1("False")
-    write(a_pyname)
-    write(b_pyname)
-    write(c_pyname)
+    a := [1,2, 3]
+    a |||:= [1]
+    every write(!a)
 end

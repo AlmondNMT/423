@@ -18,8 +18,6 @@ extern int column;
 // ### DEBUGGING ### //
 int indentation_level = 0; 
 int max_indent = 0;
-int indent_count = 0;
-int dedent_count = 0;
 int make_tree_count = 0, alctoken_count = 0;
 int serial = 0; // For tree printing
 // ################# //
@@ -153,27 +151,32 @@ void free_token(struct token *tok)
     free(tok);
 }
 
-
-struct tree* append_kid(struct tree * kidspassed[], char * symbnam)
+struct tree* init_tree(char *symbnam)
 {
     int i = 0;
     struct tree *newtree = ckalloc(1, sizeof(tree_t));
     newtree->symbolname = ckalloc(strlen(symbnam) + 1, sizeof(char));
     newtree->stab = NULL;
+    newtree->nkids = 0;
     newtree->id = serial++; // For graphical printing
     newtree->type = alcbuiltin(ANY_TYPE);
-    strcpy(newtree->symbolname, symbnam);
-    while(i<9)
-    {
-        newtree->kids[i]=NULL;
-        i++;
-    }
-
-    i=0;
-
     newtree->leaf = NULL;
     newtree->prodrule = get_nonterminal_prodrule(symbnam);
     
+    strcpy(newtree->symbolname, symbnam);
+    while(i < 9) {
+        newtree->kids[i] = NULL;
+        i++;
+    }
+    return newtree;
+}
+
+
+struct tree* append_kid(struct tree * kidspassed[], char * symbnam)
+{
+    int i = 0;
+    struct tree *newtree = init_tree(symbnam);
+
     while(i < 9 && kidspassed[i] != NULL)
     {
         newtree->kids[i] = kidspassed[i];
@@ -268,9 +271,8 @@ void prune_tree(struct tree *t, int childnumber)
 //we are actually printing, relative to parent, for printing purposes only. 
 //These nulltrees are a nightmare, im sorry i did this shit
 void print_tree(struct tree * t, int depth, int print_full)
-{  // printf("entering print tree\n");
-    if(t->prodrule == TRAILER_REP);
-        //printf("foundtraillerep");
+{  
+    if(t == NULL) { fprintf(stderr, "NULL Passed to print_tree\n"); return; }
     char * spcs = get_spaces(depth);
     if(t->prodrule == NULLTREE)
     {
@@ -285,9 +287,8 @@ void print_tree(struct tree * t, int depth, int print_full)
     }
 
     if(t->nkids - nulltreecount > 1 || t->leaf != NULL || print_full) {
-        //printf("about to check if leaf is null\n");
         if(t->leaf != NULL)
-        {   //printf("finna print leaf info\n");
+        {   
             printf("%s%d-LEAF category: %d, catname: %s, line: %d, VALUE: %s",spcs,depth, t->leaf->category, rev_token(t->leaf->category), t->leaf->lineno, t->leaf->text);
             if(t->stab != NULL)
                 printf(" : %s\n", t->stab->scope);
@@ -296,10 +297,9 @@ void print_tree(struct tree * t, int depth, int print_full)
             free(spcs);
             return;
         }
-        //printf("somehow past leaf print\n");
         
         if(t->kids[0]==NULL)
-        {   //printf("kids are null\n");
+        {   
             if(t->symbolname != NULL)
             {
                 //printf("leaf depth %d\n",depth);
@@ -308,10 +308,8 @@ void print_tree(struct tree * t, int depth, int print_full)
             free(spcs);
             return;
         }
-        //printf("see if symbname is null\n");
-
         if(t->symbolname != NULL)
-        {   //printf("somehow made it past this\n");
+        {   
             printf("%s%d-INNER: symbname: %s: %d", spcs, depth, t->symbolname, t->prodrule); 
             if(t->stab != NULL)
                 printf(" : %s\n", t->stab->scope);
@@ -333,6 +331,24 @@ void print_tree(struct tree * t, int depth, int print_full)
     }
     free(spcs);
     return;
+}
+
+/**
+ * Return a copy of a tree
+ * TODO: COmpletely fuckin broke
+ */
+struct tree *copy_tree(struct tree *tre)
+{
+    if(tre == NULL) return NULL;
+    struct tree *new = init_tree(tre->symbolname);
+    new->nkids = tre->nkids;
+    free_typeptr(tre->type);
+    new->type = type_copy(tre->type);
+    for(int i = 0; i < tre->nkids; i++) {
+        new->kids[i] = copy_tree(tre->kids[i]);
+        new->kids[i]->parent = tre;
+    }
+    return new;
 }
 
 

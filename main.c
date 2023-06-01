@@ -9,21 +9,17 @@
 #include "punygram.tab.h"
 #include "utils.h"
 
-extern int yylineno, column, chars;
 extern FILE * yyin;
-extern int yylex();
 extern int yyparse();
-extern char *yytext;
-extern int paren_nesting, sqbr_nesting, cbr_nesting;
 extern int firsttime;
 extern YYSTYPE yylval;
 extern tree_t* tree;
 
 // For debugging
-extern int indent_count, dedent_count;
-extern int make_tree_count, alctoken_count;
-
 extern char yyfilename[PATHMAX];
+
+// Global module names
+struct sym_table global_names;
 
 int main(int argc, char *argv[]) {
 
@@ -43,26 +39,14 @@ int main(int argc, char *argv[]) {
             continue;
         }
 
-        if (access(argv[i], F_OK) == 0 && strstr(argv[i], ".py")) { // Check if file exists and has .py extension
-            yyin = fopen(argv[i], "rb");
-            strcpy(yyfilename, argv[i]);
-            if (yyin == NULL) { // Check that file is opened correctly
-                fprintf(stderr, "File %s cannot be opened\n", argv[i]);
-                continue;
-            }
-            printf("File: %s\n", yyfilename);
-        } else {
-            fprintf(stderr, "Skipping %s. Not a .py file or does not exist\n", argv[i]);
+        if(!check_access(argv[i])) {
             continue;
         }
         // Reset global variables at the beginning of each file
-        yylineno = 1;
-        column = 1;
-        paren_nesting = sqbr_nesting = cbr_nesting = 0;
-        firsttime = 0;
-        indent_count = dedent_count = 0;
-
+        reset_globals();
+ 
         // Parse 
+        printf("File: %s\n", yyfilename);
         yyparse();
 
         // Initialize SymbolTable Stack with HASH_TABLE_SIZE buckets 
@@ -94,7 +78,8 @@ int main(int argc, char *argv[]) {
             free(graphname);
         }
         // Populate symbol tables - obtain type information - validate operand types
-        semantics(tree, global);
+        int add_builtins_pls = 1;
+        semantics(tree, global, add_builtins_pls);
 
         if(symtab_opt) {
             printsymbols(global);

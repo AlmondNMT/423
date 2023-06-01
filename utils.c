@@ -5,19 +5,62 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <time.h>
+#include <unistd.h>
 #include "errdef.h"
 #include "punygram.tab.h"
 #include "utils.h"
 
-extern char yyfilename[];
-extern int yylineno;
+extern char yyfilename[PATHMAX];
+
+// Buncha global variables to reset 
+extern int yylineno, column, paren_nesting, sqbr_nesting, cbr_nesting, firsttime;
+extern int unmatched_quotes, top, words, has_endmarker_been_returned, dedentcount;
+extern int dentstack[100];
+
 extern char *yytext;
 extern char *rev_token(int);
 extern YYSTYPE yylval;
+extern FILE *yyin;
+
+/**
+ * Reset line count, column count, parentheses/brackets nesting, EOF marker counter
+ */
+void reset_globals()
+{
+    unmatched_quotes = 0;
+    for(int i = 0; i < 100; i++)
+        dentstack[i] = 0;
+    top = 0;
+    words = 0;
+    dedentcount = 0;
+    has_endmarker_been_returned = 0;
+    yylineno = 1;
+    column = 1;
+    paren_nesting = sqbr_nesting = cbr_nesting = 0;
+    firsttime = 0;
+}
+
+/**
+ *  Initialize yyin if it exists and there are no errors with fopen
+ */
+int check_access(char *filename)
+{
+    if(access(filename, F_OK) == 0 && strstr(filename, ".py")) { // Check if file exists and has .py extension
+        yyin = fopen(filename, "rb");
+        strcpy(yyfilename, filename);
+        if (yyin == NULL) { // Check that file is opened correctly
+            fprintf(stderr, "File %s cannot be opened\n", filename);
+            return 0;
+        }
+    } else {
+        fprintf(stderr, "Skipping %s. Not a .py file or does not exist\n", filename);
+        return 0;
+    }
+    return 1;
+}
 
 int get_ascii(char c)
 {
-
 	switch(c){
 		case 'n': 
 			return '\n';
