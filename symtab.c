@@ -18,7 +18,7 @@ extern char yyfilename[PATHMAX];
 extern FILE *yyin;
 
 // Global hash table for import names. Used to prevent circular imports
-extern struct sym_table global_names;
+extern struct sym_table global_modules;
 
 /**
  * Do semantic analysis here 
@@ -196,6 +196,33 @@ void add_global_names(tree_t *t, SymbolTable st)
         insertsymbol(global, leaf);
         add_global_names(t->kids[0], global);
     }
+}
+
+/**
+ * Initialize the global_modules hash table
+ */
+void init_global_modules(SymbolTable global_modules)
+{
+    char *scope = "module";
+    global_modules->nBuckets = HASH_TABLE_SIZE;
+    global_modules->tbl = ckalloc(HASH_TABLE_SIZE, sizeof(SymbolTableEntry));
+    global_modules->parent = NULL;
+    global_modules->level = 0;
+    global_modules->scope = ckalloc(strlen(scope) + 2, sizeof(char));
+    strcpy(global_modules->scope, scope);
+    insertmodule(global_modules, yyfilename);
+}
+
+/**
+ * Add module to the global symbol table
+ */
+SymbolTableEntry insertmodule(SymbolTable st, char *modname)
+{
+    SymbolTableEntry entry = NULL;
+    struct token *tok = create_token(modname, modname, 0, 1);
+    entry = insertsymbol(st, tok);
+    entry->typ->basetype = PACKAGE_TYPE;
+    return entry;
 }
 
 /**
@@ -560,8 +587,8 @@ void locate_invalid_expr(struct tree *t)
 */
 int has_ancestor(struct tree *t, int ANCESTOR)
 {
-    if(t == NULL) return 0;
-    if(t->prodrule == ANCESTOR) return 1;
+    if(t == NULL) return false;
+    if(t->prodrule == ANCESTOR) return true;
     return has_ancestor(t->parent, ANCESTOR);
 }
 
@@ -735,9 +762,8 @@ void decorate_subtree_with_symbol_table(struct tree *t, SymbolTable st)
                         nested = entry->nested;
                     }
 
-                    // I can't remember why I wanted to require that the builtins
-                    //   had return types.
-                    if(entry->typ->basetype == FUNC_TYPE) { // TODO: Ensure all builtins have returntypes
+                    // TODO: Ensure all builtins have returntypes
+                    if(entry->typ->basetype == FUNC_TYPE) {
 
                     }
                 }
@@ -762,19 +788,19 @@ int is_function_call(struct tree *t)
         //case: function call has arguments, then arglist is in inner node
         if(strcmp(t->kids[1]->kids[0]->symbolname, "arglist_opt") == 0) {
             //printf("%s\n", t->parent->kids[0]->leaf->text);
-            return 1;
+            return true;
         }
     }
 
-    return 0;
+    return false;
 }
 
 int does_tr_have_trailer_child(struct tree *t) 
 {
     if(strcmp(t->symbolname, "trailer_rep") == 0)
         if(t->kids[1] != NULL && strcmp(t->kids[1]->symbolname, "trailer") == 0)
-            return 1;
-    return 0;
+            return true;
+    return false;
 }
 
 //see if trailer rep has immediate trailer rep kid
@@ -782,8 +808,8 @@ int does_tr_have_trailer_child(struct tree *t)
 int tr_has_tr_child(struct tree *t) 
 {
         if(t->kids[0] != NULL && strcmp(t->kids[0]->symbolname, "trailer_rep") == 0)
-            return 1;
-    return 0;
+            return true;
+    return false;
 }
 
 
@@ -930,17 +956,17 @@ int is_built_in(char *import_name) {
     // Create a pointer to iterate over the elements of builtin_list
     char **iterator = builtin_list;
     
-    //will iterate until it finds LIST_END in the built in list, if it does return 0
+    //will iterate until it finds LIST_END in the built in list, if it does return false
      while (*iterator != NULL) {
         
-        //if import_name was found in built in list, return 1
+        //if import_name was found in built in list, return true
         if (strcmp(import_name, *iterator) == 0)
-            return 1;
+            return true;
         
         iterator++;
     }
     
-    return 0;
+    return false;
 }
 
 /**
@@ -982,22 +1008,27 @@ void get_import_symbols(struct tree *t, SymbolTable st)
     
     // If the imported file exists in the current directory attempt to compile it
     if(access(filename, F_OK) == 0) {
+        // If the filename is found in the global module hash table, throw an error
+        if(module_exists(filename)) {
+            fprintf(stderr, "%s: circular import for '%s'\n", yyfilename, filename);
+            exit(SEM_ERR);
+        } else {
+            // Add module to hash table
+            insertmodule(&global_modules, filename);
+            printsymbols(&global_modules);
+        }
+
         // Copy the current tree to a temporary variable, as it will be 
         //   overwritten by the following function call
         struct tree *current = tree, *tmp = NULL;
         
         printf("File: %s\n", filename);
         
+        // Preserving the original filename
+        char *current_filename = strdup(yyfilename);
+        
         // `tree` now points to the parse tree of the imported module
         get_imported_tree(filename);
-
-        // Prune the new tree
-        prune_tree(tree, 0);
-
-        // Debugging shit
-        /*print_tree(current, 0, 1);
-        printf("-------\n");
-        print_tree(tree, 0, 1);*/
 
         // Package symbol table
         int dont_add_builtins = 0;
@@ -1005,12 +1036,14 @@ void get_import_symbols(struct tree *t, SymbolTable st)
         entry->nested = package_symtab;
         semantics(tree, package_symtab, dont_add_builtins);
 
-        // TODO: Generate transpiled code for packages with name mangling
-        //printsymbols(st);
+        // Revert the global tree
         tmp = tree;
         tree = current;
+        
+        // TODO: Generate transpiled code for packages with name mangling
 
-        print_tree(tree, 0, 1);
+        // Revert the global name back to the main source file.
+        strcpy(yyfilename,  current_filename);
     }
 }
 
@@ -1026,7 +1059,21 @@ void get_imported_tree(char *filename)
     // Attempt to parse the imported file
     yyparse();
 
-    // Prune 
+    // Prune the new tree
+    prune_tree(tree, 0);
+
+}
+
+/**
+ * Check if a module already exists in the global module hash table
+ */
+bool module_exists(char *filename)
+{
+    SymbolTableEntry entry = lookup(filename, &global_modules);
+    if(entry != NULL) {
+        return true;
+    }
+    return false;
 }
 
 /**
@@ -1328,11 +1375,9 @@ void verify_func_arg_count(struct tree *t)
             // Get the function ident
             struct token *ftok = t->parent->parent->parent->kids[0]->leaf;
             SymbolTableEntry entry = lookup(ftok->text, t->stab);
-            //printsymbols(t->stab);
             // If entry is not found throw 'name not found' error
             if(entry == NULL)
                 undeclared_error(ftok);
-            printf("%s\n", entry->ident);
 
             // Use auxiliary function to count arguments
             int arg_count;

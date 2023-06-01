@@ -1,18 +1,18 @@
 # Python Compiler
 ```python
-class Consciousness:
-    def __init__(self):
-        ...
-    def __nihil__(self):
-        return 
+def C(x, y):
+    return x + y
 ```
 
 ## Tasks
 - [ ] Type-checking
     - [ ] Imports: transpile imports and link them with main source. 
-        - [ ] Create new tree for imports, preserving the old one. 
+        - [x] Create new tree for imports, preserving the old one. 
         - [x] Obtain symbol table for module
-        - [ ] Check for circular imports
+        - [x] Save old filename
+        - [x] Check for circular imports
+        
+
     - [ ] Function type-checking
         - [x] Verify that function return types match return types of values actually returned
         - [ ] Verify that arguments match the types of formal parameters

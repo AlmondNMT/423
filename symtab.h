@@ -1,4 +1,5 @@
 #define HASH_TABLE_SIZE (1 << 12)
+#include <stdbool.h>
 struct tree;     // Definition found in tree.h
 struct typeinfo; // Definition found in type.h
 struct token;
@@ -35,6 +36,8 @@ void check_redeclared_variables(SymbolTable st);
 void check_undeclared_variables(SymbolTable st);
 void check_decls(struct tree *t, SymbolTable st);
 void free_symtab(SymbolTable st);
+void init_global_modules(SymbolTable global_modules);
+bool module_exists(char *filename);
 
 // Specialized tree traversals for populating symbol table 
 void get_for_iterator(struct tree *t, SymbolTable table);
@@ -73,6 +76,7 @@ uint hash(SymbolTable st, char *s);
 void insertclass(struct tree *t, SymbolTable st);
 void insertfunction(struct tree *t, SymbolTable st);
 SymbolTableEntry insertsymbol(SymbolTable st, struct token *tok); 
+SymbolTableEntry insertmodule(SymbolTable st, char *modname);
 void locate_undeclared(struct tree *t, SymbolTable st);
 int get_func_param_count(struct tree *t, int count);
 int count_func_args(struct tree *t, int count);

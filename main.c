@@ -19,7 +19,7 @@ extern tree_t* tree;
 extern char yyfilename[PATHMAX];
 
 // Global module names
-struct sym_table global_names;
+struct sym_table global_modules;
 
 int main(int argc, char *argv[]) {
 
@@ -48,6 +48,9 @@ int main(int argc, char *argv[]) {
         // Parse 
         printf("File: %s\n", yyfilename);
         yyparse();
+        
+        // Initialize the global modules hash table
+        init_global_modules(&global_modules);
 
         // Initialize SymbolTable Stack with HASH_TABLE_SIZE buckets 
         SymbolTable global = mksymtab(HASH_TABLE_SIZE, "global"); 
