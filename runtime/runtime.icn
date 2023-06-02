@@ -1,4 +1,4 @@
-# Sumer over a list
+# Sum over a list
 procedure sum_1(iterable)
     total := 0
     every i := !iterable do {

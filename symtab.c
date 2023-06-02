@@ -44,9 +44,6 @@ void semantics(struct tree *tree, SymbolTable st, int add_builtins)
     // (FOR DEBUGGING) verify that every node in the tree has a symtab
     //print_tree(tree, 0, 1);
 
-    // Verify that argcount of function call matches formal param count
-    verify_func_arg_count(tree);
-
     // Find names that are used, but not declared
     locate_undeclared(tree, st);       
 
@@ -124,6 +121,10 @@ void locate_undeclared(struct tree *t, SymbolTable st)
         case POWER: {
             if(t->kids[0]->prodrule == NAME) {
                 check_decls(t->kids[0], st);
+            } 
+            // Check for undeclared items in listmakers and dictmakers (e.g., [a, b], {a: 1, 2: b})
+            else if(t->kids[0]->prodrule == ATOM) {
+                locate_undeclared(t->kids[0], st);
             }
             return;
         }
@@ -415,10 +416,11 @@ SymbolTableEntry get_trailer_entry(struct tree *t, SymbolTable st)
     if(t == NULL || st == NULL) return NULL;
     
     // If we find a trailer, we need to 
-    if(strcmp(t->symbolname, "trailer") == 0) {
-
-    }
-    else if(strcmp(t->symbolname, "trailer_rep") == 0) {
+    switch(t->prodrule) {
+        case TRAILER:
+            break;
+        case TRAILER_REP:
+            break;
     }
 } */
 
@@ -538,7 +540,8 @@ void locate_invalid_expr(struct tree *t)
             // Assignments with EQUAL signs are indicated by this nasty EYTR 
             //   nonterminal, which can be the second child of an expr_stmt
             if(t->kids[1]->prodrule == EQUAL_OR_YIELD_OR_TESTLIST_REP) {
-                // Disallow chained assignments
+
+                // Disallow chained assignments, e.g., a = b = 3
                 if(t->kids[1]->kids[0]->prodrule == EQUAL_OR_YIELD_OR_TESTLIST_REP) {
                     fprintf(stderr, "Cannot perform chained assignment\n");
                     exit(SEM_ERR);
@@ -546,7 +549,6 @@ void locate_invalid_expr(struct tree *t)
                 // We now search everywhere except the RHS for any literals, lists,
                 //  or dicts, or arithmetic expressions
                 locate_invalid_leftmost(t);
-                //locate_invalid_nested(t);
             }
             // Once we find an expr_stmt, we return to avoid traversing its 
             //   subtrees twice for no reason
@@ -648,43 +650,6 @@ void locate_invalid_arith(struct tree *t)
     }
 }
 
-/**
- * Assumed starting point is expr_stmt
- * TODO: Idk what this was for
- */
-void locate_invalid_nested(struct tree *t)
-{
-    if(t == NULL) return;
-    // If the first child of EYTR is another EYTR, search for any violations
-    if(strcmp(t->kids[1]->kids[0]->symbolname, "equal_OR_yield_OR_testlist_rep") == 0) {
-        locate_invalid_nested_aux(t->kids[1]->kids[0]);
-    }
-}
-
-/**
- * This one is called if there are nested EYTR nodes, i.e., chained assignments
- */
-void locate_invalid_nested_aux(struct tree *t)
-{
-    if(t == NULL) return;
-    // Ensure there is no illegal arithmetic/logical operators on LHS
-    locate_invalid_arith(t);
-
-    // If the first child of power is not an identifier, then check for an invalid trailer
-    switch(t->prodrule) {
-        case POWER:
-            locate_invalid_trailer(t->kids[1], t->kids[0]->leaf);
-            locate_invalid_token(t->kids[0]);
-            return;
-        case EQUAL_OR_YIELD_OR_TESTLIST_REP:
-            locate_invalid_nested_aux(t->kids[0]);
-            locate_invalid_nested_aux(t->kids[1]);
-            return;
-    }
-    for(int i = 0; i < t->nkids; i++) {
-        locate_invalid_nested_aux(t->kids[i]);
-    }
-}
 
 /**
  * Starting point is either a nulltree, a trailer_rep, or a trailer 
@@ -786,7 +751,7 @@ int is_function_call(struct tree *t)
     if(does_tr_have_trailer_child(t)) {
 
         //case: function call has arguments, then arglist is in inner node
-        if(strcmp(t->kids[1]->kids[0]->symbolname, "arglist_opt") == 0) {
+        if(t->kids[1]->kids[0]->prodrule == ARGLIST_OPT) {
             //printf("%s\n", t->parent->kids[0]->leaf->text);
             return true;
         }
@@ -797,8 +762,8 @@ int is_function_call(struct tree *t)
 
 int does_tr_have_trailer_child(struct tree *t) 
 {
-    if(strcmp(t->symbolname, "trailer_rep") == 0)
-        if(t->kids[1] != NULL && strcmp(t->kids[1]->symbolname, "trailer") == 0)
+    if(t->prodrule == TRAILER_REP)
+        if(t->kids[1] != NULL && t->kids[1]->prodrule == TRAILER)
             return true;
     return false;
 }
@@ -807,7 +772,7 @@ int does_tr_have_trailer_child(struct tree *t)
 //Assumption: we're feeding a confirmed trailer_rep node to this
 int tr_has_tr_child(struct tree *t) 
 {
-        if(t->kids[0] != NULL && strcmp(t->kids[0]->symbolname, "trailer_rep") == 0)
+        if(t->kids[0] != NULL && t->kids[0]->prodrule == TRAILER_REP)
             return true;
     return false;
 }
@@ -817,7 +782,7 @@ struct typeinfo *get_trailer_type_list(struct tree *t, SymbolTable st)
 {
     if(t == NULL || st == NULL) return NULL;
     struct typeinfo *type = NULL;
-    if(strcmp(t->symbolname, "subscriptlist") == 0) {
+    if(t->prodrule == SUBSCRIPTLIST) {
         type = alcbuiltin(ANY_TYPE);
     }
     else {
@@ -843,11 +808,11 @@ struct token *get_leftmost_token(struct tree *t, SymbolTable st)
     struct token *tok = NULL;
     if(t == NULL || st == NULL) 
         return tok;
-    if(strcmp(t->symbolname, "not_test") == 0) {
+    if(t->prodrule == NOT_TEST) {
         printf("not_test: %d\n", t->nkids);
     }
     
-    if(strcmp(t->symbolname, "power") == 0) {
+    if(t->prodrule == POWER) {
         // Expect that the first power in the leftmost assignment is a NAME.
         // If it isn't a NAME or it's NULL, throw a syntax error
         
@@ -1070,7 +1035,7 @@ void get_imported_tree(char *filename)
 bool module_exists(char *filename)
 {
     SymbolTableEntry entry = lookup(filename, &global_modules);
-    if(entry != NULL) {
+    if(entry != NULL && strcmp(filename, entry->ident) == 0) {
         return true;
     }
     return false;

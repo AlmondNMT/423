@@ -596,6 +596,7 @@ void type_check(struct tree *t, SymbolTable st)
     validate_operand_types(t, st);
 }
 
+
 /**
  * For functions we want to guarantee the following things
  * 1. The return types and the actual returned value match
@@ -605,6 +606,9 @@ void type_check(struct tree *t, SymbolTable st)
  */
 void verify_correct_func_use(struct tree *t, SymbolTable st)
 {
+    // Verify that argcount of function call matches formal param count
+    verify_func_arg_count(t);
+
     // Disallow function names from appearing within expr_stmts without parentheses
     disallow_funccall_no_parenth(t);
 
