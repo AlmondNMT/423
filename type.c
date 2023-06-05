@@ -8,26 +8,21 @@
 #include "type.h"
 #include "utils.h"
  
-struct sym_table;
-struct sym_entry;
-
 extern struct sym_table *mknested(char *, int, int, struct sym_table *, char *);
 extern struct sym_entry *insertsymbol(struct sym_table *, struct token *);
+
+struct typeinfo none_type = { .basetype = NONE_TYPE };
+struct typeinfo int_type = { .basetype = INT_TYPE };
+struct typeinfo list_type = { .basetype = LIST_TYPE };
+struct typeinfo float_type = { .basetype = FLOAT_TYPE };
+struct typeinfo dict_type = { .basetype = DICT_TYPE };
+struct typeinfo bool_type = { .basetype = BOOL_TYPE };
+struct typeinfo string_type = { .basetype = STRING_TYPE };
 
 char *typenam[] =
    {"none", "int", "class", "list", "float", "func", "dict", "bool",
     "string", "package", "any"};
 
-int calc_nparams(struct tree *t) {
-    return 0;
-}
-
-/*typeptr alcstructtype()
-{
-   typeptr rv = alctype(STRUCT_TYPE);
-   // who initializes the fields, someone else I guess, later on 
-   return rv;
-}*/
 
 /* in order for this to make any sense, you have to pass in the subtrees
  * for the return type (r) and the parameter list (p), but the calls to
@@ -465,6 +460,9 @@ char *type_for_bin_op_logical(char *lhs, char *rhs)
 // builtin type allocations
 typeptr alctype(int basetype)
 {
+    switch(basetype) {
+
+    }
     typeptr ptr = ckalloc(1, sizeof(struct typeinfo));
     ptr->basetype = basetype;
     return ptr;
@@ -507,19 +505,6 @@ typeptr alclist()
     insertbuiltin_meth(st, "append", "None");
     insertbuiltin_meth(st, "remove", "None");
     return list;
-}
-
-/**
- * Add methods to a builtin class
- */
-struct sym_entry *insertbuiltin_meth(struct sym_table *btable, char *name, char *ret_type)
-{
-    struct sym_entry *entry = NULL;
-    struct token *tok = create_builtin_token(name);
-    entry = insertsymbol(btable, tok);
-    entry->typ->basetype = FUNC_TYPE;
-    entry->typ->u.f.returntype = get_ident_type(ret_type, NULL); // This should be fine
-    return entry;
 }
 
 typeptr alcdict()
@@ -594,14 +579,17 @@ void type_check(struct tree *t, SymbolTable st)
 
     // Ensure that operand types are valid for arithmetic and logical expressions
     validate_operand_types(t, st);
+
+
 }
 
 
 /**
- * For functions we want to guarantee the following things
+ * For puny functions we want to guarantee the following things
  * 1. The return types and the actual returned value match
  * 2. The arguments and parameters are type-compatible
  * 3. Defined functions cannot be used without parentheses
+ * 4. Only valid identifiers and types can be called
  *
  */
 void verify_correct_func_use(struct tree *t, SymbolTable st)
@@ -660,6 +648,85 @@ void disallow_funccall_no_parenth_aux(struct tree *t)
 }
 
 /**
+ * Starting position: root
+*/
+void verify_func_arg_count(struct tree *t)
+{
+    if(t == NULL) return;
+    switch(t->prodrule) {
+        // This indicates a function call
+        case ARGLIST_OPT: {
+            // Get the function ident
+            struct token *ftok = t->parent->parent->parent->kids[0]->leaf;
+            SymbolTableEntry entry = lookup(ftok->text, t->stab);
+            // If entry is not found throw 'name not found' error
+            if(entry == NULL)
+                undeclared_error(ftok);
+
+            // Use auxiliary function to count arguments
+            int arg_count;
+
+            // No-arg function call
+            if(t->nkids == 0)
+                arg_count = 0;
+            else {
+                // Count the function arguments starting from arglist
+                arg_count = count_func_args(t->kids[0], 0);
+            }
+
+            // Check if the type is a class type (prolly a builtin)
+            int param_count;
+            // constructor param count
+            if(entry->typ->basetype == CLASS_TYPE) {
+                param_count = entry->typ->u.cls.nparams;
+            }
+            // regular function param count
+            if(entry->typ->basetype == FUNC_TYPE)
+                param_count = entry->typ->u.f.nparams;
+            if(entry->typ->basetype == FUNC_TYPE || entry->typ->basetype == CLASS_TYPE) {
+                if(arg_count < param_count) {
+                    if(param_count - arg_count == 1)
+                        semantic_error(ftok->filename, ftok->lineno, "%s() missing 1 required positional argument\n", ftok->text);
+                    else
+                        semantic_error(ftok->filename, ftok->lineno, "%s() missing %d required positional arguments\n", ftok->text, param_count - arg_count);
+                }
+                else if(arg_count > param_count) {
+                    if(arg_count > 1)
+                        semantic_error(ftok->filename, ftok->lineno, "%s() takes %d positional arguments but %d were given\n", ftok->text, param_count, arg_count);
+                    else
+                        semantic_error(ftok->filename, ftok->lineno, "%s() takes 0 positional arguments but 1 was given\n", ftok->text);
+                }
+            }
+            
+            return;
+        }
+    }
+    for(int i = 0; i < t->nkids; i++) {
+        verify_func_arg_count(t->kids[i]);
+    }
+}
+
+/**
+ * Auxiliary function for counting function/constructor arguments.
+ * Starting from : arglist
+*/
+int count_func_args(struct tree *t, int count)
+{
+    switch(t->prodrule) {
+        case ARGUMENT: {
+            return count + 1;
+        }
+        default: {
+            int cnt = 0;
+            for(int i = 0; i < t->nkids; i++) {
+                cnt += count_func_args(t->kids[i], count);
+            }
+            return cnt;
+        }
+    }
+    return count;
+}
+/**
  * Get the type of a POWER nonterm
  */
 typeptr get_power_type(struct tree *t)
@@ -673,6 +740,8 @@ typeptr get_power_type(struct tree *t)
 
         return get_rhs_type(t->kids[0]);
     }
+
+    // If the POWER's first child is a leaf, then we must get the immediate type
     if(t->kids[0]->leaf != NULL) {
         // 'power' can only be reached if we haven't already recursed to a 
         //   listmaker or a dictorset_option_* tree node 
@@ -691,6 +760,18 @@ typeptr get_power_type(struct tree *t)
 
             // Forget about trailer_reps here, just get the identifier type
             type = get_ident_type(entry->ident, t->stab);
+            
+            // If there is a TRAILER_REP present, do the difficult thing
+            if(t->kids[1]->prodrule == TRAILER_REP) {
+                // Build a linked list sequence of trailers
+                struct trailer *seq = build_trailer_sequence(t->kids[1]);
+
+                type = get_trailer_rep_type(seq, entry, leaf);
+                free_trailer_sequence(seq);
+            }
+            else {
+                type = get_ident_type(entry->ident, t->stab);
+            }
         }
 
         // If the RHS token is a literal, dict, list, bool, or None
@@ -702,63 +783,207 @@ typeptr get_power_type(struct tree *t)
 }
 
 
+void print_trailer_sequence(struct trailer *seq)
+{
+    if(seq == NULL) {printf("\n"); return;}
+    switch(seq->prodrule) {
+        case NAME:
+            printf(".%s", seq->name);
+            break;
+        case ARGLIST_OPT:
+            printf("(...)");
+            break;
+        case SUBSCRIPTLIST:
+            printf("[...]");
+            break;
+        default:
+            printf("???");
+    }
+    print_trailer_sequence(seq->next);
+}
+
 /**
- * Assumption: Starting position is "trailer_rep"
+ * Transform the nasty recursive tree problem into a sequential one
+ *
+ * Starting position: trailer_rep
+ *
+ * This recurses through the tree to obtain a sequential representation of the 
+ *   trailers, making it easier to obtain the final type
+ */
+struct trailer *build_trailer_sequence(struct tree *t)
+{
+    if(t == NULL) return NULL;
+    struct trailer *prev = NULL, *next = NULL;
+    if(t->kids[0]->prodrule == TRAILER_REP) {
+        prev = build_trailer_sequence(t->kids[0]);
+    } 
+
+    // If the first child is a NULLTREE, assume that the right child is a TRAILER
+    int code = 0;
+    char *name = NULL;
+    if(t->kids[1]->kids[0]->prodrule == NAME) {
+        name = t->kids[1]->kids[0]->leaf->text;
+    }
+    code = t->kids[1]->kids[0]->prodrule;
+    next = create_trailer_link(name, code);
+    if(prev != NULL) {
+        struct trailer *curr = prev;
+        while(curr->next != NULL) curr = curr->next;
+        curr->next = next;
+        return prev;
+    }
+    return next;
+}
+
+struct trailer *create_trailer_link(char *name, int prodrule)
+{
+    struct trailer *node = ckalloc(1, sizeof(struct trailer));
+    if(name != NULL) 
+        node->name = strdup(name);
+    node->prodrule = prodrule;
+    return node;
+}
+
+void free_trailer_sequence(struct trailer *seq)
+{
+    if(seq == NULL) return;
+    free_trailer_sequence(seq->next);
+    free(seq->name);
+    free(seq);
+}
+
+/**
+ * Starting position: TRAILER_REP
+ *
+ * These things are so fucking complicated, but the basic idea is that they can
+ *   generate a sequence of various function calls, list accesses, and chains of
+ *   dotted operators. e.g., a = a.b[0]().c
+ */
+struct typeinfo *get_trailer_rep_type(struct trailer *seq, SymbolTableEntry entry, struct token *tok)
+{
+    // We can probably assume everything is non-null
+    if(seq == NULL || entry == NULL || tok == NULL) {
+        fprintf(stderr, "get_trailer_rep_type: at least one of the arguments is NULL\n");
+        exit(SEM_ERR);
+    }
+
+    // Bunch of initialization. Might be a more efficient way to do all of this, but I don't care
+    struct trailer *curr = NULL, *start = create_trailer_link(entry->ident, NAME), *prev = NULL;
+    start->next = seq;
+    SymbolTableEntry rhs = entry; // Initialize rhs with the entry pointer
+    SymbolTable nested = entry->nested;
+    typeptr current_type = entry->typ;
+    prev = start;
+
+    for(curr = start->next; curr != NULL; prev = curr, curr = curr->next) {
+        const char *type_name = get_basetype(current_type->basetype);
+        switch(curr->prodrule) {
+            // For each of three possible trailers, we ensure that 
+            case NAME:
+                switch(current_type->basetype) {
+                    case FUNC_TYPE:
+                    case CLASS_TYPE:
+                    case NONE_TYPE:
+                    case INT_TYPE:
+                    case FLOAT_TYPE:
+                    case BOOL_TYPE:
+                        semantic_error(tok->filename, tok->lineno, "invalid field access for type '%s'\n", type_name);
+                }
+                rhs = lookup_current(curr->name, nested);
+                if(rhs == NULL) {
+                    semantic_error(tok->filename, tok->lineno, "'%s' object has no attribute '%s'\n", type_name, curr->name);
+                }
+                nested = rhs->typ->u.cls.st;
+                current_type = rhs->typ;
+                break;
+            case ARGLIST_OPT:
+                switch(current_type->basetype) {
+                    case FUNC_TYPE:
+                        // TODO
+                        current_type = rhs->typ->u.f.returntype;
+                        nested = current_type->u.cls.st;
+                        break;
+                    case CLASS_TYPE:
+                        // TODO
+                        break;
+                    default:
+                        semantic_error(tok->filename, tok->lineno, "'%s' object is not callable\n", type_name);
+
+                }
+                break;
+            case SUBSCRIPTLIST:
+                switch(current_type->basetype) {
+                    case LIST_TYPE:
+                        // TODO
+                        break;
+                    case DICT_TYPE:
+                        // TODO
+                        break;
+                    default:
+                        semantic_error(tok->filename, tok->lineno, "'%s' object is not subscriptable\n", type_name);
+                }
+                break;
+        }
+    }
+    start->next = NULL;
+    free_trailer_sequence(start);
+    return alcbuiltin(ANY_TYPE);
+}
+
+
+/**
+ * Assumption: Starting position is TRAILER TODO: fix this
  *   1. "arglist_opt": Function calls
  *   2. "subscriptlist": List/dict accesses
  *   3. "NAME": Dot operands
- *   TODO: Fix this piece of shit function
 */
-struct typeinfo *get_trailer_type(struct tree *t, SymbolTableEntry entry)
+struct typeinfo *get_trailer_type(struct tree *t, typeptr type)
 {   
-
-    if(t == NULL || entry == NULL)
-    {   
-        // TODO: Make this more robust
+    if(t == NULL || type == NULL) {   
         fprintf(stderr, "ERROR get_trailer_type: one or more arguments is null\n");
         exit(SEM_ERR);
     }
     
-    struct typeinfo *type = NULL;
-    
-    // If we find a subscript list anywhere, the type returned will be ANY_TYPE
-    type = get_trailer_type_list(t, t->stab);
-
-    // If the return of the previous is not NULL just return it (ANY_TYPE)
-    if(type != NULL) {
-        return type;
-    }
-
-    // Assume function calls occur on the rightmost trailer, if they happen
-   
-    // if this is a function call, the node with the relevant type info is either
-    //   a sibling (if TRAILER_REP has no dots, like a plain function call f())
-    //   or it is in the first nested TRAILER_REP. 
-    //so we just need to see if it's got a trailer rep child
-    //printf("here we are\n");
-    if(is_function_call(t)) {
-       // printf("IS FUNCTION CALL APPLIES\n");
-        if(tr_has_tr_child(t))
-        {
-            type = t->kids[0]->kids[1]->kids[0]->type;
-            //printf("Dotted chain: %s, name %s\n", get_basetype(type->basetype), t->kids[0]->kids[1]->kids[0]->leaf->sval);
-        }
-        else 
-        {  
-            type = t->parent->kids[0]->type; //for debug for now, just do any, needs to change
-            //printf("NON-Dotted chain: %s name %s\n", get_basetype(type->basetype), t->parent->kids[0]->leaf->sval);
-        }
-       // printf("is thisnull\n");
-    }
-
-    
-
-    // Hot fix: just make it ANY_TYPE to avoid the segfault
-    if(type == NULL)
-        return alcbuiltin(ANY_TYPE);
-    return type;
+    return alcbuiltin(ANY_TYPE);
 }
 
+/**
+ * Try to find a POWER ancestor with a NAME child, then return the token
+ */
+struct token *get_power_ancestor(struct tree *t)
+{
+    if(t == NULL) return NULL;
+    struct token *power_name = NULL;
+    if(t->prodrule == POWER && t->kids[0]->prodrule == NAME) {
+        power_name = t->kids[0]->leaf;
+    }
+    else {
+        power_name = get_power_ancestor(t->parent);
+    }
+    return power_name;
+}
+
+
+struct typeinfo *get_trailer_type_list(struct tree *t, SymbolTable st)
+{
+    if(t == NULL || st == NULL) return NULL;
+    struct typeinfo *type = NULL;
+    if(t->prodrule == SUBSCRIPTLIST) {
+        type = alcbuiltin(ANY_TYPE);
+    }
+    else {
+        struct typeinfo *lhs = NULL, *rhs = NULL;
+        lhs = get_trailer_type_list(t->kids[0], st);
+        rhs = get_trailer_type_list(t->kids[1], st);
+        if(lhs != NULL) {
+            type = lhs;
+        }
+        if(rhs != NULL) {
+            type = rhs;
+        }
+    }
+    return type;
+}
 
 /**
  * DECL type checking for decl+initialization
@@ -866,16 +1091,13 @@ void free_typeptr(typeptr typ)
  * Assumptions: The symbol table should be fully populated
  * TODO:
  *  ☑ Finish adding function type information
- *  ☐ Add class type information (if you feel like it)
+ *  ☑ Add class type information (NOT SUPPORTED)
  *  ☐ Propagate type information through assignments 
  *  ☐ Get type information for declarations
 */
 void add_type_info(struct tree *t, SymbolTable st)
 {
     switch(t->prodrule) {
-        case CLASSDEF:
-            add_class_type_info(t, st);
-            return;
         case EXPR_STMT:
             add_expr_type_info(t, st);
             return;
@@ -889,15 +1111,36 @@ void add_type_info(struct tree *t, SymbolTable st)
     }
 }
 
-
+/**
+ * Idk if I want to bother with this
+ */
 void add_class_type_info(struct tree *t, SymbolTable st)
 {
 
 }
 
+/**
+ * Starting position: EXPR_STMT
+ *
+ * We want to add type information to the tree for the purposes of type-checking
+ * assignments and arithmetic/logical expressions.
+ */
 void add_expr_type_info(struct tree *t, SymbolTable st)
 {
+    if(t == NULL || st == NULL) return;
+    typeptr lhs_type = NULL;
+    // We need two pieces of information
+    //   1. The type of the first child, which is often a POWER
+    //   2. The resulting type of any operations performed on the first child
+    switch(t->kids[0]->prodrule) {
+        case POWER:
+            lhs_type = get_power_type(t->kids[0]);
+            break;
+    }
 
+    switch(t->kids[1]->prodrule) {
+        
+    }
 }
 
 /**
@@ -1133,7 +1376,6 @@ struct typeinfo *type_copy(struct typeinfo *typ)
     // if we assign a function f to a var a, like a = f, we only 
     // want to store a pointer. Same with packages.
     if(typ->basetype == FUNC_TYPE || typ->basetype == PACKAGE_TYPE) {
-        printf("huh??\n");
         return typ;
     }
 
@@ -1180,6 +1422,9 @@ paramlist copy_params(paramlist params)
     return copy;
 }
 
+/**
+ * For leaf categories other than NAME
+ */
 struct typeinfo *get_token_type(struct token *tok)
 {
     switch(tok->category) {

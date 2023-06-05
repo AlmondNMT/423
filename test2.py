@@ -1,4 +1,6 @@
-def a(b):
-    return b
+h: list = [1, 2, 3]
 
-a(1)
+a = "fdsa"
+
+def f(x, y) -> int:
+    return x + y

@@ -4,7 +4,54 @@
 #include <string.h>
 
 #include "symtab.h"
+#include "tree.h"
 #include "type.h"
+
+struct token *create_builtin_token(char *name)
+{
+    struct token *tok = create_token(name, "(builtins)", -1, -1);
+    return tok;
+}
+
+
+
+/**
+ * Add methods to a builtin class
+ */
+struct sym_entry *insertbuiltin_meth(struct sym_table *btable, char *name, char *ret_type)
+{
+    struct sym_entry *entry = NULL;
+    struct token *tok = create_builtin_token(name);
+    entry = insertsymbol(btable, tok);
+    free_token(tok);
+    entry->typ->basetype = FUNC_TYPE;
+    entry->typ->u.f.returntype = get_ident_type(ret_type, NULL); // This should be fine
+    entry->typ->u.f.name = name;
+    return entry;
+}
+
+
+/** 
+ * Wrapper function for insertsymbol that adds builtins
+ */
+SymbolTableEntry insertbuiltin(SymbolTable st, char *name, int basetype)
+{
+    if(st == NULL) return NULL;
+    struct token *tok = create_builtin_token(name);
+    SymbolTableEntry entry = insertsymbol(st, tok);
+    entry->typ->basetype = basetype;
+
+    // Assumption: Builtins are only ever FUNCTIONS OR CLASSES
+    if(basetype == FUNC_TYPE) {
+        entry->typ->u.f.name = name;
+    }
+    else {
+        entry->typ->u.cls.name = name;
+    }
+    free_token(tok);
+    return entry;
+}
+
 
 /**
  * 1. Add param count
@@ -106,7 +153,8 @@ void add_puny_builtins(SymbolTable st) {
     entry = insertbuiltin(st, "pow", FUNC_TYPE);
     add_builtin_func_info(entry, 2, ANY_TYPE, "%s: %d, %s: %d", "b", ANY_TYPE, "e", ANY_TYPE);
 
-    insertbuiltin(st, "range", CLASS_TYPE);
+    entry = insertbuiltin(st, "range", FUNC_TYPE);
+    add_builtin_func_info(entry, 3, LIST_TYPE, "%s: %d, %s: %d, %s: %d", "beg", INT_TYPE, "end", INT_TYPE, "step", INT_TYPE);
 
     entry = insertbuiltin(st, "round", FUNC_TYPE);
     add_builtin_func_info(entry, 2, ANY_TYPE, "%s: %d, %s: %d", "n", ANY_TYPE, "r", INT_TYPE);

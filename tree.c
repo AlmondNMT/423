@@ -118,13 +118,6 @@ struct token *create_token(char *name, char *filename, int lineno, int column)
     return tok;
 }
 
-struct token *create_builtin_token(char *name)
-{
-    struct token *tok = create_token(name, "(builtins)", -1, -1);
-    return tok;
-}
-
-
 /** 
  * Liberate the tree nodes and their tokens.
  */

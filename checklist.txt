@@ -1,5 +1,0 @@
-- [ ] function parameter type-checking during function calls
-- [ ] chained dot operators 
-    - [ ] copy object symbol tables to variable symbol table during assignments
-    - [ ] verify correct recursion
-- [ ] Arithmetic/Logical operator type-checking (tree traversals)

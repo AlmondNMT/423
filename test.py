@@ -1,8 +1,11 @@
 import test1
-1
-a = 2
-b = 1
-c = 2
-[a, b, c]
-a = a.b
-test1.h.append()
+test1.test2.a
+test1.test2.h.append(1)
+
+def f(a, b, c):
+    print("fifa")
+
+1.2()[0]
+
+a = [1, 2, 3]
+f(a)

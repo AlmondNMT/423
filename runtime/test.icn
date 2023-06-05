@@ -1,5 +1,14 @@
 procedure main()
     a := [1,2, 3]
     a |||:= [1]
-    every write(!a)
+
+    b := table()
+    b["asdf"] := 1
+    b["fdsa"] := 2
+    b["locate a maximum value of c"] := 3
+    
+    every i := !a do {
+        write(i)
+    }
+    write(4 ^ 2.3)
 end

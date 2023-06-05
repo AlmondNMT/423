@@ -47,6 +47,7 @@ void get_decl_stmt(struct tree *t, SymbolTable st);
 void decorate_subtree_with_symbol_table(struct tree *t, SymbolTable st);
 SymbolTable get_global_symtab(SymbolTable st);
 struct token *get_leftmost_token(struct tree *t, SymbolTable st);
+struct token *get_expr_leaf(struct tree *t);
 
 // expr_stmts: Very complex python expressions, e.g., assignments, function calls
 void handle_expr_stmt(struct tree *t, SymbolTable st);
@@ -80,7 +81,6 @@ SymbolTableEntry insertmodule(SymbolTable st, char *modname);
 void locate_undeclared(struct tree *t, SymbolTable st);
 int get_func_param_count(struct tree *t, int count);
 int count_func_args(struct tree *t, int count);
-void verify_func_arg_count(struct tree *t);
 SymbolTable mksymtab(int nbuckets, char *table_name);
 SymbolTable mknested(char *filename, int lineno, int nbuckets, SymbolTable parent, char *scope);
 void populate_symboltables(struct tree *t, SymbolTable st);

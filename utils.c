@@ -95,7 +95,7 @@ int get_ascii(char c)
  */
 int panic(char *errmsg)
 {
-	printf("%s",errmsg);
+	fprintf(stderr, "%s",errmsg);
     return PANIC;
 }
 

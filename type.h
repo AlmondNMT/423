@@ -24,16 +24,17 @@ struct field {			/* members (fields) of structs */
 
 #define NONE_TYPE    1000000
 #define INT_TYPE     1000001
-#define CLASS_TYPE   1000002
 #define LIST_TYPE    1000003
 #define FLOAT_TYPE   1000004
-#define FUNC_TYPE    1000005
 #define DICT_TYPE    1000006
 #define BOOL_TYPE    1000007
 #define STRING_TYPE  1000008
+#define FILE_TYPE    1000011
+
+#define CLASS_TYPE   1000002
+#define FUNC_TYPE    1000005
 #define PACKAGE_TYPE 1000009
 #define ANY_TYPE     1000010
-#define FILE_TYPE    1000011
 #define USER_DEF     1000012 // Use this for user-defined class instances
 
 #define LAST_TYPE    1000013
@@ -46,6 +47,7 @@ typedef struct typeinfo {
              struct sym_table *st;
              int nparams;
              int max_params;
+             int min_params;
              bool vararg;
              struct param *parameters;
              struct typeinfo *returntype;
@@ -54,6 +56,8 @@ typedef struct typeinfo {
             char *name;
             struct sym_table *st;
             int nparams;                // For constructor
+            int max_params;
+            int min_params;
             struct param *parameters;   // Constructor params
             int instance;               // Is it an instance of the class?
         } cls;
@@ -63,6 +67,26 @@ typedef struct typeinfo {
         } p;
     } u;
 } *typeptr;
+
+
+//
+struct trailer {
+    int prodrule;
+    char *name;
+    struct trailer *next;
+    struct arg *arg;        // Can be used for the arguments to lists or functions
+};
+
+struct arg {
+    struct arg *next; // Next argument in sequence of arguments
+};
+
+
+struct trailer *create_trailer_link(char *name, int prodrule);
+struct trailer *build_trailer_sequence(struct tree *t);
+void free_trailer_sequence(struct trailer *seq);
+void print_trailer_sequence(struct trailer *seq);
+
 
 /* add constructors for other types as needed */
 typeptr alctype(int basetype);
@@ -115,6 +139,7 @@ void validate_operand_types(struct tree *t, struct sym_table *st);
 void validate_or_test(struct tree *t, struct sym_table *st);
 
 // Correct function usage
+void verify_func_arg_count(struct tree *t);
 void verify_correct_func_use(struct tree *t, struct sym_table *st);
 void verify_func_ret_type(struct tree *t, struct sym_table *st);
 void verify_func_arg_types(struct tree *t, struct sym_table *st);
@@ -124,11 +149,13 @@ void disallow_funccall_no_parenth_aux(struct tree *t);
 
 struct token *get_func_ancestor(struct tree *t);
 struct token *get_caller_ancestor(struct tree *t);
+struct token *get_power_ancestor(struct tree *t);
 int are_types_compatible(typeptr lhs, typeptr rhs);
 struct typeinfo *get_fpdef_type(struct tree *t, struct sym_table * ftable);
 struct typeinfo *get_rhs_type(struct tree *t);
 struct typeinfo *get_power_type(struct tree *t);
-struct typeinfo *get_trailer_type(struct tree *t, SymbolTableEntry entry);
+struct typeinfo *get_trailer_type(struct tree *t, typeptr type);
+struct typeinfo *get_trailer_rep_type(struct trailer *seq, struct sym_entry *entry, struct token *tok);
 struct typeinfo *get_arglist_opt_type(struct tree *t, struct sym_table * st, struct sym_entry *entry);
 void check_var_type(struct typeinfo *lhs_type, struct typeinfo *rhs_type, struct token *tok);
 struct typeinfo *get_trailer_type_list(struct tree *t, struct sym_table * st);

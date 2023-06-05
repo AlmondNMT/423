@@ -42,7 +42,7 @@ comment                     #+[^\n]*
 unmatched_dquotes           \"([^\"\n]|(\"{2}))*[\n]?
 unmatched_squotes           \'([^\'\n]|(\'{2}))*[\n]?
 unmatched_quotes            {unmatched_dquotes}|{unmatched_squotes}
-forbidden_identifiers       [0-9]+[a-zA-Z0-9]+
+forbidden_identifiers       [0-9]+[a-zA-Z0-9_]+|{float}+[a-zA-Z0-9_]+
 %%
 
 {comment}			{ column += strlen(yytext); } // comments

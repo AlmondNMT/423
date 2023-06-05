@@ -260,8 +260,12 @@ void insertfunction(struct tree *t, SymbolTable st)
     // Get function returntype 
     entry->typ->u.f.returntype = get_rhs_type(t->kids[2]);
 
-    // Count the function parameters
-    entry->typ->u.f.nparams = get_func_param_count(t, 0);
+    // Count the function parameters. Since user-def funcs have fixed params,
+    //   min = max = nparams
+    int nparams = get_func_param_count(t, 0);
+    entry->typ->u.f.nparams = nparams;
+    entry->typ->u.f.min_params = nparams;
+    entry->typ->u.f.max_params = nparams;
 
     // We will also annotate the tree node with this scope
     t->kids[0]->stab = st;
@@ -366,9 +370,18 @@ void add_nested_table(SymbolTableEntry entry, struct typeinfo *rhs_type)
 {
     // Add the builtin/class symbol table to the entry if we passed previous checks
     // Determine which symbol table from the union to add
-    if(rhs_type->basetype == FUNC_TYPE) entry->nested = rhs_type->u.f.st;
-    else if(rhs_type->basetype == PACKAGE_TYPE) entry->nested = rhs_type->u.p.st;
-    else entry->nested = rhs_type->u.cls.st;
+    if(rhs_type->basetype == FUNC_TYPE) {
+        entry->nested = rhs_type->u.f.st;
+        rhs_type->u.f.name = entry->ident;
+    }
+    else if(rhs_type->basetype == PACKAGE_TYPE) {
+        entry->nested = rhs_type->u.p.st;
+        rhs_type->u.p.name = entry->ident;
+    }
+    else {
+        entry->nested = rhs_type->u.cls.st;
+        rhs_type->u.cls.name = entry->ident;
+    }
     if(entry->nested != NULL) {
         entry->nested->parent = entry->table;
         entry->nested->level = entry->table->level + 1;
@@ -644,6 +657,10 @@ void locate_invalid_arith(struct tree *t)
         case ARITH_EXPR:
         case TERM:
             if(t->kids[1]->prodrule != NULLTREE) {
+                struct token *leaf = get_expr_leaf(t);
+                if(leaf != NULL) {
+                    semantic_error(leaf->filename, leaf->lineno, "cannot assign to operator\n");
+                }
                 fprintf(stderr, "cannot assign to operator\n");
                 exit(SEM_ERR);
             }
@@ -667,7 +684,7 @@ void locate_invalid_trailer(struct tree *t, struct token *tok)
                     fprintf(stderr, "%s:%d: Cannot assign to function call\n", tok->filename, tok->lineno);
                     exit(SEM_ERR);
                 case NAME:
-                    fprintf(stderr, "%s:%d: Cannot assign to instance attribute\n", tok->filename, tok->lineno);
+                    fprintf(stderr, "%s:%d: Cannot assign to object field\n", tok->filename, tok->lineno);
                     exit(SEM_ERR);
             }
 
@@ -701,6 +718,29 @@ void locate_invalid_token(struct tree *t)
         }
     }
 }   
+
+/**
+ * Get a nearby token in an expression
+ */
+struct token *get_expr_leaf(struct tree *t)
+{
+    if(t == NULL) return NULL;
+    struct token *tok = NULL;
+    switch(t->prodrule) {
+        case POWER:
+            if(t->kids[0]->leaf != NULL) {
+                tok = t->kids[0]->leaf;
+                break;
+            }
+        default:
+            for(int i = 0; i < t->nkids; i++) {
+                tok = get_expr_leaf(t->kids[i]);
+                if(tok != NULL) 
+                    break;
+            }
+    }
+    return tok;
+}
 
 /**
  * Add the appropriate symbol table to every node in the subtree
@@ -775,28 +815,6 @@ int tr_has_tr_child(struct tree *t)
         if(t->kids[0] != NULL && t->kids[0]->prodrule == TRAILER_REP)
             return true;
     return false;
-}
-
-
-struct typeinfo *get_trailer_type_list(struct tree *t, SymbolTable st)
-{
-    if(t == NULL || st == NULL) return NULL;
-    struct typeinfo *type = NULL;
-    if(t->prodrule == SUBSCRIPTLIST) {
-        type = alcbuiltin(ANY_TYPE);
-    }
-    else {
-        struct typeinfo *lhs = NULL, *rhs = NULL;
-        lhs = get_trailer_type_list(t->kids[0], st);
-        rhs = get_trailer_type_list(t->kids[1], st);
-        if(lhs != NULL) {
-            type = lhs;
-        }
-        if(rhs != NULL) {
-            type = rhs;
-        }
-    }
-    return type;
 }
 
 
@@ -980,14 +998,12 @@ void get_import_symbols(struct tree *t, SymbolTable st)
         } else {
             // Add module to hash table
             insertmodule(&global_modules, filename);
-            printsymbols(&global_modules);
         }
 
         // Copy the current tree to a temporary variable, as it will be 
         //   overwritten by the following function call
         struct tree *current = tree, *tmp = NULL;
         
-        printf("File: %s\n", filename);
         
         // Preserving the original filename
         char *current_filename = strdup(yyfilename);
@@ -999,6 +1015,10 @@ void get_import_symbols(struct tree *t, SymbolTable st)
         int dont_add_builtins = 0;
         SymbolTable package_symtab = mknested(filename, entry->lineno, HASH_TABLE_SIZE, st, "package");
         entry->nested = package_symtab;
+
+        // Point the package type symtab to the same region of memory
+        entry->typ->u.p.st = package_symtab;
+        entry->typ->u.p.name = entry->ident;
         semantics(tree, package_symtab, dont_add_builtins);
 
         // Revert the global tree
@@ -1190,20 +1210,6 @@ SymbolTableEntry insertsymbol(SymbolTable st, struct token *tok) {
     return entry;
 }
 
-/** 
- * Wrapper function for insertsymbol that adds builtins
- */
-SymbolTableEntry insertbuiltin(SymbolTable st, char *name, int basetype)
-{
-    if(st == NULL) return NULL;
-    struct token *tok = create_builtin_token(name);
-    SymbolTableEntry entry = insertsymbol(st, tok);
-    entry->typ->basetype = basetype;
-    //free_token(tok);
-    return entry;
-}
-
-
 void printsymbols(SymbolTable st)
 {
     if (st == NULL) return;
@@ -1328,82 +1334,3 @@ SymbolTableEntry lookup_current(char *name, SymbolTable st)
     return e;
 }
 
-/**
- * Starting position: root
-*/
-void verify_func_arg_count(struct tree *t)
-{
-    if(t == NULL) return;
-    switch(t->prodrule) {
-        // This indicates a function call
-        case ARGLIST_OPT: {
-            // Get the function ident
-            struct token *ftok = t->parent->parent->parent->kids[0]->leaf;
-            SymbolTableEntry entry = lookup(ftok->text, t->stab);
-            // If entry is not found throw 'name not found' error
-            if(entry == NULL)
-                undeclared_error(ftok);
-
-            // Use auxiliary function to count arguments
-            int arg_count;
-
-            // No-arg function call
-            if(t->nkids == 0)
-                arg_count = 0;
-            else {
-                // Count the function arguments starting from arglist
-                arg_count = count_func_args(t->kids[0], 0);
-            }
-
-            // Check if the type is a class type (prolly a builtin)
-            int param_count;
-            // constructor param count
-            if(entry->typ->basetype == CLASS_TYPE) {
-                param_count = entry->typ->u.cls.nparams;
-            }
-            // regular function param count
-            if(entry->typ->basetype == FUNC_TYPE)
-                param_count = entry->typ->u.f.nparams;
-            if(entry->typ->basetype == FUNC_TYPE || entry->typ->basetype == CLASS_TYPE) {
-                if(arg_count < param_count) {
-                    if(param_count - arg_count == 1)
-                        semantic_error(ftok->filename, ftok->lineno, "%s() missing 1 required positional argument\n", ftok->text);
-                    else
-                        semantic_error(ftok->filename, ftok->lineno, "%s() missing %d required positional arguments\n", ftok->text, param_count - arg_count);
-                }
-                else if(arg_count > param_count) {
-                    if(arg_count > 1)
-                        semantic_error(ftok->filename, ftok->lineno, "%s() takes %d positional arguments but %d were given\n", ftok->text, param_count, arg_count);
-                    else
-                        semantic_error(ftok->filename, ftok->lineno, "%s() takes 0 positional arguments but 1 was given\n", ftok->text);
-                }
-            }
-            
-            return;
-        }
-    }
-    for(int i = 0; i < t->nkids; i++) {
-        verify_func_arg_count(t->kids[i]);
-    }
-}
-
-/**
- * Auxiliary function for counting function/constructor arguments.
- * Starting from : arglist
-*/
-int count_func_args(struct tree *t, int count)
-{
-    switch(t->prodrule) {
-        case ARGUMENT: {
-            return count + 1;
-        }
-        default: {
-            int cnt = 0;
-            for(int i = 0; i < t->nkids; i++) {
-                cnt += count_func_args(t->kids[i], count);
-            }
-            return cnt;
-        }
-    }
-    return count;
-}
