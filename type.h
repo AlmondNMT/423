@@ -79,11 +79,14 @@ struct trailer {
 
 struct arg {
     struct arg *next; // Next argument in sequence of arguments
+    typeptr type;     // The type of the argument
 };
 
 
 struct trailer *create_trailer_link(char *name, int prodrule);
 struct trailer *build_trailer_sequence(struct tree *t);
+struct arg *build_arglist(struct tree *t);
+struct arg *create_arg_link(typeptr type);
 void free_trailer_sequence(struct trailer *seq);
 void print_trailer_sequence(struct trailer *seq);
 

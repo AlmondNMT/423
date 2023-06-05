@@ -14,7 +14,6 @@ struct token *create_builtin_token(char *name)
 }
 
 
-
 /**
  * Add methods to a builtin class
  */

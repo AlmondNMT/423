@@ -5,7 +5,6 @@ test1.test2.h.append(1)
 def f(a, b, c):
     print("fifa")
 
-1.2()[0]
-
-a = [1, 2, 3]
-f(a)
+a = [1,2, 3]
+f(a, b, c, d, e, f) # should throw "'a' not found" error
+a()

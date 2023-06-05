@@ -11,17 +11,42 @@
 extern struct sym_table *mknested(char *, int, int, struct sym_table *, char *);
 extern struct sym_entry *insertsymbol(struct sym_table *, struct token *);
 
-struct typeinfo none_type = { .basetype = NONE_TYPE };
-struct typeinfo int_type = { .basetype = INT_TYPE };
-struct typeinfo list_type = { .basetype = LIST_TYPE };
-struct typeinfo float_type = { .basetype = FLOAT_TYPE };
-struct typeinfo dict_type = { .basetype = DICT_TYPE };
-struct typeinfo bool_type = { .basetype = BOOL_TYPE };
-struct typeinfo string_type = { .basetype = STRING_TYPE };
+struct typeinfo none_type = { .basetype = NONE_TYPE, .u.cls.name = "none" };
+struct typeinfo int_type = { .basetype = INT_TYPE, .u.cls.name = "int" };
+struct typeinfo float_type = { .basetype = FLOAT_TYPE, .u.cls.name = "float" };
+struct typeinfo bool_type = { .basetype = BOOL_TYPE, .u.cls.name = "bool" };
+
+struct typeinfo list_type = { .basetype = LIST_TYPE, .u.cls.name = "list" };
+struct typeinfo dict_type = { .basetype = DICT_TYPE, .u.cls.name = "dict" };
+struct typeinfo string_type = { .basetype = STRING_TYPE, .u.cls.name = "str" };
+struct typeinfo file_type = { .basetype = FILE_TYPE, .u.cls.name = "file" };
+
+typeptr none_typeptr = &none_type;
+typeptr int_typeptr = &int_type;
+typeptr float_typeptr = &float_type;
+typeptr bool_typeptr = &bool_type;
+typeptr list_typeptr = &list_type;
+typeptr dict_typeptr = &dict_type;
+typeptr string_typeptr = &string_type;
+typeptr file_typeptr = &file_type;
 
 char *typenam[] =
    {"none", "int", "class", "list", "float", "func", "dict", "bool",
     "string", "package", "any"};
+
+
+/**
+ * Initialize some of the global primitive types
+ */
+void init_types()
+{
+    list_typeptr->u.cls.st = mksymtab(HASH_TABLE_SIZE, "class");
+    dict_typeptr->u.cls.st = mksymtab(HASH_TABLE_SIZE, "class");
+    string_typeptr->u.cls.st = mksymtab(HASH_TABLE_SIZE, "class");
+    file_typeptr->u.cls.st = mksymtab(HASH_TABLE_SIZE, "class");
+
+    
+}
 
 
 /* in order for this to make any sense, you have to pass in the subtrees
@@ -535,6 +560,7 @@ typeptr alcstr()
 {
     typeptr str = (typeptr) alctype(STRING_TYPE);
     struct sym_table *st = mksymtab(HASH_TABLE_SIZE, "class");
+    SymbolTableEntry entry = NULL;
     str->u.cls.name = strdup("str");
     str->u.cls.st = st;
     str->u.cls.nparams = 1;
@@ -572,7 +598,7 @@ paramlist alcparam(char *name, int basetype)
 void type_check(struct tree *t, SymbolTable st)
 {
     // Verify that functions are defined and used correctly
-    verify_correct_func_use(t, st);
+    //verify_correct_func_use(t, st);
 
     // Declarations with RHS assignments
     verify_decl_types(t, st);
@@ -595,7 +621,7 @@ void type_check(struct tree *t, SymbolTable st)
 void verify_correct_func_use(struct tree *t, SymbolTable st)
 {
     // Verify that argcount of function call matches formal param count
-    verify_func_arg_count(t);
+    //verify_func_arg_count(t);
 
     // Disallow function names from appearing within expr_stmts without parentheses
     disallow_funccall_no_parenth(t);
@@ -605,7 +631,7 @@ void verify_correct_func_use(struct tree *t, SymbolTable st)
     verify_func_ret_type(t, st);
 
     // TODO: Function argument types
-    verify_func_arg_types(t, st);
+    //verify_func_arg_types(t, st);
 }
 
 /**
@@ -766,6 +792,8 @@ typeptr get_power_type(struct tree *t)
                 // Build a linked list sequence of trailers
                 struct trailer *seq = build_trailer_sequence(t->kids[1]);
 
+                print_trailer_sequence(seq);
+
                 type = get_trailer_rep_type(seq, entry, leaf);
                 free_trailer_sequence(seq);
             }
@@ -777,6 +805,10 @@ typeptr get_power_type(struct tree *t)
         // If the RHS token is a literal, dict, list, bool, or None
         else {
             type = get_token_type(leaf);
+
+            // Make literals with trailers INVALID
+            if(t->kids[1]->prodrule == TRAILER_REP)
+                semantic_error(leaf->filename, leaf->lineno, "'%s' object is not callable\n", get_basetype(type->basetype)); 
         }
     }
     return type;
@@ -826,6 +858,9 @@ struct trailer *build_trailer_sequence(struct tree *t)
     }
     code = t->kids[1]->kids[0]->prodrule;
     next = create_trailer_link(name, code);
+
+    // Get the arglist of function call or list access to verify correctness
+    next->arg = build_arglist(t->kids[1]->kids[0]);
     if(prev != NULL) {
         struct trailer *curr = prev;
         while(curr->next != NULL) curr = curr->next;
@@ -835,6 +870,23 @@ struct trailer *build_trailer_sequence(struct tree *t)
     return next;
 }
 
+/**
+ * Starting position: either ARGLIST_OPT or SUBSCRIPTLIST
+ */
+struct arg *build_arglist(struct tree *t)
+{
+    if(t == NULL) return NULL;
+    struct arg *prev = NULL, *next = NULL;
+
+    if(prev != NULL) {
+        return prev;
+    }
+    return next;
+}
+
+/**
+ * Build a single trailer link for the trailer linked list
+ */
 struct trailer *create_trailer_link(char *name, int prodrule)
 {
     struct trailer *node = ckalloc(1, sizeof(struct trailer));
@@ -842,6 +894,16 @@ struct trailer *create_trailer_link(char *name, int prodrule)
         node->name = strdup(name);
     node->prodrule = prodrule;
     return node;
+}
+
+/**
+ * Build a single arg link for the arg linked list
+ */
+struct arg *create_arg_link(typeptr type)
+{
+    if(type == NULL) { fprintf(stderr, "Why is type null? This shouldn't happen\n"); exit(SEM_ERR); }
+    struct arg *node = ckalloc(1, sizeof(struct arg));
+    node->type = type;
 }
 
 void free_trailer_sequence(struct trailer *seq)
@@ -918,6 +980,9 @@ struct typeinfo *get_trailer_rep_type(struct trailer *seq, SymbolTableEntry entr
                         break;
                     case DICT_TYPE:
                         // TODO
+                        break;
+                    case ANY_TYPE:
+                        // Any objects can be subscriptable as 'any' type lists. Callables cannot be any, though
                         break;
                     default:
                         semantic_error(tok->filename, tok->lineno, "'%s' object is not subscriptable\n", type_name);
@@ -1017,48 +1082,10 @@ void verify_decl_types(struct tree *t, SymbolTable st)
     }
 }
 
-/**
- * Ensure that the types of the arguments in the function/constructor call match
- *   those in the description
-*/
-void verify_func_arg_types(struct tree *t, SymbolTable st)
-{
-    if(t == NULL || st == NULL) return;
-    switch(t->prodrule) {
-        case ARGLIST_OPT: {
-            struct token *ftok = get_caller_ancestor(t);
-
-            // If we were actually able to find a caller ancestor token
-            //   otherwise there is nothing to check, because it/locat 
-            if(ftok != NULL)  {
-                SymbolTableEntry fentry = lookup(ftok->text, t->stab);
-                if(fentry != NULL && fentry->typ != NULL) {
-                    // TODO: Verify params and args
-                }
-            }
-            break;
-        }
-        default: {
-            for(int i = 0; i < t->nkids; i++) {
-                verify_func_arg_types(t->kids[i], st);
-            }
-        }
-    }
-}
 
 /**
- * 
+ * Free function/constructor parameters
 */
-struct token *get_caller_ancestor(struct tree *t)
-{
-    if(t == NULL) return NULL;
-    switch(t->prodrule) {
-        case POWER: {
-            
-        }
-    }
-}
-
 void free_params(paramlist params)
 {
     if(params == NULL)
@@ -1071,17 +1098,21 @@ void free_params(paramlist params)
 void free_typeptr(typeptr typ)
 {
     if(typ == NULL) return;
-    if(typ->basetype == FUNC_TYPE) {
-        free_typeptr(typ->u.f.returntype);
-        free_symtab(typ->u.cls.st);
-        free_params(typ->u.f.parameters);
-    } 
-    else if(typ->basetype == CLASS_TYPE || typ->basetype == USER_DEF) {
-        free_params(typ->u.cls.parameters);
-        free_symtab(typ->u.cls.st);
-    } 
-    else if(typ->basetype == PACKAGE_TYPE) {
-        free_symtab(typ->u.p.st);
+    switch(typ->basetype) {
+        case FUNC_TYPE:
+            free_typeptr(typ->u.f.returntype);
+            free_symtab(typ->u.f.st);
+            free_params(typ->u.f.parameters);
+            break;
+
+        case PACKAGE_TYPE:
+            free_symtab(typ->u.p.st);
+            break;
+
+        default:
+            free_params(typ->u.cls.parameters);
+            free_symtab(typ->u.cls.st);
+            break;
     }
     free(typ);
 }
@@ -1109,14 +1140,6 @@ void add_type_info(struct tree *t, SymbolTable st)
     for(int i = 0; i < t->nkids; i++) {
         add_type_info(t->kids[i], st);
     }
-}
-
-/**
- * Idk if I want to bother with this
- */
-void add_class_type_info(struct tree *t, SymbolTable st)
-{
-
 }
 
 /**
