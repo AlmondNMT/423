@@ -1022,7 +1022,9 @@ struct typeinfo *get_trailer_rep_type(struct trailer *seq, SymbolTableEntry entr
     }
     start->next = NULL;
     free_trailer_sequence(start);
-    return alcbuiltin(ANY_TYPE);
+    if(current_type == NULL) 
+        return alcbuiltin(ANY_TYPE);
+    return current_type;
 }
 
 
@@ -1160,7 +1162,9 @@ void type_check_expr_stmt(struct tree *t)
 
             // The type on the right
             rhs_type = get_testlist_type(t->kids[1]->kids[1]);
+
             if(!are_types_compatible(lhs_type, rhs_type)) {
+                // Grab nearby descendant token and use it for assignment type-check error
                 struct token *desc = get_power_descendant(t->kids[0]);
                 const char *left = get_basetype_str(lhs_type->basetype);
                 const char *right = get_basetype_str(rhs_type->basetype);
