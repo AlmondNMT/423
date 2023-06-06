@@ -560,7 +560,6 @@ typeptr alcstr()
 {
     typeptr str = (typeptr) alctype(STRING_TYPE);
     struct sym_table *st = mksymtab(HASH_TABLE_SIZE, "class");
-    SymbolTableEntry entry = NULL;
     str->u.cls.name = strdup("str");
     str->u.cls.st = st;
     str->u.cls.nparams = 1;
@@ -593,19 +592,38 @@ paramlist alcparam(char *name, int basetype)
  *   in nature to those in the first phase of semantic analysis. It should now 
  *   be possible to verify all function/method calls (numargs = numparams and 
  *   type compatibility), 
- *   
- */
+ *
+ * Another tree traversal for adding and checking type information
+ * Starting position: root
+ * Assumptions: The symbol table should be fully populated
+ * TODO:
+ *  ☑ Finish adding function type information
+ *  ☑ Add class type information (NOT SUPPORTED)
+ *  ☐ Propagate type information through assignments 
+ *  ☐ Get type information for declarations
+*/
 void type_check(struct tree *t, SymbolTable st)
 {
     // Verify that functions are defined and used correctly
     //verify_correct_func_use(t, st);
 
-    // Declarations with RHS assignments
-    verify_decl_types(t, st);
-
     // Ensure that operand types are valid for arithmetic and logical expressions
-    validate_operand_types(t, st);
+    //validate_operand_types(t, st);
 
+    switch(t->prodrule) {
+        case EXPR_STMT:
+            type_check_expr_stmt(t);
+            return;
+        case DECL_STMT:
+            type_check_decl_stmt(t);
+            return;
+        case FUNCDEF:
+            type_check_func_ret_type(t, st); // Will traverse this again
+            break;
+    }
+    for(int i = 0; i < t->nkids; i++) {
+        type_check(t->kids[i], st);
+    }
 
 }
 
@@ -628,7 +646,7 @@ void verify_correct_func_use(struct tree *t, SymbolTable st)
 
     // Verify that the return type in a function matches the stated 
     //   return type, if applicable
-    verify_func_ret_type(t, st);
+    type_check_func_ret_type(t, st);
 
     // TODO: Function argument types
     //verify_func_arg_types(t, st);
@@ -808,7 +826,7 @@ typeptr get_power_type(struct tree *t)
 
             // Make literals with trailers INVALID
             if(t->kids[1]->prodrule == TRAILER_REP)
-                semantic_error(leaf->filename, leaf->lineno, "'%s' object is not callable\n", get_basetype(type->basetype)); 
+                semantic_error(leaf->filename, leaf->lineno, "'%s' object is not callable\n", get_basetype_str(type->basetype)); 
         }
     }
     return type;
@@ -877,6 +895,9 @@ struct arg *build_arglist(struct tree *t)
 {
     if(t == NULL) return NULL;
     struct arg *prev = NULL, *next = NULL;
+    switch(t->prodrule) {
+
+    }
 
     if(prev != NULL) {
         return prev;
@@ -904,6 +925,7 @@ struct arg *create_arg_link(typeptr type)
     if(type == NULL) { fprintf(stderr, "Why is type null? This shouldn't happen\n"); exit(SEM_ERR); }
     struct arg *node = ckalloc(1, sizeof(struct arg));
     node->type = type;
+    return node;
 }
 
 void free_trailer_sequence(struct trailer *seq)
@@ -912,6 +934,14 @@ void free_trailer_sequence(struct trailer *seq)
     free_trailer_sequence(seq->next);
     free(seq->name);
     free(seq);
+}
+
+void free_arglist(struct arg *arg)
+{
+    if(arg == NULL) return;
+    free_typeptr(arg->type);
+    free_arglist(arg->next);
+    free(arg);
 }
 
 /**
@@ -938,7 +968,7 @@ struct typeinfo *get_trailer_rep_type(struct trailer *seq, SymbolTableEntry entr
     prev = start;
 
     for(curr = start->next; curr != NULL; prev = curr, curr = curr->next) {
-        const char *type_name = get_basetype(current_type->basetype);
+        const char *type_name = get_basetype_str(current_type->basetype);
         switch(curr->prodrule) {
             // For each of three possible trailers, we ensure that 
             case NAME:
@@ -1050,38 +1080,6 @@ struct typeinfo *get_trailer_type_list(struct tree *t, SymbolTable st)
     return type;
 }
 
-/**
- * DECL type checking for decl+initialization
- */
-void verify_decl_types(struct tree *t, SymbolTable st)
-{
-    if(t == NULL || st == NULL) return;
-    switch(t->prodrule) {
-        case DECL_STMT: {
-            typeptr assignment_type = NULL, decl_type = NULL;
-            if(t->kids[2]->prodrule == EQUAL_TEST_OPT) {
-
-                // Pass the second child of the equal_test_opt, cuz the 
-                //   first child is '='
-                assignment_type = get_rhs_type(t->kids[2]->kids[1]);
-                decl_type = get_rhs_type(t->kids[1]);
-                int compatible = are_types_compatible(decl_type, assignment_type);
-                if(!compatible) {
-                    fprintf(stderr, "Incompatible assignment between '%s' and '%s'\n", get_basetype(decl_type->basetype), get_basetype(assignment_type->basetype));
-                    exit(SEM_ERR);
-                }
-
-            }
-            break;
-        }
-        default: {
-            for(int i = 0; i < t->nkids; i++) {
-                verify_decl_types(t->kids[i], st);
-            }
-        }
-    }
-}
-
 
 /**
  * Free function/constructor parameters
@@ -1116,30 +1114,25 @@ void free_typeptr(typeptr typ)
     }
     free(typ);
 }
+
 /**
- * Another tree traversal for adding type information
- * Starting position: root
- * Assumptions: The symbol table should be fully populated
- * TODO:
- *  ☑ Finish adding function type information
- *  ☑ Add class type information (NOT SUPPORTED)
- *  ☐ Propagate type information through assignments 
- *  ☐ Get type information for declarations
-*/
-void add_type_info(struct tree *t, SymbolTable st)
+ * Get a struct token *leaf from somewhere below (it doesn't matter which one)
+ */
+struct token *get_power_descendant(struct tree *t) 
 {
+    if(t == NULL) return NULL;
+    struct token *tok = NULL;
     switch(t->prodrule) {
-        case EXPR_STMT:
-            add_expr_type_info(t, st);
-            return;
-        case DECL_STMT: {
-            add_decl_type_info(t, st);
-            return;
-        }
+        case NAME:
+            tok = t->leaf;
+            break;
+        default:
+            for(int i = 0; i < t->nkids; i++) {
+                tok = get_power_descendant(t->kids[i]);
+                if(tok != NULL) break;
+            }
     }
-    for(int i = 0; i < t->nkids; i++) {
-        add_type_info(t->kids[i], st);
-    }
+    return tok;
 }
 
 /**
@@ -1148,35 +1141,85 @@ void add_type_info(struct tree *t, SymbolTable st)
  * We want to add type information to the tree for the purposes of type-checking
  * assignments and arithmetic/logical expressions.
  */
-void add_expr_type_info(struct tree *t, SymbolTable st)
+void type_check_expr_stmt(struct tree *t)
 {
-    if(t == NULL || st == NULL) return;
-    typeptr lhs_type = NULL;
-    // We need two pieces of information
-    //   1. The type of the first child, which is often a POWER
-    //   2. The resulting type of any operations performed on the first child
-    switch(t->kids[0]->prodrule) {
-        case POWER:
-            lhs_type = get_power_type(t->kids[0]);
-            break;
-    }
+    if(t == NULL) return;
+    typeptr lhs_type = NULL, rhs_type = NULL;
 
+    // There are 3 main scenarios with EXPR_STMTS
+    //   1. Non-assignment expression: LHS
+    //   2. Assignment expression    : LHS = RHS
+    //   3. Augmented assignment     : LHS += RHS
+    // First, we can get the LHS_TYPE. In all three cases, this type-checks the LHS expression
+    //   i.e., 
+    lhs_type = get_testlist_type(t->kids[0]); 
+    
+    // Secondly, determine the scenario: proceed if second child isn't NULLTREE
     switch(t->kids[1]->prodrule) {
-        
+        case EQUAL_OR_YIELD_OR_TESTLIST_REP:
+
+            // The type on the right
+            rhs_type = get_testlist_type(t->kids[1]->kids[1]);
+            if(!are_types_compatible(lhs_type, rhs_type)) {
+                struct token *desc = get_power_descendant(t->kids[0]);
+                const char *left = get_basetype_str(lhs_type->basetype);
+                const char *right = get_basetype_str(rhs_type->basetype);
+                if(desc != NULL) {
+                    semantic_error(desc->filename, desc->lineno, "incompatible assignment between '%s' and '%s'\n", left, right);
+                }
+            }
+            break;
+        case EXPR_CONJUNCT:
+            break;
     }
 }
 
 /**
- * DECL_STMT
-*/
-void add_decl_type_info(struct tree *t, SymbolTable st)
+ * Starting point: Could be any number of things between TESTLIST and POWER,
+ *   depending on how the tree is pruned.
+ */
+typeptr get_testlist_type(struct tree *t)
 {
-    if(t == NULL || st == NULL) return;
+    if(t == NULL) return NULL;
+    typeptr type = NULL;
+    switch(t->prodrule) {
+        case POWER:
+            type = get_power_type(t);
+            break;
+    }
+    return type;
+}
+
+/**
+ * Starting point: DECL_STMT
+*/
+void type_check_decl_stmt(struct tree *t)
+{
+    if(t == NULL) return;
     SymbolTableEntry lhs = lookup(t->kids[0]->leaf->text, t->stab);
 
     // Free the default ANY_TYPE 
     free_typeptr(lhs->typ);
+
+    // Assign type to LHS
     lhs->typ = get_ident_type(t->kids[1]->leaf->text, t->stab);
+
+    // Verify that type assignment matches
+    if(t->kids[2]->prodrule == EQUAL_TEST_OPT) {
+        typeptr assignment_type = NULL, decl_type = NULL;
+
+        // Pass the second child of the equal_test_opt, cuz the 
+        //   first child is '='
+        assignment_type = get_rhs_type(t->kids[2]->kids[1]);
+        decl_type = lhs->typ;
+        if(!are_types_compatible(decl_type, assignment_type)) {
+            const char *left = get_basetype_str(decl_type->basetype);
+            const char *right = get_basetype_str(assignment_type->basetype);
+            struct token *tok = t->kids[0]->leaf;
+            semantic_error(tok->filename, tok->lineno, "Incompatible assignment between '%s' and '%s'\n", left, right);
+        }
+
+    }
 }
 
 /**
@@ -1238,34 +1281,6 @@ void get_function_params(struct tree *t, SymbolTable ftable)
 }
 
 /**
-* Whatever node of type 'test' was found
-* will be validated in here. 
-* Assumed starting position: or_test
-*/
-void validate_or_test(struct tree *t, SymbolTable st)
-{   //if we find a power, and it has a child that is a NAME
-    //we found a terminal and will return its typeinfo   
-    // If the second child of or_test is "nulltree" don't check anything
-    struct typeinfo *lhs_type = NULL, *rhs_type = NULL;
-    if(t->kids[1]->prodrule == NULLTREE)
-    {
-        return;
-    }
-    else 
-    {
-        lhs_type = get_rhs_type(t);
-        rhs_type = get_rhs_type(t->kids[1]);
-        if(strcmp(t->kids[1]->kids[0]->symbolname, "or_and_test_rep") == 0)
-        {                
-            validate_or_test(t->kids[1]->kids[0], st);
-            validate_or_test(t->kids[1], st);
-        }
-    }
-
-    return;
-}
-
-/**
  * This is called if the entry is a CLASS_TYPE, to determine if it is also a 
  * builtin. If it is a builtin, return the integer code, otherwise return ANY_TYPE
  */
@@ -1309,47 +1324,6 @@ struct typeinfo *get_ident_type(char *ident, SymbolTable st)
     }
 }
 
-
-/**
- * Ensure that LHS and RHS of arithmetic/logical expressions 
- * are valid
- * This traverses the entire syntax tree looking
- * for 'or_test' nodes 
-*/
-void validate_operand_types(struct tree *t, SymbolTable st)
-{  
-    switch(t->prodrule) {
-        case OR_TEST:
-            validate_or_test(t, st);
-            return;
-        case AND_TEST:
-            // TODO: Add the rest of the fucking tests
-            return;
-    }
-
-    for(int i = 0; i < t->nkids; i++) {
-        validate_operand_types(t->kids[i], st);
-    }
-}
-
-//one half of the two functions that should be able to handle
-// nested combinations of or_tests (which expand to anything arithmetic and logical) 
-//and trailer_reps
-void handle_or_test_types(struct tree *t, SymbolTable st)
-{  // printf("entering print tree\n");
-    if(strcmp(t->symbolname, "or_test") == 0) {
-        validate_or_test(t, st);
-        return;
-    }
-    if(strcmp(t->symbolname, "and_test") == 0) {
-
-        return;
-    }
-
-    for(int i = 0; i < t->nkids; i++) {
-        validate_operand_types(t->kids[i], st);
-    }
-}
 
 /**
  * Some boilerplate for searching the symbol tables for valid type hints,
@@ -1478,10 +1452,11 @@ int get_token_type_code(struct token *tok)
 
 /**
  * Traverse the whole tree and verify that each function's returntype matches 
- * the type of the actual returned value. 
+ * the type of the actual returned value. TODO: What if there's no return statment?
+ * TODO: Also this could be called once we have reached a FUNCDEF 
  * 
 */
-void verify_func_ret_type(struct tree *t, SymbolTable st)
+void type_check_func_ret_type(struct tree *t, SymbolTable st)
 {   
     if(t == NULL || st == NULL) return;
     switch(t->prodrule) {
@@ -1493,12 +1468,12 @@ void verify_func_ret_type(struct tree *t, SymbolTable st)
             SymbolTableEntry fentry = lookup(ftok->text, t->stab);
             int compatible = are_types_compatible(fentry->typ->u.f.returntype, ret_val);
             if(!compatible)
-                semantic_error(ftok->filename, ftok->lineno, "'%s()' return type '%s' does not match type of value returned: '%s'\n", ftok->text, get_basetype(fentry->typ->u.f.returntype->basetype), get_basetype(ret_val->basetype));
+                semantic_error(ftok->filename, ftok->lineno, "'%s()' return type '%s' does not match type of value returned: '%s'\n", ftok->text, get_basetype_str(fentry->typ->u.f.returntype->basetype), get_basetype_str(ret_val->basetype));
             break;
         }
         default: {                  
             for(int i = 0; i < t->nkids; i++) {
-                verify_func_ret_type(t->kids[i], st);
+                type_check_func_ret_type(t->kids[i], st);
             }
         }
     }
@@ -1575,40 +1550,11 @@ int are_types_compatible(typeptr lhs, typeptr rhs)
     return 0;
 }
 
-/**
- * Verify type compatibility between LHS operands and the type of the rightmost
- * operand
- * TODO: Finishing variable type checking
- */
-void check_var_type(struct typeinfo *lhs_type, struct typeinfo *rhs_type, struct token *tok)
-{
-    if(lhs_type == NULL || rhs_type == NULL) return;
-
-
-    // If the right-hand-side of an assignment has type any, this is runtime's 
-    //   problem
-    if(lhs_type->basetype == ANY_TYPE || rhs_type->basetype == ANY_TYPE) return;
-
-    // If the basetype of the entry is not ANY_TYPE, then check it against
-    //   rhs type
-    if(lhs_type->basetype != ANY_TYPE) {
-        // TODO 
-        if(lhs_type->basetype != rhs_type->basetype) {
-            semantic_error(tok->filename, tok->lineno,
-                    "incompatible assignment between '%s' and '%s' near operand '%s'\n", 
-                    get_basetype(lhs_type->basetype), 
-                    get_basetype(rhs_type->basetype),
-                    tok->text
-                    );
-        }
-    }
-
-}
 
 /**
  * BASETYPE -> "any"
 */
-const char *get_basetype(int basetype)
+const char *get_basetype_str(int basetype)
 {
     switch(basetype) {
         case NONE_TYPE:
@@ -1645,7 +1591,7 @@ void print_paramlist(paramlist params)
 {
     if(params == NULL) return;
     if(params->name != NULL && params->type != NULL) 
-        printf("%s: %s, ", params->name, get_basetype(params->type->basetype));
+        printf("%s: %s, ", params->name, get_basetype_str(params->type->basetype));
     print_paramlist(params->next);
 }
 

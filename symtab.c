@@ -47,9 +47,6 @@ void semantics(struct tree *tree, SymbolTable st, int add_builtins)
     // Find names that are used, but not declared
     locate_undeclared(tree, st);       
 
-    // Add type information (kind of like populate, but just getting type info
-    add_type_info(tree, st);
-
     // Perform type-checking; function return types, function call argument 
     //   types, arithmetical operand types, chained dot operator accesses
     type_check(tree, st);
@@ -338,7 +335,7 @@ void handle_expr_stmt(struct tree *t, SymbolTable st)
             // Verify type compatible of LHS and RHS in assignment
             int compatible = are_types_compatible(entry->typ, rhs_type);
             if(!compatible)
-                semantic_error(leftmost->filename, leftmost->lineno, "incompatible assignment between '%s' and '%s'\n", get_basetype(entry->typ->basetype), get_basetype(rhs_type->basetype));
+                semantic_error(leftmost->filename, leftmost->lineno, "incompatible assignment between '%s' and '%s'\n", get_basetype_str(entry->typ->basetype), get_basetype_str(rhs_type->basetype));
 
             // Add the table in the rhs_type to the symbol entry
             add_nested_table(entry, rhs_type);
@@ -522,7 +519,7 @@ SymbolTableEntry get_chained_dot_entry(struct tree *t, SymbolTable st, SymbolTab
             // Get the symbol table of the rhs
             rhs = lookup_current(rhs_tok->text, entry->nested);
             if(rhs == NULL) {
-                semantic_error(rhs_tok->filename, rhs_tok->lineno, "Name '%s' does not belong to class: %s\n", rhs_tok->text, get_basetype(entry->typ->basetype));
+                semantic_error(rhs_tok->filename, rhs_tok->lineno, "Name '%s' does not belong to class: %s\n", rhs_tok->text, get_basetype_str(entry->typ->basetype));
             }
         }
 
@@ -1227,11 +1224,11 @@ void printsymbols(SymbolTable st)
             
             printf("%d %s: ", i, entry->ident);
             if(entry->typ->basetype == FUNC_TYPE && entry->typ->u.f.returntype != NULL) {
-                printf("%s type ", get_basetype(entry->typ->basetype)); // Switch statements for base types
-                printf("-> %s\n", get_basetype(entry->typ->u.f.returntype->basetype));
+                printf("%s type ", get_basetype_str(entry->typ->basetype)); // Switch statements for base types
+                printf("-> %s\n", get_basetype_str(entry->typ->u.f.returntype->basetype));
             }
             else 
-                printf("%s type\n", get_basetype(entry->typ->basetype)); // Switch statements for base types
+                printf("%s type\n", get_basetype_str(entry->typ->basetype)); // Switch statements for base types
             if(entry->nested != NULL) {
                 printsymbols(entry->nested);
             }

@@ -133,10 +133,12 @@ char *type_for_bin_op_logical(char *lhs, char *rhs);
 void add_type_info(struct tree *t, struct sym_table *st);
 void add_decl_type_info(struct tree *t, struct sym_table *st);
 void add_class_type_info(struct tree *t, struct sym_table *st);
-void add_expr_type_info(struct tree *t, struct sym_table *st);
+void type_check_expr_stmt(struct tree *t);
 
 // Type-checking
 void type_check(struct tree *t, struct sym_table *st);
+void type_check_decl_stmt(struct tree *t);
+void type_check_func_ret_type(struct tree *t, struct sym_table *st);
 
 void validate_operand_types(struct tree *t, struct sym_table *st);
 void validate_or_test(struct tree *t, struct sym_table *st);
@@ -144,7 +146,6 @@ void validate_or_test(struct tree *t, struct sym_table *st);
 // Correct function usage
 void verify_func_arg_count(struct tree *t);
 void verify_correct_func_use(struct tree *t, struct sym_table *st);
-void verify_func_ret_type(struct tree *t, struct sym_table *st);
 void verify_func_arg_types(struct tree *t, struct sym_table *st);
 void verify_decl_types(struct tree *t, struct sym_table *st);
 void disallow_funccall_no_parenth(struct tree *t);
@@ -153,14 +154,15 @@ void disallow_funccall_no_parenth_aux(struct tree *t);
 struct token *get_func_ancestor(struct tree *t);
 struct token *get_caller_ancestor(struct tree *t);
 struct token *get_power_ancestor(struct tree *t);
+struct token *get_power_descendant(struct tree *t);
 int are_types_compatible(typeptr lhs, typeptr rhs);
 struct typeinfo *get_fpdef_type(struct tree *t, struct sym_table * ftable);
 struct typeinfo *get_rhs_type(struct tree *t);
 struct typeinfo *get_power_type(struct tree *t);
+struct typeinfo *get_testlist_type(struct tree *t);
 struct typeinfo *get_trailer_type(struct tree *t, typeptr type);
 struct typeinfo *get_trailer_rep_type(struct trailer *seq, struct sym_entry *entry, struct token *tok);
 struct typeinfo *get_arglist_opt_type(struct tree *t, struct sym_table * st, struct sym_entry *entry);
-void check_var_type(struct typeinfo *lhs_type, struct typeinfo *rhs_type, struct token *tok);
 struct typeinfo *get_trailer_type_list(struct tree *t, struct sym_table * st);
 struct typeinfo *get_type_of_node(struct tree *t, struct sym_table * st, struct sym_entry *entry);
 void handle_or_test_types(struct tree *t, struct sym_table * st);
@@ -169,8 +171,8 @@ void handle_or_test_types(struct tree *t, struct sym_table * st);
 void get_function_params(struct tree *t, struct sym_table *ftable);
 void add_nested_table(struct sym_entry *, struct typeinfo *rhs_type);
 
-// ex: "int" -> INT_TYPE
-const char* get_basetype(int basetype);
+// ex: INT -> "int"
+const char* get_basetype_str(int basetype);
 
 // ex: "name" -> typeinfo*. Returns an allocated typeinfo pointer
 struct typeinfo *get_ident_type(char *ident, struct sym_table * st);
