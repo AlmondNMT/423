@@ -106,7 +106,7 @@ int get_nonterminal_prodrule(char *production)
     else if(strcmp("comp_iter", production) == 0) return COMP_ITER;
     else if(strcmp("comp_if", production) == 0) return COMP_IF;
     else if(strcmp("subscriptlist", production) == 0) return SUBSCRIPTLIST;
-    else if(strcmp("comma_subscript_rep", production) == 0) return COMMA_SUBSCRIPT_REP;
+    else if(strcmp("subscript_comma_rep", production) == 0) return SUBSCRIPT_COMMA_REP;
     else if(strcmp("subscript", production) == 0) return SUBSCRIPT;
     else if(strcmp("sliceop_opt", production) == 0) return SLICEOP_OPT;
     else if(strcmp("sliceop", production) == 0) return SLICEOP;
@@ -143,7 +143,7 @@ int get_nonterminal_prodrule(char *production)
     else if(strcmp("ctct_rep", production) == 0) return CTCT_REP;
     else if(strcmp("dictorset_option_2", production) == 0) return DICTORSET_OPTION_2;
     else if(strcmp("comp_for_OR_ctr_co", production) == 0) return COMP_FOR_OR_CTR_CO;
-    else if(strcmp("rarrow_test_opt", production) == 0) return RARROW_TEST_OPT;
+    else if(strcmp("rarrow_name_opt", production) == 0) return RARROW_NAME_OPT;
     else if(strcmp("colon_test_opt", production) == 0) return COLON_TEST_OPT;
     else if(strcmp("decl_stmt", production) == 0) return DECL_STMT;
     return prodrule;

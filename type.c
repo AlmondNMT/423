@@ -825,8 +825,21 @@ typeptr get_power_type(struct tree *t)
             type = get_token_type(leaf);
 
             // Make literals with trailers INVALID
-            if(t->kids[1]->prodrule == TRAILER_REP)
-                semantic_error(leaf->filename, leaf->lineno, "'%s' object is not callable\n", get_basetype_str(type->basetype)); 
+            if(t->kids[1]->prodrule == TRAILER_REP) {
+                const char *typename = print_type(type);
+                switch(t->kids[1]->kids[1]->kids[0]->prodrule) {
+                    case ARGLIST_OPT:
+                        semantic_error(leaf->filename, leaf->lineno, "'%s' type is not callable\n", typename);
+                        break;
+                    case SUBSCRIPTLIST:
+                        semantic_error(leaf->filename, leaf->lineno, "'%s' type is not subscriptable\n", typename);
+                        break;
+                    case NAME:
+                        semantic_error(leaf->filename, leaf->lineno, "invalid field access for '%s'\n", typename);
+                        break;
+                }
+                semantic_error(leaf->filename, leaf->lineno, "'%s' object is not callable/subscriptable\n", print_type(type)); 
+            }
         }
     }
     return type;
@@ -877,8 +890,8 @@ struct trailer *build_trailer_sequence(struct tree *t)
     code = t->kids[1]->kids[0]->prodrule;
     next = create_trailer_link(name, code);
 
-    // Get the arglist of function call or list access to verify correctness
-    next->arg = build_arglist(t->kids[1]->kids[0]);
+    // Get the arglist of the function call or list access to verify correctness
+    next->arg = build_arglist(t->kids[1]->kids[0]); // We are passing in either a 
     if(prev != NULL) {
         struct trailer *curr = prev;
         while(curr->next != NULL) curr = curr->next;
@@ -895,11 +908,31 @@ struct arg *build_arglist(struct tree *t)
 {
     if(t == NULL) return NULL;
     struct arg *prev = NULL, *next = NULL;
-    switch(t->prodrule) {
+    typeptr type = NULL;
 
+    // The tree structure for these two nonterminals is only slightly different, 
+    switch(t->prodrule) {
+        case ARGLIST_OPT:
+            // ARGLIST_OPT -> ARGLIST/NULLTREE ->
+            prev = build_arglist(t->kids[0]);
+            break;
+        case ARGLIST:
+            // ARGLIST -> ARG_COMMA_REP
+        case SUBSCRIPTLIST: 
+        case SUBSCRIPT_COMMA_REP:
+        case ARG_COMMA_REP:
+            // SUBSCRIPTLIST -> SUBSCRIPT_COMMA_REP
+            prev = build_arglist(t->kids[0]);
+            type = get_testlist_type(t->kids[1]->kids[0]);
+            printf("%s\n", print_type(type));
+            next = create_arg_link(type);
+            break;
     }
 
     if(prev != NULL) {
+        struct arg *curr = prev;
+        while(curr->next != NULL) curr = curr->next;
+        curr->next = next;
         return prev;
     }
     return next;
@@ -968,7 +1001,7 @@ struct typeinfo *get_trailer_rep_type(struct trailer *seq, SymbolTableEntry entr
     prev = start;
 
     for(curr = start->next; curr != NULL; prev = curr, curr = curr->next) {
-        const char *type_name = get_basetype_str(current_type->basetype);
+        const char *type_name = print_type(current_type);
         switch(curr->prodrule) {
             // For each of three possible trailers, we ensure that 
             case NAME:
@@ -1166,8 +1199,8 @@ void type_check_expr_stmt(struct tree *t)
             if(!are_types_compatible(lhs_type, rhs_type)) {
                 // Grab nearby descendant token and use it for assignment type-check error
                 struct token *desc = get_power_descendant(t->kids[0]);
-                const char *left = get_basetype_str(lhs_type->basetype);
-                const char *right = get_basetype_str(rhs_type->basetype);
+                const char *left = print_type(lhs_type);
+                const char *right = print_type(rhs_type);
                 if(desc != NULL) {
                     semantic_error(desc->filename, desc->lineno, "incompatible assignment between '%s' and '%s'\n", left, right);
                 }
@@ -1187,6 +1220,30 @@ typeptr get_testlist_type(struct tree *t)
     if(t == NULL) return NULL;
     typeptr type = NULL;
     switch(t->prodrule) {
+        case TESTLIST:
+            break;
+        case TEST:
+            break;
+        case OR_TEST:
+            break;
+        case AND_TEST:
+            break;
+        case COMPARISON:
+            break;
+        case EXPR:
+            break;
+        case XOR_EXPR:
+            break;
+        case AND_EXPR:
+            break;
+        case SHIFT_EXPR:
+            break;
+        case ARITH_EXPR:
+            break;
+        case TERM:
+            break;
+        case FACTOR:
+            break;
         case POWER:
             type = get_power_type(t);
             break;
@@ -1217,8 +1274,8 @@ void type_check_decl_stmt(struct tree *t)
         assignment_type = get_rhs_type(t->kids[2]->kids[1]);
         decl_type = lhs->typ;
         if(!are_types_compatible(decl_type, assignment_type)) {
-            const char *left = get_basetype_str(decl_type->basetype);
-            const char *right = get_basetype_str(assignment_type->basetype);
+            const char *left = print_type(decl_type);
+            const char *right = print_type(assignment_type);
             struct token *tok = t->kids[0]->leaf;
             semantic_error(tok->filename, tok->lineno, "Incompatible assignment between '%s' and '%s'\n", left, right);
         }
@@ -1472,7 +1529,7 @@ void type_check_func_ret_type(struct tree *t, SymbolTable st)
             SymbolTableEntry fentry = lookup(ftok->text, t->stab);
             int compatible = are_types_compatible(fentry->typ->u.f.returntype, ret_val);
             if(!compatible)
-                semantic_error(ftok->filename, ftok->lineno, "'%s()' return type '%s' does not match type of value returned: '%s'\n", ftok->text, get_basetype_str(fentry->typ->u.f.returntype->basetype), get_basetype_str(ret_val->basetype));
+                semantic_error(ftok->filename, ftok->lineno, "'%s()' return type '%s' does not match type of value returned: '%s'\n", ftok->text, print_type(fentry->typ->u.f.returntype), print_type(ret_val));
             break;
         }
         default: {                  
@@ -1558,9 +1615,10 @@ int are_types_compatible(typeptr lhs, typeptr rhs)
 /**
  * BASETYPE -> "any"
 */
-const char *get_basetype_str(int basetype)
+const char *print_type(typeptr type)
 {
-    switch(basetype) {
+    if(type == NULL) return "NULL";
+    switch(type->basetype) {
         case NONE_TYPE:
             return "None";
         case INT_TYPE:
@@ -1595,7 +1653,7 @@ void print_paramlist(paramlist params)
 {
     if(params == NULL) return;
     if(params->name != NULL && params->type != NULL) 
-        printf("%s: %s, ", params->name, get_basetype_str(params->type->basetype));
+        printf("%s: %s, ", params->name, print_type(params->type));
     print_paramlist(params->next);
 }
 

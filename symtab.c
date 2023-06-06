@@ -335,7 +335,7 @@ void handle_expr_stmt(struct tree *t, SymbolTable st)
             // Verify type compatible of LHS and RHS in assignment
             int compatible = are_types_compatible(entry->typ, rhs_type);
             if(!compatible)
-                semantic_error(leftmost->filename, leftmost->lineno, "incompatible assignment between '%s' and '%s'\n", get_basetype_str(entry->typ->basetype), get_basetype_str(rhs_type->basetype));
+                semantic_error(leftmost->filename, leftmost->lineno, "incompatible assignment between '%s' and '%s'\n", print_type(entry->typ), print_type(rhs_type));
 
             // Add the table in the rhs_type to the symbol entry
             add_nested_table(entry, rhs_type);
@@ -453,8 +453,8 @@ void handle_token(struct tree *t, SymbolTable st)
         //   because this violates the assumption that only NAMES will be found,
         //   and not listmaker_opts, dictorsetmaker_opts, or literals
         if(t->kids[0]->prodrule != NAME) {
-            fprintf(stderr, "LHS of assignment must contain an identifier\n");
-            exit(SEM_ERR);
+            struct token *desc = get_power_descendant(t);
+            semantic_error(desc->filename, desc->lineno, "LHS of assignment must contain an identifier\n");
         }
         
         // Grab the leftmost identifier, then look it up in the symbol table
@@ -519,7 +519,7 @@ SymbolTableEntry get_chained_dot_entry(struct tree *t, SymbolTable st, SymbolTab
             // Get the symbol table of the rhs
             rhs = lookup_current(rhs_tok->text, entry->nested);
             if(rhs == NULL) {
-                semantic_error(rhs_tok->filename, rhs_tok->lineno, "Name '%s' does not belong to class: %s\n", rhs_tok->text, get_basetype_str(entry->typ->basetype));
+                semantic_error(rhs_tok->filename, rhs_tok->lineno, "Name '%s' does not belong to class: %s\n", rhs_tok->text, print_type(entry->typ));
             }
         }
 
@@ -553,8 +553,9 @@ void locate_invalid_expr(struct tree *t)
 
                 // Disallow chained assignments, e.g., a = b = 3
                 if(t->kids[1]->kids[0]->prodrule == EQUAL_OR_YIELD_OR_TESTLIST_REP) {
-                    fprintf(stderr, "Cannot perform chained assignment\n");
-                    exit(SEM_ERR);
+                    struct token *desc = get_power_descendant(t);
+                    
+                    semantic_error(desc->filename, desc->lineno, "Cannot perform chained assignment\n");
                 }
                 // We now search everywhere except the RHS for any literals, lists,
                 //  or dicts, or arithmetic expressions
@@ -567,23 +568,24 @@ void locate_invalid_expr(struct tree *t)
         case RETURN_STMT: {
             // Return statements outside of function defs are invalid
             if(!has_ancestor(t, FUNCDEF)) {
-                fprintf(stderr, "'return' outside function\n");
-                exit(SEM_ERR);
+                struct token *tok = t->kids[0]->leaf;
+                semantic_error(tok->filename, tok->lineno, "'return' outside function\n");
             }
             break;
         }
         case CONTINUE_STMT: {
             if(!has_ancestor(t, WHILE_STMT) && !has_ancestor(t, FOR_STMT)) {
-                fprintf(stderr, "'continue' not properly in loop\n");
-                exit(SEM_ERR);
+                struct token *tok = t->kids[0]->leaf;
+                semantic_error(tok->filename, tok->lineno, "'continue' not properly in loop\n");
             }
             break;
         }
         case BREAK_STMT: {
             if(!has_ancestor(t, WHILE_STMT) && !has_ancestor(t, FOR_STMT)) {
-                fprintf(stderr, "'break' outside loop\n");
-                exit(SEM_ERR);
+                struct token *tok = t->kids[0]->leaf;
+                semantic_error(tok->filename, tok->lineno, "'break' outside loop\n");
             }
+            break;
         }
         default: {
         }
@@ -1224,11 +1226,11 @@ void printsymbols(SymbolTable st)
             
             printf("%d %s: ", i, entry->ident);
             if(entry->typ->basetype == FUNC_TYPE && entry->typ->u.f.returntype != NULL) {
-                printf("%s type ", get_basetype_str(entry->typ->basetype)); // Switch statements for base types
-                printf("-> %s\n", get_basetype_str(entry->typ->u.f.returntype->basetype));
+                printf("%s type ", print_type(entry->typ)); // Switch statements for base types
+                printf("-> %s\n", print_type(entry->typ->u.f.returntype));
             }
             else 
-                printf("%s type\n", get_basetype_str(entry->typ->basetype)); // Switch statements for base types
+                printf("%s type\n", print_type(entry->typ)); // Switch statements for base types
             if(entry->nested != NULL) {
                 printsymbols(entry->nested);
             }

@@ -51,7 +51,7 @@
 %token <treeptr> ASSIGNMENT
 %token <treeptr> DECORATOR
 
-%type <treeptr> file_input  nl_OR_stmt_rep   stmt   simple_stmt   semi_small_stmt_rep  semi_opt  small_stmt  global_stmt   comma_name_rep   pass_stmt  del_stmt   flow_stmt   break_stmt  continue_stmt   return_stmt     yield_expr_OR_testlist_comp   testlist_comp  tc_options  compound_stmt   classdef   lpar_testlist_rpar_opt   funcdef   parameters   varargslist_opt   varargslist   fpdef_equal_test_comma_rep   fpdef_options   equal_test_opt   com_fpdef_eq_t_rep   fpdef   fplist   comma_fpdef_rep   if_stmt   elif_test_colon_suite_rep   else_colon_suite_opt   suite   stmt_rep  while_stmt   for_stmt expr_stmt  expr_conjunct   yield_OR_testlist  equal_OR_yield_OR_testlist_rep   augassign  import_stmt   import_name   as_name_opt   dotted_as_names  comma_dotted_as_name_rep   dotted_as_name  dotted_name  testlist_opt   testlist   comma_test_rep   exprlist   comma_expr_rep  comma_opt   expr   vbar_xor_expr_rep   xor_expr  caret_and_expr_rep  and_expr   amper_shift_expr_rep   shift_expr   shift_arith_expr_rep   shift   arith_expr  pm_term_rep   plus_OR_minus   term   factops_factor_rep   factops   factor  pmt   power   trailer_rep  trailer   arglist_opt   arglist  arg_comma_rep   argument  comp_for_opt comp_for   comp_iter_opt  comp_iter  comp_if   subscriptlist  comma_subscript_rep  subscript  test   or_test   or_and_test_rep  and_test  and_not_test_rep  not_test comparison  comp_op_expr_rep  comp_op  not_in   is_not  dstar_factor_opt atom  listmaker_opt listmaker  listmaker_options  list_for testlist_safe  old_test tl_safe_opt  comma_old_test_rep  list_iter_opt  list_iter list_if  dictorsetmaker_opt  dictorsetmaker  dictorset_option_1 comp_for_OR_ctctco  ctct_rep  rarrow_test_opt colon_test_opt decl_stmt
+%type <treeptr> file_input  nl_OR_stmt_rep   stmt   simple_stmt   semi_small_stmt_rep  semi_opt  small_stmt  global_stmt   comma_name_rep   pass_stmt  del_stmt   flow_stmt   break_stmt  continue_stmt   return_stmt     yield_expr_OR_testlist_comp   testlist_comp  tc_options  compound_stmt   classdef   lpar_testlist_rpar_opt   funcdef   parameters   varargslist_opt   varargslist   fpdef_equal_test_comma_rep   fpdef_options   equal_test_opt   com_fpdef_eq_t_rep   fpdef   fplist   comma_fpdef_rep   if_stmt   elif_test_colon_suite_rep   else_colon_suite_opt   suite   stmt_rep  while_stmt   for_stmt expr_stmt  expr_conjunct   yield_OR_testlist  equal_OR_yield_OR_testlist_rep   augassign  import_stmt   import_name   as_name_opt   dotted_as_names  comma_dotted_as_name_rep   dotted_as_name  dotted_name  testlist_opt   testlist   comma_test_rep   exprlist   comma_expr_rep  comma_opt   expr   vbar_xor_expr_rep   xor_expr  caret_and_expr_rep  and_expr   amper_shift_expr_rep   shift_expr   shift_arith_expr_rep   shift   arith_expr  pm_term_rep   plus_OR_minus   term   factops_factor_rep   factops   factor  pmt   power   trailer_rep  trailer   arglist_opt   arglist  arg_comma_rep   argument  comp_for_opt comp_for   comp_iter_opt  comp_iter  comp_if   subscriptlist  subscript_comma_rep  subscript  test   or_test   or_and_test_rep  and_test  and_not_test_rep  not_test comparison  comp_op_expr_rep  comp_op  not_in   is_not  dstar_factor_opt atom  listmaker_opt listmaker  listmaker_options  list_for testlist_safe  old_test tl_safe_opt  comma_old_test_rep  list_iter_opt  list_iter list_if  dictorsetmaker_opt  dictorsetmaker  dictorset_option_1 comp_for_OR_ctctco  ctct_rep  rarrow_name_opt colon_test_opt decl_stmt
 
 %start file_input
 
@@ -120,7 +120,7 @@ break_stmt: BREAK {$$=make_tree("break_stmt", 1, $1);}
 continue_stmt: CONTINUE {$$=make_tree("continue_stmt", 1, $1);}
     ;
 
-return_stmt: RETURN testlist_opt {$$=make_tree("return_stmt", 1, $2);}
+return_stmt: RETURN testlist_opt {$$=make_tree("return_stmt", 2, $1, $2);}
     ;
 
 //raise_stmt: RAISE test_triplet_opt {$$=make_tree("raise_stmt", 1, $2);}
@@ -151,11 +151,11 @@ lpar_testlist_rpar_opt: {$$=make_tree("nulltree",0,NULL);}
     | LPAR testlist_opt RPAR {$$=make_tree("lpar_testlist_rpar_opt", 1, $2);}
     ;
 
-funcdef: PYDEF NAME parameters rarrow_test_opt COLON suite {$$=make_tree("funcdef", 4, $2, $3, $4, $6); }
+funcdef: PYDEF NAME parameters rarrow_name_opt COLON suite {$$=make_tree("funcdef", 4, $2, $3, $4, $6); }
     ;
 
-rarrow_test_opt: {$$=make_tree("nulltree", 0, NULL); }
-    | RARROW test {$$=make_tree("rarrow_test_opt", 1, $2); }
+rarrow_name_opt: {$$=make_tree("nulltree", 0, NULL); }
+    | RARROW NAME {$$=make_tree("rarrow_name_opt", 1, $2); }
     ;
 
 parameters: LPAR varargslist_opt RPAR {$$=make_tree("parameters", 1, $2);}
@@ -410,14 +410,14 @@ comp_iter: comp_for
 comp_if: IF old_test comp_iter_opt {$$=make_tree("comp_if", 2,$2,$3);}
     ;
 
-subscriptlist: subscript comma_subscript_rep comma_opt {$$=make_tree("subscriptlist", 3,$1,$2,$3);}
+subscriptlist: subscript_comma_rep subscript comma_opt {$$=make_tree("subscriptlist", 3, $1, $2, $3);}
     ;
 
-comma_subscript_rep: {$$=make_tree("nulltree",0,NULL);}
-    | comma_subscript_rep COMMA subscript {$$=make_tree("comma_subscript_rep", 2,$1,$3);}
+subscript_comma_rep: {$$=make_tree("nulltree", 0, NULL); }
+    | subscript_comma_rep subscript COMMA {$$=make_tree("subscript_comma_rep", 2, $1, $2); }
     ;
 
-subscript: test
+subscript: test {$$=make_tree("subscript", 1, $1);}
     ;
 
 test: or_test {$$=make_tree("test", 1,$1);}

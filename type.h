@@ -171,8 +171,8 @@ void handle_or_test_types(struct tree *t, struct sym_table * st);
 void get_function_params(struct tree *t, struct sym_table *ftable);
 void add_nested_table(struct sym_entry *, struct typeinfo *rhs_type);
 
-// ex: INT -> "int"
-const char* get_basetype_str(int basetype);
+// ex: type -> "int"
+const char* print_type(typeptr type);
 
 // ex: "name" -> typeinfo*. Returns an allocated typeinfo pointer
 struct typeinfo *get_ident_type(char *ident, struct sym_table * st);
