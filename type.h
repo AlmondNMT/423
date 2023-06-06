@@ -88,7 +88,9 @@ struct trailer *build_trailer_sequence(struct tree *t);
 struct arg *build_arglist(struct tree *t);
 struct arg *create_arg_link(typeptr type);
 void free_trailer_sequence(struct trailer *seq);
+void free_arglist(struct arg *args);
 void print_trailer_sequence(struct trailer *seq);
+void print_arglist(struct arg *args);
 
 
 /* add constructors for other types as needed */

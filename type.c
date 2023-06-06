@@ -854,15 +854,31 @@ void print_trailer_sequence(struct trailer *seq)
             printf(".%s", seq->name);
             break;
         case ARGLIST_OPT:
-            printf("(...)");
+            printf("(");
+            print_arglist(seq->arg);
+            printf(")");
             break;
         case SUBSCRIPTLIST:
-            printf("[...]");
+            printf("[");
+            print_arglist(seq->arg);
+            printf("]");
             break;
         default:
             printf("???");
     }
     print_trailer_sequence(seq->next);
+}
+
+void print_arglist(struct arg *arg)
+{
+    if(arg == NULL) return;
+    if(arg->next == NULL) {
+        printf("%s", print_type(arg->type));
+    }
+    else {
+        printf("%s, ", print_type(arg->type));
+        print_arglist(arg->next);
+    }
 }
 
 /**
@@ -924,7 +940,7 @@ struct arg *build_arglist(struct tree *t)
             // SUBSCRIPTLIST -> SUBSCRIPT_COMMA_REP
             prev = build_arglist(t->kids[0]);
             type = get_testlist_type(t->kids[1]->kids[0]);
-            printf("%s\n", print_type(type));
+            //printf("%s\n", print_type(type));
             next = create_arg_link(type);
             break;
     }
@@ -965,6 +981,7 @@ void free_trailer_sequence(struct trailer *seq)
 {
     if(seq == NULL) return;
     free_trailer_sequence(seq->next);
+    free(seq->arg);
     free(seq->name);
     free(seq);
 }
