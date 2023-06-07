@@ -246,7 +246,7 @@ void insertfunction(struct tree *t, SymbolTable st)
     // In case a function was already defined, free its symbol table and 
     // make a new one
     free_symtab(entry->nested); 
-    entry->nested = mknested(leaf->filename, leaf->lineno, HASH_TABLE_SIZE, st, "function");
+    entry->nested = mknested(leaf, HASH_TABLE_SIZE, st, "function");
 
     // The parent of the function's scope will be the current scope
     entry->nested->parent = st;
@@ -335,7 +335,7 @@ void handle_expr_stmt(struct tree *t, SymbolTable st)
             // Verify type compatible of LHS and RHS in assignment
             int compatible = are_types_compatible(entry->typ, rhs_type);
             if(!compatible)
-                semantic_error(leftmost->filename, leftmost->lineno, "incompatible assignment between '%s' and '%s'\n", print_type(entry->typ), print_type(rhs_type));
+                semantic_error(leftmost, "incompatible assignment between '%s' and '%s'\n", print_type(entry->typ), print_type(rhs_type));
 
             // Add the table in the rhs_type to the symbol entry
             add_nested_table(entry, rhs_type);
@@ -454,7 +454,7 @@ void handle_token(struct tree *t, SymbolTable st)
         //   and not listmaker_opts, dictorsetmaker_opts, or literals
         if(t->kids[0]->prodrule != NAME) {
             struct token *desc = get_power_descendant(t);
-            semantic_error(desc->filename, desc->lineno, "LHS of assignment must contain an identifier\n");
+            semantic_error(desc, "LHS of assignment must contain an identifier\n");
         }
         
         // Grab the leftmost identifier, then look it up in the symbol table
@@ -476,7 +476,7 @@ void handle_token(struct tree *t, SymbolTable st)
             //   token, throw a fit. For example, "a.b = 2" is only valid if 
             //   "a" is previously defined. 
             if(entry == NULL) {
-                semantic_error(left->filename, left->lineno, "name '%s' is not defined\n", left->text);
+                semantic_error(left, "name '%s' is not defined\n", left->text);
             }
             
             // Get the nested symbol table of the entry, then call an auxiliary 
@@ -519,7 +519,7 @@ SymbolTableEntry get_chained_dot_entry(struct tree *t, SymbolTable st, SymbolTab
             // Get the symbol table of the rhs
             rhs = lookup_current(rhs_tok->text, entry->nested);
             if(rhs == NULL) {
-                semantic_error(rhs_tok->filename, rhs_tok->lineno, "Name '%s' does not belong to class: %s\n", rhs_tok->text, print_type(entry->typ));
+                semantic_error(rhs_tok, "Name '%s' does not belong to class: %s\n", rhs_tok->text, print_type(entry->typ));
             }
         }
 
@@ -555,7 +555,7 @@ void locate_invalid_expr(struct tree *t)
                 if(t->kids[1]->kids[0]->prodrule == EQUAL_OR_YIELD_OR_TESTLIST_REP) {
                     struct token *desc = get_power_descendant(t);
                     
-                    semantic_error(desc->filename, desc->lineno, "Cannot perform chained assignment\n");
+                    semantic_error(desc, "Cannot perform chained assignment\n");
                 }
                 // We now search everywhere except the RHS for any literals, lists,
                 //  or dicts, or arithmetic expressions
@@ -569,21 +569,21 @@ void locate_invalid_expr(struct tree *t)
             // Return statements outside of function defs are invalid
             if(!has_ancestor(t, FUNCDEF)) {
                 struct token *tok = t->kids[0]->leaf;
-                semantic_error(tok->filename, tok->lineno, "'return' outside function\n");
+                semantic_error(tok, "'return' outside function\n");
             }
             break;
         }
         case CONTINUE_STMT: {
             if(!has_ancestor(t, WHILE_STMT) && !has_ancestor(t, FOR_STMT)) {
                 struct token *tok = t->kids[0]->leaf;
-                semantic_error(tok->filename, tok->lineno, "'continue' not properly in loop\n");
+                semantic_error(tok, "'continue' not properly in loop\n");
             }
             break;
         }
         case BREAK_STMT: {
             if(!has_ancestor(t, WHILE_STMT) && !has_ancestor(t, FOR_STMT)) {
                 struct token *tok = t->kids[0]->leaf;
-                semantic_error(tok->filename, tok->lineno, "'break' outside loop\n");
+                semantic_error(tok, "'break' outside loop\n");
             }
             break;
         }
@@ -658,7 +658,7 @@ void locate_invalid_arith(struct tree *t)
             if(t->kids[1]->prodrule != NULLTREE) {
                 struct token *leaf = get_expr_leaf(t);
                 if(leaf != NULL) {
-                    semantic_error(leaf->filename, leaf->lineno, "cannot assign to operator\n");
+                    semantic_error(leaf, "cannot assign to operator\n");
                 }
                 fprintf(stderr, "cannot assign to operator\n");
                 exit(SEM_ERR);
@@ -703,7 +703,7 @@ void locate_invalid_token(struct tree *t)
     // If we find that the first child is not a name, but the leaf 
     //   is not NULL 
     if(t->prodrule != NAME && t->leaf != NULL)
-        semantic_error(t->leaf->filename, t->leaf->lineno, "Cannot assign to literal\n");
+        semantic_error(t->leaf, "Cannot assign to literal\n");
     if(t->prodrule == ATOM) {
         // For invalid LHS list assignments
         if(t->prodrule == LISTMAKER_OPT) {
@@ -865,7 +865,7 @@ void get_decl_stmt(struct tree *t, SymbolTable st)
     char *name = var->text;
     if(symbol_exists_current(name, st)) {
         // Redeclaration error
-        semantic_error(var->filename, var->lineno, "Redeclaration for name '%s' in scope '%s'\n", name, st->scope);
+        semantic_error(var, "Redeclaration for name '%s' in scope '%s'\n", name, st->scope);
     }
 
     // rhs_type is used for the case where an assignment is performed with a declaration
@@ -880,12 +880,13 @@ void get_decl_stmt(struct tree *t, SymbolTable st)
 /** 
  * Semantic error printing. Variadic to supply variables
  */
-void semantic_error(char *filename, int lineno, char *msg, ...)
+void semantic_error(struct token *tok, char *msg, ...)
 {
     va_list args;
     va_start(args, msg);
     int counter = 0;
-    fprintf(stderr, "%s:%d: ", filename, lineno);
+    if(tok != NULL) 
+        fprintf(stderr, "%s:%d,%d: ", tok->filename, tok->lineno, tok->column);
     while (*msg != '\0') {
         switch (*msg) {
             case '%':
@@ -925,7 +926,7 @@ void semantic_error(char *filename, int lineno, char *msg, ...)
 void undeclared_error(struct token *tok)
 {
     if(tok == NULL) return;
-    semantic_error(tok->filename, tok->lineno, "Name '%s' not found\n", tok->text);
+    semantic_error(tok, "Name '%s' not found\n", tok->text);
 }
 
 /*
@@ -969,7 +970,7 @@ void get_import_symbols(struct tree *t, SymbolTable st)
 
     // If the file is not found in the current AND it is not a builtin, throw an error
     if(access(filename, F_OK) != 0 && !is_built_in(import_name)) {
-        semantic_error(leaf->filename, leaf->lineno, "No module named '%s'\n", import_name);
+        semantic_error(leaf, "No module named '%s'\n", import_name);
     }
 
     // If we see an AS_NAME_OPT nonterminal we add the alias for the module
@@ -1011,7 +1012,7 @@ void get_import_symbols(struct tree *t, SymbolTable st)
 
         // Package symbol table
         int dont_add_builtins = 0;
-        SymbolTable package_symtab = mknested(filename, entry->lineno, HASH_TABLE_SIZE, st, "package");
+        SymbolTable package_symtab = mknested(leaf, HASH_TABLE_SIZE, st, "package");
         entry->nested = package_symtab;
 
         // Point the package type symtab to the same region of memory
@@ -1097,7 +1098,7 @@ void insertclass(struct tree *t, SymbolTable st)
     SymbolTableEntry entry = insertsymbol(st, leaf);
 
     free_symtab(entry->nested);
-    entry->nested = mknested(leaf->filename, leaf->lineno, HASH_TABLE_SIZE, st, "class");
+    entry->nested = mknested(leaf, HASH_TABLE_SIZE, st, "class");
     
     free(entry->typ);
 
@@ -1149,12 +1150,12 @@ SymbolTable mksymtab(int nbuckets, char *scope)
 
 
 // Create a symbol table for functions/classes
-SymbolTable mknested(char *filename, int lineno, int nbuckets, SymbolTable parent, char *scope)
+SymbolTable mknested(struct token *tok, int nbuckets, SymbolTable parent, char *scope)
 {
     if(strcmp(parent->scope, "function") == 0) {
-        semantic_error(filename, lineno, "Function nesting not allowed in puny\n");
+        semantic_error(tok, "Function nesting not allowed in puny\n");
     } else if (strcmp(parent->scope, "class") == 0 && strcmp(scope, "class") == 0) {
-        semantic_error(filename, lineno, "Class nesting not allowed in puny\n");
+        semantic_error(tok, "Class nesting not allowed in puny\n");
     }
     SymbolTable ftable = mksymtab(nbuckets, scope);
     ftable->level = parent->level + 1;

@@ -12,7 +12,7 @@ int unmatched_quotes = 0;
 int dentstack[100]={0};
 int top=0;
 int indentlevel(char *s);		
-int words = 0, column=0;
+int words = 0, column=1;
 int dedentcount;
 int firsttime;
 int has_endmarker_been_returned = 0;

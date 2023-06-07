@@ -81,7 +81,7 @@ void locate_undeclared(struct tree *t, SymbolTable st);
 int get_func_param_count(struct tree *t, int count);
 int count_func_args(struct tree *t, int count);
 SymbolTable mksymtab(int nbuckets, char *table_name);
-SymbolTable mknested(char *filename, int lineno, int nbuckets, SymbolTable parent, char *scope);
+SymbolTable mknested(struct token *tok, int nbuckets, SymbolTable parent, char *scope);
 void populate_symboltables(struct tree *t, SymbolTable st);
 void printsymbols(SymbolTable st, int level);
 void semantics(struct tree *t, SymbolTable st, int add_builtins);
@@ -94,6 +94,6 @@ SymbolTableEntry lookup(char *name, SymbolTable st);
 SymbolTableEntry lookup_current(char *name, SymbolTable st);
 
 // Errors
-void semantic_error(char *filename, int lineno, char *msg, ...);
+void semantic_error(struct token *tok, char *msg, ...);
 void undeclared_error(struct token *tok);
 

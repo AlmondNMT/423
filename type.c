@@ -9,9 +9,6 @@
 #include "type.h"
 #include "utils.h"
  
-extern struct sym_table *mknested(char *, int, int, struct sym_table *, char *);
-extern struct sym_entry *insertsymbol(struct sym_table *, struct token *);
-
 struct typeinfo none_type = { .basetype = NONE_TYPE, .u.cls.name = "none", .u.cls.returntype = &none_type };
 struct typeinfo int_type = { .basetype = INT_TYPE, .u.cls.name = "int", .u.cls.returntype = &int_type };
 struct typeinfo float_type = { .basetype = FLOAT_TYPE, .u.cls.name = "float", .u.cls.returntype = &float_type };
@@ -702,15 +699,15 @@ void verify_func_arg_count(struct tree *t)
             if(entry->typ->basetype == FUNC_TYPE || entry->typ->basetype == CLASS_TYPE) {
                 if(arg_count < param_count) {
                     if(param_count - arg_count == 1)
-                        semantic_error(ftok->filename, ftok->lineno, "%s() missing 1 required positional argument\n", ftok->text);
+                        semantic_error(ftok, "%s() missing 1 required positional argument\n", ftok->text);
                     else
-                        semantic_error(ftok->filename, ftok->lineno, "%s() missing %d required positional arguments\n", ftok->text, param_count - arg_count);
+                        semantic_error(ftok, "%s() missing %d required positional arguments\n", ftok->text, param_count - arg_count);
                 }
                 else if(arg_count > param_count) {
                     if(arg_count > 1)
-                        semantic_error(ftok->filename, ftok->lineno, "%s() takes %d positional arguments but %d were given\n", ftok->text, param_count, arg_count);
+                        semantic_error(ftok, "%s() takes %d positional arguments but %d were given\n", ftok->text, param_count, arg_count);
                     else
-                        semantic_error(ftok->filename, ftok->lineno, "%s() takes 0 positional arguments but 1 was given\n", ftok->text);
+                        semantic_error(ftok, "%s() takes 0 positional arguments but 1 was given\n", ftok->text);
                 }
             }
             
@@ -782,6 +779,7 @@ typeptr get_power_type(struct tree *t)
                 // Build a linked list sequence of trailers
                 struct trailer *seq = build_trailer_sequence(t->kids[1]);
 
+                printf("%s", leaf->text);
                 print_trailer_sequence(seq);
 
                 type = get_trailer_rep_type(seq, entry, leaf);
@@ -789,6 +787,9 @@ typeptr get_power_type(struct tree *t)
             }
             else {
                 type = get_ident_type(entry->ident, t->stab);
+                if(type->basetype == FUNC_TYPE) {
+                    semantic_error(leaf, "invalid call with no parentheses\n");
+                }
             }
         }
 
@@ -801,16 +802,16 @@ typeptr get_power_type(struct tree *t)
                 const char *typename = print_type(type);
                 switch(t->kids[1]->kids[1]->kids[0]->prodrule) {
                     case ARGLIST_OPT:
-                        semantic_error(leaf->filename, leaf->lineno, "'%s' type is not callable\n", typename);
+                        semantic_error(leaf, "'%s' type is not callable\n", typename);
                         break;
                     case SUBSCRIPTLIST:
-                        semantic_error(leaf->filename, leaf->lineno, "'%s' type is not subscriptable\n", typename);
+                        semantic_error(leaf, "'%s' type is not subscriptable\n", typename);
                         break;
                     case NAME:
-                        semantic_error(leaf->filename, leaf->lineno, "invalid field access for '%s'\n", typename);
+                        semantic_error(leaf, "invalid field access for '%s'\n", typename);
                         break;
                 }
-                semantic_error(leaf->filename, leaf->lineno, "'%s' object is not callable/subscriptable\n", print_type(type)); 
+                semantic_error(leaf, "'%s' object is not callable/subscriptable\n", print_type(type)); 
             }
         }
     }
@@ -1001,11 +1002,11 @@ struct typeinfo *get_trailer_rep_type(struct trailer *seq, SymbolTableEntry entr
                     case INT_TYPE:
                     case FLOAT_TYPE:
                     case BOOL_TYPE:
-                        semantic_error(tok->filename, tok->lineno, "invalid field access for type '%s'\n", type_name);
+                        semantic_error(tok, "invalid field access for type '%s'\n", type_name);
                 }
                 rhs = lookup_current(curr->name, nested);
                 if(rhs == NULL) {
-                    semantic_error(tok->filename, tok->lineno, "'%s' object has no attribute '%s'\n", type_name, curr->name);
+                    semantic_error(tok, "'%s' object has no attribute '%s'\n", type_name, curr->name);
                 }
                 nested = rhs->typ->u.cls.st;
                 current_type = rhs->typ;
@@ -1023,7 +1024,7 @@ struct typeinfo *get_trailer_rep_type(struct trailer *seq, SymbolTableEntry entr
                         nested = current_type->u.cls.st;
                         break;
                     default:
-                        semantic_error(tok->filename, tok->lineno, "'%s' object is not callable\n", type_name);
+                        semantic_error(tok, "'%s' object is not callable\n", type_name);
 
                 }
                 break;
@@ -1039,7 +1040,7 @@ struct typeinfo *get_trailer_rep_type(struct trailer *seq, SymbolTableEntry entr
                         // Any objects can be subscriptable as 'any' type lists. Callables cannot be any, though
                         break;
                     default:
-                        semantic_error(tok->filename, tok->lineno, "'%s' object is not subscriptable\n", type_name);
+                        semantic_error(tok, "'%s' object is not subscriptable\n", type_name);
                 }
                 break;
         }
@@ -1190,7 +1191,7 @@ void type_check_expr_stmt(struct tree *t)
                 const char *left = print_type(lhs_type);
                 const char *right = print_type(rhs_type);
                 if(desc != NULL) {
-                    semantic_error(desc->filename, desc->lineno, "incompatible assignment between '%s' and '%s'\n", left, right);
+                    semantic_error(desc, "incompatible assignment between '%s' and '%s'\n", left, right);
                 }
             }
             break;
@@ -1265,7 +1266,7 @@ void type_check_decl_stmt(struct tree *t)
             const char *left = print_type(decl_type);
             const char *right = print_type(assignment_type);
             struct token *tok = t->kids[0]->leaf;
-            semantic_error(tok->filename, tok->lineno, "Incompatible assignment between '%s' and '%s'\n", left, right);
+            semantic_error(tok, "Incompatible assignment between '%s' and '%s'\n", left, right);
         }
 
     }
@@ -1395,7 +1396,7 @@ struct typeinfo *determine_hint_type(struct token *type, SymbolTable st)
     // If the type entry cannot be found in the symbol table, that's an error
     
     if(type_entry == NULL) 
-        semantic_error(type->filename, type->lineno, "Name '%s' is not defined for the provided type\n", type->text);
+        semantic_error(type, "Name '%s' is not defined for the provided type\n", type->text);
     else {
         // When we find the type entry, we have to consider its type code. If it's 
         // a class, we obtain the class define code if it's a builtin, or ANY_TYPE 
@@ -1523,7 +1524,7 @@ void type_check_func_ret_type(struct tree *t, SymbolTable st)
             SymbolTableEntry fentry = lookup(ftok->text, t->stab);
             int compatible = are_types_compatible(fentry->typ->u.f.returntype, ret_val);
             if(!compatible)
-                semantic_error(ftok->filename, ftok->lineno, "'%s()' return type '%s' does not match type of value returned: '%s'\n", ftok->text, print_type(fentry->typ->u.f.returntype), print_type(ret_val));
+                semantic_error(ftok, "'%s()' return type '%s' does not match type of value returned: '%s'\n", ftok->text, print_type(fentry->typ->u.f.returntype), print_type(ret_val));
             break;
         }
         default: {                  

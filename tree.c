@@ -75,6 +75,7 @@ int alctoken(int category)
     check_alloc(yylval.treeptr->leaf, "yylval.treeptr->leaf");
     yylval.treeptr->leaf->category = category;
     yylval.treeptr->leaf->lineno = yylineno;
+    yylval.treeptr->leaf->column = get_column(yytext, column);
     char *name = rev_token(category);
     yylval.treeptr->symbolname = ckalloc(strlen(name)+1, sizeof(char));
     check_alloc(yylval.treeptr->symbolname, "yylval.treeptr->symbolname");
