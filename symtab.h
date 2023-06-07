@@ -12,7 +12,6 @@ typedef struct sym_table {
     char *scope;                /* Scope name */
     struct sym_table *parent;   /* enclosing scope, superclass etc. */
     struct sym_entry **tbl;
-    struct sym_entry *references; /* referenced but not declared variables */
     /* more per-scope/per-symbol-table attributes go here */
 } *SymbolTable;
 
@@ -84,7 +83,7 @@ int count_func_args(struct tree *t, int count);
 SymbolTable mksymtab(int nbuckets, char *table_name);
 SymbolTable mknested(char *filename, int lineno, int nbuckets, SymbolTable parent, char *scope);
 void populate_symboltables(struct tree *t, SymbolTable st);
-void printsymbols(SymbolTable st);
+void printsymbols(SymbolTable st, int level);
 void semantics(struct tree *t, SymbolTable st, int add_builtins);
 
 // Get Symbol information from the table

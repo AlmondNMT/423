@@ -3,9 +3,20 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "builtins.h"
 #include "symtab.h"
 #include "tree.h"
 #include "type.h"
+
+extern struct typeinfo none_type;
+extern struct typeinfo int_type;
+extern struct typeinfo float_type;
+extern struct typeinfo bool_type;
+
+extern struct typeinfo list_type;
+extern struct typeinfo dict_type;
+extern struct typeinfo string_type;
+extern struct typeinfo file_type;
 
 struct token *create_builtin_token(char *name)
 {
@@ -17,14 +28,14 @@ struct token *create_builtin_token(char *name)
 /**
  * Add methods to a builtin class
  */
-struct sym_entry *insertbuiltin_meth(struct sym_table *btable, char *name, char *ret_type)
+struct sym_entry *insertbuiltin_meth(struct sym_table *btable, char *name, typeptr returntype)
 {
     struct sym_entry *entry = NULL;
     struct token *tok = create_builtin_token(name);
     entry = insertsymbol(btable, tok);
     free_token(tok);
     entry->typ->basetype = FUNC_TYPE;
-    entry->typ->u.f.returntype = get_ident_type(ret_type, NULL); // This should be fine
+    entry->typ->u.f.returntype = returntype;
     entry->typ->u.f.name = name;
     return entry;
 }
@@ -40,13 +51,20 @@ SymbolTableEntry insertbuiltin(SymbolTable st, char *name, int basetype)
     SymbolTableEntry entry = insertsymbol(st, tok);
     entry->typ->basetype = basetype;
 
+    entry->typ->u.f.name = name;
+
     // Assumption: Builtins are only ever FUNCTIONS OR CLASSES
-    if(basetype == FUNC_TYPE) {
-        entry->typ->u.f.name = name;
-    }
-    else {
+    if(basetype == CLASS_TYPE) {
         entry->typ->u.cls.name = name;
+        typeptr type = get_ident_type(name, NULL);
+        entry->typ->u.cls.returntype = type;
+        if(type->u.cls.st != NULL) {
+            entry->nested = type->u.cls.st;
+            entry->nested->parent = st;
+            entry->nested->level = st->level + 1;
+        }
     }
+
     free_token(tok);
     return entry;
 }
@@ -57,13 +75,23 @@ SymbolTableEntry insertbuiltin(SymbolTable st, char *name, int basetype)
  * 2. Add param types
  * 3. Add return type
 */
-void add_builtin_func_info(SymbolTableEntry entry, int nparams, int returntype, char *fmt, ...)
+void add_builtin_func_info(struct sym_entry *entry, int min, int max, struct typeinfo *returntype, char *fmt, ...)
 {
     // Add the function return type
     if(entry->typ == NULL)
         return;
-    entry->typ->u.f.returntype = alcbuiltin(returntype);
-    entry->typ->u.f.nparams = nparams;
+    if(entry->typ->basetype == CLASS_TYPE) {
+        entry->typ->u.cls.returntype = returntype;
+        entry->typ->u.cls.min_params = min;
+        entry->typ->u.cls.max_params = max;
+    }
+    else {
+        entry->typ->u.f.returntype = returntype;
+        entry->typ->u.f.min_params = min;
+        entry->typ->u.f.max_params = max;
+    }
+    if(fmt == NULL) return;
+    
     va_list args;
     va_start(args, fmt);
     paramlist params = NULL;
@@ -111,87 +139,78 @@ void add_builtin_class_info(SymbolTableEntry entry, int nparams, char *fmt, ...)
  * Manually add every builtin and its associated fields
  */
 void add_puny_builtins(SymbolTable st) {
+    init_types();
     SymbolTableEntry entry = NULL;
 
     entry = insertbuiltin(st, "any", CLASS_TYPE);
+    add_builtin_func_info(entry, 0, 1, alctype(ANY_TYPE), "%s: %d", "s", ANY_TYPE);
 
     entry = insertbuiltin(st, "print", FUNC_TYPE);
-    add_builtin_func_info(entry, 1, NONE_TYPE, "%s: %d", "s", ANY_TYPE);
+    add_builtin_func_info(entry, 0, -1, &none_type, "%s: %d", "s", ANY_TYPE);
 
-    insertbuiltin(st, "None", CLASS_TYPE);
+    entry = insertbuiltin(st, "None", CLASS_TYPE);
+    add_builtin_func_info(entry, 0, 1, &none_type, "%s: %d", "s", ANY_TYPE);
 
+    // Abs value function takes int/float and outputs int/float (any and any)
     entry = insertbuiltin(st, "abs", FUNC_TYPE);
-    add_builtin_func_info(entry, 1, ANY_TYPE, "%s: %d", "n", ANY_TYPE);
+    add_builtin_func_info(entry, 1, 1, alctype(ANY_TYPE), "%s: %d", "n", ANY_TYPE);
 
-    insertbuiltin(st, "bool", CLASS_TYPE);  
+    entry = insertbuiltin(st, "bool", CLASS_TYPE);  
+    entry->typ->u.cls.returntype = &bool_type; 
 
     entry = insertbuiltin(st, "chr", FUNC_TYPE);
-    add_builtin_func_info(entry, 1, STRING_TYPE, "%s: %d ", "n", INT_TYPE);
+    add_builtin_func_info(entry, 1, 1, string_typeptr, "%s: %d ", "n", INT_TYPE);
 
-    insertbuiltin(st, "float", CLASS_TYPE);
+    entry = insertbuiltin(st, "float", CLASS_TYPE);
+    add_builtin_func_info(entry, 0, 1, &float_type, "%s: %d", "n", ANY_TYPE);
+
     entry = insertbuiltin(st, "input", FUNC_TYPE);
-    add_builtin_func_info(entry, 1, STRING_TYPE, "%s: %d", "s", STRING_TYPE);
+    add_builtin_func_info(entry, 0, 1, alctype(ANY_TYPE), "%s: %d", "s", STRING_TYPE);
 
-    insertbuiltin(st, "int", CLASS_TYPE);    
+    entry = insertbuiltin(st, "int", CLASS_TYPE);    
+    add_builtin_func_info(entry, 0, 1, &int_type, "%s: %d", "a", INT_TYPE);
 
     entry = insertbuiltin(st, "len", FUNC_TYPE);
-    add_builtin_func_info(entry, 1, INT_TYPE, "%s: %d", "l", LIST_TYPE);
+    add_builtin_func_info(entry, 1, 1, &int_type, "%s: %d", "l", LIST_TYPE);
 
     entry = insertbuiltin(st, "max", FUNC_TYPE);
-    add_builtin_func_info(entry, 1, INT_TYPE, "%s: %d", "l", LIST_TYPE);
+    add_builtin_func_info(entry, 1, -1, &int_type, "%s: %d", "l", LIST_TYPE);
 
     entry = insertbuiltin(st, "min", FUNC_TYPE);
-    add_builtin_func_info(entry, 1, INT_TYPE, "%s: %d", "l", LIST_TYPE);
+    add_builtin_func_info(entry, 1, -1, &int_type, "%s: %d", "l", LIST_TYPE);
 
     entry = insertbuiltin(st, "open", FUNC_TYPE);
-    add_builtin_func_info(entry, 2, FILE_TYPE, "%s: %d, %s: %d", "pathname", STRING_TYPE, "mode", STRING_TYPE);
+    add_builtin_func_info(entry, 2, 2, &file_type, "%s: %d, %s: %d", "pathname", STRING_TYPE, "mode", STRING_TYPE);
 
     entry = insertbuiltin(st, "ord", FUNC_TYPE);
-    add_builtin_func_info(entry, 1, INT_TYPE, "%s: %d", "s", STRING_TYPE);
+    add_builtin_func_info(entry, 1, 1, &int_type, "%s: %d", "s", STRING_TYPE);
 
     entry = insertbuiltin(st, "pow", FUNC_TYPE);
-    add_builtin_func_info(entry, 2, ANY_TYPE, "%s: %d, %s: %d", "b", ANY_TYPE, "e", ANY_TYPE);
+    add_builtin_func_info(entry, 2, 2, alctype(ANY_TYPE), "%s: %d, %s: %d", "b", ANY_TYPE, "e", ANY_TYPE);
 
     entry = insertbuiltin(st, "range", FUNC_TYPE);
-    add_builtin_func_info(entry, 3, LIST_TYPE, "%s: %d, %s: %d, %s: %d", "beg", INT_TYPE, "end", INT_TYPE, "step", INT_TYPE);
+    add_builtin_func_info(entry, 1, 3, &list_type, "%s: %d, %s: %d, %s: %d", "beg", INT_TYPE, "end", INT_TYPE, "step", INT_TYPE);
 
     entry = insertbuiltin(st, "round", FUNC_TYPE);
-    add_builtin_func_info(entry, 2, ANY_TYPE, "%s: %d, %s: %d", "n", ANY_TYPE, "r", INT_TYPE);
+    add_builtin_func_info(entry, 1, 2, alctype(ANY_TYPE), "%s: %d, %s: %d", "n", ANY_TYPE, "r", INT_TYPE);
 
-    insertbuiltin(st, "type", CLASS_TYPE);
+    entry = insertbuiltin(st, "type", FUNC_TYPE);
+    add_builtin_func_info(entry, 1, 1, &string_type, "%s: %d", "x", ANY_TYPE);
+
 
     // Add string methods to string
     entry = insertbuiltin(st, "str", CLASS_TYPE);
-    entry->typ = alcstr();
-    entry->typ->basetype = CLASS_TYPE;
-    entry->nested = entry->typ->u.cls.st;
-    entry->nested->parent = st;
-    entry->nested->level = st->level + 1;
+    add_builtin_func_info(entry, 0, 1, &string_type, "%s: %d", "a", ANY_TYPE);
     
     // Add list methods to list
     entry = insertbuiltin(st, "list", CLASS_TYPE);
-    // This adds "append" and "remove" to the list type symbol table
-    entry->typ = alclist();
-    entry->typ->basetype = CLASS_TYPE;
-    entry->nested = entry->typ->u.cls.st;
-    entry->nested->parent = st;
-    entry->nested->level = st->level + 1;
+    add_builtin_func_info(entry, 0, 1, &list_type, "%s: %d", "a", ANY_TYPE);
 
     // Add file methods to file
     entry = insertbuiltin(st, "file", CLASS_TYPE);
-    entry->typ = NULL;
-    entry->typ = alcfile();
-    entry->typ->basetype = CLASS_TYPE;
-    entry->nested = entry->typ->u.cls.st;
-    entry->nested->parent = st;
-    entry->nested->level = st->level + 1;
+    add_builtin_func_info(entry, 0, 1, &file_type, "%s: %d", "f", STRING_TYPE);
 
     // Add dict methods to dict
     entry = insertbuiltin(st, "dict", CLASS_TYPE);
-    free(entry->typ);
-    entry->typ = (struct typeinfo *) alcdict();
-    entry->typ->basetype = CLASS_TYPE;
-    entry->nested = entry->typ->u.cls.st;
-    entry->nested->parent = st;
-    entry->nested->level = st->level + 1;
+    add_builtin_func_info(entry, 0, 1, &dict_type, "%s: %d", "a", ANY_TYPE);
 }

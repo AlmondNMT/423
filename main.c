@@ -85,11 +85,11 @@ int main(int argc, char *argv[]) {
         semantics(tree, global, add_builtins_pls);
 
         if(symtab_opt) {
-            printsymbols(global);
+            printsymbols(global, 0);
         }
         printf("No errors.\n");
         free_tree(yylval.treeptr);
-        free_symtab(global);
+        //free_symtab(global);
         fclose(yyin);
     }
 

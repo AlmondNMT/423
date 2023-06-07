@@ -984,7 +984,6 @@ void get_import_symbols(struct tree *t, SymbolTable st)
     }
 
     // Insert package type information
-    free_typeptr(entry->typ);
     entry->typ = NULL;
     entry->typ = alcbuiltin(PACKAGE_TYPE);
     
@@ -1209,7 +1208,7 @@ SymbolTableEntry insertsymbol(SymbolTable st, struct token *tok) {
     return entry;
 }
 
-void printsymbols(SymbolTable st)
+void printsymbols(SymbolTable st, int level)
 {
     if (st == NULL) return;
 
@@ -1220,7 +1219,7 @@ void printsymbols(SymbolTable st)
         for(SymbolTableEntry entry = st->tbl[i]; entry != NULL; entry = entry->next) {
 
             // Print a couple spaces for each level of table nesting
-            for(int j = 0; j < entry->table->level; j++) {
+            for(int j = 0; j < level; j++) {
                 printf("   ");
             }
             
@@ -1232,7 +1231,7 @@ void printsymbols(SymbolTable st)
             else 
                 printf("%s type\n", print_type(entry->typ)); // Switch statements for base types
             if(entry->nested != NULL) {
-                printsymbols(entry->nested);
+                printsymbols(entry->nested, level + 1);
             }
         }
     }
@@ -1253,7 +1252,7 @@ void free_symtab(SymbolTable st) {
             SymbolTableEntry next_entry = entry->next;
 
             // Free nested symbol table
-            if (entry->nested != NULL) {
+            if (entry->nested != NULL && entry->typ->basetype == ANY_TYPE) {
                 free_symtab(entry->nested);
             }
 
@@ -1266,22 +1265,6 @@ void free_symtab(SymbolTable st) {
 
             entry = next_entry;
         }
-    }
-
-    // Free referenced but not declared variables
-    SymbolTableEntry ref_entry = st->references;
-    while (ref_entry != NULL) {
-        SymbolTableEntry next_ref_entry = ref_entry->next;
-
-        // Free entry attributes
-        if (ref_entry->ident != NULL) {
-            free(ref_entry->ident);
-        }
-
-        // Free entry
-        free(ref_entry);
-
-        ref_entry = next_ref_entry;
     }
 
     // Free the table array and table attributes

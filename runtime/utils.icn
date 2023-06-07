@@ -1,8 +1,4 @@
 # Idk if there's a builtin list size function in Unicon
 procedure len(a)
-    size := 0
-    every i := !a do {
-        size +:= 1
-    }
-    return size
+    return *a
 end

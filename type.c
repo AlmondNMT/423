@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "builtins.h"
 #include "nonterminal.h"
 #include "punygram.tab.h"
 #include "symtab.h"
@@ -11,16 +12,17 @@
 extern struct sym_table *mknested(char *, int, int, struct sym_table *, char *);
 extern struct sym_entry *insertsymbol(struct sym_table *, struct token *);
 
-struct typeinfo none_type = { .basetype = NONE_TYPE, .u.cls.name = "none" };
-struct typeinfo int_type = { .basetype = INT_TYPE, .u.cls.name = "int" };
-struct typeinfo float_type = { .basetype = FLOAT_TYPE, .u.cls.name = "float" };
-struct typeinfo bool_type = { .basetype = BOOL_TYPE, .u.cls.name = "bool" };
+struct typeinfo none_type = { .basetype = NONE_TYPE, .u.cls.name = "none", .u.cls.returntype = &none_type };
+struct typeinfo int_type = { .basetype = INT_TYPE, .u.cls.name = "int", .u.cls.returntype = &int_type };
+struct typeinfo float_type = { .basetype = FLOAT_TYPE, .u.cls.name = "float", .u.cls.returntype = &float_type };
+struct typeinfo bool_type = { .basetype = BOOL_TYPE, .u.cls.name = "bool", .u.cls.returntype = &bool_type };
 
-struct typeinfo list_type = { .basetype = LIST_TYPE, .u.cls.name = "list" };
-struct typeinfo dict_type = { .basetype = DICT_TYPE, .u.cls.name = "dict" };
-struct typeinfo string_type = { .basetype = STRING_TYPE, .u.cls.name = "str" };
-struct typeinfo file_type = { .basetype = FILE_TYPE, .u.cls.name = "file" };
+struct typeinfo list_type = { .basetype = LIST_TYPE, .u.cls.name = "list", .u.cls.returntype = &list_type };
+struct typeinfo dict_type = { .basetype = DICT_TYPE, .u.cls.name = "dict", .u.cls.returntype = &dict_type };
+struct typeinfo string_type = { .basetype = STRING_TYPE, .u.cls.name = "str", .u.cls.returntype = &string_type};
+struct typeinfo file_type = { .basetype = FILE_TYPE, .u.cls.name = "file", .u.cls.returntype = &file_type };
 
+// We don't want a global any_type cuz the attached symbol tables are not fixed across variables
 typeptr none_typeptr = &none_type;
 typeptr int_typeptr = &int_type;
 typeptr float_typeptr = &float_type;
@@ -40,34 +42,49 @@ char *typenam[] =
  */
 void init_types()
 {
+    SymbolTable st = NULL;
+    SymbolTableEntry entry  = NULL;
+
     list_typeptr->u.cls.st = mksymtab(HASH_TABLE_SIZE, "class");
+    list_typeptr->u.cls.min_params = 0;
+    list_typeptr->u.cls.max_params = 1;
+    list_typeptr->u.cls.parameters = alcparam("a", ANY_TYPE);
+    st = list_typeptr->u.cls.st;
+    entry = insertbuiltin_meth(st, "append", none_typeptr);
+    add_builtin_func_info(entry, 1, 1, none_typeptr, "%s: %d", "a", ANY_TYPE);
+    entry = insertbuiltin_meth(st, "remove", none_typeptr);
+    add_builtin_func_info(entry, 1, 1, none_typeptr, "%s: %d", "a", ANY_TYPE);
+
     dict_typeptr->u.cls.st = mksymtab(HASH_TABLE_SIZE, "class");
+    dict_typeptr->u.cls.min_params = 0;
+    dict_typeptr->u.cls.min_params = 1;
+    dict_typeptr->u.cls.parameters = alcparam("a", ANY_TYPE);
+    st = dict_typeptr->u.cls.st;
+    entry = insertbuiltin_meth(st, "keys", list_typeptr);
+    add_builtin_func_info(entry, 0, 0, list_typeptr, NULL);
+    entry = insertbuiltin_meth(st, "values", list_typeptr);
+
     string_typeptr->u.cls.st = mksymtab(HASH_TABLE_SIZE, "class");
+    string_typeptr->u.cls.min_params = 0;
+    string_typeptr->u.cls.max_params = 1;
+    string_typeptr->u.cls.parameters = alcparam("a", ANY_TYPE);
+    st = string_typeptr->u.cls.st;
+    entry = insertbuiltin_meth(st, "replace", string_typeptr);
+    add_builtin_func_info(entry, 2, 2, string_typeptr, "%s: %d, %s: %d", "o", STRING_TYPE, "n", STRING_TYPE);
+    entry = insertbuiltin_meth(st, "split", list_typeptr);
+    add_builtin_func_info(entry, 1, 1, list_typeptr, "%s: %d", "c", STRING_TYPE);
+
     file_typeptr->u.cls.st = mksymtab(HASH_TABLE_SIZE, "class");
-
-    
+    file_typeptr->u.cls.min_params = 0;
+    file_typeptr->u.cls.max_params = 1;
+    file_typeptr->u.cls.parameters = alcparam("a", ANY_TYPE);
+    st = file_typeptr->u.cls.st;
+    entry = insertbuiltin_meth(st, "read", string_typeptr);
+    add_builtin_func_info(entry, 0, 1, string_typeptr, "%s: %d", "n", INT_TYPE);
+    entry = insertbuiltin_meth(st, "write", int_typeptr);
+    add_builtin_func_info(entry, 1, 1, int_typeptr, "%s: %d", "s", STRING_TYPE);
 }
 
-
-/* in order for this to make any sense, you have to pass in the subtrees
- * for the return type (r) and the parameter list (p), but the calls to
- * to this function in the example are just passing NULL at present!
- */
-typeptr alcfunctype(struct tree * r, struct tree * p, SymbolTable st)
-{
-   typeptr rv = alctype(FUNC_TYPE);
-   rv->u.f.st = st;
-   /* fill in return type and paramlist by traversing subtrees */
-   /* rf->u.f.returntype = ... */
-   return rv;
-}
-
-typeptr alcclasstype(struct tree *r, struct tree *p, SymbolTable st)
-{
-    typeptr rv = alctype(CLASS_TYPE);
-    rv->u.cls.st = st;
-    return rv;
-}
 
 char *typename(typeptr t)
 {
@@ -502,78 +519,33 @@ typeptr alcclass(char *name)
     return ptr;
 }
 
-typeptr alcfunc(char *name, int nparams, int pbasetype)
-{
-    typeptr ptr = alctype(FUNC_TYPE);
-    ptr->u.f.name = strdup(name);
-    ptr->u.f.nparams = nparams;
-    ptr->u.f.parameters = alcparam("p", pbasetype);
-    return ptr;
-}
-
 typeptr alcbuiltin(int basetype)
 {
-    typeptr ptr = alctype(basetype);
-    ptr->u.cls.nparams = 1;
-
-    // The constructor param is ANY_TYPE
-    ptr->u.cls.parameters = alcparam("p", ANY_TYPE);
-    return ptr;
+    switch(basetype) {
+        case NONE_TYPE:
+            return none_typeptr;
+        case INT_TYPE:
+            return int_typeptr;
+        case LIST_TYPE:
+            return list_typeptr;
+        case FLOAT_TYPE:
+            return float_typeptr;
+        case DICT_TYPE:
+            return dict_typeptr;
+        case BOOL_TYPE:
+            return bool_typeptr;
+        case STRING_TYPE:
+            return string_typeptr;
+        case FILE_TYPE:
+            return file_typeptr;
+        case PACKAGE_TYPE:
+            return alctype(PACKAGE_TYPE);
+        case ANY_TYPE:
+        default:
+            return alctype(ANY_TYPE);
+    }
 }
 
-typeptr alclist()
-{
-    typeptr list = alctype(LIST_TYPE);
-    struct sym_table *st = mksymtab(HASH_TABLE_SIZE, "class");
-    list->u.cls.name = strdup("list");
-    list->u.cls.st = st;
-    insertbuiltin_meth(st, "append", "None");
-    insertbuiltin_meth(st, "remove", "None");
-    return list;
-}
-
-typeptr alcdict()
-{
-    typeptr dict = alctype(DICT_TYPE);
-    struct sym_table *st = mksymtab(HASH_TABLE_SIZE, "class");
-    dict->u.cls.name = strdup("dict");
-    dict->u.cls.st = st;
-    insertbuiltin_meth(st, "keys", "list");
-    insertbuiltin_meth(st, "values", "list");
-    return dict;
-}
-
-
-typeptr alcfile()
-{
-    typeptr file = (typeptr) alctype(FILE_TYPE);
-    struct sym_table *st = mksymtab(HASH_TABLE_SIZE, "class");
-    file->u.cls.name = strdup("file");
-    file->u.cls.st = st;
-    insertbuiltin_meth(st, "write", "int");
-    insertbuiltin_meth(st, "close", "None");
-    insertbuiltin_meth(st, "read", "int");
-    return file;
-}
-
-typeptr alcstr()
-{
-    typeptr str = (typeptr) alctype(STRING_TYPE);
-    struct sym_table *st = mksymtab(HASH_TABLE_SIZE, "class");
-    str->u.cls.name = strdup("str");
-    str->u.cls.st = st;
-    str->u.cls.nparams = 1;
-    insertbuiltin_meth(st, "replace", "str");
-    insertbuiltin_meth(st, "split", "list");
-    return str;
-}
-
-typeptr alcnone()
-{
-    typeptr none = (typeptr) alctype(NONE_TYPE);
-    none->u.cls.name = strdup("None");
-    return none;
-}
 
 paramlist alcparam(char *name, int basetype)
 {
@@ -989,7 +961,7 @@ void free_trailer_sequence(struct trailer *seq)
 void free_arglist(struct arg *arg)
 {
     if(arg == NULL) return;
-    free_typeptr(arg->type);
+    //free_typeptr(arg->type);
     free_arglist(arg->next);
     free(arg);
 }
@@ -1047,6 +1019,8 @@ struct typeinfo *get_trailer_rep_type(struct trailer *seq, SymbolTableEntry entr
                         break;
                     case CLASS_TYPE:
                         // TODO
+                        current_type = rhs->typ->u.cls.returntype;
+                        nested = current_type->u.cls.st;
                         break;
                     default:
                         semantic_error(tok->filename, tok->lineno, "'%s' object is not callable\n", type_name);
@@ -1151,17 +1125,14 @@ void free_typeptr(typeptr typ)
     switch(typ->basetype) {
         case FUNC_TYPE:
             free_typeptr(typ->u.f.returntype);
-            free_symtab(typ->u.f.st);
             free_params(typ->u.f.parameters);
             break;
 
         case PACKAGE_TYPE:
-            free_symtab(typ->u.p.st);
             break;
 
         default:
             free_params(typ->u.cls.parameters);
-            free_symtab(typ->u.cls.st);
             break;
     }
     free(typ);
@@ -1347,7 +1318,7 @@ void get_function_params(struct tree *t, SymbolTable ftable)
         t->kids[1]->type = type;
         t->type = type;
         SymbolTableEntry entry = insertsymbol(ftable, leaf);
-        free_typeptr(entry->typ);
+        //free_typeptr(entry->typ);
         entry->typ = type;
     } 
     else {
@@ -1373,25 +1344,29 @@ struct typeinfo *get_ident_type(char *ident, SymbolTable st)
     if(strcmp(ident, "int") == 0)
         return alcbuiltin(INT_TYPE);
     else if(strcmp(ident, "list") == 0)
-        return alclist();
+        return list_typeptr;
     else if(strcmp(ident, "float") == 0)
-        return alcbuiltin(FLOAT_TYPE);
+        return float_typeptr;
     else if(strcmp(ident, "dict") == 0)
-        return alcdict();
+        return dict_typeptr;
     else if(strcmp(ident, "bool") == 0)
-        return alcbuiltin(BOOL_TYPE);
+        return bool_typeptr;
     else if(strcmp(ident, "str") == 0)
-        return alcbuiltin(STRING_TYPE);
+        return string_typeptr;
     else if(strcmp(ident, "None") == 0)
-        return alcnone();
+        return none_typeptr;
+    else if(strcmp(ident, "any") == 0)
+        return alcbuiltin(ANY_TYPE);
+    else if(strcmp(ident, "file") == 0)
+        return file_typeptr;
     else {
         // here we know that it is NOT a builtin
-        // so we look up the entry of said name
+        // so we look up the entry of the name
         // from the inner symtab to the outer
         SymbolTableEntry type_entry = lookup(ident, st);
         if(type_entry != NULL) {
             //get type info if entry found
-            return type_copy(type_entry->typ);
+            return type_entry->typ;
         }
         else {
             fprintf(stderr, "'%s' not found\n", ident);
@@ -1446,6 +1421,7 @@ struct typeinfo *type_copy(struct typeinfo *typ)
     if(typ == NULL) {
         return NULL;
     }
+    printf("typecopy: %s\n", print_type(typ));
     // We only want to copy the symbol table of classes for 
     //   object instantiation, and not for functions and packages
     // if we assign a function f to a var a, like a = f, we only 
@@ -1460,6 +1436,7 @@ struct typeinfo *type_copy(struct typeinfo *typ)
     copy->u.cls.nparams = typ->u.cls.nparams;
     copy->u.cls.parameters = copy_params(typ->u.cls.parameters);
     copy->u.cls.st = copy_symbol_table(typ->u.cls.st);
+    copy->u.cls.returntype = type_copy(typ->u.cls.returntype);
     return copy;
 }
 
@@ -1699,14 +1676,14 @@ struct typeinfo *get_rhs_type(struct tree *t)
 
         // If we see listmaker_opt, we know that it's a list (e.g., [1, 2, b])
         case LISTMAKER_OPT: {
-            type = alclist();
+            type = list_typeptr;
             break;
         }
 
         // Dictionary
         case DICTORSETMAKER_OPT: {
             /* Right-hand side is a dictionary */
-            type = alcdict();
+            type = dict_typeptr;
             break;
         }
         default: {

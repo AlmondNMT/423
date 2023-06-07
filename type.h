@@ -58,7 +58,9 @@ typedef struct typeinfo {
             int nparams;                // For constructor
             int max_params;
             int min_params;
+            bool vararg;
             struct param *parameters;   // Constructor params
+            struct typeinfo *returntype;
             int instance;               // Is it an instance of the class?
         } cls;
         struct packinfo {
@@ -94,6 +96,7 @@ void print_arglist(struct arg *args);
 
 
 /* add constructors for other types as needed */
+void init_types();
 typeptr alctype(int basetype);
 void free_typeptr(typeptr typ);
 paramlist alcparam(char *name, int basetype);
@@ -190,10 +193,6 @@ struct typeinfo *type_copy(struct typeinfo *typ);
 // Copy functions
 struct sym_table *copy_symbol_table(struct sym_table *);
 paramlist copy_params(paramlist params);
-
-// Add builtins
-struct sym_entry *insertbuiltin(struct sym_table * global, char *s, int basetype);
-struct sym_entry *insertbuiltin_meth(struct sym_table *builtin_table, char *name, char *ret_type);
 
 // Print params
 void print_paramlist(paramlist params);

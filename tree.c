@@ -125,7 +125,8 @@ void free_tree(struct tree *t)
 {
     if(t == NULL) return;
     free_token(t->leaf);
-    for(int i = 0; i < t->nkids; i++) {
+    int i = 0;
+    while(i++ < 9) {
         free_tree(t->kids[i]);
     }
     if(t->symbolname != NULL) {
@@ -152,7 +153,6 @@ struct tree* init_tree(char *symbnam)
     newtree->stab = NULL;
     newtree->nkids = 0;
     newtree->id = serial++; // For graphical printing
-    newtree->type = alcbuiltin(ANY_TYPE);
     newtree->leaf = NULL;
     newtree->prodrule = get_nonterminal_prodrule(symbnam);
     
@@ -174,7 +174,6 @@ struct tree* append_kid(struct tree * kidspassed[], char * symbnam)
     {
         newtree->kids[i] = kidspassed[i];
         newtree->kids[i]->parent = newtree;
-        newtree->kids[i]->type = alcbuiltin(ANY_TYPE);
         i++;
     }
     newtree->nkids = i;
@@ -325,25 +324,6 @@ void print_tree(struct tree * t, int depth, int print_full)
     free(spcs);
     return;
 }
-
-/**
- * Return a copy of a tree
- * TODO: COmpletely fuckin broke
- */
-struct tree *copy_tree(struct tree *tre)
-{
-    if(tre == NULL) return NULL;
-    struct tree *new = init_tree(tre->symbolname);
-    new->nkids = tre->nkids;
-    free_typeptr(tre->type);
-    new->type = type_copy(tre->type);
-    for(int i = 0; i < tre->nkids; i++) {
-        new->kids[i] = copy_tree(tre->kids[i]);
-        new->kids[i]->parent = tre;
-    }
-    return new;
-}
-
 
 /** printsyms
  */

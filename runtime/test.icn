@@ -11,6 +11,6 @@ procedure main()
         write(i)
     }
     write(4 ^ 2.3)
-    if fail then
-        write("asdf")
+    
+
 end

@@ -5,8 +5,10 @@ test1.test2.h.append(1)
 def f(a, b, c) -> int:
     x: int
     print("fifa") # needs to throw an error since the function doesn't return an int
+    return 1.2
 
 a: list = [1, 2, 3]
+a = any
 b = 2
 c = 2
 d = 23
