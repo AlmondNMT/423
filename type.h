@@ -134,16 +134,12 @@ char *type_for_bin_op_equals(char *lhs, char *rhs);
 char *type_for_bin_op_great_less(char *lhs, char *rhs);
 char *type_for_bin_op_logical(char *lhs, char *rhs);
 
-// Adding type info 
-void add_type_info(struct tree *t, struct sym_table *st);
-void add_decl_type_info(struct tree *t, struct sym_table *st);
-void add_class_type_info(struct tree *t, struct sym_table *st);
-void type_check_expr_stmt(struct tree *t);
-
 // Type-checking
-void type_check(struct tree *t, struct sym_table *st);
-void type_check_decl_stmt(struct tree *t);
-void type_check_func_ret_type(struct tree *t, struct sym_table *st);
+void typecheck_expr_stmt(struct tree *t);
+void typecheck(struct tree *t, struct sym_table *st);
+void typecheck_decl_stmt(struct tree *t);
+void typecheck_func_ret_type(struct tree *t, struct sym_table *st);
+void typecheck_listmaker_contents(struct tree *t);
 
 void validate_operand_types(struct tree *t, struct sym_table *st);
 void validate_or_test(struct tree *t, struct sym_table *st);

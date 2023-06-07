@@ -570,7 +570,7 @@ paramlist alcparam(char *name, typeptr type)
  *  ☐ Propagate type information through assignments 
  *  ☐ Get type information for declarations
 */
-void type_check(struct tree *t, SymbolTable st)
+void typecheck(struct tree *t, SymbolTable st)
 {
     // Verify that functions are defined and used correctly
     //verify_correct_func_use(t, st);
@@ -580,17 +580,17 @@ void type_check(struct tree *t, SymbolTable st)
 
     switch(t->prodrule) {
         case EXPR_STMT:
-            type_check_expr_stmt(t);
+            typecheck_expr_stmt(t);
             return;
         case DECL_STMT:
-            type_check_decl_stmt(t);
+            typecheck_decl_stmt(t);
             return;
         case FUNCDEF:
-            type_check_func_ret_type(t, st); // Will traverse this again
+            typecheck_func_ret_type(t, st); // Will traverse this again
             break;
     }
     for(int i = 0; i < t->nkids; i++) {
-        type_check(t->kids[i], st);
+        typecheck(t->kids[i], st);
     }
 
 }
@@ -614,7 +614,7 @@ void verify_correct_func_use(struct tree *t, SymbolTable st)
 
     // Verify that the return type in a function matches the stated 
     //   return type, if applicable
-    type_check_func_ret_type(t, st);
+    typecheck_func_ret_type(t, st);
 
     // TODO: Function argument types
     //verify_func_arg_types(t, st);
@@ -738,27 +738,60 @@ int count_func_args(struct tree *t, int count)
     }
     return count;
 }
+
+
+/**
+ * Ensure that listmaker contains only valid types
+ * 
+ * Starting point: listmaker_opt
+ */
+void typecheck_listmaker_contents(struct tree *t)
+{
+    if(t == NULL) return;
+    typeptr type = NULL;
+    struct token *desc = NULL;
+    if(t->kids[0]->prodrule == LISTMAKER) {
+        desc = get_power_descendant(t->parent->parent->parent);
+        type = get_testlist_type(t->kids[0]->kids[0]);
+        switch(type->basetype) {
+            case CLASS_TYPE:
+            case FUNC_TYPE:
+            case PACKAGE_TYPE:
+            case FILE_TYPE:
+                semantic_error(desc, "Forbidden type '%s' found in list\n", print_type(type));
+                break;
+        }
+    }
+}
+
+
 /**
  * Get the type of a POWER nonterm
  */
 typeptr get_power_type(struct tree *t)
 {
     typeptr type = NULL;
+    struct trailer *seq = NULL;
     // If we see an ATOM then we must traverse further to get the 
     //   type, because this indicates that we've encountered 
     //   a yield_expr_OR_testlist_comp, a listmaker_opt, or a 
     //   dictorsetmaker_opt
     if(t->kids[0]->prodrule == ATOM) {
-
+        typeptr atom_type = get_rhs_type(t->kids[0]);
+        if(t->kids[1]->prodrule == TRAILER_REP) {
+            seq = build_trailer_sequence(t->kids[1]);
+            
+        }
         return get_rhs_type(t->kids[0]);
     }
+    
+    // This leaf contains the leftmost name of the expr_stmt
+    struct token *leaf = t->kids[0]->leaf;
 
     // If the POWER's first child is a leaf, then we must get the immediate type
     if(t->kids[0]->leaf != NULL) {
         // 'power' can only be reached if we haven't already recursed to a 
         //   listmaker or a dictorset_option_* tree node 
-        // This leaf contains the leftmost name of the expr_stmt
-        struct token *leaf = t->kids[0]->leaf;
 
         // If the RHS token is a name
         if(leaf->category == NAME) {
@@ -776,18 +809,18 @@ typeptr get_power_type(struct tree *t)
             // If there is a TRAILER_REP present, do the difficult thing
             if(t->kids[1]->prodrule == TRAILER_REP) {
                 // Build a linked list sequence of trailers
-                struct trailer *seq = build_trailer_sequence(t->kids[1]);
+                seq = build_trailer_sequence(t->kids[1]);
 
-                printf("%s", leaf->text);
-                print_trailer_sequence(seq);
+                /*printf("%s", leaf->text);
+                print_trailer_sequence(seq);*/
 
                 type = get_trailer_rep_type(seq, entry, leaf);
                 free_trailer_sequence(seq);
             }
             else {
-                type = get_ident_type(entry->ident, t->stab);
-                if(type->basetype == FUNC_TYPE) {
-                    semantic_error(leaf, "function call with no parentheses\n");
+                type = entry->typ;
+                if(type->basetype == FUNC_TYPE || type->basetype == CLASS_TYPE) {
+                    semantic_error(leaf, "call with no parentheses\n");
                 }
             }
         }
@@ -969,7 +1002,7 @@ void free_arglist(struct arg *arg)
 /**
  * Starting position: TRAILER_REP
  *
- * These things are so fucking complicated, but the basic idea is that they can
+ * These things are so complicated, but the basic idea is that they can
  *   generate a sequence of various function calls, list accesses, and chains of
  *   dotted operators. e.g., a = a.b[0]().c
  */
@@ -1013,6 +1046,7 @@ struct typeinfo *get_trailer_rep_type(struct trailer *seq, SymbolTableEntry entr
                 break;
             case ARGLIST_OPT:
                 switch(current_type->basetype) {
+                    // Functions or classes
                     case FUNC_TYPE:
                     case CLASS_TYPE:
                         current_type = rhs->typ->u.f.returntype;
@@ -1037,20 +1071,36 @@ struct typeinfo *get_trailer_rep_type(struct trailer *seq, SymbolTableEntry entr
 
                 }
                 break;
+
+            // Verify list/dict accesses. Return any_type. The rest of type-checking here should be done at runtime.
             case SUBSCRIPTLIST:
+
+                // There should be exactly one subscript for both lists and dicts
+                arg_count = count_args(curr->arg);
+                if(arg_count != 1) semantic_error(tok, "must have exactly one subscript\n");
                 switch(current_type->basetype) {
                     case LIST_TYPE:
-                        // TODO
+                        // Ensure that the single argument is an integer (or ANY_TYPE)
+                        if(curr->arg->type->basetype != INT_TYPE && curr->arg->type->basetype != ANY_TYPE)
+                            semantic_error(tok, "list index must be 'int', not '%s'\n", print_type(curr->arg->type));
                         break;
                     case DICT_TYPE:
-                        // TODO
+                        // TODO Ensure that the argument type is either an int, a float or a string
+                        switch(curr->arg->type->basetype){
+                            case INT_TYPE:
+                            case FLOAT_TYPE:
+                            case STRING_TYPE:
+                                break;
+                            default:
+                                semantic_error(tok, "dict index cannot be '%s'\n", print_type(curr->arg->type));
+                        }
                         break;
                     case ANY_TYPE:
-                        // Any objects can be subscriptable as 'any' type lists. Callables cannot be any, though
                         break;
                     default:
                         semantic_error(tok, "'%s' object is not subscriptable\n", type_name);
                 }
+                return alcbuiltin(ANY_TYPE);
                 break;
         }
     }
@@ -1191,7 +1241,7 @@ struct token *get_power_descendant(struct tree *t)
  * We want to add type information to the tree for the purposes of type-checking
  * assignments and arithmetic/logical expressions.
  */
-void type_check_expr_stmt(struct tree *t)
+void typecheck_expr_stmt(struct tree *t)
 {
     if(t == NULL) return;
     typeptr lhs_type = NULL, rhs_type = NULL;
@@ -1222,6 +1272,10 @@ void type_check_expr_stmt(struct tree *t)
             }
             break;
         case EXPR_CONJUNCT:
+
+            break;
+        default:
+
             break;
     }
 }
@@ -1234,10 +1288,9 @@ typeptr get_testlist_type(struct tree *t)
 {
     if(t == NULL) return NULL;
     typeptr type = NULL;
+    // Note: the TEST nonterminal never presents
     switch(t->prodrule) {
         case TESTLIST:
-            break;
-        case TEST:
             break;
         case OR_TEST:
             break;
@@ -1269,7 +1322,7 @@ typeptr get_testlist_type(struct tree *t)
 /**
  * Starting point: DECL_STMT
 */
-void type_check_decl_stmt(struct tree *t)
+void typecheck_decl_stmt(struct tree *t)
 {
     if(t == NULL) return;
     SymbolTableEntry lhs = lookup(t->kids[0]->leaf->text, t->stab);
@@ -1555,7 +1608,7 @@ int get_token_type_code(struct token *tok)
  * TODO: Also this could be called once we have reached a FUNCDEF 
  * 
 */
-void type_check_func_ret_type(struct tree *t, SymbolTable st)
+void typecheck_func_ret_type(struct tree *t, SymbolTable st)
 {   
     if(t == NULL || st == NULL) return;
     switch(t->prodrule) {
@@ -1572,7 +1625,7 @@ void type_check_func_ret_type(struct tree *t, SymbolTable st)
         }
         default: {                  
             for(int i = 0; i < t->nkids; i++) {
-                type_check_func_ret_type(t->kids[i], st);
+                typecheck_func_ret_type(t->kids[i], st);
             }
         }
     }
@@ -1720,6 +1773,8 @@ struct typeinfo *get_rhs_type(struct tree *t)
 
         // If we see listmaker_opt, we know that it's a list (e.g., [1, 2, b])
         case LISTMAKER_OPT: {
+            // Ensure that the contents of the list are legal
+            typecheck_listmaker_contents(t);
             type = list_typeptr;
             break;
         }

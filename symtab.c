@@ -49,7 +49,7 @@ void semantics(struct tree *tree, SymbolTable st, int add_builtins)
 
     // Perform type-checking; function return types, function call argument 
     //   types, arithmetical operand types, chained dot operator accesses
-    type_check(tree, st);
+    typecheck(tree, st);
 }
 
 // Populate symbol tables from AST
@@ -785,20 +785,6 @@ void decorate_subtree_with_symbol_table(struct tree *t, SymbolTable st)
         decorate_subtree_with_symbol_table(t->kids[i], nested);
 }
 
-
-int is_function_call(struct tree *t)
-{   
-    if(does_tr_have_trailer_child(t)) {
-
-        //case: function call has arguments, then arglist is in inner node
-        if(t->kids[1]->kids[0]->prodrule == ARGLIST_OPT) {
-            //printf("%s\n", t->parent->kids[0]->leaf->text);
-            return true;
-        }
-    }
-
-    return false;
-}
 
 int does_tr_have_trailer_child(struct tree *t) 
 {

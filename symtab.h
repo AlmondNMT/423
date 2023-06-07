@@ -55,7 +55,6 @@ void handle_eytr_chain(struct tree *t, SymbolTable st, struct typeinfo *rhs_typ)
 void handle_token(struct tree *t, SymbolTable st);
 SymbolTableEntry get_chained_dot_entry(struct tree *t, SymbolTable st, SymbolTableEntry entry);
 SymbolTableEntry insert_dotted_entry(struct tree *t, SymbolTable st, SymbolTableEntry entry);
-int is_function_call(struct tree *t);
 int does_tr_have_trailer_child(struct tree *t);
 int tr_has_tr_child(struct tree *t);
 
