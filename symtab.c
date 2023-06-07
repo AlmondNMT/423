@@ -270,7 +270,8 @@ void insertfunction(struct tree *t, SymbolTable st)
     t->kids[2]->stab = st;
     t->kids[3]->stab = entry->nested;
 
-    get_function_params(t->kids[1], entry->nested);   // Add parameters to function scope
+    decorate_subtree_with_symbol_table(t->kids[1], entry->nested);
+    get_function_params(t->kids[1], entry);   // Add parameters to function scope
     populate_symboltables(t->kids[3], entry->nested); // Add suite to function scope
 
 }
@@ -1167,6 +1168,7 @@ SymbolTable mknested(struct token *tok, int nbuckets, SymbolTable parent, char *
  * Accept the current symbol table and the name of the symbol.
  * Create SymbolTableEntry for the NAME. Add the current table to the entry.
  * Set the relevant fields (s, next, st->tbl[idx])
+ * TODO: Disallow builtin overwrites
  */
 SymbolTableEntry insertsymbol(SymbolTable st, struct token *tok) {
     if(st == NULL || tok == NULL)

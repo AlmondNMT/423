@@ -99,7 +99,7 @@ void print_arglist(struct arg *args);
 void init_types();
 typeptr alctype(int basetype);
 void free_typeptr(typeptr typ);
-paramlist alcparam(char *name, int basetype);
+paramlist alcparam(char *name, typeptr type);
 void free_params(paramlist params);
 typeptr alcclass(char *name);
 typeptr alcfunc(char *name, int nparams, int pbasetype);
@@ -149,6 +149,9 @@ void validate_operand_types(struct tree *t, struct sym_table *st);
 void validate_or_test(struct tree *t, struct sym_table *st);
 
 // Correct function usage
+int count_args(struct arg *args);
+void check_args_with_params(struct arg *args, struct param *params, struct token *tok, int count);
+
 void verify_func_arg_count(struct tree *t);
 void verify_correct_func_use(struct tree *t, struct sym_table *st);
 void verify_func_arg_types(struct tree *t, struct sym_table *st);
@@ -161,7 +164,7 @@ struct token *get_caller_ancestor(struct tree *t);
 struct token *get_power_ancestor(struct tree *t);
 struct token *get_power_descendant(struct tree *t);
 int are_types_compatible(typeptr lhs, typeptr rhs);
-struct typeinfo *get_fpdef_type(struct tree *t, struct sym_table * ftable);
+struct typeinfo *get_fpdef_type(struct tree *t, struct sym_entry *entry);
 struct typeinfo *get_rhs_type(struct tree *t);
 struct typeinfo *get_power_type(struct tree *t);
 struct typeinfo *get_testlist_type(struct tree *t);
@@ -173,8 +176,9 @@ struct typeinfo *get_type_of_node(struct tree *t, struct sym_table * st, struct 
 void handle_or_test_types(struct tree *t, struct sym_table * st);
 
 // Type annotations
-void get_function_params(struct tree *t, struct sym_table *ftable);
+void get_function_params(struct tree *t, struct sym_entry *entry);
 void add_nested_table(struct sym_entry *, struct typeinfo *rhs_type);
+void add_param_to_function_entry(struct token *param_name_tok, typeptr param_type, struct sym_entry *fentry);
 
 // ex: type -> "int"
 const char* print_type(typeptr type);

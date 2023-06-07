@@ -121,11 +121,11 @@ Grammar
    55 com_fpdef_eq_t_rep: ε
    56                   | com_fpdef_eq_t_rep COMMA fpdef
 
-   57 fpdef: NAME colon_test_opt
+   57 fpdef: NAME colon_name_opt
    58      | LPAR fplist RPAR
 
-   59 colon_test_opt: ε
-   60               | COLON test
+   59 colon_name_opt: ε
+   60               | COLON NAME
 
    61 fplist: fpdef comma_fpdef_rep comma_opt
 
@@ -397,7 +397,7 @@ Terminals, with rules where they appear
     NEWLINE <treeptr> (262) 3 7 70
     INDENT <treeptr> (263) 70
     DEDENT <treeptr> (264) 70
-    NAME <treeptr> (265) 19 20 22 40 43 45 57 96 101 102 149 195
+    NAME <treeptr> (265) 19 20 22 40 43 45 57 60 96 101 102 149 195
     DOT <treeptr> (266) 101 149
     LPAR <treeptr> (267) 42 46 58 147 203
     RPAR <treeptr> (268) 42 46 58 147 203
@@ -592,7 +592,7 @@ Nonterminals, with rules where they appear
     fpdef <treeptr> (135)
         on left: 57 58
         on right: 51 52 56 61 63
-    colon_test_opt <treeptr> (136)
+    colon_name_opt <treeptr> (136)
         on left: 59 60
         on right: 57
     fplist <treeptr> (137)
@@ -774,7 +774,7 @@ Nonterminals, with rules where they appear
         on right: 165 167
     test <treeptr> (196)
         on left: 169
-        on right: 32 54 60 64 66 73 105 107 155 156 168 208 226 230
+        on right: 32 54 64 66 73 105 107 155 156 168 208 226 230
     or_test <treeptr> (197)
         on left: 170
         on right: 159 169 213
@@ -4013,13 +4013,13 @@ State 244
 
 State 245
 
-   57 fpdef: NAME • colon_test_opt
+   57 fpdef: NAME • colon_name_opt
 
     COLON  shift, and go to state 273
 
-    $default  reduce using rule 59 (colon_test_opt)
+    $default  reduce using rule 59 (colon_name_opt)
 
-    colon_test_opt  go to state 274
+    colon_name_opt  go to state 274
 
 
 State 246
@@ -4470,44 +4470,14 @@ State 272
 
 State 273
 
-   60 colon_test_opt: COLON • test
+   60 colon_name_opt: COLON • NAME
 
-    FLOATLIT   shift, and go to state 4
-    INTLIT     shift, and go to state 5
-    STRINGLIT  shift, and go to state 6
-    NAME       shift, and go to state 70
-    LPAR       shift, and go to state 10
-    LSQB       shift, and go to state 11
-    LBRACE     shift, and go to state 12
-    PLUS       shift, and go to state 13
-    MINUS      shift, and go to state 14
-    TILDE      shift, and go to state 15
-    ELLIPSIS   shift, and go to state 16
-    PYTRUE     shift, and go to state 17
-    PYFALSE    shift, and go to state 18
-    NONE       shift, and go to state 23
-    NOT        shift, and go to state 28
-
-    expr        go to state 54
-    xor_expr    go to state 55
-    and_expr    go to state 56
-    shift_expr  go to state 57
-    arith_expr  go to state 58
-    term        go to state 59
-    factor      go to state 60
-    pmt         go to state 61
-    power       go to state 62
-    test        go to state 307
-    or_test     go to state 64
-    and_test    go to state 65
-    not_test    go to state 66
-    comparison  go to state 67
-    atom        go to state 68
+    NAME  shift, and go to state 307
 
 
 State 274
 
-   57 fpdef: NAME colon_test_opt •
+   57 fpdef: NAME colon_name_opt •
 
     $default  reduce using rule 57 (fpdef)
 
@@ -5026,9 +4996,9 @@ State 306
 
 State 307
 
-   60 colon_test_opt: COLON test •
+   60 colon_name_opt: COLON NAME •
 
-    $default  reduce using rule 60 (colon_test_opt)
+    $default  reduce using rule 60 (colon_name_opt)
 
 
 State 308

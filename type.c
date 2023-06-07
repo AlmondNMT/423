@@ -45,7 +45,7 @@ void init_types()
     list_typeptr->u.cls.st = mksymtab(HASH_TABLE_SIZE, "class");
     list_typeptr->u.cls.min_params = 0;
     list_typeptr->u.cls.max_params = 1;
-    list_typeptr->u.cls.parameters = alcparam("a", ANY_TYPE);
+    list_typeptr->u.cls.parameters = alcparam("a", alcbuiltin(ANY_TYPE));
     st = list_typeptr->u.cls.st;
     entry = insertbuiltin_meth(st, "append", none_typeptr);
     add_builtin_func_info(entry, 1, 1, none_typeptr, "%s: %d", "a", ANY_TYPE);
@@ -55,7 +55,7 @@ void init_types()
     dict_typeptr->u.cls.st = mksymtab(HASH_TABLE_SIZE, "class");
     dict_typeptr->u.cls.min_params = 0;
     dict_typeptr->u.cls.min_params = 1;
-    dict_typeptr->u.cls.parameters = alcparam("a", ANY_TYPE);
+    dict_typeptr->u.cls.parameters = alcparam("a", alcbuiltin(ANY_TYPE));
     st = dict_typeptr->u.cls.st;
     entry = insertbuiltin_meth(st, "keys", list_typeptr);
     add_builtin_func_info(entry, 0, 0, list_typeptr, NULL);
@@ -64,7 +64,7 @@ void init_types()
     string_typeptr->u.cls.st = mksymtab(HASH_TABLE_SIZE, "class");
     string_typeptr->u.cls.min_params = 0;
     string_typeptr->u.cls.max_params = 1;
-    string_typeptr->u.cls.parameters = alcparam("a", ANY_TYPE);
+    string_typeptr->u.cls.parameters = alcparam("a", alcbuiltin(ANY_TYPE));
     st = string_typeptr->u.cls.st;
     entry = insertbuiltin_meth(st, "replace", string_typeptr);
     add_builtin_func_info(entry, 2, 2, string_typeptr, "%s: %d, %s: %d", "o", STRING_TYPE, "n", STRING_TYPE);
@@ -74,7 +74,7 @@ void init_types()
     file_typeptr->u.cls.st = mksymtab(HASH_TABLE_SIZE, "class");
     file_typeptr->u.cls.min_params = 0;
     file_typeptr->u.cls.max_params = 1;
-    file_typeptr->u.cls.parameters = alcparam("a", ANY_TYPE);
+    file_typeptr->u.cls.parameters = alcparam("a", alcbuiltin(ANY_TYPE));
     st = file_typeptr->u.cls.st;
     entry = insertbuiltin_meth(st, "read", string_typeptr);
     add_builtin_func_info(entry, 0, 1, string_typeptr, "%s: %d", "n", INT_TYPE);
@@ -544,12 +544,11 @@ typeptr alcbuiltin(int basetype)
 }
 
 
-paramlist alcparam(char *name, int basetype)
+paramlist alcparam(char *name, typeptr type)
 {
     paramlist params = ckalloc(1, sizeof(struct param));
     params->name = strdup(name);
-    params->type = ckalloc(1, sizeof(struct typeinfo));
-    params->type->basetype = basetype;
+    params->type = type;
     params->next = NULL;
     return params;
 }
@@ -788,7 +787,7 @@ typeptr get_power_type(struct tree *t)
             else {
                 type = get_ident_type(entry->ident, t->stab);
                 if(type->basetype == FUNC_TYPE) {
-                    semantic_error(leaf, "invalid call with no parentheses\n");
+                    semantic_error(leaf, "function call with no parentheses\n");
                 }
             }
         }
@@ -983,14 +982,15 @@ struct typeinfo *get_trailer_rep_type(struct trailer *seq, SymbolTableEntry entr
     }
 
     // Bunch of initialization. Might be a more efficient way to do all of this, but I don't care
-    struct trailer *curr = NULL, *start = create_trailer_link(entry->ident, NAME), *prev = NULL;
+    struct trailer *curr = NULL, *start = create_trailer_link(entry->ident, NAME);
     start->next = seq;
     SymbolTableEntry rhs = entry; // Initialize rhs with the entry pointer
     SymbolTable nested = entry->nested;
     typeptr current_type = entry->typ;
-    prev = start;
 
-    for(curr = start->next; curr != NULL; prev = curr, curr = curr->next) {
+    int arg_count = 0;
+
+    for(curr = start->next; curr != NULL; curr = curr->next) {
         const char *type_name = print_type(current_type);
         switch(curr->prodrule) {
             // For each of three possible trailers, we ensure that 
@@ -1014,14 +1014,23 @@ struct typeinfo *get_trailer_rep_type(struct trailer *seq, SymbolTableEntry entr
             case ARGLIST_OPT:
                 switch(current_type->basetype) {
                     case FUNC_TYPE:
-                        // TODO
+                    case CLASS_TYPE:
                         current_type = rhs->typ->u.f.returntype;
                         nested = current_type->u.cls.st;
-                        break;
-                    case CLASS_TYPE:
-                        // TODO
-                        current_type = rhs->typ->u.cls.returntype;
-                        nested = current_type->u.cls.st;
+                        arg_count = count_args(curr->arg);
+                        // max_params == -1 implies 0 ... n possible arguments of ANY_TYPE
+                        if(rhs->typ->u.f.max_params != -1) {
+                            if(rhs->typ->u.f.min_params == rhs->typ->u.f.max_params && arg_count != rhs->typ->u.f.min_params)
+                                semantic_error(tok, "'%s' takes at exactly %d parameter(s), but %d was/were given\n",
+                                        rhs->ident, rhs->typ->u.f.min_params, arg_count);
+                            if(arg_count > rhs->typ->u.f.max_params)
+                                semantic_error(tok, "'%s' takes at most %d parameter(s), but %d was/were given\n", 
+                                        rhs->ident, rhs->typ->u.f.max_params, arg_count);
+                            if(arg_count < rhs->typ->u.f.min_params)
+                                semantic_error(tok, "'%s' takes at least %d parameter(s), but %d was/were given\n",
+                                        rhs->ident, rhs->typ->u.f.min_params, arg_count);
+                        }
+                        check_args_with_params(curr->arg, rhs->typ->u.f.parameters, tok, 1);
                         break;
                     default:
                         semantic_error(tok, "'%s' object is not callable\n", type_name);
@@ -1052,6 +1061,24 @@ struct typeinfo *get_trailer_rep_type(struct trailer *seq, SymbolTableEntry entr
     return current_type;
 }
 
+
+/**
+ * Checking the types of the parameters against the arguments
+ * Assumption: len(params) >= len(args)
+ */
+void check_args_with_params(struct arg *args, struct param *params, struct token *tok, int count)
+{
+    if(args == NULL || params == NULL) return;
+    if(!are_types_compatible(params->type, args->type))
+        semantic_error(tok, "'%s' requires a '%s' for arg %d, but a '%s' was given\n", tok->text, print_type(params->type), count, print_type(args->type));
+    check_args_with_params(args->next, params->next, tok, count + 1);
+}
+
+int count_args(struct arg *arg)
+{
+    if(arg == NULL) return 0;
+    return 1 + count_args(arg->next);
+}
 
 /**
  * Assumption: Starting position is TRAILER TODO: fix this
@@ -1115,7 +1142,6 @@ void free_params(paramlist params)
 {
     if(params == NULL)
         return;
-    free_typeptr(params->type);
     free_params(params->next);
     free(params);
 }
@@ -1274,19 +1300,17 @@ void type_check_decl_stmt(struct tree *t)
 
 /**
  * Get the function param type hint
+ *
+ * Starting point: COLON_NAME_OPT
  */
-struct typeinfo *get_fpdef_type(struct tree *t, SymbolTable ftable)
+struct typeinfo *get_fpdef_type(struct tree *t, SymbolTableEntry entry)
 {
     struct typeinfo *ret = NULL;
-    if(t == NULL || ftable == NULL) // This probably should never happen
+    if(t == NULL || entry == NULL) // This probably should never happen
         return alcbuiltin(ANY_TYPE);
-    if(t->prodrule == POWER) {
-        ret = determine_hint_type(t->kids[0]->leaf, ftable);
-        t->kids[0]->type = ret;
-        return ret;
-    } else {
-        ret = get_fpdef_type(t->kids[0], ftable);
-    }
+    ret = get_ident_type(t->kids[0]->leaf->text, entry->nested);
+    t->kids[0]->type = ret;
+    t->type = ret;
     return ret;
 }
 
@@ -1294,10 +1318,12 @@ struct typeinfo *get_fpdef_type(struct tree *t, SymbolTable ftable)
  * Starting from the parameters rule, navigate to fpdef_equal_test_comma_rep,
  * then recurse the descendants. 
  * fpdef has two children
+ * 
+ * The entry is for the function itself
  */
-void get_function_params(struct tree *t, SymbolTable ftable)
+void get_function_params(struct tree *t, SymbolTableEntry fentry)
 {
-    if(t == NULL || ftable == NULL)
+    if(t == NULL || fentry == NULL)
         return;
     // This is the default base type
     struct typeinfo *type = NULL;
@@ -1305,9 +1331,9 @@ void get_function_params(struct tree *t, SymbolTable ftable)
     // The fpdef nonterminal contains information about the parameter 
     //   and its type, including its name
     if(t->prodrule == FPDEF) {
-        if(t->kids[1]->prodrule == COLON_TEST_OPT) {
+        if(t->kids[1]->prodrule == COLON_NAME_OPT) {
             // The function param has a type hint
-            type = get_fpdef_type(t->kids[1], ftable);
+            type = get_fpdef_type(t->kids[1], fentry);
         }
         else {
             type = alcbuiltin(ANY_TYPE);
@@ -1318,16 +1344,33 @@ void get_function_params(struct tree *t, SymbolTable ftable)
         t->kids[0]->type = type;
         t->kids[1]->type = type;
         t->type = type;
-        SymbolTableEntry entry = insertsymbol(ftable, leaf);
+        SymbolTableEntry param_entry = insertsymbol(fentry->nested, leaf);
         //free_typeptr(entry->typ);
-        entry->typ = type;
+        param_entry->typ = type;
+        add_param_to_function_entry(leaf, type, fentry);
     } 
     else {
         for(int i = 0; i < t->nkids; i++) {
-            get_function_params(t->kids[i], ftable);
+            get_function_params(t->kids[i], fentry);
         }
     }
-    decorate_subtree_with_symbol_table(t, ftable);
+}
+
+
+/**
+ * This populates the paramlist in the function
+ */
+void add_param_to_function_entry(struct token *param_name_tok, typeptr param_typ, SymbolTableEntry fentry)
+{
+    if(param_name_tok == NULL || param_typ == NULL || fentry == NULL) return;
+    paramlist param = alcparam(param_name_tok->text, param_typ);
+    if(fentry->typ->u.f.parameters == NULL) 
+        param = fentry->typ->u.f.parameters = param;
+    else {
+        paramlist curr = fentry->typ->u.f.parameters;
+        while(curr->next != NULL) curr = curr->next;
+        curr->next = param;
+    }
 }
 
 /**
@@ -1470,7 +1513,7 @@ SymbolTable copy_symbol_table(SymbolTable st)
 paramlist copy_params(paramlist params)
 {
     if(params == NULL) return NULL;
-    paramlist copy = alcparam(params->name, params->type->basetype);
+    paramlist copy = alcparam(params->name, params->type);
     copy->next = copy_params(params->next);
     return copy;
 }

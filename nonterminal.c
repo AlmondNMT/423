@@ -144,7 +144,7 @@ int get_nonterminal_prodrule(char *production)
     else if(strcmp("dictorset_option_2", production) == 0) return DICTORSET_OPTION_2;
     else if(strcmp("comp_for_OR_ctr_co", production) == 0) return COMP_FOR_OR_CTR_CO;
     else if(strcmp("rarrow_name_opt", production) == 0) return RARROW_NAME_OPT;
-    else if(strcmp("colon_test_opt", production) == 0) return COLON_TEST_OPT;
+    else if(strcmp("colon_name_opt", production) == 0) return COLON_NAME_OPT;
     else if(strcmp("decl_stmt", production) == 0) return DECL_STMT;
     return prodrule;
 }

@@ -108,11 +108,11 @@ void add_builtin_func_info(struct sym_entry *entry, int min, int max, struct typ
                     case 'd': {
                         int basetype = va_arg(args, int);
                         if(params == NULL && name != NULL) {
-                            params = alcparam(name, basetype);
+                            params = alcparam(name, alcbuiltin(basetype));
                             entry->typ->u.f.parameters = params;
                         }
                         else if(params != NULL && name != NULL) {
-                            params->next = alcparam(name, basetype);
+                            params->next = alcparam(name, alcbuiltin(basetype));
                             params = params->next;
                         }
                         break;
