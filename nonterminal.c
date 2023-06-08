@@ -139,7 +139,7 @@ int get_nonterminal_prodrule(char *production)
     else if(strcmp("dictorsetmaker_opt", production) == 0) return DICTORSETMAKER_OPT;
     else if(strcmp("dictorsetmaker", production) == 0) return DICTORSETMAKER;
     else if(strcmp("dictorset_option_1", production) == 0) return DICTORSET_OPTION_1;
-    else if(strcmp("comp_for_OR_ctctco", production) == 0) return COMP_FOR_OR_CTCTCO;
+    else if(strcmp("ctctco", production) == 0) return CTCTCO;
     else if(strcmp("ctct_rep", production) == 0) return CTCT_REP;
     else if(strcmp("dictorset_option_2", production) == 0) return DICTORSET_OPTION_2;
     else if(strcmp("comp_for_OR_ctr_co", production) == 0) return COMP_FOR_OR_CTR_CO;

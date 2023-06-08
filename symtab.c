@@ -49,7 +49,7 @@ void semantics(struct tree *tree, SymbolTable st, int add_builtins)
 
     // Perform type-checking; function return types, function call argument 
     //   types, arithmetical operand types, chained dot operator accesses
-    typecheck(tree, st);
+    typecheck(tree);
 }
 
 // Populate symbol tables from AST
@@ -681,7 +681,7 @@ void locate_invalid_trailer(struct tree *t, struct token *tok)
             // arglist_opt denotes a function call, which is illegal on the LHS of assignments
             switch(t->kids[0]->prodrule) {
                 case ARGLIST_OPT:
-                    fprintf(stderr, "%s:%d: Cannot assign to function call\n", tok->filename, tok->lineno);
+                    semantic_error(tok, "cannot assign to function call\n", tok->filename, tok->lineno);
                     exit(SEM_ERR);
                 case NAME:
                     fprintf(stderr, "%s:%d: Cannot assign to object field\n", tok->filename, tok->lineno);
@@ -1055,18 +1055,16 @@ bool module_exists(char *filename)
  *   # do something
  * ```
  * Therefore, always INT_TYPE
- * Assume: Starting node is for_stmt
+ * Assume: Starting node is FOR_STMT
  */
 void get_for_iterator(struct tree *t, SymbolTable st)
 {
     if(t == NULL || st == NULL) 
         return;
-    if(t->prodrule != POWER) {
-        get_for_iterator(t->kids[0], st);
-    } else {
-        struct token *leaf = t->kids[0]->leaf;
-        insertsymbol(st, leaf);
-    }
+    t->stab = st;
+    t->kids[0]->stab = st;
+    struct token *leaf = t->kids[0]->leaf;
+    insertsymbol(st, leaf);
     // Continue populating the subtrees of the `for` suite 
     for(int i = 0; i < t->nkids; i++) 
         populate_symboltables(t->kids[i], st);

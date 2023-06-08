@@ -127,373 +127,266 @@ int type_str_to_int(char *typestr){
 }
 
 //returns the type for two operands based on operator or error
-char *type_for_bin_op(char *lhs, char *rhs, char* op)
+typeptr type_for_bin_op(typeptr lhs, typeptr rhs, struct token *tok)
 {
+    if(lhs == NULL || rhs == NULL || tok == NULL) semantic_error(tok, "Why are these types NULL???\n"); // This shouldn't happen
 
-    char* ret = "ERROR"; //default error
+    typeptr ret = NULL;
+    if(lhs->basetype == ANY_TYPE || rhs->basetype == ANY_TYPE) return alcbuiltin(ANY_TYPE);
 
-    if(strcmp(op, "+") == 0)
-    {
-        ret = type_for_bin_op_plus(rhs, lhs);
+    // We're expecting to see some kind of operator token here. We can default to 'invalid operator'
+    // TODO: << >> | & 
+    switch(tok->category) {
+        case PLUS:
+            ret = type_for_bin_op_plus(lhs, rhs);
+            break;
+        case MINUS:
+            ret = type_for_bin_op_minus(lhs, rhs);
+            break;
+        case STAR:
+            ret = type_for_bin_op_times(lhs, rhs);
+            break;
+        case SLASH:
+            ret = type_for_bin_op_div(lhs, rhs);
+            break;
+        case DOUBLESTAR:
+        case CIRCUMFLEX:
+        case VBAR:
+        case AMPER:
+        case LEFTSHIFT:
+        case RIGHTSHIFT:
+            ret = type_for_bin_op_bitwise(lhs, rhs);
+            break;
+        case LESS:
+        case GREATER:
+        case LESSEQUAL:
+        case GREATEREQUAL:
+            ret = type_for_bin_op_great_less(lhs, rhs);
+            break;
+        case EQEQUAL:
+            ret = type_for_bin_op_equals(rhs, lhs);
+            break;
+        case AND:
+        case OR:
+            ret = type_for_bin_op_logical(lhs, rhs);
+            break;
+        default: 
+            semantic_error(tok, "unsupported operand type(s) for %s: '%s' and '%s'\n", tok->text, print_type(lhs), print_type(rhs));
     }
-
-    if(strcmp(op, "-") == 0)
-    {
-        ret = type_for_bin_op_minus(rhs, lhs);
-    }
-
-    if(strcmp(op, "*") == 0)
-    {
-        ret = type_for_bin_op_times(rhs, lhs);
-    }
-
-    if(strcmp(op, "/") == 0)
-    {
-        ret = type_for_bin_op_div(rhs, lhs);
-    }    
-
-    if(strcmp(op, ">") == 0 || strcmp(op, "<") == 0 )
-    {
-        ret = type_for_bin_op_great_less(rhs, lhs);
-    }
-
-    if( strcmp(op, "==") == 0 )
-    {
-        ret = type_for_bin_op_equals(rhs, lhs);
-    }
-
-    if( strcmp(op, "and") == 0 || strcmp(op, "or") == 0)
-    {
-        ret = type_for_bin_op_logical(rhs, lhs);
-    }
-
-    //all the above funcs will return ERROR if no match is found
-    if(strcmp("ERROR", ret)==0){
-        fprintf(stderr, "Mismatched type between %s and %s or operator %s inappllcable\n", lhs, rhs, op);
-        exit(SEM_ERR);
-    }
+    if(ret == NULL) 
+        semantic_error(tok, "unsupported operand type(s) for %s: '%s' and '%s'\n", tok->text, print_type(lhs), print_type(rhs));
     return ret;
-    //return type_str_to_int(ret);
 }
 
 
-//operand match check for plus
-char *type_for_bin_op_plus(char *lhs, char *rhs)
+typeptr type_for_bin_op_bitwise(typeptr lhs, typeptr rhs)
 {
-    //if anything is Any, don't bother, just return Any anyways
-    if(strcmp(lhs, "any") == 0 || strcmp(rhs, "any") == 0)
-        return "any";
+    if(lhs->basetype == INT_TYPE && rhs->basetype == INT_TYPE)
+        return int_typeptr;
+    return NULL;
+}
 
-    //handle int plus something
-    if(strcmp(lhs, "int") == 0)
-    {
-        if(strcmp(rhs, "int") == 0)
-            return "int";
+//operand match check for plus
+typeptr type_for_bin_op_plus(typeptr lhs, typeptr rhs)
+{
+    switch(lhs->basetype) {
+        case INT_TYPE:
+            switch(rhs->basetype) {
+                case INT_TYPE:
+                case BOOL_TYPE:
+                    return int_typeptr;
+                case FLOAT_TYPE:
+                    return float_typeptr;
+            }
+            break;
+        case FLOAT_TYPE:
+            switch(rhs->basetype) {
+                case INT_TYPE:
+                case FLOAT_TYPE:
+                case BOOL_TYPE:
+                    return float_typeptr;
+            }
+            break;
+        case BOOL_TYPE:
+            switch(rhs->basetype) {
+                case INT_TYPE:
+                case BOOL_TYPE:
+                    return int_typeptr;
+                case FLOAT_TYPE:
+                    return float_typeptr;
+            }
+            break;
 
-        if(strcmp(rhs, "float") == 0)
-            return "float";
-
-        if(strcmp(rhs, "bool") == 0)
-            return "int";
-
+        // TODO: Verify that these are possible to do in Unicon
+        case STRING_TYPE:
+            if(rhs->basetype == STRING_TYPE)
+                return string_typeptr;
+        case LIST_TYPE:
+            if(rhs->basetype == LIST_TYPE)
+                return list_typeptr;
     }
-
-    //handle float plus something
-    if(strcmp(lhs, "float") == 0)
-    {
-        if(strcmp(rhs, "int") == 0)
-            return "float";
-
-        if(strcmp(rhs, "float") == 0)
-            return "float";
-
-        if(strcmp(rhs, "bool") == 0)
-            return "float";
-    }
-
-    //handle str plus something
-    if(strcmp(lhs, "str") == 0)
-    {
-        if(strcmp(rhs, "str") == 0)
-            return "str"; 
-    }
-
-    //handle bool plus something
-    if(strcmp(lhs, "bool") == 0)
-    {
-        if(strcmp(rhs, "int") == 0)
-            return "int"; 
-
-        if(strcmp(rhs, "float") == 0)
-            return "float"; 
-
-        if(strcmp(rhs, "bool") == 0)
-            return "bool"; 
-    }
-
-    //handle str plus something
-    if(strcmp(lhs, "list") == 0)
-    {
-        if(strcmp(rhs, "list") == 0)
-            return "list"; 
-    }
-    
-    return "ERROR";
+    return NULL;
 }
 
 //operand match check for minus
-char *type_for_bin_op_minus(char *lhs, char *rhs)
+typeptr type_for_bin_op_minus(typeptr lhs, typeptr rhs)
 {
-    //if anything is Any, don't bother, just return Any anyways
-    if(strcmp(lhs, "any") == 0 || strcmp(rhs, "any") == 0)
-        return "any";
-
-    //handle int minus something
-    if(strcmp(lhs, "int") == 0)
-    {
-        if(strcmp(rhs, "int") == 0)
-            return "int";
-
-        if(strcmp(rhs, "float") == 0)
-            return "float";
-
-        if(strcmp(rhs, "bool") == 0)
-            return "int";
-
+    switch(lhs->basetype) {
+        case INT_TYPE:
+            switch(rhs->basetype) {
+                case INT_TYPE:
+                case BOOL_TYPE:
+                    return int_typeptr;
+                case FLOAT_TYPE:
+                    return float_typeptr;
+            }
+            break;
+        case FLOAT_TYPE:
+            switch(rhs->basetype) {
+                case INT_TYPE:
+                case FLOAT_TYPE:
+                case BOOL_TYPE:
+                    return float_typeptr;
+            }
+            break;
+        case BOOL_TYPE:
+            switch(rhs->basetype) {
+                case INT_TYPE:
+                case BOOL_TYPE:
+                    return int_typeptr;
+                case FLOAT_TYPE:
+                    return float_typeptr;
+            }
+            break;
     }
-
-    //handle float minus something
-    if(strcmp(lhs, "float") == 0)
-    {
-        if(strcmp(rhs, "int") == 0)
-            return "float";
-
-        if(strcmp(rhs, "float") == 0)
-            return "float";
-
-        if(strcmp(rhs, "bool") == 0)
-            return "float";
-    }
-
-
-    //handle bool minus something
-    if(strcmp(lhs, "bool") == 0)
-    {
-        if(strcmp(rhs, "int") == 0)
-            return "int"; 
-
-        if(strcmp(rhs, "float") == 0)
-            return "float"; 
-
-        if(strcmp(rhs, "bool") == 0)
-            return "bool"; 
-    }
-    
-    return "ERROR";
+    return NULL;
 }
 
 //operand match check for times
-char *type_for_bin_op_times(char *lhs, char *rhs)
+typeptr type_for_bin_op_times(typeptr lhs, typeptr rhs)
 {
-    //if anything is Any, don't bother, just return Any anyways
-    if(strcmp(lhs, "any") == 0 || strcmp(rhs, "any") == 0)
-        return "any";
-
-    //handle int times something
-    if(strcmp(lhs, "int") == 0)
-    {
-        if(strcmp(rhs, "int") == 0)
-            return "int";
-
-        if(strcmp(rhs, "float") == 0)
-            return "float";
-
-        if(strcmp(rhs, "bool") == 0)
-            return "int";
-
+    switch(lhs->basetype) {
+        case INT_TYPE:
+            switch(rhs->basetype) {
+                case INT_TYPE:
+                case BOOL_TYPE:
+                    return int_typeptr;
+                case FLOAT_TYPE:
+                    return float_typeptr;
+            }
+            break;
+        case FLOAT_TYPE:
+            switch(rhs->basetype) {
+                case INT_TYPE:
+                case FLOAT_TYPE:
+                case BOOL_TYPE:
+                    return float_typeptr;
+            }
+            break;
+        case BOOL_TYPE:
+            switch(rhs->basetype) {
+                case INT_TYPE:
+                case BOOL_TYPE:
+                    return int_typeptr;
+                case FLOAT_TYPE:
+                    return float_typeptr;
+            }
+            break;
     }
-
-    //handle float times something
-    if(strcmp(lhs, "float") == 0)
-    {
-        if(strcmp(rhs, "int") == 0)
-            return "float";
-
-        if(strcmp(rhs, "float") == 0)
-            return "float";
-
-        if(strcmp(rhs, "bool") == 0)
-            return "float";
-    }
-
-    //handle str times something
-    //DECIDED NOT TO ALLOW THIS FOR NOW
-    //BUT KEEPING THE COMMENTED VERSION
-    /*
-    if(strcmp(lhs, "str") == 0)
-    {
-        if(strcmp(rhs, "int") == 0)
-            return "str"; 
-    }*/
-
-    //handle bool times something
-    if(strcmp(lhs, "bool") == 0)
-    {
-        if(strcmp(rhs, "int") == 0)
-            return "int"; 
-
-        if(strcmp(rhs, "float") == 0)
-            return "float"; 
-
-        if(strcmp(rhs, "bool") == 0)
-            return "bool"; 
-    }
-
-    //handle list times something
-    if(strcmp(lhs, "list") == 0)
-    {
-        if(strcmp(rhs, "int") == 0)
-            return "list"; 
-    }
-    
-    return "ERROR";
+    return NULL;
 }
 
-//operand match check for times
-char *type_for_bin_op_div(char *lhs, char *rhs)
+//operand match check for div
+typeptr type_for_bin_op_div(typeptr lhs, typeptr rhs)
 {
-    //if anything is Any, don't bother, just return Any anyways
-    if(strcmp(lhs, "any") == 0 || strcmp(rhs, "any") == 0)
-        return "any";
-
-    //handle int by something
-    if(strcmp(lhs, "int") == 0)
-    {
-        if(strcmp(rhs, "int") == 0)
-            return "int";
-
-        if(strcmp(rhs, "float") == 0)
-            return "float";
-
-        if(strcmp(rhs, "bool") == 0)
-            return "int";
-
+    switch(lhs->basetype) {
+        case INT_TYPE:
+            switch(rhs->basetype) {
+                case INT_TYPE:
+                case BOOL_TYPE:
+                    return int_typeptr;
+                case FLOAT_TYPE:
+                    return float_typeptr;
+            }
+            break;
+        case FLOAT_TYPE:
+            switch(rhs->basetype) {
+                case INT_TYPE:
+                case FLOAT_TYPE:
+                case BOOL_TYPE:
+                    return float_typeptr;
+            }
+            break;
+        case BOOL_TYPE:
+            switch(rhs->basetype) {
+                case INT_TYPE:
+                case FLOAT_TYPE:
+                case BOOL_TYPE:
+                    return float_typeptr;
+            }
     }
-
-    //handle float by something
-    if(strcmp(lhs, "float") == 0)
-    {
-        if(strcmp(rhs, "int") == 0)
-            return "float";
-
-        if(strcmp(rhs, "float") == 0)
-            return "float";
-
-        if(strcmp(rhs, "bool") == 0)
-            return "float";
-    }
-
-
-    //handle bool by something
-    if(strcmp(lhs, "bool") == 0)
-    {
-        if(strcmp(rhs, "int") == 0)
-            return "int"; 
-
-        if(strcmp(rhs, "float") == 0)
-            return "float"; 
-
-        if(strcmp(rhs, "bool") == 0)
-            return "bool"; 
-    }
-    
-    return "ERROR";
+    return NULL;
 }
 
 //operand match check for ==, will always return bool because python is amazing
-char *type_for_bin_op_equals(char *lhs, char *rhs)
+typeptr type_for_bin_op_equals(typeptr lhs, typeptr rhs)
 {
-        return "bool";
+        return bool_typeptr;
 }
 
 //operand match check for greater and less kind of operators
-char *type_for_bin_op_great_less(char *lhs, char *rhs)
+typeptr type_for_bin_op_great_less(typeptr lhs, typeptr rhs)
 {
-    //if anything is Any, don't bother, just return Any anyways
-    if(strcmp(lhs, "any") == 0 || strcmp(rhs, "any") == 0)
-        return "any";
-
-    //handle int grless something
-    if(strcmp(lhs, "int") == 0)
-    {
-        if(strcmp(rhs, "int") == 0)
-            return "bool";
-
-        if(strcmp(rhs, "float") == 0)
-            return "bool";
-
-        if(strcmp(rhs, "bool") == 0)
-            return "bool";
-
+    switch(lhs->basetype) {
+        case INT_TYPE:
+            switch(rhs->basetype) {
+                case INT_TYPE:
+                case FLOAT_TYPE:
+                case BOOL_TYPE:
+                    return bool_typeptr;
+            }
+            break;
+        case FLOAT_TYPE:
+            switch(rhs->basetype) {
+                case INT_TYPE:
+                case FLOAT_TYPE:
+                case BOOL_TYPE:
+                    return bool_typeptr;
+            }
+            break;
+        case STRING_TYPE:
+            switch(rhs->basetype) {
+                case INT_TYPE:
+                case STRING_TYPE:
+                    return bool_typeptr;
+            }
+            break;
+        case BOOL_TYPE:
+            switch(rhs->basetype) {
+                case INT_TYPE:
+                case FLOAT_TYPE:
+                case BOOL_TYPE:
+                    return bool_typeptr;
+            }
+            break;
+        case LIST_TYPE:
+            if(rhs->basetype == LIST_TYPE)
+                return bool_typeptr;
+            break;
     }
-
-    //handle float grless something
-    if(strcmp(lhs, "float") == 0)
-    {
-        if(strcmp(rhs, "int") == 0)
-            return "bool";
-
-        if(strcmp(rhs, "float") == 0)
-            return "bool";
-
-        if(strcmp(rhs, "bool") == 0)
-            return "bool";
-    }
-
-    //handle str times something
-    if(strcmp(lhs, "str") == 0)
-    {
-        if(strcmp(rhs, "int") == 0)
-            return "bool"; 
-
-        if(strcmp(rhs, "str") == 0)
-            return "bool"; 
-    }
-
-    //handle bool grless something
-    if(strcmp(lhs, "bool") == 0)
-    {
-        if(strcmp(rhs, "int") == 0)
-            return "bool"; 
-
-        if(strcmp(rhs, "float") == 0)
-            return "bool"; 
-
-        if(strcmp(rhs, "bool") == 0)
-            return "bool"; 
-    }
-
-    //handle list grless something
-    if(strcmp(lhs, "list") == 0)
-    {
-        if(strcmp(rhs, "list") == 0)
-            return "bool"; 
-    }
-    
-    return "ERROR";
+    return NULL;
 }
 
 //operand match check for logical operators
 //as in python these behave totally different from normal 
 //logical operators and types also depend on values
 //this just returns any if its not expressly two bools
-char *type_for_bin_op_logical(char *lhs, char *rhs)
+typeptr type_for_bin_op_logical(typeptr lhs, typeptr rhs)
 {       
-        //if both are bools, return a goddamn bool
-        if(strcmp(rhs,"bool") == 0 && strcmp(lhs,"bool") == 0)
-            return "bool";
-
-        return "any";
+    if(lhs == NULL || rhs == NULL) return NULL;
+    if(rhs->basetype == BOOL_TYPE && lhs->basetype == BOOL_TYPE)
+        return bool_typeptr;
+    return alcbuiltin(ANY_TYPE);
 }
 
 // builtin type allocations
@@ -570,7 +463,7 @@ paramlist alcparam(char *name, typeptr type)
  *  ☐ Propagate type information through assignments 
  *  ☐ Get type information for declarations
 */
-void typecheck(struct tree *t, SymbolTable st)
+void typecheck(struct tree *t)
 {
     // Verify that functions are defined and used correctly
     //verify_correct_func_use(t, st);
@@ -586,11 +479,22 @@ void typecheck(struct tree *t, SymbolTable st)
             typecheck_decl_stmt(t);
             return;
         case FUNCDEF:
-            typecheck_func_ret_type(t, st); // Will traverse this again
+            // Will traverse this again when checking DECL_STMTs and EXPR_STMTs
+            typecheck_func_ret_type(t); 
             break;
+        case FOR_STMT:
+            typecheck_testlist(t->kids[1]);
+            break;
+        case WHILE_STMT:
+            // TODO
+            break;
+        case IF_STMT:
+            // TODO
+            break;
+
     }
     for(int i = 0; i < t->nkids; i++) {
-        typecheck(t->kids[i], st);
+        typecheck(t->kids[i]);
     }
 
 }
@@ -614,10 +518,8 @@ void verify_correct_func_use(struct tree *t, SymbolTable st)
 
     // Verify that the return type in a function matches the stated 
     //   return type, if applicable
-    typecheck_func_ret_type(t, st);
+    typecheck_func_ret_type(t);
 
-    // TODO: Function argument types
-    //verify_func_arg_types(t, st);
 }
 
 /**
@@ -749,10 +651,23 @@ void typecheck_listmaker_contents(struct tree *t)
 {
     if(t == NULL) return;
     typeptr type = NULL;
-    struct token *desc = NULL;
-    if(t->kids[0]->prodrule == LISTMAKER) {
-        desc = get_power_descendant(t->parent->parent->parent);
-        type = get_testlist_type(t->kids[0]->kids[0]);
+    struct token *desc = get_power_descendant(t); // If this turns up NULL there should be no errors;
+    switch(t->prodrule){
+        case LISTMAKER_OPT:
+            typecheck_listmaker_contents(t->kids[0]);
+        case LISTMAKER:
+            type = typecheck_testlist(t->kids[0]);
+            typecheck_listmaker_contents(t->kids[1]);
+            break;
+        case LISTMAKER_OPTIONS:
+            typecheck_listmaker_contents(t->kids[0]);
+                        break;
+        case COMMA_TEST_REP:
+            typecheck_listmaker_contents(t->kids[0]);
+            type = typecheck_testlist(t->kids[1]);
+            break;
+    }
+    if(type != NULL) {
         switch(type->basetype) {
             case CLASS_TYPE:
             case FUNC_TYPE:
@@ -764,13 +679,70 @@ void typecheck_listmaker_contents(struct tree *t)
     }
 }
 
+/**
+ * Starting point: DICTORSETMAKER_OPT
+ * TODO: Finish this
+ */
+void typecheck_dictmaker_contents(struct tree *t)
+{
+    if(t == NULL) return;
+    typeptr type = NULL;
+    struct token *desc = get_power_descendant(t); // Again, no worries if this returns NULL
+    switch(t->prodrule) {
+        case DICTORSETMAKER_OPT:
+            break;
+    }
+}
+
+/**
+ * Get the type of a FACTOR nonterm
+ *
+ * If nested POWER type is non-numerical, throw an error
+ */
+typeptr typecheck_factor(struct tree *t)
+{
+    if(t == NULL) return alcbuiltin(ANY_TYPE);  // This shouldn't happen
+    switch(t->prodrule) {
+        case POWER:
+            return typecheck_power(t);
+    }
+    typeptr type = NULL;
+    type = typecheck_power(t->kids[1]);
+    struct token *pm = t->kids[0]->leaf;
+
+    // This handles the unary operators '+' and '-', only valid for the three types below
+    switch(type->basetype) {
+        case INT_TYPE:
+        case FLOAT_TYPE:
+        case ANY_TYPE:
+            break;
+        default:
+            semantic_error(pm, "bad operand type for unary %s: '%s'\n", pm->text, print_type(type));
+    }
+    return type;
+}
+
+/**
+ * Everything between a COMPARISON and a TERM has the exact same tree structure,
+ *   so this function is used for all of them
+ */
+typeptr typecheck_op(struct tree *t)
+{
+    if(t == NULL) return NULL;
+    typeptr lhs_type = NULL, rhs_type = NULL;
+    lhs_type = typecheck_factor(t->kids[0]);
+    rhs_type = typecheck_factor(t->kids[1]->kids[2]);
+    struct token *op = t->kids[1]->kids[1]->leaf;
+    return type_for_bin_op(lhs_type, rhs_type, op);
+}
 
 /**
  * Get the type of a POWER nonterm
  */
-typeptr get_power_type(struct tree *t)
+typeptr typecheck_power(struct tree *t)
 {
-    typeptr type = NULL;
+    typeptr type = NULL, dstar_type = NULL;
+
     struct trailer *seq = NULL;
     // If we see an ATOM then we must traverse further to get the 
     //   type, because this indicates that we've encountered 
@@ -778,15 +750,21 @@ typeptr get_power_type(struct tree *t)
     //   dictorsetmaker_opt
     if(t->kids[0]->prodrule == ATOM) {
         typeptr atom_type = get_rhs_type(t->kids[0]);
+        // TODO: Type-check and get types for dicts/lists/parenthesized expressions
         if(t->kids[1]->prodrule == TRAILER_REP) {
             seq = build_trailer_sequence(t->kids[1]);
-            
+            print_trailer_sequence(seq);
         }
         return get_rhs_type(t->kids[0]);
     }
     
     // This leaf contains the leftmost name of the expr_stmt
     struct token *leaf = t->kids[0]->leaf;
+
+    // TODO Get dstar type e.g., a ** b
+    if(t->kids[2]->prodrule == DSTAR_FACTOR_OPT) {
+        
+    }
 
     // If the POWER's first child is a leaf, then we must get the immediate type
     if(t->kids[0]->leaf != NULL) {
@@ -820,7 +798,7 @@ typeptr get_power_type(struct tree *t)
             else {
                 type = entry->typ;
                 if(type->basetype == FUNC_TYPE || type->basetype == CLASS_TYPE) {
-                    semantic_error(leaf, "call with no parentheses\n");
+                    semantic_error(leaf, "function/class use with no parentheses\n");
                 }
             }
         }
@@ -944,7 +922,7 @@ struct arg *build_arglist(struct tree *t)
         case ARG_COMMA_REP:
             // SUBSCRIPTLIST -> SUBSCRIPT_COMMA_REP
             prev = build_arglist(t->kids[0]);
-            type = get_testlist_type(t->kids[1]->kids[0]);
+            type = typecheck_testlist(t->kids[1]->kids[0]);
             //printf("%s\n", print_type(type));
             next = create_arg_link(type);
             break;
@@ -1120,7 +1098,7 @@ void check_args_with_params(struct arg *args, struct param *params, struct token
 {
     if(args == NULL || params == NULL) return;
     if(!are_types_compatible(params->type, args->type))
-        semantic_error(tok, "'%s' requires a '%s' for arg %d, but a '%s' was given\n", tok->text, print_type(params->type), count, print_type(args->type));
+        semantic_error(tok, "'%s' requires '%s' for arg %d, but '%s' was given\n", tok->text, print_type(params->type), count, print_type(args->type));
     check_args_with_params(args->next, params->next, tok, count + 1);
 }
 
@@ -1130,21 +1108,6 @@ int count_args(struct arg *arg)
     return 1 + count_args(arg->next);
 }
 
-/**
- * Assumption: Starting position is TRAILER TODO: fix this
- *   1. "arglist_opt": Function calls
- *   2. "subscriptlist": List/dict accesses
- *   3. "NAME": Dot operands
-*/
-struct typeinfo *get_trailer_type(struct tree *t, typeptr type)
-{   
-    if(t == NULL || type == NULL) {   
-        fprintf(stderr, "ERROR get_trailer_type: one or more arguments is null\n");
-        exit(SEM_ERR);
-    }
-    
-    return alcbuiltin(ANY_TYPE);
-}
 
 /**
  * Try to find a POWER ancestor with a NAME child, then return the token
@@ -1160,28 +1123,6 @@ struct token *get_power_ancestor(struct tree *t)
         power_name = get_power_ancestor(t->parent);
     }
     return power_name;
-}
-
-
-struct typeinfo *get_trailer_type_list(struct tree *t, SymbolTable st)
-{
-    if(t == NULL || st == NULL) return NULL;
-    struct typeinfo *type = NULL;
-    if(t->prodrule == SUBSCRIPTLIST) {
-        type = alcbuiltin(ANY_TYPE);
-    }
-    else {
-        struct typeinfo *lhs = NULL, *rhs = NULL;
-        lhs = get_trailer_type_list(t->kids[0], st);
-        rhs = get_trailer_type_list(t->kids[1], st);
-        if(lhs != NULL) {
-            type = lhs;
-        }
-        if(rhs != NULL) {
-            type = rhs;
-        }
-    }
-    return type;
 }
 
 
@@ -1222,15 +1163,11 @@ struct token *get_power_descendant(struct tree *t)
 {
     if(t == NULL) return NULL;
     struct token *tok = NULL;
-    switch(t->prodrule) {
-        case NAME:
-            tok = t->leaf;
-            break;
-        default:
-            for(int i = 0; i < t->nkids; i++) {
-                tok = get_power_descendant(t->kids[i]);
-                if(tok != NULL) break;
-            }
+    if(t->leaf != NULL)
+        return t->leaf;
+    for(int i = 0; i < t->nkids; i++) {
+        tok = get_power_descendant(t->kids[i]);
+        if(tok != NULL) break;
     }
     return tok;
 }
@@ -1252,14 +1189,14 @@ void typecheck_expr_stmt(struct tree *t)
     //   3. Augmented assignment     : LHS += RHS
     // First, we can get the LHS_TYPE. In all three cases, this type-checks the LHS expression
     //   i.e., 
-    lhs_type = get_testlist_type(t->kids[0]); 
+    lhs_type = typecheck_testlist(t->kids[0]); 
     
     // Secondly, determine the scenario: proceed if second child isn't NULLTREE
     switch(t->kids[1]->prodrule) {
         case EQUAL_OR_YIELD_OR_TESTLIST_REP:
 
             // The type on the right
-            rhs_type = get_testlist_type(t->kids[1]->kids[1]);
+            rhs_type = typecheck_testlist(t->kids[1]->kids[1]);
 
             if(!are_types_compatible(lhs_type, rhs_type)) {
                 // Grab nearby descendant token and use it for assignment type-check error
@@ -1284,7 +1221,7 @@ void typecheck_expr_stmt(struct tree *t)
  * Starting point: Could be any number of things between TESTLIST and POWER,
  *   depending on how the tree is pruned.
  */
-typeptr get_testlist_type(struct tree *t)
+typeptr typecheck_testlist(struct tree *t)
 {
     if(t == NULL) return NULL;
     typeptr type = NULL;
@@ -1293,27 +1230,21 @@ typeptr get_testlist_type(struct tree *t)
         case TESTLIST:
             break;
         case OR_TEST:
-            break;
         case AND_TEST:
-            break;
         case COMPARISON:
-            break;
         case EXPR:
-            break;
         case XOR_EXPR:
-            break;
         case AND_EXPR:
-            break;
         case SHIFT_EXPR:
-            break;
         case ARITH_EXPR:
-            break;
         case TERM:
+            type = typecheck_op(t);
             break;
         case FACTOR:
+            type = typecheck_factor(t);
             break;
         case POWER:
-            type = get_power_type(t);
+            type = typecheck_power(t);
             break;
     }
     return type;
@@ -1339,7 +1270,7 @@ void typecheck_decl_stmt(struct tree *t)
 
         // Pass the second child of the equal_test_opt, cuz the 
         //   first child is '='
-        assignment_type = get_rhs_type(t->kids[2]->kids[1]);
+        assignment_type = typecheck_testlist(t->kids[2]->kids[1]);
         decl_type = lhs->typ;
         if(!are_types_compatible(decl_type, assignment_type)) {
             const char *left = print_type(decl_type);
@@ -1603,32 +1534,68 @@ int get_token_type_code(struct token *tok)
 }
 
 /**
- * Traverse the whole tree and verify that each function's returntype matches 
- * the type of the actual returned value. TODO: What if there's no return statment?
- * TODO: Also this could be called once we have reached a FUNCDEF 
+ * Starting point: funcdef
+ *
+ * We've arrived at a funcdef and need to get the symtable entry for the 
+ *   function 
+ * TODO: What if there's no return statment?
  * 
 */
-void typecheck_func_ret_type(struct tree *t, SymbolTable st)
+void typecheck_func_ret_type(struct tree *t)
 {   
-    if(t == NULL || st == NULL) return;
+    if(t == NULL) return;
+    SymbolTableEntry fentry = NULL;
+    struct token *ftok = NULL;
     switch(t->prodrule) {
-        case RETURN_STMT: {
-            // If we find a return stmt, we need to confirm that the return types match
-            typeptr ret_val = get_rhs_type(t->kids[0]);
-            // Grab the parent function
-            struct token *ftok = get_func_ancestor(t);
-            SymbolTableEntry fentry = lookup(ftok->text, t->stab);
-            int compatible = are_types_compatible(fentry->typ->u.f.returntype, ret_val);
-            if(!compatible)
-                semantic_error(ftok, "'%s()' return type '%s' does not match type of value returned: '%s'\n", ftok->text, print_type(fentry->typ->u.f.returntype), print_type(ret_val));
+        case FUNCDEF:
+            // If the returntype of our function is not ANY_TYPE, we must 
+            //   confirm that the specified returntype matches the actual type
+            //   returned.
+            ftok = t->kids[0]->leaf;
+            fentry = lookup(ftok->text, t->stab);
+            typeptr returntype = fentry->typ->u.f.returntype;
+            if(returntype->basetype != ANY_TYPE) {
+                int has_return_stmt = typecheck_func_ret_type_aux(t, returntype, ftok);
+                // If the function doesn't have a return_stmt or it returns 
+                //   nothing it's return type had better be None
+                if(!has_return_stmt && returntype->basetype != NONE_TYPE)
+                    semantic_error(ftok, "'%s()' return type '%s' does not match type of value returned: '%s'\n", ftok->text, print_type(returntype), print_type(none_typeptr));
+            }
             break;
-        }
         default: {                  
             for(int i = 0; i < t->nkids; i++) {
-                typecheck_func_ret_type(t->kids[i], st);
+                typecheck_func_ret_type(t->kids[i]);
             }
         }
     }
+}
+
+/**
+ * Return true if we find a return_stmt. false otherwise
+ */
+bool typecheck_func_ret_type_aux(struct tree *t, typeptr returntype, struct token *ftok)
+{
+    if(t == NULL || returntype == NULL || ftok == NULL) return false;
+    bool ret = false;
+    switch(t->prodrule) {
+        case RETURN_STMT:
+            ret = true;
+            typeptr ret_val = typecheck_testlist(t->kids[1]);
+
+            // If nothing returns
+            if(ret_val == NULL) ret_val = none_typeptr;
+            // Grab the parent function
+            int compatible = are_types_compatible(returntype, ret_val);
+            if(!compatible)
+                semantic_error(ftok, "'%s()' return type '%s' does not match type of value returned: '%s'\n", ftok->text, print_type(returntype), print_type(ret_val));
+            break;
+        default:
+            for(int i = 0; i < t->nkids; i++) {
+                ret = typecheck_func_ret_type_aux(t->kids[i], returntype, ftok);
+                if(ret) break;
+            }
+    }
+    return ret;
 }
 
 struct token *get_func_ancestor(struct tree *t) {
@@ -1762,7 +1729,7 @@ struct typeinfo *get_rhs_type(struct tree *t)
     // Recurse until the "power" nonterminal is found
     switch(t->prodrule) {
         case POWER: { 
-            type = get_power_type(t);
+            type = typecheck_power(t);
             break;
         } 
 
@@ -1782,13 +1749,13 @@ struct typeinfo *get_rhs_type(struct tree *t)
         // Dictionary
         case DICTORSETMAKER_OPT: {
             /* Right-hand side is a dictionary */
+            typecheck_dictmaker_contents(t);
             type = dict_typeptr;
             break;
         }
         default: {
-            /* It is assumed that we can just recurse the first child until one of 
-            * the above three options is found 
-            * TODO: Fix bad assumption */
+            // It is assumed that we can just recurse the first child until one of 
+            //   the above three options is found 
             type = get_rhs_type(t->kids[0]);
         }
     }

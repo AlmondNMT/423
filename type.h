@@ -125,21 +125,27 @@ extern char *typenam[];
 
 // Prototypes for arithmetical type-checking
 int type_str_to_int(char *typestr);
-char *type_for_bin_op(char *lhs, char *rhs, char* op);
-char *type_for_bin_op_plus(char *lhs, char *rhs);
-char *type_for_bin_op_minus(char *lhs, char *rhs);
-char *type_for_bin_op_times(char *lhs, char *rhs);
-char *type_for_bin_op_div(char *lhs, char *rhs);
-char *type_for_bin_op_equals(char *lhs, char *rhs);
-char *type_for_bin_op_great_less(char *lhs, char *rhs);
-char *type_for_bin_op_logical(char *lhs, char *rhs);
+typeptr type_for_bin_op(typeptr lhs, typeptr rhs, struct token *tok);
+typeptr type_for_bin_op_plus(typeptr lhs, typeptr rhs);
+typeptr type_for_bin_op_minus(typeptr lhs, typeptr rhs);
+typeptr type_for_bin_op_times(typeptr lhs, typeptr rhs);
+typeptr type_for_bin_op_div(typeptr lhs, typeptr rhs);
+typeptr type_for_bin_op_equals(typeptr lhs, typeptr rhs);
+typeptr type_for_bin_op_great_less(typeptr lhs, typeptr rhs);
+typeptr type_for_bin_op_logical(typeptr lhs, typeptr rhs);
+typeptr type_for_bin_op_bitwise(typeptr lhs, typeptr rhs);
 
 // Type-checking
 void typecheck_expr_stmt(struct tree *t);
-void typecheck(struct tree *t, struct sym_table *st);
+void typecheck(struct tree *t);
 void typecheck_decl_stmt(struct tree *t);
-void typecheck_func_ret_type(struct tree *t, struct sym_table *st);
+void typecheck_func_ret_type(struct tree *t);
+bool typecheck_func_ret_type_aux(struct tree *t, typeptr returntype, struct token *ftok);
 void typecheck_listmaker_contents(struct tree *t);
+struct typeinfo *typecheck_testlist(struct tree *t);
+struct typeinfo *typecheck_power(struct tree *t);
+struct typeinfo *typecheck_factor(struct tree *t);
+struct typeinfo *typecheck_op(struct tree *t);
 
 void validate_operand_types(struct tree *t, struct sym_table *st);
 void validate_or_test(struct tree *t, struct sym_table *st);
@@ -162,14 +168,7 @@ struct token *get_power_descendant(struct tree *t);
 int are_types_compatible(typeptr lhs, typeptr rhs);
 struct typeinfo *get_fpdef_type(struct tree *t, struct sym_entry *entry);
 struct typeinfo *get_rhs_type(struct tree *t);
-struct typeinfo *get_power_type(struct tree *t);
-struct typeinfo *get_testlist_type(struct tree *t);
-struct typeinfo *get_trailer_type(struct tree *t, typeptr type);
 struct typeinfo *get_trailer_rep_type(struct trailer *seq, struct sym_entry *entry, struct token *tok);
-struct typeinfo *get_arglist_opt_type(struct tree *t, struct sym_table * st, struct sym_entry *entry);
-struct typeinfo *get_trailer_type_list(struct tree *t, struct sym_table * st);
-struct typeinfo *get_type_of_node(struct tree *t, struct sym_table * st, struct sym_entry *entry);
-void handle_or_test_types(struct tree *t, struct sym_table * st);
 
 // Type annotations
 void get_function_params(struct tree *t, struct sym_entry *entry);
