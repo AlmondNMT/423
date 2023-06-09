@@ -91,6 +91,7 @@ small_stmt: pass_stmt
     ;
 
 decl_stmt: NAME COLON NAME equal_test_opt {$$=make_tree("decl_stmt", 3, $1, $3, $4); }
+    | NAME COLON NONE equal_test_opt {$$=make_tree("decl_stmt", 3, $1, $3, $4); }
     ;
 
 global_stmt: GLOBAL NAME comma_name_rep {$$=make_tree("global_stmt", 2, $2,$3);}
@@ -536,8 +537,3 @@ ctct_rep: {$$=make_tree("nulltree",0,NULL);}
     ;
 
 %%
-/*
-const char *yyname(int sym)
-{
-   return yytname[sym-BAD_TOKEN+3];
-}*/

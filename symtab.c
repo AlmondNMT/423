@@ -16,6 +16,7 @@ extern tree_t* tree;
 extern void add_puny_builtins(SymbolTable st);
 extern char yyfilename[PATHMAX];
 extern FILE *yyin;
+extern bool tree_opt;
 
 // Global hash table for import names. Used to prevent circular imports
 extern struct sym_table global_modules;
@@ -861,6 +862,7 @@ void get_decl_stmt(struct tree *t, SymbolTable st)
         rhs_type = get_rhs_type(t->kids[2]->kids[1]);
     }
     SymbolTableEntry e = insertsymbol(st, var);
+    e->declared = true;
     add_nested_table(e, rhs_type);
 }
 
@@ -872,6 +874,10 @@ void semantic_error(struct token *tok, char *msg, ...)
     va_list args;
     va_start(args, msg);
     int counter = 0;
+    if(tree_opt) {
+        print_tree(tree, 1, 1);
+    }
+
     if(tok != NULL) 
         fprintf(stderr, "%s:%d,%d: ", tok->filename, tok->lineno, tok->column);
     while (*msg != '\0') {
@@ -903,7 +909,6 @@ void semantic_error(struct token *tok, char *msg, ...)
     }
 
     va_end(args);
-
     exit(SEM_ERR);
 }
 

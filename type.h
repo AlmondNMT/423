@@ -134,6 +134,7 @@ typeptr type_for_bin_op_equals(typeptr lhs, typeptr rhs);
 typeptr type_for_bin_op_great_less(typeptr lhs, typeptr rhs);
 typeptr type_for_bin_op_logical(typeptr lhs, typeptr rhs);
 typeptr type_for_bin_op_bitwise(typeptr lhs, typeptr rhs);
+typeptr type_for_bin_op_mod(typeptr lhs, typeptr rhs);
 
 // Type-checking
 void typecheck_expr_stmt(struct tree *t);
@@ -142,6 +143,7 @@ void typecheck_decl_stmt(struct tree *t);
 void typecheck_func_ret_type(struct tree *t);
 bool typecheck_func_ret_type_aux(struct tree *t, typeptr returntype, struct token *ftok);
 void typecheck_listmaker_contents(struct tree *t);
+typeptr typecheck_atom_trailer(struct trailer *seq, typeptr atom_type, struct token *desc);
 struct typeinfo *typecheck_testlist(struct tree *t);
 struct typeinfo *typecheck_power(struct tree *t);
 struct typeinfo *typecheck_factor(struct tree *t);
@@ -149,10 +151,13 @@ struct typeinfo *typecheck_op(struct tree *t);
 
 void validate_operand_types(struct tree *t, struct sym_table *st);
 void validate_or_test(struct tree *t, struct sym_table *st);
+void validate_subscript_usage(typeptr current_type, struct trailer *curr, struct token *tok);
 
 // Correct function usage
 int count_args(struct arg *args);
 void check_args_with_params(struct arg *args, struct param *params, struct token *tok, int count);
+void validate_args_and_params(struct arg *args, struct sym_entry *rhs, struct token *tok);
+
 
 void verify_func_arg_count(struct tree *t);
 void verify_correct_func_use(struct tree *t, struct sym_table *st);

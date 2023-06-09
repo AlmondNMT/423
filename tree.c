@@ -303,7 +303,7 @@ void print_tree(struct tree * t, int depth, int print_full)
         }
         if(t->symbolname != NULL)
         {   
-            printf("%s%d-INNER: symbname: %s: %d", spcs, depth, t->symbolname, t->prodrule); 
+            printf("%s%d-INNER: symbname: %s,%s: %d", spcs, depth, t->symbolname, print_type(t->type), t->prodrule); 
             if(t->stab != NULL)
                 printf(" : %s\n", t->stab->scope);
             else

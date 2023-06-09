@@ -1,16 +1,21 @@
-procedure main()
-    a := [1,2, 3]
-    a |||:= [1]
+procedure test1__test2__f__pyname(x__pyname, y__pyname)
+    return x + y
+end 
 
-    b := table()
-    b["asdf"] := 1
-    b["fdsa"] := 2
-    b["locate a maximum value of c"] := 3
-    
-    every i := !a do {
-        write(i)
-    }
-    write(4 ^ 2.3)
-    
-
+procedure f__pyname(a__pyname, b__pyname, c__pyname)
+    x__pyname := 1
+    write("fifa")
+    return b__pyname + x__pyname
 end
+
+procedure g__pyname(x__pyname)
+    range_1(x__pyname)
+end
+
+procedure main()
+    test1__test2__h__pyname := [1, 2, 3]
+    test1__test2__a__pyname := "fdsa"
+    g__pyname(1)
+end
+
+

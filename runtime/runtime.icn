@@ -43,3 +43,17 @@ end
 procedure str_1(arg)
     return string(arg)
 end
+
+procedure range_1(x)
+    if type(x) === "integer" then {
+        a := list()
+        count := 0
+        while count < x do {
+            a |||:= [count]
+            count +:= 1
+        }
+        write(type(a))
+    } else {
+        write(type(x), " cannot be interpreted as an integer")
+    }
+end

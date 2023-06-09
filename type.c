@@ -146,10 +146,14 @@ typeptr type_for_bin_op(typeptr lhs, typeptr rhs, struct token *tok)
         case STAR:
             ret = type_for_bin_op_times(lhs, rhs);
             break;
+        case DOUBLESLASH:
+        case PERCENT:
         case SLASH:
             ret = type_for_bin_op_div(lhs, rhs);
             break;
         case DOUBLESTAR:
+            ret = type_for_bin_op_times(lhs, rhs);
+            break;
         case CIRCUMFLEX:
         case VBAR:
         case AMPER:
@@ -163,6 +167,7 @@ typeptr type_for_bin_op(typeptr lhs, typeptr rhs, struct token *tok)
         case GREATEREQUAL:
             ret = type_for_bin_op_great_less(lhs, rhs);
             break;
+        case NOTEQUAL:
         case EQEQUAL:
             ret = type_for_bin_op_equals(rhs, lhs);
             break;
@@ -655,19 +660,21 @@ void typecheck_listmaker_contents(struct tree *t)
     switch(t->prodrule){
         case LISTMAKER_OPT:
             typecheck_listmaker_contents(t->kids[0]);
+            break;
         case LISTMAKER:
             type = typecheck_testlist(t->kids[0]);
             typecheck_listmaker_contents(t->kids[1]);
             break;
         case LISTMAKER_OPTIONS:
             typecheck_listmaker_contents(t->kids[0]);
-                        break;
+            break;
         case COMMA_TEST_REP:
             typecheck_listmaker_contents(t->kids[0]);
             type = typecheck_testlist(t->kids[1]);
             break;
     }
     if(type != NULL) {
+        t->type = type;
         switch(type->basetype) {
             case CLASS_TYPE:
             case FUNC_TYPE:
@@ -707,8 +714,8 @@ typeptr typecheck_factor(struct tree *t)
             return typecheck_power(t);
     }
     typeptr type = NULL;
-    type = typecheck_power(t->kids[1]);
-    struct token *pm = t->kids[0]->leaf;
+    type = typecheck_power(t->kids[0]);
+    struct token *pm = t->kids[0]->kids[0]->leaf;
 
     // This handles the unary operators '+' and '-', only valid for the three types below
     switch(type->basetype) {
@@ -729,11 +736,16 @@ typeptr typecheck_factor(struct tree *t)
 typeptr typecheck_op(struct tree *t)
 {
     if(t == NULL) return NULL;
-    typeptr lhs_type = NULL, rhs_type = NULL;
-    lhs_type = typecheck_factor(t->kids[0]);
-    rhs_type = typecheck_factor(t->kids[1]->kids[2]);
+    typeptr lhs_type = NULL, rhs_type = NULL, type = NULL;
+    lhs_type = typecheck_testlist(t->kids[0]);
+    rhs_type = typecheck_testlist(t->kids[1]->kids[2]);
     struct token *op = t->kids[1]->kids[1]->leaf;
-    return type_for_bin_op(lhs_type, rhs_type, op);
+    type = type_for_bin_op(lhs_type, rhs_type, op);
+
+    // Type annotation
+    t->kids[1]->type = rhs_type;
+    t->kids[0]->type = lhs_type;
+    return type;
 }
 
 /**
@@ -749,22 +761,18 @@ typeptr typecheck_power(struct tree *t)
     //   a yield_expr_OR_testlist_comp, a listmaker_opt, or a 
     //   dictorsetmaker_opt
     if(t->kids[0]->prodrule == ATOM) {
-        typeptr atom_type = get_rhs_type(t->kids[0]);
+        type = get_rhs_type(t->kids[0]);
         // TODO: Type-check and get types for dicts/lists/parenthesized expressions
         if(t->kids[1]->prodrule == TRAILER_REP) {
             seq = build_trailer_sequence(t->kids[1]);
             print_trailer_sequence(seq);
+            type = typecheck_atom_trailer(seq, type, get_power_descendant(t));
         }
-        return get_rhs_type(t->kids[0]);
+        return type;
     }
     
     // This leaf contains the leftmost name of the expr_stmt
     struct token *leaf = t->kids[0]->leaf;
-
-    // TODO Get dstar type e.g., a ** b
-    if(t->kids[2]->prodrule == DSTAR_FACTOR_OPT) {
-        
-    }
 
     // If the POWER's first child is a leaf, then we must get the immediate type
     if(t->kids[0]->leaf != NULL) {
@@ -825,7 +833,43 @@ typeptr typecheck_power(struct tree *t)
             }
         }
     }
+
+    // Get the type of a ** b if exponentiation is present
+    if(t->kids[2]->prodrule == DSTAR_FACTOR_OPT) {
+        dstar_type = typecheck_testlist(t->kids[2]->kids[1]);
+        type = type_for_bin_op(type, dstar_type, t->kids[2]->kids[0]->leaf);
+    }
+    t->type = type;
     return type;
+}
+
+typeptr typecheck_atom_trailer(struct trailer *seq, typeptr atom_type, struct token *desc)
+{
+    if(seq == NULL || atom_type == NULL) semantic_error(desc, "typecheck_atom_trailer: *seq and *atom_type should not be null\n");
+    typeptr current_type = atom_type;;
+    struct trailer *curr = NULL;
+    SymbolTableEntry rhs = NULL;
+    int arg_count = 0;
+
+    const char *type_name = print_type(current_type);
+    // We must ensure that NAME belongs to the class symbol table of the current type
+    if(seq->prodrule == NAME) {
+        // We pass this along to get_trailer_rep_type once we have a symbol table entry
+        rhs = lookup_current(seq->name, atom_type->u.cls.st);
+        if(rhs == NULL) semantic_error(desc, "'%s' object has no attribute '%s'\n", type_name, seq->name);
+        current_type = rhs->typ;
+        if(seq->next != NULL)
+            current_type = get_trailer_rep_type(seq->next, rhs, desc);
+    } else if(seq->prodrule == ARGLIST_OPT) {
+        // We should not see a function call at this point
+        semantic_error(desc, "'%s' object is not callable\n", type_name);
+    } else {
+        // In the case of a SUBSCRIPTLIST
+        validate_subscript_usage(current_type, seq, desc);
+        current_type = alcbuiltin(ANY_TYPE);
+    }
+    if(current_type == NULL) return alcbuiltin(ANY_TYPE);
+    return current_type;
 }
 
 
@@ -1029,20 +1073,7 @@ struct typeinfo *get_trailer_rep_type(struct trailer *seq, SymbolTableEntry entr
                     case CLASS_TYPE:
                         current_type = rhs->typ->u.f.returntype;
                         nested = current_type->u.cls.st;
-                        arg_count = count_args(curr->arg);
-                        // max_params == -1 implies 0 ... n possible arguments of ANY_TYPE
-                        if(rhs->typ->u.f.max_params != -1) {
-                            if(rhs->typ->u.f.min_params == rhs->typ->u.f.max_params && arg_count != rhs->typ->u.f.min_params)
-                                semantic_error(tok, "'%s' takes at exactly %d parameter(s), but %d was/were given\n",
-                                        rhs->ident, rhs->typ->u.f.min_params, arg_count);
-                            if(arg_count > rhs->typ->u.f.max_params)
-                                semantic_error(tok, "'%s' takes at most %d parameter(s), but %d was/were given\n", 
-                                        rhs->ident, rhs->typ->u.f.max_params, arg_count);
-                            if(arg_count < rhs->typ->u.f.min_params)
-                                semantic_error(tok, "'%s' takes at least %d parameter(s), but %d was/were given\n",
-                                        rhs->ident, rhs->typ->u.f.min_params, arg_count);
-                        }
-                        check_args_with_params(curr->arg, rhs->typ->u.f.parameters, tok, 1);
+                        validate_args_and_params(curr->arg, rhs, tok);
                         break;
                     default:
                         semantic_error(tok, "'%s' object is not callable\n", type_name);
@@ -1052,7 +1083,7 @@ struct typeinfo *get_trailer_rep_type(struct trailer *seq, SymbolTableEntry entr
 
             // Verify list/dict accesses. Return any_type. The rest of type-checking here should be done at runtime.
             case SUBSCRIPTLIST:
-
+                validate_subscript_usage(current_type, curr, tok);
                 // There should be exactly one subscript for both lists and dicts
                 arg_count = count_args(curr->arg);
                 if(arg_count != 1) semantic_error(tok, "must have exactly one subscript\n");
@@ -1063,7 +1094,7 @@ struct typeinfo *get_trailer_rep_type(struct trailer *seq, SymbolTableEntry entr
                             semantic_error(tok, "list index must be 'int', not '%s'\n", print_type(curr->arg->type));
                         break;
                     case DICT_TYPE:
-                        // TODO Ensure that the argument type is either an int, a float or a string
+                        // Ensure that the argument type is either an int, a float or a string
                         switch(curr->arg->type->basetype){
                             case INT_TYPE:
                             case FLOAT_TYPE:
@@ -1094,13 +1125,65 @@ struct typeinfo *get_trailer_rep_type(struct trailer *seq, SymbolTableEntry entr
  * Checking the types of the parameters against the arguments
  * Assumption: len(params) >= len(args)
  */
-void check_args_with_params(struct arg *args, struct param *params, struct token *tok, int count)
+void check_arg_and_param_types(struct arg *args, struct param *params, struct token *tok, int count)
 {
     if(args == NULL || params == NULL) return;
     if(!are_types_compatible(params->type, args->type))
         semantic_error(tok, "'%s' requires '%s' for arg %d, but '%s' was given\n", tok->text, print_type(params->type), count, print_type(args->type));
-    check_args_with_params(args->next, params->next, tok, count + 1);
+    check_arg_and_param_types(args->next, params->next, tok, count + 1);
 }
+
+/**
+ * Verify arguments against parameter, both in their count and their type
+ */
+void validate_args_and_params(struct arg *args, SymbolTableEntry rhs, struct token *tok)
+{
+    int arg_count = count_args(args);
+    // max_params == -1 implies 0 ... n possible arguments of ANY_TYPE
+    if(rhs->typ->u.f.max_params != -1) {
+        if(rhs->typ->u.f.min_params == rhs->typ->u.f.max_params && arg_count != rhs->typ->u.f.min_params)
+            semantic_error(tok, "'%s' takes at exactly %d parameter(s), but %d was/were given\n",
+                    rhs->ident, rhs->typ->u.f.min_params, arg_count);
+        if(arg_count > rhs->typ->u.f.max_params)
+            semantic_error(tok, "'%s' takes at most %d parameter(s), but %d was/were given\n", 
+                    rhs->ident, rhs->typ->u.f.max_params, arg_count);
+        if(arg_count < rhs->typ->u.f.min_params)
+            semantic_error(tok, "'%s' takes at least %d parameter(s), but %d was/were given\n",
+                    rhs->ident, rhs->typ->u.f.min_params, arg_count);
+    }
+    check_arg_and_param_types(args, rhs->typ->u.f.parameters, tok, 1);
+}
+
+void validate_subscript_usage(typeptr current_type, struct trailer *curr, struct token *tok)
+{
+    // There should be exactly one subscript for both lists and dicts
+    int arg_count = count_args(curr->arg);
+    if(arg_count != 1) semantic_error(tok, "must have exactly one subscript\n");
+    switch(current_type->basetype) {
+        case LIST_TYPE:
+            // Ensure that the single argument is an integer (or ANY_TYPE)
+            if(curr->arg->type->basetype != INT_TYPE && curr->arg->type->basetype != ANY_TYPE)
+                semantic_error(tok, "list index must be 'int', not '%s'\n", print_type(curr->arg->type));
+            break;
+        case DICT_TYPE:
+            // Ensure that the argument type is either an int, a float or a string
+            switch(curr->arg->type->basetype){
+                case INT_TYPE:
+                case FLOAT_TYPE:
+                case STRING_TYPE:
+                    break;
+                default:
+                    semantic_error(tok, "dict index cannot be '%s'\n", print_type(curr->arg->type));
+            }
+            break;
+        case ANY_TYPE:
+            // If it's ANY_TYPE all bets are off
+            break;
+        default:
+            semantic_error(tok, "'%s' object is not subscriptable\n", print_type(current_type));
+    }
+}
+
 
 int count_args(struct arg *arg)
 {
@@ -1209,7 +1292,7 @@ void typecheck_expr_stmt(struct tree *t)
             }
             break;
         case EXPR_CONJUNCT:
-
+            // TODO
             break;
         default:
 
@@ -1247,6 +1330,8 @@ typeptr typecheck_testlist(struct tree *t)
             type = typecheck_power(t);
             break;
     }
+    // Type annotation
+    t->type = type;
     return type;
 }
 
@@ -1263,6 +1348,9 @@ void typecheck_decl_stmt(struct tree *t)
 
     // Assign type to LHS
     lhs->typ = get_ident_type(t->kids[1]->leaf->text, t->stab);
+
+    // Annotate the tree with the type
+    t->type = lhs->typ;
 
     // Verify that type assignment matches
     if(t->kids[2]->prodrule == EQUAL_TEST_OPT) {
@@ -1728,31 +1816,31 @@ struct typeinfo *get_rhs_type(struct tree *t)
 
     // Recurse until the "power" nonterminal is found
     switch(t->prodrule) {
-        case POWER: { 
+        case POWER:
             type = typecheck_power(t);
             break;
-        } 
 
-        case NAME: {
+        case NAME:
             type = get_ident_type(t->leaf->text, t->stab);
             break;
-        }
 
         // If we see listmaker_opt, we know that it's a list (e.g., [1, 2, b])
-        case LISTMAKER_OPT: {
+        case LISTMAKER_OPT:
             // Ensure that the contents of the list are legal
             typecheck_listmaker_contents(t);
             type = list_typeptr;
             break;
-        }
 
         // Dictionary
-        case DICTORSETMAKER_OPT: {
+        case DICTORSETMAKER_OPT:
             /* Right-hand side is a dictionary */
             typecheck_dictmaker_contents(t);
             type = dict_typeptr;
             break;
-        }
+
+        case TESTLIST_COMP:
+            type = typecheck_testlist(t->kids[0]);
+            break;
         default: {
             // It is assumed that we can just recurse the first child until one of 
             //   the above three options is found 
@@ -1760,6 +1848,7 @@ struct typeinfo *get_rhs_type(struct tree *t)
         }
     }
     if(type == NULL)
-        return alcbuiltin(ANY_TYPE);
+        type = alcbuiltin(ANY_TYPE);
+    t->type = type;
     return type;
 }

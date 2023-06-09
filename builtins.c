@@ -1,4 +1,5 @@
 #include <stdarg.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -37,6 +38,7 @@ struct sym_entry *insertbuiltin_meth(struct sym_table *btable, char *name, typep
     entry->typ->basetype = FUNC_TYPE;
     entry->typ->u.f.returntype = returntype;
     entry->typ->u.f.name = name;
+    entry->isbuiltin = true;
     return entry;
 }
 
@@ -65,6 +67,7 @@ SymbolTableEntry insertbuiltin(SymbolTable st, char *name, int basetype)
         }
     }
 
+    entry->isbuiltin = true;
     free_token(tok);
     return entry;
 }

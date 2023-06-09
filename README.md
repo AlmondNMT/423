@@ -14,12 +14,18 @@ def C(x, y):
 
     - [ ] Function type-checking
         - [x] Verify that function return types match return types of values actually returned
-        - [ ] Verify that arguments match the types of formal parameters
-        - [ ] Prevent function/classes in expressions without parentheses. This disallows 
+        - [x] Verify that arguments match the types of formal parameters
+        - [x] Prevent function/classes in expressions without parentheses. This disallows 
               assigning functions to variables, as well as several other complex tasks that
               we don't want to support.
-    - [ ] Ensure that assignments are compatible
-    - [ ] Type-check operators and operands
+    - [x] Ensure that assignments are compatible
+    - [x] Type-check operators and operands
+        - [x] + - (bin)
+        - [x] *
+        - [x] / 
+        - [x] %
+        - [x] //
+        - [x] ^
 - [ ] Code Generation
     - [ ] Finish building runtime library (in Unicon)
         - [ ] Builtin imports

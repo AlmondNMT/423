@@ -223,7 +223,7 @@ forbidden_identifiers       [0-9]+[a-zA-Z0-9_]+|{float}+[a-zA-Z0-9_]+
 "@"						{ column += strlen(yytext); return alctoken(AT); yylexerror(puny_support_err); }
 "@="					{ column += strlen(yytext); return alctoken(ATEQUAL); }
 "->"					{ column += strlen(yytext); return alctoken(RARROW); }
-"..."					{ column += strlen(yytext); return alctoken(ELLIPSIS); }
+"..."					{ yylexerror(puny_support_err); }
 ":="					{ column += strlen(yytext); return alctoken(COLONEQUAL); }
 
 [a-zA-Z_][a-zA-Z0-9_]* { column += strlen(yytext); return alctoken(NAME); }

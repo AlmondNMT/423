@@ -18,14 +18,15 @@ extern tree_t* tree;
 // For debugging
 extern char yyfilename[PATHMAX];
 
+bool symtab_opt = false; // Should we print symbol table? #TODO Change back for HWs
+bool dot_opt = false;
+bool tree_opt = false;   // Should we print the tree?
+
+
 // Global module names
 struct sym_table global_modules;
 
 int main(int argc, char *argv[]) {
-
-    bool symtab_opt = false; // Should we print symbol table? #TODO Change back for HWs
-    bool tree_opt = false;   // Should we print the tree?
-    bool dot_opt = false;
 
     for(int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-symtab") == 0) {
@@ -71,7 +72,7 @@ int main(int argc, char *argv[]) {
 
         // Print syntax tree option
         if(tree_opt) {
-            print_tree(tree, 0, 1); // print full
+            print_tree(tree, 1, 1); // print full
         }
         // Make pretty debugging graph of tree
         if(dot_opt) {

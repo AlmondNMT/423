@@ -21,7 +21,8 @@ typedef struct sym_entry {
     char *filename;             /* The filename origin of the entry */
     int lineno;                 /* On what line was this first found? */
     int column;                 /* On what column was this entry declared/ first assigned */
-    int declared;               /* is this symbol declared in this scope? */
+    bool declared;              /* is this symbol declared in this scope? */
+    bool isbuiltin;             /* Indicates whether the symbol is a builtin */
     struct sym_table *nested;   /* nested symbol table (if any) */
     struct typeinfo *typ;
     /* more symbol attributes go here for code generation */
