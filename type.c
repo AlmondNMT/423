@@ -532,17 +532,7 @@ void typecheck_listmaker_contents(struct tree *t)
             type = typecheck_testlist(t->kids[1]);
             break;
     }
-    if(type != NULL) {
-        t->type = type;
-        switch(type->basetype) {
-            case CLASS_TYPE:
-            case FUNC_TYPE:
-            case PACKAGE_TYPE:
-            case FILE_TYPE:
-                semantic_error(desc, "Forbidden type '%s' found in list\n", print_type(type));
-                break;
-        }
-    }
+    check_forbidden_list_and_dict_types(t, type, desc);
 }
 
 /**
@@ -552,11 +542,42 @@ void typecheck_listmaker_contents(struct tree *t)
 void typecheck_dictmaker_contents(struct tree *t)
 {
     if(t == NULL) return;
-    typeptr type = NULL;
+    typeptr lhs_type = NULL, rhs_type = NULL;
     struct token *desc = get_power_descendant(t); // Again, no worries if this returns NULL
     switch(t->prodrule) {
         case DICTORSETMAKER_OPT:
+            typecheck_dictmaker_contents(t->kids[0]);
             break;
+        case DICTORSET_OPTION_1:
+            lhs_type = typecheck_testlist(t->kids[0]);
+            rhs_type = typecheck_testlist(t->kids[1]);
+            typecheck_dictmaker_contents(t->kids[2]);
+            break;
+        case CTCTCO:
+            typecheck_dictmaker_contents(t->kids[0]);
+            return;
+        case CTCT_REP:
+            typecheck_dictmaker_contents(t->kids[0]);
+            lhs_type = typecheck_testlist(t->kids[1]);
+            rhs_type = typecheck_testlist(t->kids[2]);
+            break;
+    }
+    check_forbidden_list_and_dict_types(t, lhs_type, desc);
+    check_forbidden_list_and_dict_types(t, rhs_type, desc);
+}
+
+void check_forbidden_list_and_dict_types(struct tree *t, typeptr type, struct token *desc)
+{
+    if(type != NULL) {
+        t->type = type;
+        switch(type->basetype) {
+            case CLASS_TYPE:
+            case FUNC_TYPE:
+            case PACKAGE_TYPE:
+            case FILE_TYPE:
+                semantic_error(desc, "Forbidden type '%s' found in structure\n", print_type(type));
+                break;
+        }
     }
 }
 

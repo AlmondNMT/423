@@ -7,6 +7,4 @@ def f(a: float, b:int, c: str) -> int:
     print("fifa") # needs to throw an error since the function doesn't return an int
     return b+ x
 
-a = open("fifa.txt", "wqer")
-b: list = [1, 2, 3][1]
-b += 2
+a = [test1]

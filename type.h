@@ -153,6 +153,8 @@ void validate_operand_types(struct tree *t, struct sym_table *st);
 void validate_or_test(struct tree *t, struct sym_table *st);
 void validate_subscript_usage(typeptr current_type, struct trailer *curr, struct token *tok);
 
+void check_forbidden_list_and_dict_types(struct tree *t, typeptr type, struct token *desc);
+
 // Correct function usage
 int count_args(struct arg *args);
 void check_args_with_params(struct arg *args, struct param *params, struct token *tok, int count);
