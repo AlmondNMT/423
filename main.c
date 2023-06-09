@@ -70,10 +70,6 @@ int main(int argc, char *argv[]) {
         //   non-root nodes.
         prune_tree(tree, 0);
 
-        // Print syntax tree option
-        if(tree_opt) {
-            print_tree(tree, 1, 1); // print full
-        }
         // Make pretty debugging graph of tree
         if(dot_opt) {
             char *graphname = ckalloc(strlen(yyfilename) + 10, sizeof(char));
@@ -84,6 +80,11 @@ int main(int argc, char *argv[]) {
         // Populate symbol tables - obtain type information - validate operand types
         int add_builtins_pls = 1;
         semantics(tree, global, add_builtins_pls);
+
+        // Print syntax tree option
+        if(tree_opt) {
+            print_tree(tree, 1, 1); // print full
+        }
 
         if(symtab_opt) {
             printsymbols(global, 0);

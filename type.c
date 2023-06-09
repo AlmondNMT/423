@@ -278,6 +278,8 @@ typeptr type_for_bin_op_times(typeptr lhs, typeptr rhs)
                     return int_typeptr;
                 case FLOAT_TYPE:
                     return float_typeptr;
+                case STRING_TYPE:
+                    return string_typeptr;
             }
             break;
         case FLOAT_TYPE:
@@ -297,6 +299,11 @@ typeptr type_for_bin_op_times(typeptr lhs, typeptr rhs)
                     return float_typeptr;
             }
             break;
+        case STRING_TYPE:
+            switch(rhs->basetype) {
+                case INT_TYPE:
+                    return string_typeptr;
+            }
     }
     return NULL;
 }
@@ -470,12 +477,6 @@ paramlist alcparam(char *name, typeptr type)
 */
 void typecheck(struct tree *t)
 {
-    // Verify that functions are defined and used correctly
-    //verify_correct_func_use(t, st);
-
-    // Ensure that operand types are valid for arithmetic and logical expressions
-    //validate_operand_types(t, st);
-
     switch(t->prodrule) {
         case EXPR_STMT:
             typecheck_expr_stmt(t);
@@ -502,148 +503,6 @@ void typecheck(struct tree *t)
         typecheck(t->kids[i]);
     }
 
-}
-
-
-/**
- * For puny functions we want to guarantee the following things
- * 1. The return types and the actual returned value match
- * 2. The arguments and parameters are type-compatible
- * 3. Defined functions cannot be used without parentheses
- * 4. Only valid identifiers and types can be called
- *
- */
-void verify_correct_func_use(struct tree *t, SymbolTable st)
-{
-    // Verify that argcount of function call matches formal param count
-    //verify_func_arg_count(t);
-
-    // Disallow function names from appearing within expr_stmts without parentheses
-    disallow_funccall_no_parenth(t);
-
-    // Verify that the return type in a function matches the stated 
-    //   return type, if applicable
-    typecheck_func_ret_type(t);
-
-}
-
-/**
- * For any functions in expr_stmts without parentheses, throw an error.
- * This prevents scenarios such as assigning functions to other variables, using
- */
-void disallow_funccall_no_parenth(struct tree *t)
-{
-    if(t == NULL) return;
-    switch(t->prodrule) {
-        case EXPR_STMT: {
-            for(int i = 0; i < t->nkids; i++)
-                disallow_funccall_no_parenth_aux(t->kids[i]);
-            return;
-        }
-
-    }
-}
-
-/**
- * Auxiliary function for disallow_funccall_np. 
- * Starting position: EXPR_STMT
- */
-void disallow_funccall_no_parenth_aux(struct tree *t)
-{
-    switch(t->prodrule) {
-        // When we find a POWER within an EXPR_STMT, we have to get 
-        case POWER: {
-            if(t->kids[0]->prodrule == NAME) {
-                SymbolTableEntry entry = lookup(t->kids[0]->leaf->text, t->stab);
-                if(entry == NULL)
-                    undeclared_error(t->kids[0]->leaf);
-                if(entry->typ->basetype == FUNC_TYPE) {
-                    
-                }
-            }
-            
-        }
-    }
-}
-
-/**
- * Starting position: root
-*/
-void verify_func_arg_count(struct tree *t)
-{
-    if(t == NULL) return;
-    switch(t->prodrule) {
-        // This indicates a function call
-        case ARGLIST_OPT: {
-            // Get the function ident
-            struct token *ftok = t->parent->parent->parent->kids[0]->leaf;
-            SymbolTableEntry entry = lookup(ftok->text, t->stab);
-            // If entry is not found throw 'name not found' error
-            if(entry == NULL)
-                undeclared_error(ftok);
-
-            // Use auxiliary function to count arguments
-            int arg_count;
-
-            // No-arg function call
-            if(t->nkids == 0)
-                arg_count = 0;
-            else {
-                // Count the function arguments starting from arglist
-                arg_count = count_func_args(t->kids[0], 0);
-            }
-
-            // Check if the type is a class type (prolly a builtin)
-            int param_count;
-            // constructor param count
-            if(entry->typ->basetype == CLASS_TYPE) {
-                param_count = entry->typ->u.cls.nparams;
-            }
-            // regular function param count
-            if(entry->typ->basetype == FUNC_TYPE)
-                param_count = entry->typ->u.f.nparams;
-            if(entry->typ->basetype == FUNC_TYPE || entry->typ->basetype == CLASS_TYPE) {
-                if(arg_count < param_count) {
-                    if(param_count - arg_count == 1)
-                        semantic_error(ftok, "%s() missing 1 required positional argument\n", ftok->text);
-                    else
-                        semantic_error(ftok, "%s() missing %d required positional arguments\n", ftok->text, param_count - arg_count);
-                }
-                else if(arg_count > param_count) {
-                    if(arg_count > 1)
-                        semantic_error(ftok, "%s() takes %d positional arguments but %d were given\n", ftok->text, param_count, arg_count);
-                    else
-                        semantic_error(ftok, "%s() takes 0 positional arguments but 1 was given\n", ftok->text);
-                }
-            }
-            
-            return;
-        }
-    }
-    for(int i = 0; i < t->nkids; i++) {
-        verify_func_arg_count(t->kids[i]);
-    }
-}
-
-/**
- * Auxiliary function for counting function/constructor arguments.
- * Starting from : arglist
-*/
-int count_func_args(struct tree *t, int count)
-{
-    switch(t->prodrule) {
-        case ARGUMENT: {
-            return count + 1;
-        }
-        default: {
-            int cnt = 0;
-            for(int i = 0; i < t->nkids; i++) {
-                cnt += count_func_args(t->kids[i], count);
-            }
-            return cnt;
-        }
-    }
-    return count;
 }
 
 

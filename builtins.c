@@ -129,16 +129,6 @@ void add_builtin_func_info(struct sym_entry *entry, int min, int max, struct typ
 }
 
 /**
- * Add constructor information. This wraps add_builtin_func_info
-*/
-void add_builtin_class_info(SymbolTableEntry entry, int nparams, char *fmt, ...)
-{
-    if(entry == NULL || entry->typ == NULL) return;
-    
-    // We will not use an explicit __init__ method as is typically found in 
-}
-
-/**
  * Manually add every builtin and its associated fields
  */
 void add_puny_builtins(SymbolTable st) {

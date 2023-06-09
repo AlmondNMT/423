@@ -1216,6 +1216,9 @@ void printsymbols(SymbolTable st, int level)
             }
             
             printf("%d %s: ", i, entry->ident);
+            if(entry->isbuiltin) {
+                printf("(builtin) ");
+            }
             if(entry->typ->basetype == FUNC_TYPE && entry->typ->u.f.returntype != NULL) {
                 printf("%s type ", print_type(entry->typ)); // Switch statements for base types
                 printf("-> %s\n", print_type(entry->typ->u.f.returntype));
