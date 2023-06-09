@@ -1136,6 +1136,7 @@ void typecheck_expr_stmt(struct tree *t)
     // Secondly, determine the scenario: proceed if second child isn't NULLTREE
     switch(t->kids[1]->prodrule) {
         case EQUAL_OR_YIELD_OR_TESTLIST_REP:
+        case EXPR_CONJUNCT:
 
             // The type on the right
             rhs_type = typecheck_testlist(t->kids[1]->kids[1]);
@@ -1149,9 +1150,6 @@ void typecheck_expr_stmt(struct tree *t)
                     semantic_error(desc, "incompatible assignment between '%s' and '%s'\n", left, right);
                 }
             }
-            break;
-        case EXPR_CONJUNCT:
-            // TODO
             break;
         default:
 

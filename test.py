@@ -8,5 +8,5 @@ def f(a: float, b:int, c: str) -> int:
     return b+ x
 
 a = open("fifa.txt", "wqer")
-b: None = [1, 2, 3][1]
-chinga: str = 2 * "asdf"
+b: list = [1, 2, 3][1]
+b += 2
