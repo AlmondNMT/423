@@ -43,6 +43,7 @@ bool module_exists(char *filename);
 void get_for_iterator(struct tree *t, SymbolTable table);
 void get_import_symbols(struct tree *t, SymbolTable st);
 void get_imported_tree(char *filename);
+void add_imported_builtin(char *import_name, SymbolTable st);
 void get_decl_stmt(struct tree *t, SymbolTable st);
 void decorate_subtree_with_symbol_table(struct tree *t, SymbolTable st);
 SymbolTable get_global_symtab(SymbolTable st);
@@ -74,7 +75,7 @@ struct token get_assignment_rhs(struct tree *t, SymbolTable st);
 uint hash(SymbolTable st, char *s);
 
 void insertclass(struct tree *t, SymbolTable st);
-void insertfunction(struct tree *t, SymbolTable st);
+SymbolTableEntry insertfunction(struct tree *t, SymbolTable st);
 SymbolTableEntry insertsymbol(SymbolTable st, struct token *tok); 
 SymbolTableEntry insertmodule(SymbolTable st, char *modname);
 void locate_undeclared(struct tree *t, SymbolTable st);
@@ -83,6 +84,7 @@ int count_func_args(struct tree *t, int count);
 SymbolTable mksymtab(int nbuckets, char *table_name);
 SymbolTable mknested(struct token *tok, int nbuckets, SymbolTable parent, char *scope);
 void populate_symboltables(struct tree *t, SymbolTable st);
+void populate_functions(struct tree *t, SymbolTable st);
 void printsymbols(SymbolTable st, int level);
 void semantics(struct tree *t, SymbolTable st, int add_builtins);
 
@@ -95,5 +97,5 @@ SymbolTableEntry lookup_current(char *name, SymbolTable st);
 
 // Errors
 void semantic_error(struct token *tok, char *msg, ...);
-void undeclared_error(struct token *tok);
+void undeclared_error(struct token *tok, struct sym_table *st);
 

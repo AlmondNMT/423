@@ -11,12 +11,12 @@ bison: punygram.y
 flex: punylex.l punygram.tab.h tree.h utils.h
 	flex punylex.l
 
-compile: runtime/runtime.icn lex.yy.c punygram.tab.c utils.c main.c back.c tree.c symtab.c utils.h symtab.h symtab.c printsyms.c type.c type.h builtin_list.h builtins.c nonterminal.c nonterminal.h builtins.h
+compile: runtime/runtime.icn lex.yy.c punygram.tab.c utils.c main.c back.c tree.c symtab.c utils.h symtab.h symtab.c printsyms.c type.c type.h pylib.h builtins.c nonterminal.c nonterminal.h builtins.h
 	$(CC) $(CFLAGS) $(CFILES)
 
 link: lex.yy.o utils.o main.o back.o tree.o punygram.tab.o symtab.o type.o builtins.o nonterminal.o
 	gcc -g -Wall lex.yy.o punygram.tab.o utils.o tree.o main.o back.o type.o symtab.o builtins.o nonterminal.o -o puny
-	./puny test.py
+	./puny arcade.py
 
 # Compile (without linking) the Unicon code for the runtime library
 runtime: 
@@ -34,5 +34,5 @@ testsnolexing:
 clean: 
 	rm -f lex.yy.c puny pytests *.o a.out punygram.tab.* *.zip
 
-zip: punylex.l punygram.y main.c utils.c back.c tree.c tree.h utils.h Makefile printsyms.c symtab.h symtab.c builtin_list.h nonterminal.h testrunner.sh builtins.c nonterminal.c tests/
-	zip -r lab8.zip punygram.y punylex.l main.c utils.c back.c tree.c tree.h utils.h builtins.h Makefile symtab.h symtab.c printsyms.c errdef.h type.c type.h builtin_list.h builtins.c nonterminal.h testrunner.sh nonterminal.c tests/ *.*/ runtime/
+zip: punylex.l punygram.y main.c utils.c back.c tree.c tree.h utils.h Makefile printsyms.c symtab.h symtab.c pylib.h nonterminal.h testrunner.sh builtins.c nonterminal.c tests/
+	zip -r hw5.zip punygram.y punylex.l main.c utils.c back.c tree.c tree.h utils.h builtins.h Makefile symtab.h symtab.c printsyms.c errdef.h type.c type.h pylib.h builtins.c nonterminal.h testrunner.sh nonterminal.c tests/ *.*/ runtime/

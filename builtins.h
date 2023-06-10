@@ -11,4 +11,5 @@ struct sym_entry *insertbuiltin_meth(struct sym_table *btable, char *name, struc
 struct sym_entry *insertbuiltin(struct sym_table *st, char *name, int basetype);
 void add_builtin_func_info(struct sym_entry *entry, int min, int max, struct typeinfo *rettype, char *fmt, ...);
 void add_puny_builtin(struct sym_table *st);
+void add_random_library(struct sym_table *st);
 #endif

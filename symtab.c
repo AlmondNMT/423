@@ -4,19 +4,21 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include "builtins.h"
 #include "punygram.tab.h"
 #include "symtab.h"
 #include "nonterminal.h"
 #include "tree.h"
 #include "type.h"
 #include "utils.h"
-#include "builtin_list.h"
+#include "pylib.h"
 
 extern tree_t* tree;
 extern void add_puny_builtins(SymbolTable st);
 extern char yyfilename[PATHMAX];
 extern FILE *yyin;
-extern bool tree_opt;
+extern bool tree_opt, symtab_opt;
+
 
 // Global hash table for import names. Used to prevent circular imports
 extern struct sym_table global_modules;
@@ -40,6 +42,7 @@ void semantics(struct tree *tree, SymbolTable st, int add_builtins)
         add_puny_builtins(st);          
 
     // Populate symbol tables
+    populate_functions(tree, st);
     populate_symboltables(tree, st);   
 
     // (FOR DEBUGGING) verify that every node in the tree has a symtab
@@ -60,12 +63,13 @@ void populate_symboltables(struct tree *t, SymbolTable st) {
     }
     // Add the current symbol table to the current tree node
     t->stab = st;
-
+    SymbolTableEntry fentry = NULL;
     switch(t->prodrule) {
         // For functions, we add the name of the function to the current symbol 
         // table, then create a symbol table for the function.
         case FUNCDEF:
-            insertfunction(t, st);
+            fentry = lookup(t->kids[0]->leaf->text, st);
+            populate_symboltables(t->kids[3], fentry->nested);
             return;
 
         // Class names
@@ -89,7 +93,6 @@ void populate_symboltables(struct tree *t, SymbolTable st) {
             return;
 
         case FOR_STMT:
-            decorate_subtree_with_symbol_table(t, st);
             get_for_iterator(t, st);
             return;
 
@@ -99,6 +102,20 @@ void populate_symboltables(struct tree *t, SymbolTable st) {
     }
     for(int i = 0; i < t->nkids; i++) {
         populate_symboltables(t->kids[i], st);
+    }
+
+}
+
+void populate_functions(struct tree *t, SymbolTable st)
+{
+    if(t == NULL || st == NULL) return;
+    switch(t->prodrule) {
+        case FUNCDEF:
+            insertfunction(t, st);
+            return;
+    }
+    for(int i = 0; i < t->nkids; i++) {
+        populate_functions(t->kids[i], st);
     }
 }
 
@@ -165,7 +182,7 @@ void check_decls(struct tree *t, SymbolTable st)
              (entry->typ->basetype != FUNC_TYPE && entry->typ->basetype != CLASS_TYPE)) || 
             (t->leaf->lineno == entry->lineno && 
             t->leaf->column > entry->column)) {
-        undeclared_error(t->leaf);
+        undeclared_error(t->leaf, st);
     }
 }
 
@@ -233,10 +250,10 @@ SymbolTableEntry insertmodule(SymbolTable st, char *modname)
  * Assumptions: The first child should contain the function name, cuz our 
  *   starting nonterminal is funcdef
  */
-void insertfunction(struct tree *t, SymbolTable st)
+SymbolTableEntry insertfunction(struct tree *t, SymbolTable st)
 {
     if(st == NULL || t == NULL)
-        return;
+        return NULL;
 
     // Get the name of function in the first child leaf, then add it to the symbol table.
     // If the symboltable already contains the name in either the 
@@ -272,9 +289,10 @@ void insertfunction(struct tree *t, SymbolTable st)
     t->kids[3]->stab = entry->nested;
 
     decorate_subtree_with_symbol_table(t->kids[1], entry->nested);
+    decorate_subtree_with_symbol_table(t->kids[3], entry->nested);
     get_function_params(t->kids[1], entry);   // Add parameters to function scope
-    populate_symboltables(t->kids[3], entry->nested); // Add suite to function scope
-
+    //populate_symboltables(t->kids[3], entry->nested); // Add suite to function scope
+    return entry;
 }
 
 /**
@@ -327,7 +345,7 @@ void handle_expr_stmt(struct tree *t, SymbolTable st)
     switch(t->kids[1]->prodrule) {
         case EQUAL_OR_YIELD_OR_TESTLIST_REP: {
             // Get the type of the RHS through the 'testlist' node
-            rhs_type = get_rhs_type(t->kids[1]->kids[1]);
+            rhs_type = typecheck_testlist(t->kids[1]->kids[1]);
 
             struct token *leftmost = get_leftmost_token(t, st);
 
@@ -339,28 +357,11 @@ void handle_expr_stmt(struct tree *t, SymbolTable st)
             if(!compatible)
                 semantic_error(leftmost, "incompatible assignment between '%s' and '%s'\n", print_type(entry->typ), print_type(rhs_type));
 
-            // Add the table in the rhs_type to the symbol entry
-            add_nested_table(entry, rhs_type);
+            // Add the table in the rhs_type to the symbol entry, only if it hasn't already been added
+            if(entry->lineno == leftmost->lineno)
+                add_nested_table(entry, rhs_type);
 
-            // If there's any assignment chaining, verify the types of those 
-            //   operands, and potentially add them to the table
-            handle_eytr_chain(t->kids[1]->kids[0], st, rhs_type);
             break;
-        }
-
-        // Now we check the validity of augassigns (e.g., a += 1, b *= a, etc.)
-        case EXPR_CONJUNCT: {
-            // TODO: augassigns. These will most likely require a similar method
-            //   as with arithmetic/logical operator checking. EXPR_CONJUNCT 
-            //   appears only if there is an augassign
-            break;
-        }
-
-        // Function/constructor calls, list accesses, arithmetic expressions, dot 
-        //   member accesses.
-        // Assumption: expr_stmt only has one branch
-        default: {
-            //rhs_type = get_rhs_type(t->kids[0]);
         }
     }
 }
@@ -387,54 +388,6 @@ void add_nested_table(SymbolTableEntry entry, struct typeinfo *rhs_type)
     }
 }
 
-/**
- * Auxiliary function for handling assignment chains
- */
-void handle_eytr_chain(struct tree *t, SymbolTable st, struct typeinfo *rhs_type)
-{
-    if(t == NULL || st == NULL) return;
-    if(t->prodrule == POWER) {
-        handle_token(t, st);
-        return;
-    }
-    // For nested EYTR assignment chains
-    if(t->prodrule == EQUAL_OR_YIELD_OR_TESTLIST_REP) {
-        handle_eytr_chain(t->kids[0], st, rhs_type);
-        handle_eytr_chain(t->kids[1], st, rhs_type);
-    }
-    for(int i = 0; i < t->nkids; i++) {
-        handle_eytr_chain(t->kids[i], st, rhs_type);
-    }
-}
-
-
-
-/*
- * For handling statements like these: 
- *   "class Obj:
- *        b: int
- *        b = 1
- *    
- *    class Nest:
- *        a: Obj
- *        a = Obj()
- *    c = Nest()
- *    d: int
- *    d = c.a.b
- *   "
- * TODO: 
-SymbolTableEntry get_trailer_entry(struct tree *t, SymbolTable st)
-{
-    if(t == NULL || st == NULL) return NULL;
-    
-    // If we find a trailer, we need to 
-    switch(t->prodrule) {
-        case TRAILER:
-            break;
-        case TRAILER_REP:
-            break;
-    }
-} */
 
 /**
  * This function is called for handling "power" nonterminals in assignments. 
@@ -748,42 +701,10 @@ struct token *get_expr_leaf(struct tree *t)
 */
 void decorate_subtree_with_symbol_table(struct tree *t, SymbolTable st)
 {
-    SymbolTable nested = st;
-    SymbolTableEntry entry = NULL;
     if(t == NULL || st == NULL) return;
     t->stab = st;
-    switch(t->prodrule) {
-
-        // Powers appear within EXPR_STMTs. 
-        case POWER: {
-            if(t->kids[0]->prodrule == NAME) {
-                struct token *tok = t->kids[0]->leaf;
-                entry = lookup(tok->text, st);
-                if(entry != NULL) {
-
-                    // If our entry has a nested symbol table, we want to decorate 
-                    //   the subtrees with that one. I'm not sure this is being 
-                    //   done correctly
-                    if(entry->typ->basetype != FUNC_TYPE && entry->nested != NULL) {
-                        nested = entry->nested;
-                    }
-
-                    // TODO: Ensure all builtins have returntypes
-                    if(entry->typ->basetype == FUNC_TYPE) {
-
-                    }
-                }
-            }
-            break;
-        }
-        case FOR_STMT: {
-            // This is here to add for statement iterators to the symtab
-            get_for_iterator(t, st);
-            break;
-        }
-    }
     for(int i = 0; i < t->nkids; i++)
-        decorate_subtree_with_symbol_table(t->kids[i], nested);
+        decorate_subtree_with_symbol_table(t->kids[i], st);
 }
 
 
@@ -877,7 +798,6 @@ void semantic_error(struct token *tok, char *msg, ...)
     if(tree_opt) {
         print_tree(tree, 1, 1);
     }
-
     if(tok != NULL) 
         fprintf(stderr, "%s:%d,%d: ", tok->filename, tok->lineno, tok->column);
     while (*msg != '\0') {
@@ -915,9 +835,18 @@ void semantic_error(struct token *tok, char *msg, ...)
 /**
  * Name-not-found error
 */
-void undeclared_error(struct token *tok)
+void undeclared_error(struct token *tok, SymbolTable st)
 {
     if(tok == NULL) return;
+    if(symtab_opt) {
+        if(st != NULL && strcmp(st->scope, "global") != 0) {
+            // Go to the global scope
+            SymbolTable curr = st;
+            while(curr->parent != NULL) curr = curr->parent;
+            st = curr;
+        }
+        printsymbols(st, 0);
+    }
     semantic_error(tok, "Name '%s' not found\n", tok->text);
 }
 
@@ -980,6 +909,14 @@ void get_import_symbols(struct tree *t, SymbolTable st)
     entry->typ = NULL;
     entry->typ = alcbuiltin(PACKAGE_TYPE);
     
+    // Package symbol table
+    SymbolTable package_symtab = mknested(leaf, HASH_TABLE_SIZE, st, "package");
+    entry->nested = package_symtab;
+
+    // Point the package type symtab to the same region of memory
+    entry->typ->u.p.st = package_symtab;
+    entry->typ->u.p.name = entry->ident;
+
     // If the imported file exists in the current directory attempt to compile it
     if(access(filename, F_OK) == 0) {
         // If the filename is found in the global module hash table, throw an error
@@ -993,7 +930,8 @@ void get_import_symbols(struct tree *t, SymbolTable st)
 
         // Copy the current tree to a temporary variable, as it will be 
         //   overwritten by the following function call
-        struct tree *current = tree, *tmp = NULL;
+        struct tree *current = tree;
+        //struct tree *tmp = NULL;
         
         
         // Preserving the original filename
@@ -1002,24 +940,32 @@ void get_import_symbols(struct tree *t, SymbolTable st)
         // `tree` now points to the parse tree of the imported module
         get_imported_tree(filename);
 
-        // Package symbol table
         int dont_add_builtins = 0;
-        SymbolTable package_symtab = mknested(leaf, HASH_TABLE_SIZE, st, "package");
-        entry->nested = package_symtab;
-
-        // Point the package type symtab to the same region of memory
-        entry->typ->u.p.st = package_symtab;
-        entry->typ->u.p.name = entry->ident;
+        
+        // Do semantic analysis on the imported file
         semantics(tree, package_symtab, dont_add_builtins);
 
         // Revert the global tree
-        tmp = tree;
+        //tmp = tree;
         tree = current;
         
         // TODO: Generate transpiled code for packages with name mangling
 
         // Revert the global name back to the main source file.
         strcpy(yyfilename,  current_filename);
+    }
+    
+    // For importing builtin libraries, like random and math
+    else {
+        add_imported_builtin(import_name, entry->nested);
+    }
+}
+
+void add_imported_builtin(char *import_name, SymbolTable st)
+{
+    if(import_name == NULL) return; // avoiding segfault
+    if(strcmp(import_name, "random") == 0) {
+        add_random_library(st);
     }
 }
 

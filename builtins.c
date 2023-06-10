@@ -55,18 +55,20 @@ SymbolTableEntry insertbuiltin(SymbolTable st, char *name, int basetype)
 
     entry->typ->u.f.name = name;
 
-    // Assumption: Builtins are only ever FUNCTIONS OR CLASSES
-    if(basetype == CLASS_TYPE) {
-        entry->typ->u.cls.name = name;
-        typeptr type = get_ident_type(name, NULL);
-        entry->typ->u.cls.returntype = type;
-        if(type->u.cls.st != NULL) {
-            entry->nested = type->u.cls.st;
-            entry->nested->parent = st;
-            entry->nested->level = st->level + 1;
-        }
+    // Assumption: Builtins are only ever FUNCTIONS OR CLASSES or PACKAGES
+    switch(basetype) {
+        case CLASS_TYPE:
+        case PACKAGE_TYPE:
+            entry->typ->u.cls.name = name;
+            typeptr type = get_ident_type(name, NULL);
+            entry->typ->u.cls.returntype = type;
+            if(type->u.cls.st != NULL) {
+                entry->nested = type->u.cls.st;
+                entry->nested->parent = st;
+                entry->nested->level = st->level + 1;
+            }
+            break;
     }
-
     entry->isbuiltin = true;
     free_token(tok);
     return entry;
@@ -158,7 +160,7 @@ void add_puny_builtins(SymbolTable st) {
     add_builtin_func_info(entry, 0, 1, &float_type, "%s: %d", "n", ANY_TYPE);
 
     entry = insertbuiltin(st, "input", FUNC_TYPE);
-    add_builtin_func_info(entry, 0, 1, alctype(ANY_TYPE), "%s: %d", "s", STRING_TYPE);
+    add_builtin_func_info(entry, 0, 1, &string_type, "%s: %d", "s", ANY_TYPE);
 
     entry = insertbuiltin(st, "int", CLASS_TYPE);    
     add_builtin_func_info(entry, 0, 1, &int_type, "%s: %d", "a", INT_TYPE);
@@ -206,4 +208,17 @@ void add_puny_builtins(SymbolTable st) {
     // Add dict methods to dict
     entry = insertbuiltin(st, "dict", CLASS_TYPE);
     add_builtin_func_info(entry, 0, 1, &dict_type, "%s: %d", "a", ANY_TYPE);
+}
+
+void add_random_library(SymbolTable st)
+{
+    if(st == NULL) return;
+    SymbolTableEntry entry = NULL;
+
+    // 'choice' and 'randint'
+    entry = insertbuiltin(st, "choice", FUNC_TYPE);
+    add_builtin_func_info(entry, 1, 1, &list_type, "%s: %d", "l", LIST_TYPE);
+
+    entry = insertbuiltin(st, "randint", FUNC_TYPE);
+    add_builtin_func_info(entry, 2, 2, &int_type, "%s: %d, %s: %d", "a", INT_TYPE, "b", INT_TYPE);
 }

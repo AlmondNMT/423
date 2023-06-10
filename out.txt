@@ -1,284 +1,1352 @@
-File: test.py
-0-INNER: symbname: file_input: 1000
- 1-INNER: symbname: nl_OR_stmt_rep: 1001
-  2-INNER: symbname: nl_OR_stmt_rep: 1001
-   3-INNER: symbname: nl_OR_stmt_rep: 1001
-    4-INNER: symbname: nl_OR_stmt_rep: 1001
-     5-INNER: symbname: nl_OR_stmt_rep: 1001
-      6-INNER: symbname: nl_OR_stmt_rep: 1001
-       7-INNER: symbname: nl_OR_stmt_rep: 1001
-        8-INNER: symbname: nl_OR_stmt_rep: 1001
-         9-INNER: symbname: nl_OR_stmt_rep: 1001
-          10-INNER: symbname: nl_OR_stmt_rep: 1001
-           11-INNER: symbname: nl_OR_stmt_rep: 1001
-            12-INNER: symbname: nl_OR_stmt_rep: 1001
-             13-INNER: symbname: nl_OR_stmt_rep: 1001
-              14-INNER: symbname: nl_OR_stmt_rep: 1001
-               15-INNER: symbname: nl_OR_stmt_rep: 1001
-                16-INNER: symbname: nl_OR_stmt_rep: 1001
-                 17-INNER: symbname: nl_OR_stmt_rep: 1001
-                  18-INNER: symbname: simple_stmt: 1003
-                   19-INNER: symbname: import_name: 1049
-                    20-INNER: symbname: dotted_as_names: 1056
-                     21-INNER: symbname: dotted_as_name: 1058
-                      22-LEAF category: 265, catname: NAME, line: 1, VALUE: test1
-                 17-INNER: symbname: simple_stmt: 1003
-                  18-INNER: symbname: expr_stmt: 1043
-                   19-INNER: symbname: power: 1086
-                    20-LEAF category: 265, catname: NAME, line: 2, VALUE: test1
-                    20-INNER: symbname: trailer_rep: 1087
-                     21-INNER: symbname: trailer_rep: 1087
-                      22-INNER: symbname: trailer: 1088
-                       23-LEAF category: 265, catname: NAME, line: 2, VALUE: test2
-                     21-INNER: symbname: trailer: 1088
-                      22-LEAF category: 265, catname: NAME, line: 2, VALUE: a
-                16-INNER: symbname: simple_stmt: 1003
-                 17-INNER: symbname: expr_stmt: 1043
-                  18-INNER: symbname: power: 1086
-                   19-LEAF category: 265, catname: NAME, line: 3, VALUE: test1
-                   19-INNER: symbname: trailer_rep: 1087
-                    20-INNER: symbname: trailer_rep: 1087
-                     21-INNER: symbname: trailer_rep: 1087
-                      22-INNER: symbname: trailer_rep: 1087
-                       23-INNER: symbname: trailer: 1088
-                        24-LEAF category: 265, catname: NAME, line: 3, VALUE: test2
-                      22-INNER: symbname: trailer: 1088
-                       23-LEAF category: 265, catname: NAME, line: 3, VALUE: h
-                     21-INNER: symbname: trailer: 1088
-                      22-LEAF category: 265, catname: NAME, line: 3, VALUE: append
-                    20-INNER: symbname: trailer: 1088
-                     21-INNER: symbname: arglist_opt: 1089
-                      22-INNER: symbname: arglist: 1090
-                       23-INNER: symbname: argument: 1095
-                        24-INNER: symbname: power: 1086
-                         25-LEAF category: 259, catname: INTLIT, line: 3, VALUE: 1
-               15-INNER: symbname: funcdef: 1023
-                16-LEAF category: 265, catname: NAME, line: 5, VALUE: f
-                16-INNER: symbname: parameters: 1024
-                 17-INNER: symbname: varargslist: 1026
-                  18-INNER: symbname: fpdef_equal_test_comma_rep: 1027
-                   19-INNER: symbname: fpdef_equal_test_comma_rep: 1027
-                    20-INNER: symbname: fpdef: 1031
-                     21-LEAF category: 265, catname: NAME, line: 5, VALUE: a
-                     21-INNER: symbname: colon_name_opt: 1140
-                      22-LEAF category: 265, catname: NAME, line: 5, VALUE: float
-                   19-INNER: symbname: fpdef: 1031
-                    20-LEAF category: 265, catname: NAME, line: 5, VALUE: b
-                    20-INNER: symbname: colon_name_opt: 1140
-                     21-LEAF category: 265, catname: NAME, line: 5, VALUE: int
-                  18-INNER: symbname: fpdef_options: 1028
-                   19-INNER: symbname: fpdef: 1031
-                    20-LEAF category: 265, catname: NAME, line: 5, VALUE: c
-                    20-INNER: symbname: colon_name_opt: 1140
-                     21-LEAF category: 265, catname: NAME, line: 5, VALUE: str
-                16-INNER: symbname: rarrow_name_opt: 1139
-                 17-LEAF category: 265, catname: NAME, line: 5, VALUE: int
-                16-INNER: symbname: suite: 1039
-                 17-INNER: symbname: stmt_rep: 1040
-                  18-INNER: symbname: stmt_rep: 1040
-                   19-INNER: symbname: simple_stmt: 1003
-                    20-INNER: symbname: decl_stmt: 1141
-                     21-LEAF category: 265, catname: NAME, line: 6, VALUE: x
-                     21-LEAF category: 265, catname: NAME, line: 6, VALUE: int
-                   19-INNER: symbname: simple_stmt: 1003
-                    20-INNER: symbname: expr_stmt: 1043
-                     21-INNER: symbname: power: 1086
-                      22-LEAF category: 265, catname: NAME, line: 7, VALUE: print
-                      22-INNER: symbname: trailer_rep: 1087
-                       23-INNER: symbname: trailer: 1088
-                        24-INNER: symbname: arglist_opt: 1089
-                         25-INNER: symbname: arglist: 1090
-                          26-INNER: symbname: argument: 1095
-                           27-INNER: symbname: power: 1086
-                            28-LEAF category: 260, catname: STRINGLIT, line: 7, VALUE: "fifa"
-                  18-INNER: symbname: simple_stmt: 1003
-                   19-INNER: symbname: return_stmt: 1014
-                    20-LEAF category: 322, catname: RETURN, line: 8, VALUE: return
-              14-INNER: symbname: simple_stmt: 1003
-               15-INNER: symbname: decl_stmt: 1141
-                16-LEAF category: 265, catname: NAME, line: 10, VALUE: a
-                16-LEAF category: 265, catname: NAME, line: 10, VALUE: list
-                16-INNER: symbname: equal_test_opt: 1029
-                 17-LEAF category: 292, catname: EQUAL, line: 10, VALUE: =
-                 17-INNER: symbname: power: 1086
-                  18-INNER: symbname: atom: 1120
-                   19-INNER: symbname: listmaker_opt: 1121
-                    20-INNER: symbname: listmaker: 1122
-                     21-INNER: symbname: power: 1086
-                      22-LEAF category: 259, catname: INTLIT, line: 10, VALUE: 1
-                     21-INNER: symbname: listmaker_options: 1123
-                      22-INNER: symbname: comma_test_rep: 1065
-                       23-INNER: symbname: comma_test_rep: 1065
-                        24-INNER: symbname: power: 1086
-                         25-LEAF category: 259, catname: INTLIT, line: 10, VALUE: 2
-                       23-INNER: symbname: power: 1086
-                        24-LEAF category: 259, catname: INTLIT, line: 10, VALUE: 3
-             13-INNER: symbname: simple_stmt: 1003
-              14-INNER: symbname: expr_stmt: 1043
-               15-INNER: symbname: power: 1086
-                16-LEAF category: 265, catname: NAME, line: 11, VALUE: b
-               15-INNER: symbname: equal_OR_yield_OR_testlist_rep: 1046
-                16-INNER: symbname: power: 1086
-                 17-INNER: symbname: atom: 1120
-                  18-INNER: symbname: listmaker_opt: 1121
-                   19-INNER: symbname: listmaker: 1122
-                    20-INNER: symbname: power: 1086
-                     21-LEAF category: 259, catname: INTLIT, line: 11, VALUE: 1
-                    20-INNER: symbname: listmaker_options: 1123
-                     21-INNER: symbname: comma_test_rep: 1065
-                      22-INNER: symbname: comma_test_rep: 1065
-                       23-INNER: symbname: power: 1086
-                        24-LEAF category: 259, catname: INTLIT, line: 11, VALUE: 2
-                      22-INNER: symbname: power: 1086
-                       23-LEAF category: 259, catname: INTLIT, line: 11, VALUE: 3
-                 17-INNER: symbname: trailer_rep: 1087
-                  18-INNER: symbname: trailer: 1088
-                   19-INNER: symbname: subscriptlist: 1101
-                    20-INNER: symbname: subscript: 1103
-                     21-INNER: symbname: power: 1086
-                      22-LEAF category: 259, catname: INTLIT, line: 11, VALUE: 1
-            12-INNER: symbname: simple_stmt: 1003
-             13-INNER: symbname: expr_stmt: 1043
-              14-INNER: symbname: power: 1086
-               15-INNER: symbname: atom: 1120
-                16-INNER: symbname: listmaker_opt: 1121
-                 17-INNER: symbname: listmaker: 1122
-                  18-INNER: symbname: power: 1086
-                   19-LEAF category: 259, catname: INTLIT, line: 12, VALUE: 1
-                  18-INNER: symbname: listmaker_options: 1123
-                   19-INNER: symbname: comma_test_rep: 1065
-                    20-INNER: symbname: comma_test_rep: 1065
-                     21-INNER: symbname: power: 1086
-                      22-LEAF category: 259, catname: INTLIT, line: 12, VALUE: 2
-                    20-INNER: symbname: power: 1086
-                     21-LEAF category: 259, catname: INTLIT, line: 12, VALUE: 3
-               15-INNER: symbname: trailer_rep: 1087
-                16-INNER: symbname: trailer_rep: 1087
-                 17-INNER: symbname: trailer: 1088
-                  18-LEAF category: 265, catname: NAME, line: 12, VALUE: append
-                16-INNER: symbname: trailer: 1088
-                 17-INNER: symbname: arglist_opt: 1089
-                  18-INNER: symbname: arglist: 1090
-                   19-INNER: symbname: argument: 1095
-                    20-INNER: symbname: power: 1086
-                     21-LEAF category: 259, catname: INTLIT, line: 12, VALUE: 1
-           11-INNER: symbname: simple_stmt: 1003
-            12-INNER: symbname: expr_stmt: 1043
-             13-INNER: symbname: power: 1086
-              14-INNER: symbname: atom: 1120
-               15-INNER: symbname: testlist_comp: 1018
-                16-INNER: symbname: arith_expr: 1078
-                 17-INNER: symbname: power: 1086
-                  18-LEAF category: 259, catname: INTLIT, line: 13, VALUE: 1
-                 17-INNER: symbname: pm_term_rep: 1079
-                  18-LEAF category: 276, catname: PLUS, line: 13, VALUE: +
-                  18-INNER: symbname: term: 1081
-                   19-INNER: symbname: power: 1086
-                    20-LEAF category: 259, catname: INTLIT, line: 13, VALUE: 2
-                   19-INNER: symbname: factops_factor_rep: 1082
-                    20-LEAF category: 278, catname: STAR, line: 13, VALUE: *
-                    20-INNER: symbname: power: 1086
-                     21-LEAF category: 259, catname: INTLIT, line: 13, VALUE: 3
-                16-INNER: symbname: tc_options: 1019
-              14-INNER: symbname: trailer_rep: 1087
-               15-INNER: symbname: trailer_rep: 1087
-                16-INNER: symbname: trailer: 1088
-                 17-LEAF category: 265, catname: NAME, line: 13, VALUE: as_integer_ratio
-               15-INNER: symbname: trailer: 1088
-                16-LEAF: symbname: arglist_opt
-          10-INNER: symbname: simple_stmt: 1003
-           11-INNER: symbname: expr_stmt: 1043
-            12-INNER: symbname: power: 1086
-             13-LEAF category: 265, catname: NAME, line: 14, VALUE: c
-            12-INNER: symbname: equal_OR_yield_OR_testlist_rep: 1046
-             13-INNER: symbname: power: 1086
-              14-LEAF category: 259, catname: INTLIT, line: 14, VALUE: 2
-         9-INNER: symbname: simple_stmt: 1003
-          10-INNER: symbname: expr_stmt: 1043
-           11-INNER: symbname: power: 1086
-            12-LEAF category: 265, catname: NAME, line: 15, VALUE: d
-           11-INNER: symbname: equal_OR_yield_OR_testlist_rep: 1046
-            12-INNER: symbname: power: 1086
-             13-LEAF category: 259, catname: INTLIT, line: 15, VALUE: 23
-        8-INNER: symbname: simple_stmt: 1003
-         9-INNER: symbname: decl_stmt: 1141
-          10-LEAF category: 265, catname: NAME, line: 16, VALUE: e
-          10-LEAF category: 265, catname: NAME, line: 16, VALUE: str
-          10-INNER: symbname: equal_test_opt: 1029
-           11-LEAF category: 292, catname: EQUAL, line: 16, VALUE: =
-           11-INNER: symbname: power: 1086
-            12-LEAF category: 260, catname: STRINGLIT, line: 16, VALUE: "asdf"
-       7-INNER: symbname: simple_stmt: 1003
-        8-INNER: symbname: expr_stmt: 1043
-         9-INNER: symbname: power: 1086
-          10-LEAF category: 265, catname: NAME, line: 20, VALUE: f
-          10-INNER: symbname: trailer_rep: 1087
-           11-INNER: symbname: trailer: 1088
-            12-INNER: symbname: arglist_opt: 1089
-             13-INNER: symbname: arglist: 1090
-              14-INNER: symbname: arg_comma_rep: 1091
-               15-INNER: symbname: arg_comma_rep: 1091
-                16-INNER: symbname: argument: 1095
-                 17-INNER: symbname: power: 1086
-                  18-LEAF category: 259, catname: INTLIT, line: 20, VALUE: 1
-               15-INNER: symbname: argument: 1095
-                16-INNER: symbname: power: 1086
-                 17-LEAF category: 259, catname: INTLIT, line: 20, VALUE: 2
-              14-INNER: symbname: argument: 1095
-               15-INNER: symbname: power: 1086
-                16-LEAF category: 260, catname: STRINGLIT, line: 20, VALUE: "asdf"
-      6-INNER: symbname: simple_stmt: 1003
-       7-INNER: symbname: expr_stmt: 1043
-        8-INNER: symbname: power: 1086
-         9-LEAF category: 265, catname: NAME, line: 21, VALUE: a
-         9-INNER: symbname: trailer_rep: 1087
-          10-INNER: symbname: trailer: 1088
-           11-INNER: symbname: subscriptlist: 1101
-            12-INNER: symbname: subscript: 1103
-             13-INNER: symbname: power: 1086
-              14-LEAF category: 259, catname: INTLIT, line: 21, VALUE: 1
-     5-INNER: symbname: simple_stmt: 1003
-      6-INNER: symbname: decl_stmt: 1141
-       7-LEAF category: 265, catname: NAME, line: 22, VALUE: asdf
-       7-LEAF category: 265, catname: NAME, line: 22, VALUE: dict
-       7-INNER: symbname: equal_test_opt: 1029
-        8-LEAF category: 292, catname: EQUAL, line: 22, VALUE: =
-        8-INNER: symbname: power: 1086
-         9-INNER: symbname: atom: 1120
-          10-INNER: symbname: dictorsetmaker_opt: 1132
-           11-INNER: symbname: dictorset_option_1: 1134
-            12-INNER: symbname: power: 1086
-             13-LEAF category: 259, catname: INTLIT, line: 22, VALUE: 1
-            12-INNER: symbname: power: 1086
-             13-LEAF category: 265, catname: NAME, line: 22, VALUE: test1
-            12-INNER: symbname: ctctco: 1135
-             13-INNER: symbname: ctct_rep: 1136
-              14-INNER: symbname: power: 1086
-               15-LEAF category: 259, catname: INTLIT, line: 22, VALUE: 2
-              14-INNER: symbname: power: 1086
-               15-LEAF category: 265, catname: NAME, line: 22, VALUE: test1
-               15-INNER: symbname: trailer_rep: 1087
-                16-INNER: symbname: trailer: 1088
-                 17-LEAF category: 265, catname: NAME, line: 22, VALUE: test2
-    4-INNER: symbname: for_stmt: 1042
-     5-LEAF category: 265, catname: NAME, line: 24, VALUE: i
-     5-INNER: symbname: arith_expr: 1078
-      6-INNER: symbname: power: 1086
-       7-LEAF category: 265, catname: NAME, line: 24, VALUE: a
-      6-INNER: symbname: pm_term_rep: 1079
-       7-INNER: symbname: pm_term_rep: 1079
-        8-LEAF category: 276, catname: PLUS, line: 24, VALUE: +
-        8-INNER: symbname: power: 1086
-         9-LEAF category: 265, catname: NAME, line: 24, VALUE: a
-       7-LEAF category: 276, catname: PLUS, line: 24, VALUE: +
-       7-INNER: symbname: power: 1086
-        8-LEAF category: 265, catname: NAME, line: 24, VALUE: a
-     5-INNER: symbname: suite: 1039
-      6-INNER: symbname: simple_stmt: 1003
-       7-INNER: symbname: expr_stmt: 1043
-        8-INNER: symbname: power: 1086
-         9-LEAF category: 265, catname: NAME, line: 25, VALUE: print
-         9-INNER: symbname: trailer_rep: 1087
-          10-INNER: symbname: trailer: 1088
-           11-INNER: symbname: arglist_opt: 1089
-            12-INNER: symbname: ar
+File: hangman.py
+ 1-INNER: symbname: file_input,NULL: 1000 : global
+  2-INNER: symbname: nl_OR_stmt_rep,NULL: 1001 : global
+   3-INNER: symbname: nl_OR_stmt_rep,NULL: 1001 : global
+    4-INNER: symbname: nl_OR_stmt_rep,NULL: 1001 : global
+     5-INNER: symbname: nl_OR_stmt_rep,NULL: 1001 : global
+      6-INNER: symbname: nl_OR_stmt_rep,NULL: 1001 : global
+       7-INNER: symbname: nl_OR_stmt_rep,NULL: 1001 : global
+        8-INNER: symbname: simple_stmt,NULL: 1003 : global
+         9-INNER: symbname: expr_stmt,NULL: 1043 : global
+          10-INNER: symbname: power,NULL: 1086 : global
+           11-LEAF category: 260, catname: STRINGLIT, line: 9, VALUE: """
+    File name: hangman.py
+
+    Author: anonymous
+
+    Date: 4, 27
+
+    Assignment: Final project: Arcade.
+    """ : global
+       7-INNER: symbname: simple_stmt,NULL: 1003 : global
+        8-INNER: symbname: import_name,NULL: 1049 : global
+         9-INNER: symbname: dotted_as_names,NULL: 1056 : global
+          10-INNER: symbname: dotted_as_name,NULL: 1058
+           11-LEAF category: 265, catname: NAME, line: 13, VALUE: random
+      6-INNER: symbname: funcdef,NULL: 1023 : global
+       7-LEAF category: 265, catname: NAME, line: 14, VALUE: tombofhorrors : global
+       7-INNER: symbname: parameters,NULL: 1024 : function
+        8-INNER: symbname: varargslist,NULL: 1026 : function
+         9-INNER: symbname: fpdef_equal_test_comma_rep,NULL: 1027 : function
+          10-INNER: symbname: fpdef,any: 1031 : function
+           11-LEAF category: 265, catname: NAME, line: 14, VALUE: hickman : function
+         9-INNER: symbname: fpdef_options,NULL: 1028 : function
+          10-INNER: symbname: fpdef,any: 1031 : function
+           11-LEAF category: 265, catname: NAME, line: 14, VALUE: tharizdun : function
+       7-INNER: symbname: suite,NULL: 1039 : function
+        8-INNER: symbname: stmt_rep,NULL: 1040 : function
+         9-INNER: symbname: stmt_rep,NULL: 1040 : function
+          10-INNER: symbname: stmt_rep,NULL: 1040 : function
+           11-INNER: symbname: stmt_rep,NULL: 1040 : function
+            12-INNER: symbname: stmt_rep,NULL: 1040 : function
+             13-INNER: symbname: stmt_rep,NULL: 1040 : function
+              14-INNER: symbname: stmt_rep,NULL: 1040 : function
+               15-INNER: symbname: stmt_rep,NULL: 1040 : function
+                16-INNER: symbname: stmt_rep,NULL: 1040 : function
+                 17-INNER: symbname: simple_stmt,NULL: 1003 : function
+                  18-INNER: symbname: expr_stmt,NULL: 1043 : function
+                   19-INNER: symbname: power,NULL: 1086 : function
+                    20-LEAF category: 260, catname: STRINGLIT, line: 17, VALUE: """tomb of horros sets up a blank word, lolth, and fills it up with askerisks. It sets the 
+    score, a win counter and a loss counter to zero. It runs the mystery word, the blank word,
+    and the counters through ravenloft. It returns the game result back to main.""" : function
+                 17-INNER: symbname: simple_stmt,NULL: 1003 : function
+                  18-INNER: symbname: expr_stmt,NULL: 1043 : function
+                   19-INNER: symbname: power,NULL: 1086 : function
+                    20-LEAF category: 265, catname: NAME, line: 18, VALUE: strahd : function
+                   19-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046 : function
+                    20-INNER: symbname: power,NULL: 1086 : function
+                     21-LEAF category: 265, catname: NAME, line: 18, VALUE: list : class
+                     21-INNER: symbname: trailer_rep,NULL: 1087 : class
+                      22-INNER: symbname: trailer,NULL: 1088 : class
+                       23-INNER: symbname: arglist_opt,NULL: 1089 : class
+                        24-INNER: symbname: arglist,NULL: 1090 : class
+                         25-INNER: symbname: argument,NULL: 1095 : class
+                          26-INNER: symbname: power,NULL: 1086 : class
+                           27-LEAF category: 265, catname: NAME, line: 18, VALUE: hickman : class
+                           27-INNER: symbname: trailer_rep,NULL: 1087 : class
+                            28-INNER: symbname: trailer,NULL: 1088 : class
+                             29-INNER: symbname: subscriptlist,NULL: 1101 : class
+                              30-INNER: symbname: subscript,NULL: 1103 : class
+                               31-INNER: symbname: power,NULL: 1086 : class
+                                32-LEAF category: 259, catname: INTLIT, line: 18, VALUE: 0 : class
+                16-INNER: symbname: simple_stmt,NULL: 1003
+                 17-INNER: symbname: expr_stmt,NULL: 1043
+                  18-INNER: symbname: power,NULL: 1086
+                   19-LEAF category: 265, catname: NAME, line: 19, VALUE: lolth
+                  18-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                   19-INNER: symbname: power,NULL: 1086
+                    20-LEAF category: 260, catname: STRINGLIT, line: 19, VALUE: ""
+               15-INNER: symbname: simple_stmt,NULL: 1003
+                16-INNER: symbname: expr_stmt,NULL: 1043
+                 17-INNER: symbname: power,NULL: 1086
+                  18-LEAF category: 265, catname: NAME, line: 20, VALUE: z
+                 17-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                  18-INNER: symbname: power,NULL: 1086
+                   19-LEAF category: 259, catname: INTLIT, line: 20, VALUE: 0
+              14-INNER: symbname: while_stmt,NULL: 1041
+               15-INNER: symbname: comparison,NULL: 1114
+                16-INNER: symbname: power,NULL: 1086
+                 17-LEAF category: 265, catname: NAME, line: 21, VALUE: z
+                16-INNER: symbname: comp_op_expr_rep,NULL: 1115
+                 17-LEAF category: 290, catname: LESS, line: 21, VALUE: <
+                 17-INNER: symbname: power,NULL: 1086
+                  18-LEAF category: 265, catname: NAME, line: 21, VALUE: len
+                  18-INNER: symbname: trailer_rep,NULL: 1087
+                   19-INNER: symbname: trailer,NULL: 1088
+                    20-INNER: symbname: arglist_opt,NULL: 1089
+                     21-INNER: symbname: arglist,NULL: 1090
+                      22-INNER: symbname: argument,NULL: 1095
+                       23-INNER: symbname: power,NULL: 1086
+                        24-LEAF category: 265, catname: NAME, line: 21, VALUE: strahd
+               15-INNER: symbname: suite,NULL: 1039
+                16-INNER: symbname: stmt_rep,NULL: 1040
+                 17-INNER: symbname: simple_stmt,NULL: 1003
+                  18-INNER: symbname: expr_stmt,NULL: 1043
+                   19-INNER: symbname: power,NULL: 1086
+                    20-LEAF category: 265, catname: NAME, line: 22, VALUE: lolth
+                   19-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                    20-INNER: symbname: arith_expr,NULL: 1078
+                     21-INNER: symbname: power,NULL: 1086
+                      22-LEAF category: 265, catname: NAME, line: 22, VALUE: lolth
+                     21-INNER: symbname: pm_term_rep,NULL: 1079
+                      22-LEAF category: 276, catname: PLUS, line: 22, VALUE: +
+                      22-INNER: symbname: power,NULL: 1086
+                       23-LEAF category: 260, catname: STRINGLIT, line: 22, VALUE: "*"
+                 17-INNER: symbname: simple_stmt,NULL: 1003
+                  18-INNER: symbname: expr_stmt,NULL: 1043
+                   19-INNER: symbname: power,NULL: 1086
+                    20-LEAF category: 265, catname: NAME, line: 23, VALUE: z
+                   19-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                    20-INNER: symbname: arith_expr,NULL: 1078
+                     21-INNER: symbname: power,NULL: 1086
+                      22-LEAF category: 265, catname: NAME, line: 23, VALUE: z
+                     21-INNER: symbname: pm_term_rep,NULL: 1079
+                      22-LEAF category: 276, catname: PLUS, line: 23, VALUE: +
+                      22-INNER: symbname: power,NULL: 1086
+                       23-LEAF category: 259, catname: INTLIT, line: 23, VALUE: 1
+             13-INNER: symbname: simple_stmt,NULL: 1003
+              14-INNER: symbname: expr_stmt,NULL: 1043
+               15-INNER: symbname: power,NULL: 1086
+                16-LEAF category: 265, catname: NAME, line: 24, VALUE: score
+               15-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                16-INNER: symbname: power,NULL: 1086
+                 17-LEAF category: 259, catname: INTLIT, line: 24, VALUE: 0
+            12-INNER: symbname: simple_stmt,NULL: 1003
+             13-INNER: symbname: expr_stmt,NULL: 1043
+              14-INNER: symbname: power,NULL: 1086
+               15-LEAF category: 265, catname: NAME, line: 25, VALUE: win
+              14-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+               15-INNER: symbname: power,NULL: 1086
+                16-LEAF category: 259, catname: INTLIT, line: 25, VALUE: 0
+           11-INNER: symbname: simple_stmt,NULL: 1003
+            12-INNER: symbname: expr_stmt,NULL: 1043
+             13-INNER: symbname: power,NULL: 1086
+              14-LEAF category: 265, catname: NAME, line: 26, VALUE: loss
+             13-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+              14-INNER: symbname: power,NULL: 1086
+               15-LEAF category: 259, catname: INTLIT, line: 26, VALUE: 0
+          10-INNER: symbname: simple_stmt,NULL: 1003
+           11-INNER: symbname: expr_stmt,NULL: 1043
+            12-INNER: symbname: power,NULL: 1086
+             13-LEAF category: 265, catname: NAME, line: 27, VALUE: e
+            12-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+             13-INNER: symbname: power,NULL: 1086
+              14-LEAF category: 265, catname: NAME, line: 27, VALUE: ravenloft
+              14-INNER: symbname: trailer_rep,NULL: 1087
+               15-INNER: symbname: trailer,NULL: 1088
+                16-INNER: symbname: arglist_opt,NULL: 1089
+                 17-INNER: symbname: arglist,NULL: 1090
+                  18-INNER: symbname: arg_comma_rep,NULL: 1091
+                   19-INNER: symbname: arg_comma_rep,NULL: 1091
+                    20-INNER: symbname: arg_comma_rep,NULL: 1091
+                     21-INNER: symbname: arg_comma_rep,NULL: 1091
+                      22-INNER: symbname: arg_comma_rep,NULL: 1091
+                       23-INNER: symbname: argument,NULL: 1095
+                        24-INNER: symbname: power,NULL: 1086
+                         25-LEAF category: 265, catname: NAME, line: 27, VALUE: hickman
+                      22-INNER: symbname: argument,NULL: 1095
+                       23-INNER: symbname: power,NULL: 1086
+                        24-LEAF category: 265, catname: NAME, line: 27, VALUE: tharizdun
+                     21-INNER: symbname: argument,NULL: 1095
+                      22-INNER: symbname: power,NULL: 1086
+                       23-LEAF category: 265, catname: NAME, line: 27, VALUE: lolth
+                    20-INNER: symbname: argument,NULL: 1095
+                     21-INNER: symbname: power,NULL: 1086
+                      22-LEAF category: 265, catname: NAME, line: 27, VALUE: score
+                   19-INNER: symbname: argument,NULL: 1095
+                    20-INNER: symbname: power,NULL: 1086
+                     21-LEAF category: 265, catname: NAME, line: 27, VALUE: win
+                  18-INNER: symbname: argument,NULL: 1095
+                   19-INNER: symbname: power,NULL: 1086
+                    20-LEAF category: 265, catname: NAME, line: 27, VALUE: loss
+         9-INNER: symbname: simple_stmt,NULL: 1003
+          10-INNER: symbname: return_stmt,NULL: 1014
+           11-LEAF category: 322, catname: RETURN, line: 28, VALUE: return
+           11-INNER: symbname: power,NULL: 1086
+            12-LEAF category: 265, catname: NAME, line: 28, VALUE: e
+     5-INNER: symbname: funcdef,NULL: 1023
+      6-LEAF category: 265, catname: NAME, line: 30, VALUE: ravenloft
+      6-INNER: symbname: parameters,NULL: 1024
+       7-INNER: symbname: varargslist,NULL: 1026
+        8-INNER: symbname: fpdef_equal_test_comma_rep,NULL: 1027
+         9-INNER: symbname: fpdef_equal_test_comma_rep,NULL: 1027
+          10-INNER: symbname: fpdef_equal_test_comma_rep,NULL: 1027
+           11-INNER: symbname: fpdef_equal_test_comma_rep,NULL: 1027
+            12-INNER: symbname: fpdef_equal_test_comma_rep,NULL: 1027
+             13-INNER: symbname: fpdef,NULL: 1031
+              14-LEAF category: 265, catname: NAME, line: 30, VALUE: hickman
+            12-INNER: symbname: fpdef,NULL: 1031
+             13-LEAF category: 265, catname: NAME, line: 30, VALUE: tharizdun
+           11-INNER: symbname: fpdef,NULL: 1031
+            12-LEAF category: 265, catname: NAME, line: 30, VALUE: lolth
+          10-INNER: symbname: fpdef,NULL: 1031
+           11-LEAF category: 265, catname: NAME, line: 30, VALUE: score
+         9-INNER: symbname: fpdef,NULL: 1031
+          10-LEAF category: 265, catname: NAME, line: 30, VALUE: win
+        8-INNER: symbname: fpdef_options,NULL: 1028
+         9-INNER: symbname: fpdef,NULL: 1031
+          10-LEAF category: 265, catname: NAME, line: 30, VALUE: loss
+      6-INNER: symbname: suite,NULL: 1039
+       7-INNER: symbname: stmt_rep,NULL: 1040
+        8-INNER: symbname: stmt_rep,NULL: 1040
+         9-INNER: symbname: simple_stmt,NULL: 1003
+          10-INNER: symbname: expr_stmt,NULL: 1043
+           11-INNER: symbname: power,NULL: 1086
+            12-LEAF category: 260, catname: STRINGLIT, line: 38, VALUE: """Ravenloft checks the life counter. It ends the game if the life has reached zero and returns
+    a list to combine the wins, losses, and the score. It also checks to see if the user has 
+    uncovered the whole word (hickman), and it matches completely with the answer. If so, it returns a list
+    combining the win counter, the loss counter and the score. It then asks the user to input a 
+    letter. If the letter is anywhere in the word, if will increase the users score and replace
+    the letter slot on lolth (as an *) with the letter guessed. It will do this for each instance
+    of the letter occuring in the word. If no copies of the word are found in the answer, it lowers
+    the life counter (tharizdun) by 1."""
+         9-INNER: symbname: simple_stmt,NULL: 1003
+          10-INNER: symbname: expr_stmt,NULL: 1043
+           11-INNER: symbname: power,NULL: 1086
+            12-LEAF category: 265, catname: NAME, line: 39, VALUE: strahd
+           11-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+            12-INNER: symbname: power,NULL: 1086
+             13-LEAF category: 265, catname: NAME, line: 39, VALUE: list
+             13-INNER: symbname: trailer_rep,NULL: 1087
+              14-INNER: symbname: trailer,NULL: 1088
+               15-INNER: symbname: arglist_opt,NULL: 1089
+                16-INNER: symbname: arglist,NULL: 1090
+                 17-INNER: symbname: argument,NULL: 1095
+                  18-INNER: symbname: power,NULL: 1086
+                   19-LEAF category: 265, catname: NAME, line: 39, VALUE: hickman
+                   19-INNER: symbname: trailer_rep,NULL: 1087
+                    20-INNER: symbname: trailer,NULL: 1088
+                     21-INNER: symbname: subscriptlist,NULL: 1101
+                      22-INNER: symbname: subscript,NULL: 1103
+                       23-INNER: symbname: power,NULL: 1086
+                        24-LEAF category: 259, catname: INTLIT, line: 39, VALUE: 0
+        8-INNER: symbname: if_stmt,NULL: 1036
+         9-INNER: symbname: comparison,NULL: 1114
+          10-INNER: symbname: power,NULL: 1086
+           11-LEAF category: 265, catname: NAME, line: 40, VALUE: tharizdun
+          10-INNER: symbname: comp_op_expr_rep,NULL: 1115
+           11-LEAF category: 293, catname: EQEQUAL, line: 40, VALUE: ==
+           11-INNER: symbname: power,NULL: 1086
+            12-LEAF category: 259, catname: INTLIT, line: 40, VALUE: 0
+         9-INNER: symbname: suite,NULL: 1039
+          10-INNER: symbname: stmt_rep,NULL: 1040
+           11-INNER: symbname: stmt_rep,NULL: 1040
+            12-INNER: symbname: stmt_rep,NULL: 1040
+             13-INNER: symbname: stmt_rep,NULL: 1040
+              14-INNER: symbname: stmt_rep,NULL: 1040
+               15-INNER: symbname: stmt_rep,NULL: 1040
+                16-INNER: symbname: simple_stmt,NULL: 1003
+                 17-INNER: symbname: expr_stmt,NULL: 1043
+                  18-INNER: symbname: power,NULL: 1086
+                   19-LEAF category: 265, catname: NAME, line: 41, VALUE: print
+                   19-INNER: symbname: trailer_rep,NULL: 1087
+                    20-INNER: symbname: trailer,NULL: 1088
+                     21-INNER: symbname: arglist_opt,NULL: 1089
+                      22-INNER: symbname: arglist,NULL: 1090
+                       23-INNER: symbname: arg_comma_rep,NULL: 1091
+                        24-INNER: symbname: argument,NULL: 1095
+                         25-INNER: symbname: power,NULL: 1086
+                          26-LEAF category: 260, catname: STRINGLIT, line: 41, VALUE: "Game over! The Final answer was:"
+                       23-INNER: symbname: argument,NULL: 1095
+                        24-INNER: symbname: power,NULL: 1086
+                         25-LEAF category: 265, catname: NAME, line: 41, VALUE: hickman
+                         25-INNER: symbname: trailer_rep,NULL: 1087
+                          26-INNER: symbname: trailer,NULL: 1088
+                           27-INNER: symbname: subscriptlist,NULL: 1101
+                            28-INNER: symbname: subscript,NULL: 1103
+                             29-INNER: symbname: power,NULL: 1086
+                              30-LEAF category: 259, catname: INTLIT, line: 41, VALUE: 0
+                16-INNER: symbname: simple_stmt,NULL: 1003
+                 17-INNER: symbname: expr_stmt,NULL: 1043
+                  18-INNER: symbname: power,NULL: 1086
+                   19-LEAF category: 265, catname: NAME, line: 42, VALUE: loss
+                  18-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                   19-INNER: symbname: arith_expr,NULL: 1078
+                    20-INNER: symbname: power,NULL: 1086
+                     21-LEAF category: 265, catname: NAME, line: 42, VALUE: loss
+                    20-INNER: symbname: pm_term_rep,NULL: 1079
+                     21-LEAF category: 276, catname: PLUS, line: 42, VALUE: +
+                     21-INNER: symbname: power,NULL: 1086
+                      22-LEAF category: 259, catname: INTLIT, line: 42, VALUE: 1
+               15-INNER: symbname: simple_stmt,NULL: 1003
+                16-INNER: symbname: expr_stmt,NULL: 1043
+                 17-INNER: symbname: power,NULL: 1086
+                  18-LEAF category: 265, catname: NAME, line: 43, VALUE: balrog
+                 17-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                  18-INNER: symbname: power,NULL: 1086
+                   19-INNER: symbname: atom,NULL: 1120
+                    20-LEAF: symbname: listmaker_opt
+              14-INNER: symbname: simple_stmt,NULL: 1003
+               15-INNER: symbname: expr_stmt,NULL: 1043
+                16-INNER: symbname: power,NULL: 1086
+                 17-LEAF category: 265, catname: NAME, line: 44, VALUE: balrog
+                 17-INNER: symbname: trailer_rep,NULL: 1087
+                  18-INNER: symbname: trailer_rep,NULL: 1087
+                   19-INNER: symbname: trailer,NULL: 1088
+                    20-LEAF category: 265, catname: NAME, line: 44, VALUE: append
+                  18-INNER: symbname: trailer,NULL: 1088
+                   19-INNER: symbname: arglist_opt,NULL: 1089
+                    20-INNER: symbname: arglist,NULL: 1090
+                     21-INNER: symbname: argument,NULL: 1095
+                      22-INNER: symbname: power,NULL: 1086
+                       23-LEAF category: 265, catname: NAME, line: 44, VALUE: win
+             13-INNER: symbname: simple_stmt,NULL: 1003
+              14-INNER: symbname: expr_stmt,NULL: 1043
+               15-INNER: symbname: power,NULL: 1086
+                16-LEAF category: 265, catname: NAME, line: 45, VALUE: balrog
+                16-INNER: symbname: trailer_rep,NULL: 1087
+                 17-INNER: symbname: trailer_rep,NULL: 1087
+                  18-INNER: symbname: trailer,NULL: 1088
+                   19-LEAF category: 265, catname: NAME, line: 45, VALUE: append
+                 17-INNER: symbname: trailer,NULL: 1088
+                  18-INNER: symbname: arglist_opt,NULL: 1089
+                   19-INNER: symbname: arglist,NULL: 1090
+                    20-INNER: symbname: argument,NULL: 1095
+                     21-INNER: symbname: power,NULL: 1086
+                      22-LEAF category: 265, catname: NAME, line: 45, VALUE: loss
+            12-INNER: symbname: simple_stmt,NULL: 1003
+             13-INNER: symbname: expr_stmt,NULL: 1043
+              14-INNER: symbname: power,NULL: 1086
+               15-LEAF category: 265, catname: NAME, line: 46, VALUE: balrog
+               15-INNER: symbname: trailer_rep,NULL: 1087
+                16-INNER: symbname: trailer_rep,NULL: 1087
+                 17-INNER: symbname: trailer,NULL: 1088
+                  18-LEAF category: 265, catname: NAME, line: 46, VALUE: append
+                16-INNER: symbname: trailer,NULL: 1088
+                 17-INNER: symbname: arglist_opt,NULL: 1089
+                  18-INNER: symbname: arglist,NULL: 1090
+                   19-INNER: symbname: argument,NULL: 1095
+                    20-INNER: symbname: power,NULL: 1086
+                     21-LEAF category: 265, catname: NAME, line: 46, VALUE: score
+           11-INNER: symbname: simple_stmt,NULL: 1003
+            12-INNER: symbname: return_stmt,NULL: 1014
+             13-LEAF category: 322, catname: RETURN, line: 47, VALUE: return
+             13-INNER: symbname: power,NULL: 1086
+              14-LEAF category: 265, catname: NAME, line: 47, VALUE: balrog
+         9-INNER: symbname: elif_test_colon_suite_rep,NULL: 1037
+          10-INNER: symbname: comparison,NULL: 1114
+           11-INNER: symbname: power,NULL: 1086
+            12-LEAF category: 265, catname: NAME, line: 48, VALUE: lolth
+           11-INNER: symbname: comp_op_expr_rep,NULL: 1115
+            12-LEAF category: 293, catname: EQEQUAL, line: 48, VALUE: ==
+            12-INNER: symbname: power,NULL: 1086
+             13-LEAF category: 265, catname: NAME, line: 48, VALUE: hickman
+             13-INNER: symbname: trailer_rep,NULL: 1087
+              14-INNER: symbname: trailer,NULL: 1088
+               15-INNER: symbname: subscriptlist,NULL: 1101
+                16-INNER: symbname: subscript,NULL: 1103
+                 17-INNER: symbname: power,NULL: 1086
+                  18-LEAF category: 259, catname: INTLIT, line: 48, VALUE: 0
+          10-INNER: symbname: suite,NULL: 1039
+           11-INNER: symbname: stmt_rep,NULL: 1040
+            12-INNER: symbname: stmt_rep,NULL: 1040
+             13-INNER: symbname: stmt_rep,NULL: 1040
+              14-INNER: symbname: stmt_rep,NULL: 1040
+               15-INNER: symbname: stmt_rep,NULL: 1040
+                16-INNER: symbname: stmt_rep,NULL: 1040
+                 17-INNER: symbname: stmt_rep,NULL: 1040
+                  18-INNER: symbname: stmt_rep,NULL: 1040
+                   19-INNER: symbname: simple_stmt,NULL: 1003
+                    20-INNER: symbname: expr_stmt,NULL: 1043
+                     21-INNER: symbname: power,NULL: 1086
+                      22-LEAF category: 265, catname: NAME, line: 49, VALUE: print
+                      22-INNER: symbname: trailer_rep,NULL: 1087
+                       23-INNER: symbname: trailer,NULL: 1088
+                        24-INNER: symbname: arglist_opt,NULL: 1089
+                         25-INNER: symbname: arglist,NULL: 1090
+                          26-INNER: symbname: arg_comma_rep,NULL: 1091
+                           27-INNER: symbname: arg_comma_rep,NULL: 1091
+                            28-INNER: symbname: argument,NULL: 1095
+                             29-INNER: symbname: power,NULL: 1086
+                              30-LEAF category: 260, catname: STRINGLIT, line: 49, VALUE: "You win!!"
+                           27-INNER: symbname: argument,NULL: 1095
+                            28-INNER: symbname: power,NULL: 1086
+                             29-LEAF category: 265, catname: NAME, line: 49, VALUE: hickman
+                             29-INNER: symbname: trailer_rep,NULL: 1087
+                              30-INNER: symbname: trailer,NULL: 1088
+                               31-INNER: symbname: subscriptlist,NULL: 1101
+                                32-INNER: symbname: subscript,NULL: 1103
+                                 33-INNER: symbname: power,NULL: 1086
+                                  34-LEAF category: 259, catname: INTLIT, line: 49, VALUE: 0
+                          26-INNER: symbname: argument,NULL: 1095
+                           27-INNER: symbname: power,NULL: 1086
+                            28-LEAF category: 260, catname: STRINGLIT, line: 49, VALUE: "You win!!"
+                   19-INNER: symbname: simple_stmt,NULL: 1003
+                    20-INNER: symbname: expr_stmt,NULL: 1043
+                     21-INNER: symbname: power,NULL: 1086
+                      22-LEAF category: 265, catname: NAME, line: 50, VALUE: win
+                     21-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                      22-INNER: symbname: arith_expr,NULL: 1078
+                       23-INNER: symbname: power,NULL: 1086
+                        24-LEAF category: 265, catname: NAME, line: 50, VALUE: win
+                       23-INNER: symbname: pm_term_rep,NULL: 1079
+                        24-LEAF category: 276, catname: PLUS, line: 50, VALUE: +
+                        24-INNER: symbname: power,NULL: 1086
+                         25-LEAF category: 259, catname: INTLIT, line: 50, VALUE: 1
+                  18-INNER: symbname: simple_stmt,NULL: 1003
+                   19-INNER: symbname: expr_stmt,NULL: 1043
+                    20-INNER: symbname: power,NULL: 1086
+                     21-LEAF category: 265, catname: NAME, line: 51, VALUE: balrog
+                    20-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                     21-INNER: symbname: power,NULL: 1086
+                      22-INNER: symbname: atom,NULL: 1120
+                       23-LEAF: symbname: listmaker_opt
+                 17-INNER: symbname: simple_stmt,NULL: 1003
+                  18-INNER: symbname: expr_stmt,NULL: 1043
+                   19-INNER: symbname: power,NULL: 1086
+                    20-LEAF category: 265, catname: NAME, line: 52, VALUE: balrog
+                    20-INNER: symbname: trailer_rep,NULL: 1087
+                     21-INNER: symbname: trailer_rep,NULL: 1087
+                      22-INNER: symbname: trailer,NULL: 1088
+                       23-LEAF category: 265, catname: NAME, line: 52, VALUE: append
+                     21-INNER: symbname: trailer,NULL: 1088
+                      22-INNER: symbname: arglist_opt,NULL: 1089
+                       23-INNER: symbname: arglist,NULL: 1090
+                        24-INNER: symbname: argument,NULL: 1095
+                         25-INNER: symbname: power,NULL: 1086
+                          26-LEAF category: 265, catname: NAME, line: 52, VALUE: win
+                16-INNER: symbname: simple_stmt,NULL: 1003
+                 17-INNER: symbname: expr_stmt,NULL: 1043
+                  18-INNER: symbname: power,NULL: 1086
+                   19-LEAF category: 265, catname: NAME, line: 53, VALUE: balrog
+                   19-INNER: symbname: trailer_rep,NULL: 1087
+                    20-INNER: symbname: trailer_rep,NULL: 1087
+                     21-INNER: symbname: trailer,NULL: 1088
+                      22-LEAF category: 265, catname: NAME, line: 53, VALUE: append
+                    20-INNER: symbname: trailer,NULL: 1088
+                     21-INNER: symbname: arglist_opt,NULL: 1089
+                      22-INNER: symbname: arglist,NULL: 1090
+                       23-INNER: symbname: argument,NULL: 1095
+                        24-INNER: symbname: power,NULL: 1086
+                         25-LEAF category: 265, catname: NAME, line: 53, VALUE: loss
+               15-INNER: symbname: simple_stmt,NULL: 1003
+                16-INNER: symbname: expr_stmt,NULL: 1043
+                 17-INNER: symbname: power,NULL: 1086
+                  18-LEAF category: 265, catname: NAME, line: 54, VALUE: balrog
+                  18-INNER: symbname: trailer_rep,NULL: 1087
+                   19-INNER: symbname: trailer_rep,NULL: 1087
+                    20-INNER: symbname: trailer,NULL: 1088
+                     21-LEAF category: 265, catname: NAME, line: 54, VALUE: append
+                   19-INNER: symbname: trailer,NULL: 1088
+                    20-INNER: symbname: arglist_opt,NULL: 1089
+                     21-INNER: symbname: arglist,NULL: 1090
+                      22-INNER: symbname: argument,NULL: 1095
+                       23-INNER: symbname: power,NULL: 1086
+                        24-LEAF category: 265, catname: NAME, line: 54, VALUE: score
+              14-INNER: symbname: simple_stmt,NULL: 1003
+               15-INNER: symbname: expr_stmt,NULL: 1043
+                16-INNER: symbname: power,NULL: 1086
+                 17-LEAF category: 265, catname: NAME, line: 55, VALUE: print
+                 17-INNER: symbname: trailer_rep,NULL: 1087
+                  18-INNER: symbname: trailer,NULL: 1088
+                   19-INNER: symbname: arglist_opt,NULL: 1089
+                    20-INNER: symbname: arglist,NULL: 1090
+                     21-INNER: symbname: argument,NULL: 1095
+                      22-INNER: symbname: power,NULL: 1086
+                       23-LEAF category: 265, catname: NAME, line: 55, VALUE: balrog
+             13-INNER: symbname: simple_stmt,NULL: 1003
+              14-INNER: symbname: return_stmt,NULL: 1014
+               15-LEAF category: 322, catname: RETURN, line: 56, VALUE: return
+               15-INNER: symbname: power,NULL: 1086
+                16-LEAF category: 265, catname: NAME, line: 56, VALUE: balrog
+            12-INNER: symbname: simple_stmt,NULL: 1003
+             13-INNER: symbname: expr_stmt,NULL: 1043
+              14-INNER: symbname: power,NULL: 1086
+               15-LEAF category: 260, catname: STRINGLIT, line: 64, VALUE: """catoblepas = input("Do you want to START a new game, or EXIT??")
+        if catoblepas =! "start" and catoblepas =! "START" and catoblepas =! "exit" and catoblepas =! "EXIT":
+            print("Error. Invald command.")
+            catoblepas = input("Do you want to START a new game or EXIT?")
+        if catoblepas == "start" or catoblepas == "START":
+            main()
+        elif catoblepas == "exit" or catoblepas == "EXIT":
+            print("Thank you for playing hangman!")"""
+         9-INNER: symbname: else_colon_suite_opt,NULL: 1038
+          10-INNER: symbname: suite,NULL: 1039
+           11-INNER: symbname: stmt_rep,NULL: 1040
+            12-INNER: symbname: stmt_rep,NULL: 1040
+             13-INNER: symbname: stmt_rep,NULL: 1040
+              14-INNER: symbname: stmt_rep,NULL: 1040
+               15-INNER: symbname: stmt_rep,NULL: 1040
+                16-INNER: symbname: stmt_rep,NULL: 1040
+                 17-INNER: symbname: stmt_rep,NULL: 1040
+                  18-INNER: symbname: stmt_rep,NULL: 1040
+                   19-INNER: symbname: simple_stmt,NULL: 1003
+                    20-INNER: symbname: expr_stmt,NULL: 1043
+                     21-INNER: symbname: power,NULL: 1086
+                      22-LEAF category: 265, catname: NAME, line: 66, VALUE: print
+                      22-INNER: symbname: trailer_rep,NULL: 1087
+                       23-INNER: symbname: trailer,NULL: 1088
+                        24-INNER: symbname: arglist_opt,NULL: 1089
+                         25-INNER: symbname: arglist,NULL: 1090
+                          26-INNER: symbname: arg_comma_rep,NULL: 1091
+                           27-INNER: symbname: arg_comma_rep,NULL: 1091
+                            28-INNER: symbname: argument,NULL: 1095
+                             29-INNER: symbname: power,NULL: 1086
+                              30-LEAF category: 265, catname: NAME, line: 66, VALUE: lolth
+                           27-INNER: symbname: argument,NULL: 1095
+                            28-INNER: symbname: power,NULL: 1086
+                             29-LEAF category: 260, catname: STRINGLIT, line: 66, VALUE: "lives left:"
+                          26-INNER: symbname: argument,NULL: 1095
+                           27-INNER: symbname: power,NULL: 1086
+                            28-LEAF category: 265, catname: NAME, line: 66, VALUE: tharizdun
+                   19-INNER: symbname: simple_stmt,NULL: 1003
+                    20-INNER: symbname: expr_stmt,NULL: 1043
+                     21-INNER: symbname: power,NULL: 1086
+                      22-LEAF category: 265, catname: NAME, line: 67, VALUE: print
+                      22-INNER: symbname: trailer_rep,NULL: 1087
+                       23-INNER: symbname: trailer,NULL: 1088
+                        24-INNER: symbname: arglist_opt,NULL: 1089
+                         25-INNER: symbname: arglist,NULL: 1090
+                          26-INNER: symbname: arg_comma_rep,NULL: 1091
+                           27-INNER: symbname: argument,NULL: 1095
+                            28-INNER: symbname: power,NULL: 1086
+                             29-LEAF category: 260, catname: STRINGLIT, line: 67, VALUE: "score"
+                          26-INNER: symbname: argument,NULL: 1095
+                           27-INNER: symbname: power,NULL: 1086
+                            28-LEAF category: 265, catname: NAME, line: 67, VALUE: score
+                  18-INNER: symbname: simple_stmt,NULL: 1003
+                   19-INNER: symbname: expr_stmt,NULL: 1043
+                    20-INNER: symbname: power,NULL: 1086
+                     21-LEAF category: 265, catname: NAME, line: 68, VALUE: beholder
+                    20-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                     21-INNER: symbname: power,NULL: 1086
+                      22-LEAF category: 265, catname: NAME, line: 68, VALUE: input
+                      22-INNER: symbname: trailer_rep,NULL: 1087
+                       23-INNER: symbname: trailer,NULL: 1088
+                        24-INNER: symbname: arglist_opt,NULL: 1089
+                         25-INNER: symbname: arglist,NULL: 1090
+                          26-INNER: symbname: argument,NULL: 1095
+                           27-INNER: symbname: power,NULL: 1086
+                            28-LEAF category: 260, catname: STRINGLIT, line: 68, VALUE: "guess a letter"
+                 17-INNER: symbname: simple_stmt,NULL: 1003
+                  18-INNER: symbname: expr_stmt,NULL: 1043
+                   19-INNER: symbname: power,NULL: 1086
+                    20-LEAF category: 265, catname: NAME, line: 69, VALUE: y
+                   19-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                    20-INNER: symbname: power,NULL: 1086
+                     21-LEAF category: 259, catname: INTLIT, line: 69, VALUE: 0
+                16-INNER: symbname: simple_stmt,NULL: 1003
+                 17-INNER: symbname: expr_stmt,NULL: 1043
+                  18-INNER: symbname: power,NULL: 1086
+                   19-LEAF category: 265, catname: NAME, line: 70, VALUE: demagorgon
+                  18-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                   19-INNER: symbname: power,NULL: 1086
+                    20-LEAF category: 259, catname: INTLIT, line: 70, VALUE: 0
+               15-INNER: symbname: while_stmt,NULL: 1041
+                16-INNER: symbname: comparison,NULL: 1114
+                 17-INNER: symbname: power,NULL: 1086
+                  18-LEAF category: 265, catname: NAME, line: 71, VALUE: y
+                 17-INNER: symbname: comp_op_expr_rep,NULL: 1115
+                  18-LEAF category: 290, catname: LESS, line: 71, VALUE: <
+                  18-INNER: symbname: power,NULL: 1086
+                   19-LEAF category: 265, catname: NAME, line: 71, VALUE: len
+                   19-INNER: symbname: trailer_rep,NULL: 1087
+                    20-INNER: symbname: trailer,NULL: 1088
+                     21-INNER: symbname: arglist_opt,NULL: 1089
+                      22-INNER: symbname: arglist,NULL: 1090
+                       23-INNER: symbname: argument,NULL: 1095
+                        24-INNER: symbname: power,NULL: 1086
+                         25-LEAF category: 265, catname: NAME, line: 71, VALUE: strahd
+                16-INNER: symbname: suite,NULL: 1039
+                 17-INNER: symbname: if_stmt,NULL: 1036
+                  18-INNER: symbname: comparison,NULL: 1114
+                   19-INNER: symbname: power,NULL: 1086
+                    20-LEAF category: 265, catname: NAME, line: 72, VALUE: strahd
+                    20-INNER: symbname: trailer_rep,NULL: 1087
+                     21-INNER: symbname: trailer,NULL: 1088
+                      22-INNER: symbname: subscriptlist,NULL: 1101
+                       23-INNER: symbname: subscript,NULL: 1103
+                        24-INNER: symbname: power,NULL: 1086
+                         25-LEAF category: 265, catname: NAME, line: 72, VALUE: y
+                   19-INNER: symbname: comp_op_expr_rep,NULL: 1115
+                    20-LEAF category: 293, catname: EQEQUAL, line: 72, VALUE: ==
+                    20-INNER: symbname: power,NULL: 1086
+                     21-LEAF category: 265, catname: NAME, line: 72, VALUE: beholder
+                  18-INNER: symbname: suite,NULL: 1039
+                   19-INNER: symbname: stmt_rep,NULL: 1040
+                    20-INNER: symbname: stmt_rep,NULL: 1040
+                     21-INNER: symbname: stmt_rep,NULL: 1040
+                      22-INNER: symbname: stmt_rep,NULL: 1040
+                       23-INNER: symbname: stmt_rep,NULL: 1040
+                        24-INNER: symbname: stmt_rep,NULL: 1040
+                         25-INNER: symbname: stmt_rep,NULL: 1040
+                          26-INNER: symbname: stmt_rep,NULL: 1040
+                           27-INNER: symbname: stmt_rep,NULL: 1040
+                            28-INNER: symbname: stmt_rep,NULL: 1040
+                             29-INNER: symbname: simple_stmt,NULL: 1003
+                              30-INNER: symbname: expr_stmt,NULL: 1043
+                               31-INNER: symbname: power,NULL: 1086
+                                32-LEAF category: 265, catname: NAME, line: 73, VALUE: demagorgon
+                               31-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                                32-INNER: symbname: power,NULL: 1086
+                                 33-LEAF category: 259, catname: INTLIT, line: 73, VALUE: 1
+                             29-INNER: symbname: simple_stmt,NULL: 1003
+                              30-INNER: symbname: expr_stmt,NULL: 1043
+                               31-INNER: symbname: power,NULL: 1086
+                                32-LEAF category: 265, catname: NAME, line: 74, VALUE: x
+                               31-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                                32-INNER: symbname: power,NULL: 1086
+                                 33-LEAF category: 259, catname: INTLIT, line: 74, VALUE: 0
+                            28-INNER: symbname: simple_stmt,NULL: 1003
+                             29-INNER: symbname: expr_stmt,NULL: 1043
+                              30-INNER: symbname: power,NULL: 1086
+                               31-LEAF category: 265, catname: NAME, line: 75, VALUE: lich
+                              30-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                               31-INNER: symbname: power,NULL: 1086
+                                32-LEAF category: 260, catname: STRINGLIT, line: 75, VALUE: ""
+                           27-INNER: symbname: while_stmt,NULL: 1041
+                            28-INNER: symbname: comparison,NULL: 1114
+                             29-INNER: symbname: power,NULL: 1086
+                              30-LEAF category: 265, catname: NAME, line: 76, VALUE: x
+                             29-INNER: symbname: comp_op_expr_rep,NULL: 1115
+                              30-LEAF category: 290, catname: LESS, line: 76, VALUE: <
+                              30-INNER: symbname: power,NULL: 1086
+                               31-LEAF category: 265, catname: NAME, line: 76, VALUE: len
+                               31-INNER: symbname: trailer_rep,NULL: 1087
+                                32-INNER: symbname: trailer,NULL: 1088
+                                 33-INNER: symbname: arglist_opt,NULL: 1089
+                                  34-INNER: symbname: arglist,NULL: 1090
+                                   35-INNER: symbname: argument,NULL: 1095
+                                    36-INNER: symbname: power,NULL: 1086
+                                     37-LEAF category: 265, catname: NAME, line: 76, VALUE: strahd
+                            28-INNER: symbname: suite,NULL: 1039
+                             29-INNER: symbname: if_stmt,NULL: 1036
+                              30-INNER: symbname: comparison,NULL: 1114
+                               31-INNER: symbname: power,NULL: 1086
+                                32-LEAF category: 265, catname: NAME, line: 77, VALUE: x
+                               31-INNER: symbname: comp_op_expr_rep,NULL: 1115
+                                32-LEAF category: 293, catname: EQEQUAL, line: 77, VALUE: ==
+                                32-INNER: symbname: power,NULL: 1086
+                                 33-LEAF category: 265, catname: NAME, line: 77, VALUE: y
+                              30-INNER: symbname: suite,NULL: 1039
+                               31-INNER: symbname: stmt_rep,NULL: 1040
+                                32-INNER: symbname: simple_stmt,NULL: 1003
+                                 33-INNER: symbname: expr_stmt,NULL: 1043
+                                  34-INNER: symbname: power,NULL: 1086
+                                   35-LEAF category: 265, catname: NAME, line: 78, VALUE: lich
+                                  34-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                                   35-INNER: symbname: arith_expr,NULL: 1078
+                                    36-INNER: symbname: power,NULL: 1086
+                                     37-LEAF category: 265, catname: NAME, line: 78, VALUE: lich
+                                    36-INNER: symbname: pm_term_rep,NULL: 1079
+                                     37-LEAF category: 276, catname: PLUS, line: 78, VALUE: +
+                                     37-INNER: symbname: power,NULL: 1086
+                                      38-LEAF category: 265, catname: NAME, line: 78, VALUE: strahd
+                                      38-INNER: symbname: trailer_rep,NULL: 1087
+                                       39-INNER: symbname: trailer,NULL: 1088
+                                        40-INNER: symbname: subscriptlist,NULL: 1101
+                                         41-INNER: symbname: subscript,NULL: 1103
+                                          42-INNER: symbname: power,NULL: 1086
+                                           43-LEAF category: 265, catname: NAME, line: 78, VALUE: y
+                                32-INNER: symbname: simple_stmt,NULL: 1003
+                                 33-INNER: symbname: expr_stmt,NULL: 1043
+                                  34-INNER: symbname: power,NULL: 1086
+                                   35-LEAF category: 265, catname: NAME, line: 79, VALUE: x
+                                  34-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                                   35-INNER: symbname: arith_expr,NULL: 1078
+                                    36-INNER: symbname: power,NULL: 1086
+                                     37-LEAF category: 265, catname: NAME, line: 79, VALUE: x
+                                    36-INNER: symbname: pm_term_rep,NULL: 1079
+                                     37-LEAF category: 276, catname: PLUS, line: 79, VALUE: +
+                                     37-INNER: symbname: power,NULL: 1086
+                                      38-LEAF category: 259, catname: INTLIT, line: 79, VALUE: 1
+                              30-INNER: symbname: else_colon_suite_opt,NULL: 1038
+                               31-INNER: symbname: suite,NULL: 1039
+                                32-INNER: symbname: stmt_rep,NULL: 1040
+                                 33-INNER: symbname: simple_stmt,NULL: 1003
+                                  34-INNER: symbname: expr_stmt,NULL: 1043
+                                   35-INNER: symbname: power,NULL: 1086
+                                    36-LEAF category: 265, catname: NAME, line: 81, VALUE: lich
+                                   35-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                                    36-INNER: symbname: arith_expr,NULL: 1078
+                                     37-INNER: symbname: power,NULL: 1086
+                                      38-LEAF category: 265, catname: NAME, line: 81, VALUE: lich
+                                     37-INNER: symbname: pm_term_rep,NULL: 1079
+                                      38-LEAF category: 276, catname: PLUS, line: 81, VALUE: +
+                                      38-INNER: symbname: power,NULL: 1086
+                                       39-LEAF category: 260, catname: STRINGLIT, line: 81, VALUE: "*"
+                                 33-INNER: symbname: simple_stmt,NULL: 1003
+                                  34-INNER: symbname: expr_stmt,NULL: 1043
+                                   35-INNER: symbname: power,NULL: 1086
+                                    36-LEAF category: 265, catname: NAME, line: 82, VALUE: x
+                                   35-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                                    36-INNER: symbname: arith_expr,NULL: 1078
+                                     37-INNER: symbname: power,NULL: 1086
+                                      38-LEAF category: 265, catname: NAME, line: 82, VALUE: x
+                                     37-INNER: symbname: pm_term_rep,NULL: 1079
+                                      38-LEAF category: 276, catname: PLUS, line: 82, VALUE: +
+                                      38-INNER: symbname: power,NULL: 1086
+                                       39-LEAF category: 259, catname: INTLIT, line: 82, VALUE: 1
+                          26-INNER: symbname: simple_stmt,NULL: 1003
+                           27-INNER: symbname: expr_stmt,NULL: 1043
+                            28-INNER: symbname: power,NULL: 1086
+                             29-LEAF category: 265, catname: NAME, line: 83, VALUE: w
+                            28-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                             29-INNER: symbname: power,NULL: 1086
+                              30-LEAF category: 259, catname: INTLIT, line: 83, VALUE: 0
+                         25-INNER: symbname: simple_stmt,NULL: 1003
+                          26-INNER: symbname: expr_stmt,NULL: 1043
+                           27-INNER: symbname: power,NULL: 1086
+                            28-LEAF category: 265, catname: NAME, line: 84, VALUE: dungeon
+                           27-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                            28-INNER: symbname: power,NULL: 1086
+                             29-LEAF category: 265, catname: NAME, line: 84, VALUE: list
+                             29-INNER: symbname: trailer_rep,NULL: 1087
+                              30-INNER: symbname: trailer,NULL: 1088
+                               31-INNER: symbname: arglist_opt,NULL: 1089
+                                32-INNER: symbname: arglist,NULL: 1090
+                                 33-INNER: symbname: argument,NULL: 1095
+                                  34-INNER: symbname: power,NULL: 1086
+                                   35-LEAF category: 265, catname: NAME, line: 84, VALUE: lolth
+                        24-INNER: symbname: simple_stmt,NULL: 1003
+                         25-INNER: symbname: expr_stmt,NULL: 1043
+                          26-INNER: symbname: power,NULL: 1086
+                           27-LEAF category: 265, catname: NAME, line: 85, VALUE: dragon
+                          26-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                           27-INNER: symbname: power,NULL: 1086
+                            28-LEAF category: 265, catname: NAME, line: 85, VALUE: list
+                            28-INNER: symbname: trailer_rep,NULL: 1087
+                             29-INNER: symbname: trailer,NULL: 1088
+                              30-INNER: symbname: arglist_opt,NULL: 1089
+                               31-INNER: symbname: arglist,NULL: 1090
+                                32-INNER: symbname: argument,NULL: 1095
+                                 33-INNER: symbname: power,NULL: 1086
+                                  34-LEAF category: 265, catname: NAME, line: 85, VALUE: lich
+                       23-INNER: symbname: simple_stmt,NULL: 1003
+                        24-INNER: symbname: expr_stmt,NULL: 1043
+                         25-INNER: symbname: power,NULL: 1086
+                          26-LEAF category: 265, catname: NAME, line: 86, VALUE: acerak
+                         25-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                          26-INNER: symbname: power,NULL: 1086
+                           27-LEAF category: 260, catname: STRINGLIT, line: 86, VALUE: ""
+                      22-INNER: symbname: while_stmt,NULL: 1041
+                       23-INNER: symbname: comparison,NULL: 1114
+                        24-INNER: symbname: power,NULL: 1086
+                         25-LEAF category: 265, catname: NAME, line: 87, VALUE: w
+                        24-INNER: symbname: comp_op_expr_rep,NULL: 1115
+                         25-LEAF category: 290, catname: LESS, line: 87, VALUE: <
+                         25-INNER: symbname: power,NULL: 1086
+                          26-LEAF category: 265, catname: NAME, line: 87, VALUE: len
+                          26-INNER: symbname: trailer_rep,NULL: 1087
+                           27-INNER: symbname: trailer,NULL: 1088
+                            28-INNER: symbname: arglist_opt,NULL: 1089
+                             29-INNER: symbname: arglist,NULL: 1090
+                              30-INNER: symbname: argument,NULL: 1095
+                               31-INNER: symbname: power,NULL: 1086
+                                32-LEAF category: 265, catname: NAME, line: 87, VALUE: strahd
+                       23-INNER: symbname: suite,NULL: 1039
+                        24-INNER: symbname: stmt_rep,NULL: 1040
+                         25-INNER: symbname: if_stmt,NULL: 1036
+                          26-INNER: symbname: comparison,NULL: 1114
+                           27-INNER: symbname: power,NULL: 1086
+                            28-LEAF category: 265, catname: NAME, line: 88, VALUE: dungeon
+                            28-INNER: symbname: trailer_rep,NULL: 1087
+                             29-INNER: symbname: trailer,NULL: 1088
+                              30-INNER: symbname: subscriptlist,NULL: 1101
+                               31-INNER: symbname: subscript,NULL: 1103
+                                32-INNER: symbname: power,NULL: 1086
+                                 33-LEAF category: 265, catname: NAME, line: 88, VALUE: w
+                           27-INNER: symbname: comp_op_expr_rep,NULL: 1115
+                            28-LEAF category: 293, catname: EQEQUAL, line: 88, VALUE: ==
+                            28-INNER: symbname: power,NULL: 1086
+                             29-LEAF category: 265, catname: NAME, line: 88, VALUE: dragon
+                             29-INNER: symbname: trailer_rep,NULL: 1087
+                              30-INNER: symbname: trailer,NULL: 1088
+                               31-INNER: symbname: subscriptlist,NULL: 1101
+                                32-INNER: symbname: subscript,NULL: 1103
+                                 33-INNER: symbname: power,NULL: 1086
+                                  34-LEAF category: 265, catname: NAME, line: 88, VALUE: w
+                          26-INNER: symbname: suite,NULL: 1039
+                           27-INNER: symbname: stmt_rep,NULL: 1040
+                            28-INNER: symbname: simple_stmt,NULL: 1003
+                             29-INNER: symbname: expr_stmt,NULL: 1043
+                              30-INNER: symbname: power,NULL: 1086
+                               31-LEAF category: 265, catname: NAME, line: 89, VALUE: acerak
+                              30-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                               31-INNER: symbname: arith_expr,NULL: 1078
+                                32-INNER: symbname: power,NULL: 1086
+                                 33-LEAF category: 265, catname: NAME, line: 89, VALUE: acerak
+                                32-INNER: symbname: pm_term_rep,NULL: 1079
+                                 33-LEAF category: 276, catname: PLUS, line: 89, VALUE: +
+                                 33-INNER: symbname: power,NULL: 1086
+                                  34-LEAF category: 265, catname: NAME, line: 89, VALUE: dungeon
+                                  34-INNER: symbname: trailer_rep,NULL: 1087
+                                   35-INNER: symbname: trailer,NULL: 1088
+                                    36-INNER: symbname: subscriptlist,NULL: 1101
+                                     37-INNER: symbname: subscript,NULL: 1103
+                                      38-INNER: symbname: power,NULL: 1086
+                                       39-LEAF category: 265, catname: NAME, line: 89, VALUE: w
+                            28-INNER: symbname: simple_stmt,NULL: 1003
+                             29-INNER: symbname: expr_stmt,NULL: 1043
+                              30-INNER: symbname: power,NULL: 1086
+                               31-LEAF category: 265, catname: NAME, line: 90, VALUE: w
+                              30-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                               31-INNER: symbname: arith_expr,NULL: 1078
+                                32-INNER: symbname: power,NULL: 1086
+                                 33-LEAF category: 265, catname: NAME, line: 90, VALUE: w
+                                32-INNER: symbname: pm_term_rep,NULL: 1079
+                                 33-LEAF category: 276, catname: PLUS, line: 90, VALUE: +
+                                 33-INNER: symbname: power,NULL: 1086
+                                  34-LEAF category: 259, catname: INTLIT, line: 90, VALUE: 1
+                          26-INNER: symbname: else_colon_suite_opt,NULL: 1038
+                           27-INNER: symbname: suite,NULL: 1039
+                            28-INNER: symbname: stmt_rep,NULL: 1040
+                             29-INNER: symbname: if_stmt,NULL: 1036
+                              30-INNER: symbname: comparison,NULL: 1114
+                               31-INNER: symbname: power,NULL: 1086
+                                32-LEAF category: 265, catname: NAME, line: 92, VALUE: dungeon
+                                32-INNER: symbname: trailer_rep,NULL: 1087
+                                 33-INNER: symbname: trailer,NULL: 1088
+                                  34-INNER: symbname: subscriptlist,NULL: 1101
+                                   35-INNER: symbname: subscript,NULL: 1103
+                                    36-INNER: symbname: power,NULL: 1086
+                                     37-LEAF category: 265, catname: NAME, line: 92, VALUE: w
+                               31-INNER: symbname: comp_op_expr_rep,NULL: 1115
+                                32-LEAF category: 293, catname: EQEQUAL, line: 92, VALUE: ==
+                                32-INNER: symbname: power,NULL: 1086
+                                 33-LEAF category: 260, catname: STRINGLIT, line: 92, VALUE: "*"
+                              30-INNER: symbname: suite,NULL: 1039
+                               31-INNER: symbname: simple_stmt,NULL: 1003
+                                32-INNER: symbname: expr_stmt,NULL: 1043
+                                 33-INNER: symbname: power,NULL: 1086
+                                  34-LEAF category: 265, catname: NAME, line: 93, VALUE: acerak
+                                 33-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                                  34-INNER: symbname: arith_expr,NULL: 1078
+                                   35-INNER: symbname: power,NULL: 1086
+                                    36-LEAF category: 265, catname: NAME, line: 93, VALUE: acerak
+                                   35-INNER: symbname: pm_term_rep,NULL: 1079
+                                    36-LEAF category: 276, catname: PLUS, line: 93, VALUE: +
+                                    36-INNER: symbname: power,NULL: 1086
+                                     37-LEAF category: 265, catname: NAME, line: 93, VALUE: dragon
+                                     37-INNER: symbname: trailer_rep,NULL: 1087
+                                      38-INNER: symbname: trailer,NULL: 1088
+                                       39-INNER: symbname: subscriptlist,NULL: 1101
+                                        40-INNER: symbname: subscript,NULL: 1103
+                                         41-INNER: symbname: power,NULL: 1086
+                                          42-LEAF category: 265, catname: NAME, line: 93, VALUE: w
+                              30-INNER: symbname: else_colon_suite_opt,NULL: 1038
+                               31-INNER: symbname: suite,NULL: 1039
+                                32-INNER: symbname: simple_stmt,NULL: 1003
+                                 33-INNER: symbname: expr_stmt,NULL: 1043
+                                  34-INNER: symbname: power,NULL: 1086
+                                   35-LEAF category: 265, catname: NAME, line: 95, VALUE: acerak
+                                  34-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                                   35-INNER: symbname: arith_expr,NULL: 1078
+                                    36-INNER: symbname: power,NULL: 1086
+                                     37-LEAF category: 265, catname: NAME, line: 95, VALUE: acerak
+                                    36-INNER: symbname: pm_term_rep,NULL: 1079
+                                     37-LEAF category: 276, catname: PLUS, line: 95, VALUE: +
+                                     37-INNER: symbname: power,NULL: 1086
+                                      38-LEAF category: 265, catname: NAME, line: 95, VALUE: dungeon
+                                      38-INNER: symbname: trailer_rep,NULL: 1087
+                                       39-INNER: symbname: trailer,NULL: 1088
+                                        40-INNER: symbname: subscriptlist,NULL: 1101
+                                         41-INNER: symbname: subscript,NULL: 1103
+                                          42-INNER: symbname: power,NULL: 1086
+                                           43-LEAF category: 265, catname: NAME, line: 95, VALUE: w
+                             29-INNER: symbname: simple_stmt,NULL: 1003
+                              30-INNER: symbname: expr_stmt,NULL: 1043
+                               31-INNER: symbname: power,NULL: 1086
+                                32-LEAF category: 265, catname: NAME, line: 96, VALUE: w
+                               31-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                                32-INNER: symbname: arith_expr,NULL: 1078
+                                 33-INNER: symbname: power,NULL: 1086
+                                  34-LEAF category: 265, catname: NAME, line: 96, VALUE: w
+                                 33-INNER: symbname: pm_term_rep,NULL: 1079
+                                  34-LEAF category: 276, catname: PLUS, line: 96, VALUE: +
+                                  34-INNER: symbname: power,NULL: 1086
+                                   35-LEAF category: 259, catname: INTLIT, line: 96, VALUE: 1
+                         25-INNER: symbname: simple_stmt,NULL: 1003
+                          26-INNER: symbname: expr_stmt,NULL: 1043
+                           27-INNER: symbname: power,NULL: 1086
+                            28-LEAF category: 265, catname: NAME, line: 97, VALUE: lolth
+                           27-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                            28-INNER: symbname: power,NULL: 1086
+                             29-LEAF category: 265, catname: NAME, line: 97, VALUE: acerak
+                     21-INNER: symbname: simple_stmt,NULL: 1003
+                      22-INNER: symbname: expr_stmt,NULL: 1043
+                       23-INNER: symbname: power,NULL: 1086
+                        24-LEAF category: 265, catname: NAME, line: 98, VALUE: score
+                       23-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                        24-INNER: symbname: arith_expr,NULL: 1078
+                         25-INNER: symbname: power,NULL: 1086
+                          26-LEAF category: 265, catname: NAME, line: 98, VALUE: score
+                         25-INNER: symbname: pm_term_rep,NULL: 1079
+                          26-LEAF category: 276, catname: PLUS, line: 98, VALUE: +
+                          26-INNER: symbname: power,NULL: 1086
+                           27-LEAF category: 259, catname: INTLIT, line: 98, VALUE: 2
+                    20-INNER: symbname: simple_stmt,NULL: 1003
+                     21-INNER: symbname: expr_stmt,NULL: 1043
+                      22-INNER: symbname: power,NULL: 1086
+                       23-LEAF category: 265, catname: NAME, line: 99, VALUE: y
+                      22-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                       23-INNER: symbname: arith_expr,NULL: 1078
+                        24-INNER: symbname: power,NULL: 1086
+                         25-LEAF category: 265, catname: NAME, line: 99, VALUE: y
+                        24-INNER: symbname: pm_term_rep,NULL: 1079
+                         25-LEAF category: 276, catname: PLUS, line: 99, VALUE: +
+                         25-INNER: symbname: power,NULL: 1086
+                          26-LEAF category: 259, catname: INTLIT, line: 99, VALUE: 1
+                  18-INNER: symbname: else_colon_suite_opt,NULL: 1038
+                   19-INNER: symbname: suite,NULL: 1039
+                    20-INNER: symbname: simple_stmt,NULL: 1003
+                     21-INNER: symbname: expr_stmt,NULL: 1043
+                      22-INNER: symbname: power,NULL: 1086
+                       23-LEAF category: 265, catname: NAME, line: 101, VALUE: y
+                      22-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                       23-INNER: symbname: arith_expr,NULL: 1078
+                        24-INNER: symbname: power,NULL: 1086
+                         25-LEAF category: 265, catname: NAME, line: 101, VALUE: y
+                        24-INNER: symbname: pm_term_rep,NULL: 1079
+                         25-LEAF category: 276, catname: PLUS, line: 101, VALUE: +
+                         25-INNER: symbname: power,NULL: 1086
+                          26-LEAF category: 259, catname: INTLIT, line: 101, VALUE: 1
+              14-INNER: symbname: if_stmt,NULL: 1036
+               15-INNER: symbname: comparison,NULL: 1114
+                16-INNER: symbname: power,NULL: 1086
+                 17-LEAF category: 265, catname: NAME, line: 102, VALUE: demagorgon
+                16-INNER: symbname: comp_op_expr_rep,NULL: 1115
+                 17-LEAF category: 293, catname: EQEQUAL, line: 102, VALUE: ==
+                 17-INNER: symbname: power,NULL: 1086
+                  18-LEAF category: 259, catname: INTLIT, line: 102, VALUE: 0
+               15-INNER: symbname: suite,NULL: 1039
+                16-INNER: symbname: stmt_rep,NULL: 1040
+                 17-INNER: symbname: stmt_rep,NULL: 1040
+                  18-INNER: symbname: simple_stmt,NULL: 1003
+                   19-INNER: symbname: expr_stmt,NULL: 1043
+                    20-INNER: symbname: power,NULL: 1086
+                     21-LEAF category: 265, catname: NAME, line: 103, VALUE: score
+                    20-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                     21-INNER: symbname: arith_expr,NULL: 1078
+                      22-INNER: symbname: power,NULL: 1086
+                       23-LEAF category: 265, catname: NAME, line: 103, VALUE: score
+                      22-INNER: symbname: pm_term_rep,NULL: 1079
+                       23-LEAF category: 277, catname: MINUS, line: 103, VALUE: -
+                       23-INNER: symbname: power,NULL: 1086
+                        24-LEAF category: 259, catname: INTLIT, line: 103, VALUE: 2
+                  18-INNER: symbname: simple_stmt,NULL: 1003
+                   19-INNER: symbname: expr_stmt,NULL: 1043
+                    20-INNER: symbname: power,NULL: 1086
+                     21-LEAF category: 265, catname: NAME, line: 104, VALUE: tharizdun
+                    20-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                     21-INNER: symbname: arith_expr,NULL: 1078
+                      22-INNER: symbname: power,NULL: 1086
+                       23-LEAF category: 265, catname: NAME, line: 104, VALUE: tharizdun
+                      22-INNER: symbname: pm_term_rep,NULL: 1079
+                       23-LEAF category: 277, catname: MINUS, line: 104, VALUE: -
+                       23-INNER: symbname: power,NULL: 1086
+                        24-LEAF category: 259, catname: INTLIT, line: 104, VALUE: 1
+                 17-INNER: symbname: simple_stmt,NULL: 1003
+                  18-INNER: symbname: expr_stmt,NULL: 1043
+                   19-INNER: symbname: power,NULL: 1086
+                    20-LEAF category: 265, catname: NAME, line: 105, VALUE: print
+                    20-INNER: symbname: trailer_rep,NULL: 1087
+                     21-INNER: symbname: trailer,NULL: 1088
+                      22-INNER: symbname: arglist_opt,NULL: 1089
+                       23-INNER: symbname: arglist,NULL: 1090
+                        24-INNER: symbname: argument,NULL: 1095
+                         25-INNER: symbname: power,NULL: 1086
+                          26-LEAF category: 260, catname: STRINGLIT, line: 105, VALUE: "One life lost!"
+             13-INNER: symbname: simple_stmt,NULL: 1003
+              14-INNER: symbname: expr_stmt,NULL: 1043
+               15-INNER: symbname: power,NULL: 1086
+                16-LEAF category: 265, catname: NAME, line: 106, VALUE: l
+               15-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                16-INNER: symbname: power,NULL: 1086
+                 17-LEAF category: 265, catname: NAME, line: 106, VALUE: ravenloft
+                 17-INNER: symbname: trailer_rep,NULL: 1087
+                  18-INNER: symbname: trailer,NULL: 1088
+                   19-INNER: symbname: arglist_opt,NULL: 1089
+                    20-INNER: symbname: arglist,NULL: 1090
+                     21-INNER: symbname: arg_comma_rep,NULL: 1091
+                      22-INNER: symbname: arg_comma_rep,NULL: 1091
+                       23-INNER: symbname: arg_comma_rep,NULL: 1091
+                        24-INNER: symbname: arg_comma_rep,NULL: 1091
+                         25-INNER: symbname: arg_comma_rep,NULL: 1091
+                          26-INNER: symbname: argument,NULL: 1095
+                           27-INNER: symbname: power,NULL: 1086
+                            28-LEAF category: 265, catname: NAME, line: 106, VALUE: hickman
+                         25-INNER: symbname: argument,NULL: 1095
+                          26-INNER: symbname: power,NULL: 1086
+                           27-LEAF category: 265, catname: NAME, line: 106, VALUE: tharizdun
+                        24-INNER: symbname: argument,NULL: 1095
+                         25-INNER: symbname: power,NULL: 1086
+                          26-LEAF category: 265, catname: NAME, line: 106, VALUE: lolth
+                       23-INNER: symbname: argument,NULL: 1095
+                        24-INNER: symbname: power,NULL: 1086
+                         25-LEAF category: 265, catname: NAME, line: 106, VALUE: score
+                      22-INNER: symbname: argument,NULL: 1095
+                       23-INNER: symbname: power,NULL: 1086
+                        24-LEAF category: 265, catname: NAME, line: 106, VALUE: win
+                     21-INNER: symbname: argument,NULL: 1095
+                      22-INNER: symbname: power,NULL: 1086
+                       23-LEAF category: 265, catname: NAME, line: 106, VALUE: loss
+            12-INNER: symbname: simple_stmt,NULL: 1003
+             13-INNER: symbname: return_stmt,NULL: 1014
+              14-LEAF category: 322, catname: RETURN, line: 107, VALUE: return
+              14-INNER: symbname: power,NULL: 1086
+               15-LEAF category: 265, catname: NAME, line: 107, VALUE: l
+    4-INNER: symbname: funcdef,NULL: 1023
+     5-LEAF category: 265, catname: NAME, line: 109, VALUE: main
+     5-INNER: symbname: parameters,NULL: 1024
+     5-INNER: symbname: suite,NULL: 1039
+      6-INNER: symbname: stmt_rep,NULL: 1040
+       7-INNER: symbname: stmt_rep,NULL: 1040
+        8-INNER: symbname: stmt_rep,NULL: 1040
+         9-INNER: symbname: stmt_rep,NULL: 1040
+          10-INNER: symbname: stmt_rep,NULL: 1040
+           11-INNER: symbname: stmt_rep,NULL: 1040
+            12-INNER: symbname: stmt_rep,NULL: 1040
+             13-INNER: symbname: stmt_rep,NULL: 1040
+              14-INNER: symbname: stmt_rep,NULL: 1040
+               15-INNER: symbname: simple_stmt,NULL: 1003
+                16-INNER: symbname: expr_stmt,NULL: 1043
+                 17-INNER: symbname: power,NULL: 1086
+                  18-LEAF category: 260, catname: STRINGLIT, line: 112, VALUE: """main asks the user for a difficulty, and chooses from 4 different word sets depending on the 
+    user's choice. It then selects a random words and runs that word and a life counter through 
+    tombofhorrors(). It returns the result of tombofhorrors."""
+               15-INNER: symbname: simple_stmt,NULL: 1003
+                16-INNER: symbname: expr_stmt,NULL: 1043
+                 17-INNER: symbname: power,NULL: 1086
+                  18-LEAF category: 265, catname: NAME, line: 113, VALUE: difficulty
+                 17-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                  18-INNER: symbname: power,NULL: 1086
+                   19-LEAF category: 265, catname: NAME, line: 113, VALUE: input
+                   19-INNER: symbname: trailer_rep,NULL: 1087
+                    20-INNER: symbname: trailer,NULL: 1088
+                     21-INNER: symbname: arglist_opt,NULL: 1089
+                      22-INNER: symbname: arglist,NULL: 1090
+                       23-INNER: symbname: argument,NULL: 1095
+                        24-INNER: symbname: power,NULL: 1086
+                         25-LEAF category: 260, catname: STRINGLIT, line: 113, VALUE: "Choose your difficulty: easy, medium, hard, or MEGA-DETH"
+              14-INNER: symbname: simple_stmt,NULL: 1003
+               15-INNER: symbname: expr_stmt,NULL: 1043
+                16-INNER: symbname: power,NULL: 1086
+                 17-LEAF category: 265, catname: NAME, line: 114, VALUE: gygax
+                16-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                 17-INNER: symbname: power,NULL: 1086
+                  18-INNER: symbname: atom,NULL: 1120
+                   19-LEAF: symbname: listmaker_opt
+             13-INNER: symbname: simple_stmt,NULL: 1003
+              14-INNER: symbname: expr_stmt,NULL: 1043
+               15-INNER: symbname: power,NULL: 1086
+                16-LEAF category: 265, catname: NAME, line: 115, VALUE: hommlet
+               15-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+                16-INNER: symbname: power,NULL: 1086
+                 17-INNER: symbname: atom,NULL: 1120
+                  18-INNER: symbname: listmaker_opt,NULL: 1121
+                   19-INNER: symbname: listmaker,NULL: 1122
+                    20-INNER: symbname: power,NULL: 1086
+                     21-LEAF category: 260, catname: STRINGLIT, line: 115, VALUE: "pleasing"
+                    20-INNER: symbname: listmaker_options,NULL: 1123
+                     21-INNER: symbname: comma_test_rep,NULL: 1065
+                      22-INNER: symbname: comma_test_rep,NULL: 1065
+                       23-INNER: symbname: comma_test_rep,NULL: 1065
+                        24-INNER: symbname: comma_test_rep,NULL: 1065
+                         25-INNER: symbname: comma_test_rep,NULL: 1065
+                          26-INNER: symbname: power,NULL: 1086
+                           27-LEAF category: 260, catname: STRINGLIT, line: 115, VALUE: "reasons"
+                         25-INNER: symbname: power,NULL: 1086
+                          26-LEAF category: 260, catname: STRINGLIT, line: 115, VALUE: "frankenstein"
+                        24-INNER: symbname: power,NULL: 1086
+                         25-LEAF category: 260, catname: STRINGLIT, line: 115, VALUE: "legionaire"
+                       23-INNER: symbname: power,NULL: 1086
+                        24-LEAF category: 260, catname: STRINGLIT, line: 115, VALUE: "prestidigitation"
+                      22-INNER: symbname: power,NULL: 1086
+                       23-LEAF category: 260, catname: STRINGLIT, line: 115, VALUE: "honolulu"
+            12-INNER: symbname: simple_stmt,NULL: 1003
+             13-INNER: symbname: expr_stmt,NULL: 1043
+              14-INNER: symbname: power,NULL: 1086
+               15-LEAF category: 265, catname: NAME, line: 116, VALUE: zuggtomy
+              14-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+               15-INNER: symbname: power,NULL: 1086
+                16-INNER: symbname: atom,NULL: 1120
+                 17-INNER: symbname: listmaker_opt,NULL: 1121
+                  18-INNER: symbname: listmaker,NULL: 1122
+                   19-INNER: symbname: power,NULL: 1086
+                    20-LEAF category: 260, catname: STRINGLIT, line: 116, VALUE: "astronomer"
+                   19-INNER: symbname: listmaker_options,NULL: 1123
+                    20-INNER: symbname: comma_test_rep,NULL: 1065
+                     21-INNER: symbname: comma_test_rep,NULL: 1065
+                      22-INNER: symbname: comma_test_rep,NULL: 1065
+                       23-INNER: symbname: comma_test_rep,NULL: 1065
+                        24-INNER: symbname: comma_test_rep,NULL: 1065
+                         25-INNER: symbname: power,NULL: 1086
+                          26-LEAF category: 260, catname: STRINGLIT, line: 116, VALUE: "albuquerque"
+                        24-INNER: symbname: power,NULL: 1086
+                         25-LEAF category: 260, catname: STRINGLIT, line: 116, VALUE: "indubitably"
+                       23-INNER: symbname: power,NULL: 1086
+                        24-LEAF category: 260, catname: STRINGLIT, line: 116, VALUE: "werewolf"
+                      22-INNER: symbname: power,NULL: 1086
+                       23-LEAF category: 260, catname: STRINGLIT, line: 116, VALUE: "euphonium"
+                     21-INNER: symbname: power,NULL: 1086
+                      22-LEAF category: 260, catname: STRINGLIT, line: 116, VALUE: "exceptional"
+           11-INNER: symbname: simple_stmt,NULL: 1003
+            12-INNER: symbname: expr_stmt,NULL: 1043
+             13-INNER: symbname: power,NULL: 1086
+              14-LEAF category: 265, catname: NAME, line: 117, VALUE: giants
+             13-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+              14-INNER: symbname: power,NULL: 1086
+               15-INNER: symbname: atom,NULL: 1120
+                16-INNER: symbname: listmaker_opt,NULL: 1121
+                 17-INNER: symbname: listmaker,NULL: 1122
+                  18-INNER: symbname: power,NULL: 1086
+                   19-LEAF category: 260, catname: STRINGLIT, line: 117, VALUE: "metaphysics"
+                  18-INNER: symbname: listmaker_options,NULL: 1123
+                   19-INNER: symbname: comma_test_rep,NULL: 1065
+                    20-INNER: symbname: comma_test_rep,NULL: 1065
+                     21-INNER: symbname: comma_test_rep,NULL: 1065
+                      22-INNER: symbname: comma_test_rep,NULL: 1065
+                       23-INNER: symbname: comma_test_rep,NULL: 1065
+                        24-INNER: symbname: power,NULL: 1086
+                         25-LEAF category: 260, catname: STRINGLIT, line: 117, VALUE: "dracula"
+                       23-INNER: symbname: power,NULL: 1086
+                        24-LEAF category: 260, catname: STRINGLIT, line: 117, VALUE: "dallas"
+                      22-INNER: symbname: power,NULL: 1086
+                       23-LEAF category: 260, catname: STRINGLIT, line: 117, VALUE: "bean"
+                     21-INNER: symbname: power,NULL: 1086
+                      22-LEAF category: 260, catname: STRINGLIT, line: 117, VALUE: "bass"
+                    20-INNER: symbname: power,NULL: 1086
+                     21-LEAF category: 260, catname: STRINGLIT, line: 117, VALUE: "barracuda"
+          10-INNER: symbname: simple_stmt,NULL: 1003
+           11-INNER: symbname: expr_stmt,NULL: 1043
+            12-INNER: symbname: power,NULL: 1086
+             13-LEAF category: 265, catname: NAME, line: 118, VALUE: drow
+            12-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+             13-INNER: symbname: power,NULL: 1086
+              14-INNER: symbname: atom,NULL: 1120
+               15-INNER: symbname: listmaker_opt,NULL: 1121
+                16-INNER: symbname: listmaker,NULL: 1122
+                 17-INNER: symbname: power,NULL: 1086
+                  18-LEAF category: 260, catname: STRINGLIT, line: 118, VALUE: "jazz"
+                 17-INNER: symbname: listmaker_options,NULL: 1123
+                  18-INNER: symbname: comma_test_rep,NULL: 1065
+                   19-INNER: symbname: comma_test_rep,NULL: 1065
+                    20-INNER: symbname: comma_test_rep,NULL: 1065
+                     21-INNER: symbname: comma_test_rep,NULL: 1065
+                      22-INNER: symbname: comma_test_rep,NULL: 1065
+                       23-INNER: symbname: comma_test_rep,NULL: 1065
+                        24-INNER: symbname: power,NULL: 1086
+                         25-LEAF category: 260, catname: STRINGLIT, line: 118, VALUE: "vortex"
+                       23-INNER: symbname: power,NULL: 1086
+                        24-LEAF category: 260, catname: STRINGLIT, line: 118, VALUE: "mozambique"
+                      22-INNER: symbname: power,NULL: 1086
+                       23-LEAF category: 260, catname: STRINGLIT, line: 118, VALUE: "igor"
+                     21-INNER: symbname: power,NULL: 1086
+                      22-LEAF category: 260, catname: STRINGLIT, line: 118, VALUE: "pheonix"
+                    20-INNER: symbname: power,NULL: 1086
+                     21-LEAF category: 260, catname: STRINGLIT, line: 118, VALUE: "odd"
+                   19-INNER: symbname: power,NULL: 1086
+                    20-LEAF category: 260, catname: STRINGLIT, line: 118, VALUE: "fall"
+         9-INNER: symbname: if_stmt,NULL: 1036
+          10-INNER: symbname: comparison,NULL: 1114
+           11-INNER: symbname: power,NULL: 1086
+            12-LEAF category: 265, catname: NAME, line: 119, VALUE: difficulty
+           11-INNER: symbname: comp_op_expr_rep,NULL: 1115
+            12-LEAF category: 293, catname: EQEQUAL, line: 119, VALUE: ==
+            12-INNER: symbname: power,NULL: 1086
+             13-LEAF category: 260, catname: STRINGLIT, line: 119, VALUE: "easy"
+          10-INNER: symbname: suite,NULL: 1039
+           11-INNER: symbname: simple_stmt,NULL: 1003
+            12-INNER: symbname: expr_stmt,NULL: 1043
+             13-INNER: symbname: power,NULL: 1086
+              14-LEAF category: 265, catname: NAME, line: 120, VALUE: gygax
+              14-INNER: symbname: trailer_rep,NULL: 1087
+               15-INNER: symbname: trailer_rep,NULL: 1087
+                16-INNER: symbname: trailer,NULL: 1088
+                 17-LEAF category: 265, catname: NAME, line: 120, VALUE: append
+               15-INNER: symbname: trailer,NULL: 1088
+                16-INNER: symbname: arglist_opt,NULL: 1089
+                 17-INNER: symbname: arglist,NULL: 1090
+                  18-INNER: symbname: argument,NULL: 1095
+                   19-INNER: symbname: power,NULL: 1086
+                    20-LEAF category: 265, catname: NAME, line: 120, VALUE: random
+                    20-INNER: symbname: trailer_rep,NULL: 1087
+                     21-INNER: symbname: trailer_rep,NULL: 1087
+                      22-INNER: symbname: trailer,NULL: 1088
+                       23-LEAF category: 265, catname: NAME, line: 120, VALUE: choice
+                     21-INNER: symbname: trailer,NULL: 1088
+                      22-INNER: symbname: arglist_opt,NULL: 1089
+                       23-INNER: symbname: arglist,NULL: 1090
+                        24-INNER: symbname: argument,NULL: 1095
+                         25-INNER: symbname: power,NULL: 1086
+                          26-LEAF category: 265, catname: NAME, line: 120, VALUE: hommlet
+          10-INNER: symbname: elif_test_colon_suite_rep,NULL: 1037
+           11-INNER: symbname: elif_test_colon_suite_rep,NULL: 1037
+            12-INNER: symbname: elif_test_colon_suite_rep,NULL: 1037
+             13-INNER: symbname: comparison,NULL: 1114
+              14-INNER: symbname: power,NULL: 1086
+               15-LEAF category: 265, catname: NAME, line: 121, VALUE: difficulty
+              14-INNER: symbname: comp_op_expr_rep,NULL: 1115
+               15-LEAF category: 293, catname: EQEQUAL, line: 121, VALUE: ==
+               15-INNER: symbname: power,NULL: 1086
+                16-LEAF category: 260, catname: STRINGLIT, line: 121, VALUE: "medium"
+             13-INNER: symbname: suite,NULL: 1039
+              14-INNER: symbname: simple_stmt,NULL: 1003
+               15-INNER: symbname: expr_stmt,NULL: 1043
+                16-INNER: symbname: power,NULL: 1086
+                 17-LEAF category: 265, catname: NAME, line: 122, VALUE: gygax
+                 17-INNER: symbname: trailer_rep,NULL: 1087
+                  18-INNER: symbname: trailer_rep,NULL: 1087
+                   19-INNER: symbname: trailer,NULL: 1088
+                    20-LEAF category: 265, catname: NAME, line: 122, VALUE: append
+                  18-INNER: symbname: trailer,NULL: 1088
+                   19-INNER: symbname: arglist_opt,NULL: 1089
+                    20-INNER: symbname: arglist,NULL: 1090
+                     21-INNER: symbname: argument,NULL: 1095
+                      22-INNER: symbname: power,NULL: 1086
+                       23-LEAF category: 265, catname: NAME, line: 122, VALUE: random
+                       23-INNER: symbname: trailer_rep,NULL: 1087
+                        24-INNER: symbname: trailer_rep,NULL: 1087
+                         25-INNER: symbname: trailer,NULL: 1088
+                          26-LEAF category: 265, catname: NAME, line: 122, VALUE: choice
+                        24-INNER: symbname: trailer,NULL: 1088
+                         25-INNER: symbname: arglist_opt,NULL: 1089
+                          26-INNER: symbname: arglist,NULL: 1090
+                           27-INNER: symbname: argument,NULL: 1095
+                            28-INNER: symbname: power,NULL: 1086
+                             29-LEAF category: 265, catname: NAME, line: 122, VALUE: zuggtomy
+            12-INNER: symbname: comparison,NULL: 1114
+             13-INNER: symbname: power,NULL: 1086
+              14-LEAF category: 265, catname: NAME, line: 123, VALUE: difficulty
+             13-INNER: symbname: comp_op_expr_rep,NULL: 1115
+              14-LEAF category: 293, catname: EQEQUAL, line: 123, VALUE: ==
+              14-INNER: symbname: power,NULL: 1086
+               15-LEAF category: 260, catname: STRINGLIT, line: 123, VALUE: "hard"
+            12-INNER: symbname: suite,NULL: 1039
+             13-INNER: symbname: simple_stmt,NULL: 1003
+              14-INNER: symbname: expr_stmt,NULL: 1043
+               15-INNER: symbname: power,NULL: 1086
+                16-LEAF category: 265, catname: NAME, line: 124, VALUE: gygax
+                16-INNER: symbname: trailer_rep,NULL: 1087
+                 17-INNER: symbname: trailer_rep,NULL: 1087
+                  18-INNER: symbname: trailer,NULL: 1088
+                   19-LEAF category: 265, catname: NAME, line: 124, VALUE: append
+                 17-INNER: symbname: trailer,NULL: 1088
+                  18-INNER: symbname: arglist_opt,NULL: 1089
+                   19-INNER: symbname: arglist,NULL: 1090
+                    20-INNER: symbname: argument,NULL: 1095
+                     21-INNER: symbname: power,NULL: 1086
+                      22-LEAF category: 265, catname: NAME, line: 124, VALUE: random
+                      22-INNER: symbname: trailer_rep,NULL: 1087
+                       23-INNER: symbname: trailer_rep,NULL: 1087
+                        24-INNER: symbname: trailer,NULL: 1088
+                         25-LEAF category: 265, catname: NAME, line: 124, VALUE: choice
+                       23-INNER: symbname: trailer,NULL: 1088
+                        24-INNER: symbname: arglist_opt,NULL: 1089
+                         25-INNER: symbname: arglist,NULL: 1090
+                          26-INNER: symbname: argument,NULL: 1095
+                           27-INNER: symbname: power,NULL: 1086
+                            28-LEAF category: 265, catname: NAME, line: 124, VALUE: giants
+           11-INNER: symbname: comparison,NULL: 1114
+            12-INNER: symbname: power,NULL: 1086
+             13-LEAF category: 265, catname: NAME, line: 125, VALUE: difficulty
+            12-INNER: symbname: comp_op_expr_rep,NULL: 1115
+             13-LEAF category: 293, catname: EQEQUAL, line: 125, VALUE: ==
+             13-INNER: symbname: power,NULL: 1086
+              14-LEAF category: 260, catname: STRINGLIT, line: 125, VALUE: "MEGA-DETH"
+           11-INNER: symbname: suite,NULL: 1039
+            12-INNER: symbname: simple_stmt,NULL: 1003
+             13-INNER: symbname: expr_stmt,NULL: 1043
+              14-INNER: symbname: power,NULL: 1086
+               15-LEAF category: 265, catname: NAME, line: 126, VALUE: gygax
+               15-INNER: symbname: trailer_rep,NULL: 1087
+                16-INNER: symbname: trailer_rep,NULL: 1087
+                 17-INNER: symbname: trailer,NULL: 1088
+                  18-LEAF category: 265, catname: NAME, line: 126, VALUE: append
+                16-INNER: symbname: trailer,NULL: 1088
+                 17-INNER: symbname: arglist_opt,NULL: 1089
+                  18-INNER: symbname: arglist,NULL: 1090
+                   19-INNER: symbname: argument,NULL: 1095
+                    20-INNER: symbname: power,NULL: 1086
+                     21-LEAF category: 265, catname: NAME, line: 126, VALUE: random
+                     21-INNER: symbname: trailer_rep,NULL: 1087
+                      22-INNER: symbname: trailer_rep,NULL: 1087
+                       23-INNER: symbname: trailer,NULL: 1088
+                        24-LEAF category: 265, catname: NAME, line: 126, VALUE: choice
+                      22-INNER: symbname: trailer,NULL: 1088
+                       23-INNER: symbname: arglist_opt,NULL: 1089
+                        24-INNER: symbname: arglist,NULL: 1090
+                         25-INNER: symbname: argument,NULL: 1095
+                          26-INNER: symbname: power,NULL: 1086
+                           27-LEAF category: 265, catname: NAME, line: 126, VALUE: drow
+          10-INNER: symbname: else_colon_suite_opt,NULL: 1038
+           11-INNER: symbname: suite,NULL: 1039
+            12-INNER: symbname: stmt_rep,NULL: 1040
+             13-INNER: symbname: simple_stmt,NULL: 1003
+              14-INNER: symbname: expr_stmt,NULL: 1043
+               15-INNER: symbname: power,NULL: 1086
+                16-LEAF category: 265, catname: NAME, line: 128, VALUE: print
+                16-INNER: symbname: trailer_rep,NULL: 1087
+                 17-INNER: symbname: trailer,NULL: 1088
+                  18-INNER: symbname: arglist_opt,NULL: 1089
+                   19-INNER: symbname: arglist,NULL: 1090
+                    20-INNER: symbname: argument,NULL: 1095
+                     21-INNER: symbname: power,NULL: 1086
+                      22-LEAF category: 260, catname: STRINGLIT, line: 128, VALUE: "Error. Please pick a difficulty between easy, medium, hard, or MEGA-DETH."
+             13-INNER: symbname: simple_stmt,NULL: 1003
+              14-INNER: symbname: expr_stmt,NULL: 1043
+               15-INNER: symbname: power,NULL: 1086
+                16-LEAF category: 265, catname: NAME, line: 129, VALUE: main
+                16-INNER: symbname: trailer_rep,NULL: 1087
+                 17-INNER: symbname: trailer,NULL: 1088
+                  18-LEAF: symbname: arglist_opt
+        8-INNER: symbname: simple_stmt,NULL: 1003
+         9-INNER: symbname: expr_stmt,NULL: 1043
+          10-INNER: symbname: power,NULL: 1086
+           11-LEAF category: 265, catname: NAME, line: 130, VALUE: u
+          10-INNER: symbname: equal_OR_yield_OR_testlist_rep,NULL: 1046
+           11-INNER: symbname: power,NULL: 1086
+            12-LEAF category: 265, catname: NAME, line: 130, VALUE: tombofhorrors
+            12-INNER: symbname: trailer_rep,NULL: 1087
+             13-INNER: symbname: trailer,NULL: 1088
+              14-INNER: symbname: arglist_opt,NULL: 1089
+               15-INNER: symbname: arglist,NULL: 1090
+                16-INNER: symbname: arg_comma_rep,NULL: 1091
+                 17-INNER: symbname: argument,NULL: 1095
+                  18-INNER: symbname: power,NULL: 1086
+                   19-LEAF category: 265, catname: NAME, line: 130, VALUE: gygax
+                16-INNER: symbname: argument,NULL: 1095
+                 17-INNER: symbname: power,NULL: 1086
+                  18-LEAF category: 259, catname: INTLIT, line: 130, VALUE: 6
+       7-INNER: symbname: simple_stmt,NULL: 1003
+        8-INNER: symbname: return_stmt,NULL: 1014
+         9-LEAF category: 322, catname: RETURN, line: 131, VALUE: return
+         9-INNER: symbname: power,NULL: 1086
+          10-LEAF category: 265, catname: NAME, line: 131, VALUE: u
+   3-INNER: symbname: if_stmt,NULL: 1036
+    4-INNER: symbname: comparison,NULL: 1114
+     5-INNER: symbname: power,NULL: 1086
+      6-LEAF category: 260, catname: STRINGLIT, line: 132, VALUE: "__name__"
+     5-INNER: symbname: comp_op_expr_rep,NULL: 1115
+      6-LEAF category: 293, catname: EQEQUAL, line: 132, VALUE: ==
+      6-INNER: symbname: power,NULL: 1086
+       7-LEAF category: 260, catname: STRINGLIT, line: 132, VALUE: "__main__"
+    4-INNER: symbname: suite,NULL: 1039
+     5-INNER: symbname: simple_stmt,NULL: 1003
+      6-INNER: symbname: expr_stmt,NULL: 1043
+       7-INNER: symbname: power,NULL: 1086
+        8-LEAF category: 265, catname: NAME, line: 133, VALUE: main
+        8-INNER: symbname: trailer_rep,NULL: 1087
+         9-INNER: symbname: trailer,NULL: 1088
+          10-LEAF: symbname: arglist_opt

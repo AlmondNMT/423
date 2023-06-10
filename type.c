@@ -80,6 +80,8 @@ void init_types()
     add_builtin_func_info(entry, 0, 1, string_typeptr, "%s: %d", "n", INT_TYPE);
     entry = insertbuiltin_meth(st, "write", int_typeptr);
     add_builtin_func_info(entry, 1, 1, int_typeptr, "%s: %d", "s", STRING_TYPE);
+    entry = insertbuiltin_meth(st, "close", none_typeptr);
+    add_builtin_func_info(entry, 0, 0, none_typeptr, NULL);
 }
 
 
@@ -485,19 +487,12 @@ void typecheck(struct tree *t)
             typecheck_decl_stmt(t);
             return;
         case FUNCDEF:
-            // Will traverse this again when checking DECL_STMTs and EXPR_STMTs
+            // Will traverse this again when checking nested DECL_STMTs and EXPR_STMTs
             typecheck_func_ret_type(t); 
             break;
         case FOR_STMT:
             typecheck_testlist(t->kids[1]);
             break;
-        case WHILE_STMT:
-            // TODO
-            break;
-        case IF_STMT:
-            // TODO
-            break;
-
     }
     for(int i = 0; i < t->nkids; i++) {
         typecheck(t->kids[i]);
@@ -666,14 +661,14 @@ typeptr typecheck_power(struct tree *t)
 
             // Throw an error if entry could not be found
             if(entry == NULL) {
-                undeclared_error(leaf);
+                undeclared_error(leaf, t->stab);
             }
 
             // Forget about trailer_reps here, just get the identifier type
             type = get_ident_type(entry->ident, t->stab);
             
             // If there is a TRAILER_REP present, do the difficult thing
-            if(t->kids[1]->prodrule == TRAILER_REP) {
+            if(t->kids[1]->prodrule == TRAILER_REP && type->basetype != ANY_TYPE) {
                 // Build a linked list sequence of trailers
                 seq = build_trailer_sequence(t->kids[1]);
 
@@ -727,9 +722,7 @@ typeptr typecheck_atom_trailer(struct trailer *seq, typeptr atom_type, struct to
 {
     if(seq == NULL || atom_type == NULL) semantic_error(desc, "typecheck_atom_trailer: *seq and *atom_type should not be null\n");
     typeptr current_type = atom_type;;
-    struct trailer *curr = NULL;
     SymbolTableEntry rhs = NULL;
-    int arg_count = 0;
 
     const char *type_name = print_type(current_type);
     // We must ensure that NAME belongs to the class symbol table of the current type
@@ -923,8 +916,6 @@ struct typeinfo *get_trailer_rep_type(struct trailer *seq, SymbolTableEntry entr
     SymbolTable nested = entry->nested;
     typeptr current_type = entry->typ;
 
-    int arg_count = 0;
-
     for(curr = start->next; curr != NULL; curr = curr->next) {
         const char *type_name = print_type(current_type);
         switch(curr->prodrule) {
@@ -943,8 +934,8 @@ struct typeinfo *get_trailer_rep_type(struct trailer *seq, SymbolTableEntry entr
                 if(rhs == NULL) {
                     semantic_error(tok, "'%s' object has no attribute '%s'\n", type_name, curr->name);
                 }
-                nested = rhs->typ->u.cls.st;
                 current_type = rhs->typ;
+                nested = current_type->u.cls.st;
                 break;
             case ARGLIST_OPT:
                 switch(current_type->basetype) {
@@ -957,38 +948,12 @@ struct typeinfo *get_trailer_rep_type(struct trailer *seq, SymbolTableEntry entr
                         break;
                     default:
                         semantic_error(tok, "'%s' object is not callable\n", type_name);
-
                 }
                 break;
 
             // Verify list/dict accesses. Return any_type. The rest of type-checking here should be done at runtime.
             case SUBSCRIPTLIST:
                 validate_subscript_usage(current_type, curr, tok);
-                // There should be exactly one subscript for both lists and dicts
-                arg_count = count_args(curr->arg);
-                if(arg_count != 1) semantic_error(tok, "must have exactly one subscript\n");
-                switch(current_type->basetype) {
-                    case LIST_TYPE:
-                        // Ensure that the single argument is an integer (or ANY_TYPE)
-                        if(curr->arg->type->basetype != INT_TYPE && curr->arg->type->basetype != ANY_TYPE)
-                            semantic_error(tok, "list index must be 'int', not '%s'\n", print_type(curr->arg->type));
-                        break;
-                    case DICT_TYPE:
-                        // Ensure that the argument type is either an int, a float or a string
-                        switch(curr->arg->type->basetype){
-                            case INT_TYPE:
-                            case FLOAT_TYPE:
-                            case STRING_TYPE:
-                                break;
-                            default:
-                                semantic_error(tok, "dict index cannot be '%s'\n", print_type(curr->arg->type));
-                        }
-                        break;
-                    case ANY_TYPE:
-                        break;
-                    default:
-                        semantic_error(tok, "'%s' object is not subscriptable\n", type_name);
-                }
                 return alcbuiltin(ANY_TYPE);
                 break;
         }
@@ -1036,28 +1001,30 @@ void validate_args_and_params(struct arg *args, SymbolTableEntry rhs, struct tok
 
 void validate_subscript_usage(typeptr current_type, struct trailer *curr, struct token *tok)
 {
-    // There should be exactly one subscript for both lists and dicts
+    // There should be one subscript for lists
     int arg_count = count_args(curr->arg);
-    if(arg_count != 1) semantic_error(tok, "must have exactly one subscript\n");
     switch(current_type->basetype) {
         case LIST_TYPE:
+            if(arg_count != 1) semantic_error(tok, "must have exactly one subscript\n");
             // Ensure that the single argument is an integer (or ANY_TYPE)
             if(curr->arg->type->basetype != INT_TYPE && curr->arg->type->basetype != ANY_TYPE)
                 semantic_error(tok, "list index must be 'int', not '%s'\n", print_type(curr->arg->type));
             break;
         case DICT_TYPE:
+            if(arg_count < 1) semantic_error(tok, "must have at least one subscript\n");
             // Ensure that the argument type is either an int, a float or a string
-            switch(curr->arg->type->basetype){
-                case INT_TYPE:
-                case FLOAT_TYPE:
-                case STRING_TYPE:
-                    break;
-                default:
-                    semantic_error(tok, "dict index cannot be '%s'\n", print_type(curr->arg->type));
+            for(struct arg *dict_arg = curr->arg; dict_arg != NULL; dict_arg = dict_arg->next) {
+                switch(dict_arg->type->basetype){
+                    case INT_TYPE:
+                    case FLOAT_TYPE:
+                    case STRING_TYPE:
+                        break;
+                    default:
+                        semantic_error(tok, "dict index cannot be '%s'\n", print_type(curr->arg->type));
+                }
             }
             break;
         case ANY_TYPE:
-            // If it's ANY_TYPE all bets are off
             break;
         default:
             semantic_error(tok, "'%s' object is not subscriptable\n", print_type(current_type));
@@ -1152,6 +1119,7 @@ void typecheck_expr_stmt(struct tree *t)
     //   3. Augmented assignment     : LHS += RHS
     // First, we can get the LHS_TYPE. In all three cases, this type-checks the LHS expression
     //   i.e., 
+    // We also want to update the symbol of the lhs dynamically 
     lhs_type = typecheck_testlist(t->kids[0]); 
     
     // Secondly, determine the scenario: proceed if second child isn't NULLTREE
@@ -1403,35 +1371,6 @@ struct typeinfo *determine_hint_type(struct token *type, SymbolTable st)
         }
     }
     return typ;
-}
-
-/**
- * Copy the typeptr of custom user classes
- * 
-*/
-struct typeinfo *type_copy(struct typeinfo *typ)
-{
-    // End of recursion
-    if(typ == NULL) {
-        return NULL;
-    }
-    printf("typecopy: %s\n", print_type(typ));
-    // We only want to copy the symbol table of classes for 
-    //   object instantiation, and not for functions and packages
-    // if we assign a function f to a var a, like a = f, we only 
-    // want to store a pointer. Same with packages.
-    if(typ->basetype == FUNC_TYPE || typ->basetype == PACKAGE_TYPE) {
-        return typ;
-    }
-
-    // Instantiating an object
-    struct typeinfo *copy = ckalloc(1, sizeof(struct typeinfo));
-    copy->basetype = typ->basetype;
-    copy->u.cls.nparams = typ->u.cls.nparams;
-    copy->u.cls.parameters = copy_params(typ->u.cls.parameters);
-    copy->u.cls.st = copy_symbol_table(typ->u.cls.st);
-    copy->u.cls.returntype = type_copy(typ->u.cls.returntype);
-    return copy;
 }
 
 /**

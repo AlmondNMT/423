@@ -1,0 +1,9 @@
+# How to use tables (dict)
+procedure main()
+    a := table()
+    a[1] := 2
+    a[2] := 3
+
+    # Print the keys of the table
+    write(key(a))
+end

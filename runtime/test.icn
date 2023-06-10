@@ -16,6 +16,10 @@ procedure main()
     test1__test2__h__pyname := [1, 2, 3]
     test1__test2__a__pyname := "fdsa"
     g__pyname(1)
+    a := table()
+    a[[1, 1]] := 2
+    a[[1, 2]] := 23
+    every write(!a)
 end
 
 
