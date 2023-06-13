@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include "codegen.h"
 #include "errdef.h"
 #include "symtab.h"
 #include "tree.h"
@@ -85,6 +86,9 @@ int main(int argc, char *argv[]) {
         if(tree_opt) {
             print_tree(tree, 1, 1); // print full
         }
+
+        // Generate Unicon from tree and symboltable
+        gencode(tree, true);
 
         if(symtab_opt) {
             printsymbols(global, 0);

@@ -1341,39 +1341,6 @@ struct typeinfo *get_ident_type(char *ident, SymbolTable st)
 
 
 /**
- * Some boilerplate for searching the symbol tables for valid type hints,
- * then returning the corresponding type int
- */
-struct typeinfo *determine_hint_type(struct token *type, SymbolTable st)
-{
-    if(type == NULL || st == NULL) {
-        fprintf(stderr, "Why is type or st NULL?\n");
-        exit(SEM_ERR);
-    }
-    struct typeinfo *typ = NULL;
-
-    // type_entry is the RHS of "a: int", for example
-    SymbolTableEntry type_entry = lookup(type->text, st);
-    // If the type entry cannot be found in the symbol table, that's an error
-    
-    if(type_entry == NULL) 
-        semantic_error(type, "Name '%s' is not defined for the provided type\n", type->text);
-    else {
-        // When we find the type entry, we have to consider its type code. If it's 
-        // a class, we obtain the class define code if it's a builtin, or ANY_TYPE 
-        // otherwise.
-        if(type_entry->typ->basetype == CLASS_TYPE) {
-            typ = get_ident_type(type_entry->ident, st);
-
-        } else {
-            // If it's not a class type then let it inherit the type of the RHS
-            typ = type_entry->typ;
-        }
-    }
-    return typ;
-}
-
-/**
 * Make a copy of the symbol table, except leave the parent null
 * parent will have to be assigned outside of this 
 * function

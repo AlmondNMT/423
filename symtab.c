@@ -708,14 +708,6 @@ void decorate_subtree_with_symbol_table(struct tree *t, SymbolTable st)
 }
 
 
-int does_tr_have_trailer_child(struct tree *t) 
-{
-    if(t->prodrule == TRAILER_REP)
-        if(t->kids[1] != NULL && t->kids[1]->prodrule == TRAILER)
-            return true;
-    return false;
-}
-
 //see if trailer rep has immediate trailer rep kid
 //Assumption: we're feeding a confirmed trailer_rep node to this
 int tr_has_tr_child(struct tree *t) 

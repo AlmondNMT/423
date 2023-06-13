@@ -2,6 +2,7 @@
 #define TEXT_TRUNCATION_LEVEL 20
 struct sym_table; // Found in symtab.h
 struct typeinfo;  // Found in type.h
+struct code;      // Found in codegen.h
 
 typedef struct token {
     int category;   /* the integer code returned by yylex */

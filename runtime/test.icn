@@ -1,5 +1,6 @@
+global x , y
 procedure test1__test2__f__pyname(x__pyname, y__pyname)
-    return x + y
+    every write(!x)
 end 
 
 procedure f__pyname(a__pyname, b__pyname, c__pyname)
@@ -12,14 +13,22 @@ procedure g__pyname(x__pyname)
     range_1(x__pyname)
 end
 
+
 procedure main()
     test1__test2__h__pyname := [1, 2, 3]
     test1__test2__a__pyname := "fdsa"
+    x := table()
+    x["asdf"] := 1
+    x["fdsa"] := 2
+    test1__test2__f__pyname(45, 23)
     g__pyname(1)
     a := table()
     a[[1, 1]] := 2
     a[[1, 2]] := 23
-    every write(!a)
+
+    a := (2 ^ 3)
+    write(ixor(2, 3))
+    write
 end
 
 

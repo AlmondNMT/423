@@ -233,20 +233,6 @@ char *strip_underscores(char *s)
     return temp;
 }
 
-/** Generate a string with three dots at the end to indicate truncation
- * at the specified level
- */
-void truncate_str(char *dest, char *src, int level)
-{
-    strncpy(dest, src, level);
-    int i;
-    for(i = 0; i < level - 3; i++) {
-        if(dest[i] == '\n')
-            dest[i] = ' ';
-    }
-    for(i = level - 3; i < level; i++) dest[i] = '.';
-}
-
 int get_quote_count(char *text, int len)
 {
     char quote_char = text[0];
@@ -333,29 +319,6 @@ void check_alloc(void *obj, char *msg)
     }
 }
 
-/** Generate syntax error for t_lookahead in grammar
- */
-void err_t_lookahead(int yychar)
-{
-    if(yychar == LPAR || yychar == LSQB || yychar == DOT) {
-        printf("t_primary forbidden lookahead\n");
-        exit(1);
-    }
-}
-
-void err_lookahead(int yychar, int count, const char *buf, ...)
-{
-    va_list args;
-    va_start(args, buf);
-    int token;
-    for(int i = 0; i < count; i++) {
-        token = va_arg(args, int);
-        if(yychar == token) {
-            fprintf(stderr, "Syntax error near '%s' token\n", rev_token(token));
-        }
-    }
-    va_end(args);
-}
 
 /** Generate a random string of length len
  * For debugging hash table and maybe other stuff
