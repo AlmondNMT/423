@@ -532,7 +532,6 @@ void typecheck_listmaker_contents(struct tree *t)
 
 /**
  * Starting point: DICTORSETMAKER_OPT
- * TODO: Finish this
  */
 void typecheck_dictmaker_contents(struct tree *t)
 {
@@ -584,11 +583,13 @@ void check_forbidden_list_and_dict_types(struct tree *t, typeptr type, struct to
 typeptr typecheck_factor(struct tree *t)
 {
     if(t == NULL) return alcbuiltin(ANY_TYPE);  // This shouldn't happen
+    typeptr type = NULL;
     switch(t->prodrule) {
         case POWER:
-            return typecheck_power(t);
+            type = typecheck_power(t);
+            t->type = type;
+            return type;
     }
-    typeptr type = NULL;
     type = typecheck_power(t->kids[0]);
     struct token *pm = t->kids[0]->kids[0]->leaf;
 
@@ -637,12 +638,13 @@ typeptr typecheck_power(struct tree *t)
     //   dictorsetmaker_opt
     if(t->kids[0]->prodrule == ATOM) {
         type = get_rhs_type(t->kids[0]);
-        // TODO: Type-check and get types for dicts/lists/parenthesized expressions
+        // Type-check and get types for dicts/lists/parenthesized expressions
         if(t->kids[1]->prodrule == TRAILER_REP) {
             seq = build_trailer_sequence(t->kids[1]);
-            print_trailer_sequence(seq);
+            //print_trailer_sequence(seq);
             type = typecheck_atom_trailer(seq, type, get_power_descendant(t));
         }
+        t->type = type;
         return type;
     }
     
@@ -650,7 +652,7 @@ typeptr typecheck_power(struct tree *t)
     struct token *leaf = t->kids[0]->leaf;
 
     // If the POWER's first child is a leaf, then we must get the immediate type
-    if(t->kids[0]->leaf != NULL) {
+    if(leaf != NULL) {
         // 'power' can only be reached if we haven't already recursed to a 
         //   listmaker or a dictorset_option_* tree node 
 
@@ -667,7 +669,8 @@ typeptr typecheck_power(struct tree *t)
             // Forget about trailer_reps here, just get the identifier type
             type = get_ident_type(entry->ident, t->stab);
             
-            // If there is a TRAILER_REP present, do the difficult thing
+            // If there is a TRAILER_REP present and the basetype is not 
+            //   ANY_TYPE, do the difficult thing
             if(t->kids[1]->prodrule == TRAILER_REP && type->basetype != ANY_TYPE) {
                 // Build a linked list sequence of trailers
                 seq = build_trailer_sequence(t->kids[1]);
@@ -1426,13 +1429,13 @@ void typecheck_func_ret_type(struct tree *t)
             ftok = t->kids[0]->leaf;
             fentry = lookup(ftok->text, t->stab);
             typeptr returntype = fentry->typ->u.f.returntype;
-            if(returntype->basetype != ANY_TYPE) {
+            //if(returntype->basetype != ANY_TYPE) {
                 int has_return_stmt = typecheck_func_ret_type_aux(t, returntype, ftok);
                 // If the function doesn't have a return_stmt or it returns 
                 //   nothing it's return type had better be None
-                if(!has_return_stmt && returntype->basetype != NONE_TYPE)
+                if(!has_return_stmt && returntype->basetype != NONE_TYPE && returntype->basetype != ANY_TYPE)
                     semantic_error(ftok, "'%s()' return type '%s' does not match type of value returned: '%s'\n", ftok->text, print_type(returntype), print_type(none_typeptr));
-            }
+            //}
             break;
         default: {                  
             for(int i = 0; i < t->nkids; i++) {
@@ -1457,6 +1460,7 @@ bool typecheck_func_ret_type_aux(struct tree *t, typeptr returntype, struct toke
             // If nothing returns
             if(ret_val == NULL) ret_val = none_typeptr;
             // Grab the parent function
+            t->type = ret_val;
             int compatible = are_types_compatible(returntype, ret_val);
             if(!compatible)
                 semantic_error(ftok, "'%s()' return type '%s' does not match type of value returned: '%s'\n", ftok->text, print_type(returntype), print_type(ret_val));
@@ -1492,34 +1496,34 @@ struct token *get_func_ancestor(struct tree *t) {
  * Similarly, functions that specify a float return type can return explicit
  * integers. If type ANY is involved, then return true
 */
-int are_types_compatible(typeptr lhs, typeptr rhs)
+bool are_types_compatible(typeptr lhs, typeptr rhs)
 {
     // If either of the types are NULL, return false
-    if(lhs == NULL || rhs == NULL) return 0;
+    if(lhs == NULL || rhs == NULL) return false;
 
-    // If the rhs has ANY_TYPE, return 1
-    if(rhs->basetype == ANY_TYPE) return 1;
+    // If the rhs has ANY_TYPE, return true
+    if(rhs->basetype == ANY_TYPE) return true;
 
     // If the function returntype is ANY_TYPE then anything is allowed to 
     //   be returned
     switch(lhs->basetype) {
         case ANY_TYPE: {
-            return 1;
+            return true;
         }
         case CLASS_TYPE: {
             // If the LHS is a class type, ensure that the RHS is a  
             //   class with the same name
             if(rhs->basetype != CLASS_TYPE) {
-                return 0;
+                return false;
             }
             else {
-                if(rhs->basetype != CLASS_TYPE) return 0;
-                if(lhs->u.cls.name == NULL || rhs->u.cls.name == NULL) return 0;
-                    return 0;
+                if(rhs->basetype != CLASS_TYPE) return false;
+                if(lhs->u.cls.name == NULL || rhs->u.cls.name == NULL) return false;
+                    return false;
                 if(strcmp(lhs->u.cls.name, rhs->u.cls.name) == 0) {
-                    return 1;
+                    return true;
                 }
-                return 0;
+                return false;
             }
         }
         case FLOAT_TYPE: {
@@ -1529,16 +1533,16 @@ int are_types_compatible(typeptr lhs, typeptr rhs)
             switch(rhs->basetype) {
                 case FLOAT_TYPE:
                 case INT_TYPE:
-                    return 1;
+                    return true;
             }
-            return 0;
+            return false;
         }
         default: {
             if(lhs->basetype == rhs->basetype) 
-                return 1;
+                return true;
         }
     }
-    return 0;
+    return false;
 }
 
 
@@ -1589,7 +1593,7 @@ void print_paramlist(paramlist params)
 
 /**
  * Get the rightmost right-hand side of an assignment expression. It should 
- * return a basetype integer code. Our assumed starting point is
+ * return a struct typeinfo pointer. Our assumed starting point is
  * testlist. If multiple consecutive assignments are found we need to verify 
  * that these are also assigned correct types
  */
@@ -1621,7 +1625,8 @@ struct typeinfo *get_rhs_type(struct tree *t)
             typecheck_dictmaker_contents(t);
             type = dict_typeptr;
             break;
-
+    
+        // This is a parenthesized TEST
         case TESTLIST_COMP:
             type = typecheck_testlist(t->kids[0]);
             break;

@@ -172,7 +172,7 @@ struct token *get_func_ancestor(struct tree *t);
 struct token *get_caller_ancestor(struct tree *t);
 struct token *get_power_ancestor(struct tree *t);
 struct token *get_power_descendant(struct tree *t);
-int are_types_compatible(typeptr lhs, typeptr rhs);
+bool are_types_compatible(typeptr lhs, typeptr rhs);
 struct typeinfo *get_fpdef_type(struct tree *t, struct sym_entry *entry);
 struct typeinfo *get_rhs_type(struct tree *t);
 struct typeinfo *get_trailer_rep_type(struct trailer *seq, struct sym_entry *entry, struct token *tok);

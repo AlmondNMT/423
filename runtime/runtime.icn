@@ -57,3 +57,34 @@ procedure range_1(x)
         write(type(x), " cannot be interpreted as an integer")
     }
 end
+
+# String split method TODO
+procedure split(x)
+
+end
+
+# print method (with space separation)
+procedure print(x[])
+    every k := !x do {
+        if type(k) === "list" then {
+            write_list(k)
+        } else if type(k) === "table" then {
+            write_dict(k)
+        } else {
+            writes(k, " ")
+        }
+    }
+    write()
+end
+
+procedure write_list(x)
+    writes("[")
+    every k := 1 to *x - 1 do {
+        writes(x[k], ", ")
+    }
+    writes(x[*x], "]")
+end
+
+procedure write_dict(x)
+    
+end

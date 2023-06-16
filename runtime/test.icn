@@ -15,20 +15,13 @@ end
 
 
 procedure main()
-    test1__test2__h__pyname := [1, 2, 3]
-    test1__test2__a__pyname := "fdsa"
-    x := table()
-    x["asdf"] := 1
-    x["fdsa"] := 2
-    test1__test2__f__pyname(45, 23)
-    g__pyname(1)
-    a := table()
-    a[[1, 1]] := 2
-    a[[1, 2]] := 23
+    a := table("asdf", 2, "fdsa", 3)
+    every write(!(a))
+    every write(key(a))
+    write(repl("asdf", 4))
+    write("asdf" || "fdsa")
+    write("integers" ?? Break('e') -> found)
+    write("asdf", 1, 2.3, "fdsa")
+    print("asdf", 1, 2.3, [1, 2, 3], a)
 
-    a := (2 ^ 3)
-    write(ixor(2, 3))
-    write
 end
-
-
