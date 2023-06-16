@@ -1,7 +1,7 @@
 version	U12.1.00
-uid	runtime.u1-1686830454-0
+uid	runtime.u1-1686925435-0
 impl	local
-global	12
+global	13
 	0,000005,sum_1,1
 	1,000005,sum_2,2
 	2,000005,float_0,0
@@ -14,6 +14,7 @@ global	12
 	9,000005,split,1
 	10,000005,print,-1
 	11,000005,write_list,1
+	12,000005,write_dict,1
 
 proc sum_1
 	local	0,001000,iterable
@@ -499,10 +500,12 @@ proc print
 	local	1,000000,k
 	local	2,000000,type
 	local	3,000000,write_list
-	local	4,000000,writes
-	local	5,000000,write
+	local	4,000000,write_dict
+	local	5,000000,writes
+	local	6,000000,write
 	con	0,010000,4,154,151,163,164
-	con	1,010000,1,040
+	con	1,010000,5,164,141,142,154,145
+	con	2,010000,1,040
 	declend
 	line	67
 	colm	12
@@ -551,13 +554,42 @@ proc print
 	invoke	1
 	goto	L5
 lab L4
+	line	71
+	colm	16
+	synt	ifelse
+	mark	L6
+	pnull
+	var	2
+	var	1
+	line	71
+	colm	23
+	synt	any
+	invoke	1
+	str	1
+	line	71
+	colm	27
+	synt	any
+	eqv
+	unmark
 	var	4
 	var	1
-	str	1
-	line	73
+	line	72
+	colm	23
+	synt	any
+	invoke	1
+	goto	L7
+lab L6
+	var	5
+	var	1
+	str	2
+	line	74
 	colm	19
 	synt	any
 	invoke	2
+lab L7
+	line	71
+	colm	16
+	synt	endifelse
 lab L5
 	line	69
 	colm	9
@@ -571,16 +603,16 @@ lab L3
 	synt	endevery
 	unmark
 lab L1
-	mark	L6
-	var	5
-	line	76
+	mark	L8
+	var	6
+	line	77
 	colm	10
 	synt	any
 	invoke	0
 	unmark
-lab L6
+lab L8
 	pnull
-	line	77
+	line	78
 	colm	1
 	synt	any
 	pfail
@@ -594,20 +626,20 @@ proc write_list
 	con	2,010000,2,054,040
 	con	3,010000,1,135
 	declend
-	line	79
+	line	80
 	colm	12
 	synt	any
 	mark	L1
 	var	1
 	str	0
-	line	80
+	line	81
 	colm	11
 	synt	any
 	invoke	1
 	unmark
 lab L1
 	mark	L2
-	line	81
+	line	82
 	colm	5
 	synt	every
 	mark0
@@ -618,21 +650,21 @@ lab L1
 	pnull
 	pnull
 	var	0
-	line	81
+	line	82
 	colm	21
 	synt	any
 	size
 	int	1
-	line	81
+	line	82
 	colm	24
 	synt	any
 	minus
 	push1
-	line	81
+	line	82
 	colm	18
 	synt	any
 	toby
-	line	81
+	line	82
 	colm	13
 	synt	any
 	asgn
@@ -642,12 +674,12 @@ lab L1
 	pnull
 	var	0
 	var	2
-	line	82
+	line	83
 	colm	17
 	synt	any
 	subsc
 	str	2
-	line	82
+	line	83
 	colm	15
 	synt	any
 	invoke	2
@@ -655,7 +687,7 @@ lab L1
 lab L3
 	efail
 lab L4
-	line	81
+	line	82
 	colm	5
 	synt	endevery
 	unmark
@@ -666,23 +698,34 @@ lab L2
 	var	0
 	pnull
 	var	0
-	line	84
+	line	85
 	colm	14
 	synt	any
 	size
-	line	84
+	line	85
 	colm	13
 	synt	any
 	subsc
 	str	3
-	line	84
+	line	85
 	colm	11
 	synt	any
 	invoke	2
 	unmark
 lab L5
 	pnull
-	line	85
+	line	86
+	colm	1
+	synt	any
+	pfail
+	end
+proc write_dict
+	local	0,001000,x
+	declend
+	line	88
+	colm	12
+	synt	any
+	line	90
 	colm	1
 	synt	any
 	pfail

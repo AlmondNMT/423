@@ -235,6 +235,7 @@ expr_conjunct: augassign yield_OR_testlist {$$=make_tree("expr_conjunct", 2, $1,
 yield_OR_testlist: testlist
     ;
 
+// We don't let these equal_OR_yield_OR_testlist_rep repeat
 equal_OR_yield_OR_testlist_rep: {$$=make_tree("nulltree",0,NULL); }
     | equal_OR_yield_OR_testlist_rep EQUAL yield_OR_testlist {$$=make_tree("equal_OR_yield_OR_testlist_rep", 2, $1, $3);}
     ;

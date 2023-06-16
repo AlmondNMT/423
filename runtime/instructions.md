@@ -1,5 +1,9 @@
 * bitwise operators:
     * ixor, iand, ior, icomp
+    * | -> ior
+    * & -> iand
+    * ^ -> ixor
+
 
 * tables:
     * x := table()
@@ -33,4 +37,11 @@
 * loops
     * generate sequence of integers
 
-* length of iterables
+* length of iterables \*L
+
+* variadic procedures
+  procedure test(x[])
+    every k := !x do {
+        write(k)
+    }
+  end

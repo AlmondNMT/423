@@ -148,6 +148,7 @@ struct typeinfo *typecheck_testlist(struct tree *t);
 struct typeinfo *typecheck_power(struct tree *t);
 struct typeinfo *typecheck_factor(struct tree *t);
 struct typeinfo *typecheck_op(struct tree *t);
+struct typeinfo *typecheck_op_aux(struct tree *t, typeptr lhs);
 
 void validate_operand_types(struct tree *t, struct sym_table *st);
 void validate_or_test(struct tree *t, struct sym_table *st);

@@ -27,6 +27,10 @@ void gen_power(struct tree *t, struct code *code);
 void gen_func_params(struct tree *t, struct code *func);
 void gen_atom(struct tree *t, struct code *code);
 void gen_tct_code(struct tree *t, struct code *code);
+void gen_op_code(struct tree *t, struct code *code);
+void gen_for_bin_op(struct tree *t, struct code *code);
+void gen_plus_code(struct tree *t, struct code *code);
+void gen_mult_code(struct tree *t, struct code *code);
 
 // Factory function for struct code linked list generation
 struct code *create_code(char *fmt, ...);

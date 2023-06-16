@@ -614,13 +614,31 @@ typeptr typecheck_op(struct tree *t)
     if(t == NULL) return NULL;
     typeptr lhs_type = NULL, rhs_type = NULL, type = NULL;
     lhs_type = typecheck_testlist(t->kids[0]);
-    rhs_type = typecheck_testlist(t->kids[1]->kids[2]);
+    rhs_type = typecheck_op_aux(t->kids[1], lhs_type);
+    //rhs_type = typecheck_testlist(t->kids[1]->kids[2]);
     struct token *op = t->kids[1]->kids[1]->leaf;
     type = type_for_bin_op(lhs_type, rhs_type, op);
 
     // Type annotation
-    t->kids[1]->type = rhs_type;
     t->kids[0]->type = lhs_type;
+    t->kids[1]->type = rhs_type;
+    t->type = type;
+    return type;
+}
+
+typeptr typecheck_op_aux(struct tree *t, typeptr lhs)
+{
+    if(t == NULL || t->prodrule == NULLTREE || lhs == NULL) return NULL;
+    typeptr rhs = NULL, type = NULL;
+    rhs = typecheck_op_aux(t->kids[0], lhs);
+    if(rhs == NULL) {
+        // We've hit the bottom of the repeating sequence
+    } else {
+        lhs = rhs;
+    }
+    rhs = typecheck_testlist(t->kids[2]);
+    type = type_for_bin_op(lhs, rhs, t->kids[1]->leaf);
+    t->type = type;
     return type;
 }
 
