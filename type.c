@@ -342,9 +342,21 @@ typeptr type_for_bin_op_div(typeptr lhs, typeptr rhs)
 }
 
 //operand match check for ==, will always return bool because python is amazing
+// TODO: To make puny easier to translate into Unicon, we disallow equality 
+//   checking between list types and dict types
 typeptr type_for_bin_op_equals(typeptr lhs, typeptr rhs)
 {
-        return bool_typeptr;
+    switch(lhs->basetype) {
+        case LIST_TYPE:
+        case DICT_TYPE:
+            return NULL;
+    }
+    switch(rhs->basetype) {
+        case LIST_TYPE:
+        case DICT_TYPE:
+            return NULL;
+    }
+    return bool_typeptr;
 }
 
 //operand match check for greater and less kind of operators
@@ -381,10 +393,6 @@ typeptr type_for_bin_op_great_less(typeptr lhs, typeptr rhs)
                 case BOOL_TYPE:
                     return bool_typeptr;
             }
-            break;
-        case LIST_TYPE:
-            if(rhs->basetype == LIST_TYPE)
-                return bool_typeptr;
             break;
     }
     return NULL;
@@ -589,8 +597,8 @@ typeptr typecheck_factor(struct tree *t)
             t->type = type;
             return type;
     }
-    type = typecheck_power(t->kids[0]);
-    struct token *pm = t->kids[0]->kids[0]->leaf;
+    type = typecheck_factor(t->kids[1]);
+    struct token *pm = t->kids[0]->leaf;
 
     // This handles the unary operators '+' and '-', only valid for the three types below
     switch(type->basetype) {

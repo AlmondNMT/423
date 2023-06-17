@@ -412,28 +412,145 @@ void gen_testlist(struct tree *t, struct code *code)
             gen_testlist(t->kids[0], code);
             break;
         case OR_TEST:
-        case AND_TEST:
-        case COMPARISON:
-        case EXPR:
-        case XOR_EXPR:
-        case AND_EXPR:
-        case SHIFT_EXPR:
             // TODO
             break;
-        case ARITH_EXPR:
+        case AND_TEST:
             // TODO
+            break;
+        case COMPARISON:
+            gen_comp_code(t, code);
+            break;
+        case EXPR:
+            gen_ior_code(t, code);
+            break;
+        case XOR_EXPR:
+            gen_ixor_code(t, code);
+            break;
+        case AND_EXPR:
+            gen_iand_code(t, code);
+            break;
+        case SHIFT_EXPR:
+            gen_shift_code(t, code);
+            break;
+        case ARITH_EXPR:
             gen_arith_code(t, code);
             break;
         case TERM:
             gen_term_code(t, code);
             break;
         case FACTOR:
-            // TODO
+            gen_factor_code(t, code);
             break;
         case POWER:
             gen_power(t, code);
             break;
     }
+}
+
+void gen_comp_code(struct tree *t, struct code *code)
+{
+    if(t == NULL || code == NULL) return;
+    switch(t->prodrule) {
+        case COMPARISON:
+            gen_testlist(t->kids[0], code);
+            gen_comp_code(t->kids[1], code);
+            break;
+        case COMP_OP_EXPR_REP:
+            gen_comp_code(t->kids[0], code);
+            switch(t->kids[1]->leaf->category) {
+                case EQEQUAL:
+                    code->codestr = concat(code->codestr, " === ");
+                    break;
+                case NOTEQUAL:
+                    code->codestr = concat(code->codestr, " ~=== ");
+                    break;
+                default:
+                    code->codestr = concat(code->codestr, " ");
+                    code->codestr = concat(code->codestr, t->kids[1]->leaf->text);
+                    code->codestr = concat(code->codestr, " ");
+            }
+            gen_testlist(t->kids[2], code);
+            break;
+    }
+}
+
+void gen_ior_code(struct tree *t, struct code *code)
+{
+    if(t == NULL || code == NULL) return;
+    gen_ior_code_aux(t->kids[1], code, t->kids[0]);
+}
+
+void gen_ior_code_aux(struct tree *t, struct code *code, struct tree *testlist)
+{
+    if(t == NULL || code == NULL || testlist == NULL) return;
+    switch(t->prodrule) {
+        case NULLTREE:
+            gen_testlist(testlist, code);
+            break;
+        case VBAR_XOR_EXPR_REP:
+            code->codestr = concat(code->codestr, "ior(");
+            gen_ixor_code_aux(t->kids[0], code, testlist);
+            code->codestr = concat(code->codestr, ", ");
+            gen_testlist(t->kids[2], code);
+            code->codestr = concat(code->codestr, ")");
+            break;
+    }
+}
+
+void gen_ixor_code(struct tree *t, struct code *code)
+{
+    if(t == NULL || code == NULL) return;
+    gen_ixor_code_aux(t->kids[1], code, t->kids[0]);
+}
+
+void gen_ixor_code_aux(struct tree *t, struct code *code, struct tree *testlist)
+{
+    if(t == NULL || code == NULL || testlist == NULL) return;
+    switch(t->prodrule) {
+        case NULLTREE:
+            gen_testlist(testlist, code);
+            break;
+        case CARET_AND_EXPR_REP:
+            code->codestr = concat(code->codestr, "ixor(");
+            gen_ixor_code_aux(t->kids[0], code, testlist);
+            code->codestr = concat(code->codestr, ", ");
+            gen_testlist(t->kids[2], code);
+            code->codestr = concat(code->codestr, ")");
+            break;
+    }
+}
+
+void gen_iand_code(struct tree *t, struct code *code)
+{
+    if(t == NULL || code == NULL) return;
+    gen_iand_code_aux(t->kids[1], code, t->kids[0]);
+}
+
+void gen_iand_code_aux(struct tree *t, struct code *code, struct tree *testlist)
+{
+    if(t == NULL || code == NULL || testlist == NULL) return;
+    switch(t->prodrule) {
+        case NULLTREE:
+            gen_testlist(testlist, code);
+            break;
+        case AMPER_SHIFT_EXPR_REP:
+            code->codestr = concat(code->codestr, "iand(");
+            gen_iand_code_aux(t->kids[0], code, testlist);
+            code->codestr = concat(code->codestr, ", ");
+            gen_testlist(t->kids[2], code);
+            code->codestr = concat(code->codestr, ")");
+            break;
+    }
+}
+
+/**
+ * Unary operators +/- in front of numeric
+ */
+void gen_factor_code(struct tree *t, struct code *code)
+{
+    if(t == NULL || t->prodrule == NULLTREE || code == NULL) return;
+    code->codestr = concat(code->codestr, t->kids[0]->leaf->text);
+    gen_testlist(t->kids[1], code);
 }
 
 void gen_arith_code(struct tree *t, struct code *code)
@@ -464,9 +581,32 @@ void gen_arith_code(struct tree *t, struct code *code)
 }
 
 
-void gen_arith_code_str_aux(struct tree *t, struct code *code)
+void gen_shift_code(struct tree *t, struct code *code)
 {
     if(t == NULL || code == NULL) return;
+    // This is only necessary since we have to pass the testlist to the 
+    //   base of the recursion
+    gen_shift_code_aux(t->kids[1], code, t->kids[0]);
+}
+
+
+void gen_shift_code_aux(struct tree *t, struct code *code, struct tree *testlist)
+{
+    if(t == NULL || code == NULL || testlist == NULL) return;
+    switch(t->prodrule) {
+        case NULLTREE:
+            gen_testlist(testlist, code);
+            break;
+        case SHIFT_ARITH_EXPR_REP:
+            code->codestr = concat(code->codestr, "ishift(");
+            gen_shift_code_aux(t->kids[0], code, testlist);
+            code->codestr = concat(code->codestr, ", ");
+            if(t->kids[1]->leaf->category == RIGHTSHIFT) 
+                code->codestr = concat(code->codestr, "-");
+            gen_testlist(t->kids[2], code);
+            code->codestr = concat(code->codestr, ")");
+            break;
+    }
 }
 
 void gen_term_code(struct tree *t, struct code *code) 

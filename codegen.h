@@ -39,7 +39,16 @@ void gen_term_code(struct tree *t, struct code *code);
 void gen_term_code_aux(struct tree *t, struct code *code);
 void gen_term_code_str_aux(struct tree *t, struct code *code);
 void gen_arith_code(struct tree *t, struct code *code);
-void gen_arith_code_str_aux(struct tree *t, struct code *code);
+void gen_factor_code(struct tree *t, struct code *code);
+void gen_shift_code(struct tree *t, struct code *code);
+void gen_shift_code_aux(struct tree *t, struct code *code, struct tree *testlist);
+void gen_iand_code(struct tree *t, struct code *code);
+void gen_iand_code_aux(struct tree *t, struct code *code, struct tree *testlist);
+void gen_ixor_code(struct tree *t, struct code *code);
+void gen_ixor_code_aux(struct tree *t, struct code *code, struct tree *testlist);
+void gen_ior_code(struct tree *t, struct code *code);
+void gen_ior_code_aux(struct tree *t, struct code *code, struct tree *testlist);
+void gen_comp_code(struct tree *t, struct code *code);
 
 // Getting the string in a term product sequence resulting in a repl procedure call
 struct token *get_term_str(struct tree *t);

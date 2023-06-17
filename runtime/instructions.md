@@ -3,6 +3,7 @@
     * | -> ior
     * & -> iand
     * ^ -> ixor
+    * ishift(1, 2) or ishift(1, -2)
 
 
 * tables:
@@ -10,6 +11,7 @@
     * x["asdf"] := 1
     * printing tables: 
         * printing keys: every write(key(x))
+            * i^th key: 
         * printing values: every write(!x)
 
 * lists
@@ -45,3 +47,7 @@
         write(k)
     }
   end
+
+* notes: 
+    * Unicon allows you to overwrite builtin symbols with no warning, just like
+      python
