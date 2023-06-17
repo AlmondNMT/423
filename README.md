@@ -18,6 +18,7 @@ def C(x, y):
         - [x] Prevent function/classes in expressions without parentheses. This disallows 
               assigning functions to variables, as well as several other complex tasks that
               we don't want to support.
+    - [x] Chained arithmetic expressions
     - [x] Ensure that assignments are compatible
     - [x] Type-check operators and operands
         - [x] + - (bin)
@@ -30,7 +31,9 @@ def C(x, y):
     - [ ] Finish building runtime library (in Unicon)
         - [ ] Builtin imports
         - [ ] Builtin classes and functions
-        - [ ] 
+    - [ ] Chained arithmetic expressions
+    - [ ] Trailer reps
+    - [ ] conditional statements and loops
     - [ ] Local imports (like import hangman as h. This sort of requires that we can 
           already transpile the imported file into Unicon)
     - [ ] Figure out how to generate code using the tree and symbol tables.

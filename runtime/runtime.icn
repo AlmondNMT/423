@@ -68,8 +68,10 @@ procedure print(x[])
     every k := !x do {
         if type(k) === "list" then {
             write_list(k)
+            writes(" ")
         } else if type(k) === "table" then {
             write_dict(k)
+            writes(" ")
         } else {
             writes(k, " ")
         }
@@ -78,13 +80,26 @@ procedure print(x[])
 end
 
 procedure write_list(x)
-    writes("[")
-    every k := 1 to *x - 1 do {
-        writes(x[k], ", ")
+    if *x == 0 then {
+        writes("[]")
+    } 
+    else {
+        writes("[")
+        every k := 1 to *x - 1 do {
+            writes(x[k], ", ")
+        }
+        writes(x[*x], "]")
     }
-    writes(x[*x], "]")
 end
 
 procedure write_dict(x)
-    
+    if *x == 0 then {
+        writes("{}")
+    } 
+    else {
+        writes("{")
+        every k := key(x) do {
+            writes(k, ": ", x[k], ", ")
+        }
+    }
 end

@@ -3,9 +3,10 @@
 
 #include <stdbool.h>
 
-struct tree;
 struct sym_table;
 struct token;
+struct tree;
+struct typeinfo;
 
 struct code {
     int prodrule;
@@ -28,9 +29,20 @@ void gen_func_params(struct tree *t, struct code *func);
 void gen_atom(struct tree *t, struct code *code);
 void gen_tct_code(struct tree *t, struct code *code);
 void gen_op_code(struct tree *t, struct code *code);
-void gen_for_bin_op(struct tree *t, struct code *code);
+struct tree * gen_op_code_aux(struct tree *t, struct code *code, struct tree *testlist);
+void gen_for_bin_op(struct tree *t, struct code *code, struct token *op);
 void gen_plus_code(struct tree *t, struct code *code);
+void gen_minus_code(struct tree *t, struct code *code);
 void gen_mult_code(struct tree *t, struct code *code);
+void gen_div_code(struct tree *t, struct code *code);
+void gen_term_code(struct tree *t, struct code *code);
+void gen_term_code_aux(struct tree *t, struct code *code);
+void gen_term_code_str_aux(struct tree *t, struct code *code);
+void gen_arith_code(struct tree *t, struct code *code);
+void gen_arith_code_str_aux(struct tree *t, struct code *code);
+
+// Getting the string in a term product sequence resulting in a repl procedure call
+struct token *get_term_str(struct tree *t);
 
 // Factory function for struct code linked list generation
 struct code *create_code(char *fmt, ...);

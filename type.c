@@ -137,7 +137,6 @@ typeptr type_for_bin_op(typeptr lhs, typeptr rhs, struct token *tok)
     if(lhs->basetype == ANY_TYPE || rhs->basetype == ANY_TYPE) return alcbuiltin(ANY_TYPE);
 
     // We're expecting to see some kind of operator token here. We can default to 'invalid operator'
-    // TODO: << >> | & 
     switch(tok->category) {
         case PLUS:
             ret = type_for_bin_op_plus(lhs, rhs);
@@ -615,7 +614,6 @@ typeptr typecheck_op(struct tree *t)
     typeptr lhs_type = NULL, rhs_type = NULL, type = NULL;
     lhs_type = typecheck_testlist(t->kids[0]);
     rhs_type = typecheck_op_aux(t->kids[1], lhs_type);
-    //rhs_type = typecheck_testlist(t->kids[1]->kids[2]);
     struct token *op = t->kids[1]->kids[1]->leaf;
     type = type_for_bin_op(lhs_type, rhs_type, op);
 

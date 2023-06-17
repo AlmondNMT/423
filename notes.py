@@ -77,4 +77,10 @@ Typechecking (Essentially the same as B-minor, but with ANY_TYPE
   ANY and ANY
 
 '''
-a.b = 1
+a.b = 1 # Disallowed
+
+"""
+term: str indicates multiplication of a string with some sequence of integers. 
+    Search for the string in the chain, then add the other parts, then gather 
+    the rest of the integers and multiply them in the second argument of repl.
+"""

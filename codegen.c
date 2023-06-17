@@ -156,7 +156,7 @@ struct code *gen_expr_stmt(struct tree *t, struct code *code) {
     gen_testlist(t->kids[0], tmp);
     switch(t->kids[1]->prodrule) {
         case EQUAL_OR_YIELD_OR_TESTLIST_REP:
-            tmp->codestr = concat(tmp->codestr, " = ");
+            tmp->codestr = concat(tmp->codestr, " := ");
             gen_testlist(t->kids[1]->kids[1], tmp);
             break;
         case EXPR_CONJUNCT:
@@ -418,9 +418,14 @@ void gen_testlist(struct tree *t, struct code *code)
         case XOR_EXPR:
         case AND_EXPR:
         case SHIFT_EXPR:
+            // TODO
+            break;
         case ARITH_EXPR:
+            // TODO
+            gen_arith_code(t, code);
+            break;
         case TERM:
-            gen_op_code(t, code);
+            gen_term_code(t, code);
             break;
         case FACTOR:
             // TODO
@@ -431,19 +436,203 @@ void gen_testlist(struct tree *t, struct code *code)
     }
 }
 
+void gen_arith_code(struct tree *t, struct code *code)
+{
+    if(t == NULL || code == NULL) return;
+    switch(t->prodrule) {
+        case ARITH_EXPR:
+            gen_testlist(t->kids[0], code);
+            gen_arith_code(t->kids[1], code);
+            break;
+        case PM_TERM_REP:
+            gen_arith_code(t->kids[0], code);
+            switch(t->type->basetype) {
+                case STRING_TYPE:
+                    code->codestr = concat(code->codestr, " || ");
+                    break;
+                case LIST_TYPE:
+                    code->codestr = concat(code->codestr, " ||| ");
+                    break;
+                default:
+                    code->codestr = concat(code->codestr, " ");
+                    code->codestr = concat(code->codestr, t->kids[1]->leaf->text);
+                    code->codestr = concat(code->codestr, " ");
+            }
+            gen_testlist(t->kids[2], code);
+            break;
+    }
+}
+
+
+void gen_arith_code_str_aux(struct tree *t, struct code *code)
+{
+    if(t == NULL || code == NULL) return;
+}
+
+void gen_term_code(struct tree *t, struct code *code) 
+{
+    if(t == NULL || code == NULL) return;
+    struct token *string_token = NULL;
+    switch(t->type->basetype) {
+        case STRING_TYPE: 
+            // There's a string somewhere being multiplied by some sequence of 
+            //   integers, e.g, 2 * "asdf"
+            string_token = get_term_str(t);
+            code->codestr = concat(code->codestr, "repl(");
+            code->codestr = concat(code->codestr, string_token->text);
+            code->codestr = concat(code->codestr, ", ");
+            code->codestr = concat(code->codestr, "1 * ");
+            gen_term_code_str_aux(t, code);
+            code->codestr = concat(code->codestr, ")");
+            break;
+        default:
+            gen_testlist(t->kids[0], code);
+            gen_term_code_aux(t->kids[1], code);
+    }
+}
+
+void gen_term_code_aux(struct tree *t, struct code *code)
+{
+    if(t == NULL || code == NULL) return;
+    switch(t->prodrule) {
+        case FACTOPS_FACTOR_REP:
+            gen_term_code_aux(t->kids[0], code);
+            code->codestr = concat(code->codestr, " * ");
+            gen_testlist(t->kids[2], code);
+            break;
+    }
+}
+
+
+/**
+ * We want to generate the sequence of multipliers for the string.
+ */
+void gen_term_code_str_aux(struct tree *t, struct code *code)
+{
+    if(t == NULL || code == NULL) return;
+    switch(t->prodrule) {
+        case TERM:
+            if(t->kids[0]->type->basetype != STRING_TYPE)
+                gen_testlist(t->kids[0], code);
+            gen_term_code_str_aux(t->kids[1], code);
+            break;
+        case FACTOPS_FACTOR_REP:
+            gen_term_code_str_aux(t->kids[0], code);
+            if(t->kids[2]->type->basetype != STRING_TYPE) {
+                code->codestr = concat(code->codestr, " * ");
+                gen_testlist(t->kids[2], code);
+            }
+            break;
+    }
+}
+
+/**
+ * This should guarantee that a string is returned
+ */
+struct token *get_term_str(struct tree *t)
+{
+    if(t == NULL) return NULL;
+    struct token *lhs = NULL, *rhs = NULL;
+    switch(t->prodrule) {
+        case TERM:
+            lhs = get_term_str(t->kids[0]);
+            if(lhs != NULL) return lhs;
+            rhs = get_term_str(t->kids[1]);
+            if(rhs != NULL) return rhs;
+            break;
+        case FACTOR:
+            return t->kids[1]->kids[0]->leaf;
+        case POWER:
+            if(t->type->basetype == STRING_TYPE)
+                return t->kids[0]->leaf;
+            return NULL;
+        case FACTOPS_FACTOR_REP:
+            lhs = get_term_str(t->kids[0]);
+            if(lhs != NULL) return lhs;
+            rhs = get_term_str(t->kids[2]);
+    }
+    return rhs;
+}
+
 void gen_op_code(struct tree *t, struct code *code)
 {
     if(t == NULL || code == NULL) return;
     struct token *op = t->kids[1]->kids[1]->leaf;
-    typeptr lhs_type = t->kids[0]->type, rhs_type = t->kids[1]->kids[2]->type;
+    typeptr lhs_type = NULL, rhs_type = NULL;
+    lhs_type = t->kids[0]->type;
+    
+}
+
+struct tree *gen_op_code_aux(struct tree *t, struct code *code, struct tree *testlist)
+{
+    if(t == NULL || t->prodrule == NULLTREE || code == NULL || testlist == NULL) return NULL;
+    struct tree *rhs = NULL;
+    rhs = gen_op_code_aux(t->kids[0], code, testlist);
+    if(rhs == NULL) {
+        // If we've reached the bottom of recursive sequence, we generate the 
+        //   code for the LHS and the RHS
+        rhs = t->kids[2];
+        //gen_for_bin_op(testlist, rhs, 
+    } else {
+        // Just the operator and the RHS
+
+    }
+    return rhs;
+}
+
+void gen_for_bin_op(struct tree *t, struct code *code, struct token *op)
+{
     switch(op->category) {
         case PLUS:
             gen_plus_code(t, code);
             break;
+        case MINUS:
+            gen_minus_code(t, code);
+            break;
         case STAR:
             gen_mult_code(t, code);
             break;
+        case DOUBLESLASH:
+        case PERCENT:
+        case SLASH:
+            // TODO
+            break;
+        case DOUBLESTAR:
+            // TODO
+            break;
+        case CIRCUMFLEX:
+        case VBAR:
+        case AMPER:
+        case LEFTSHIFT:
+        case RIGHTSHIFT:
+            // TODO
+            break;
+        case LESS:
+        case GREATER:
+        case LESSEQUAL:
+        case GREATEREQUAL:
+            // TODO
+            break;
+        case NOTEQUAL:
+        case EQEQUAL:
+            // TODO
+            break;
+        case AND:
+        case OR:
+            // TODO
+            break;
     }
+}
+
+
+void gen_minus_code(struct tree *t, struct code *code)
+{
+    // TODO
+}
+
+void gen_div_code(struct tree *t, struct code *code)
+{
+    // TODO
 }
 
 void gen_plus_code(struct tree *t, struct code *code)
