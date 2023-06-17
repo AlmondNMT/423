@@ -49,6 +49,9 @@ void gen_ixor_code_aux(struct tree *t, struct code *code, struct tree *testlist)
 void gen_ior_code(struct tree *t, struct code *code);
 void gen_ior_code_aux(struct tree *t, struct code *code, struct tree *testlist);
 void gen_comp_code(struct tree *t, struct code *code);
+void gen_not_code(struct tree *t, struct code *code);
+void gen_and_code(struct tree *t, struct code *code);
+void gen_or_code(struct tree *t, struct code *code);
 
 // Getting the string in a term product sequence resulting in a repl procedure call
 struct token *get_term_str(struct tree *t);

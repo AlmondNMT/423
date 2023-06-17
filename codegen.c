@@ -412,10 +412,13 @@ void gen_testlist(struct tree *t, struct code *code)
             gen_testlist(t->kids[0], code);
             break;
         case OR_TEST:
-            // TODO
+            gen_or_code(t, code);
             break;
         case AND_TEST:
-            // TODO
+            gen_and_code(t, code);
+            break;
+        case NOT_TEST:
+            gen_not_code(t, code);
             break;
         case COMPARISON:
             gen_comp_code(t, code);
@@ -447,13 +450,61 @@ void gen_testlist(struct tree *t, struct code *code)
     }
 }
 
+
+void gen_not_code(struct tree *t, struct code *code)
+{
+    if(t == NULL || t->prodrule == NULLTREE || code == NULL) return;
+    code->codestr = concat(code->codestr, " (not (");
+    gen_testlist(t->kids[0], code);
+    code->codestr = concat(code->codestr, "))");
+}
+
+
+void gen_or_code(struct tree *t, struct code *code)
+{
+    if(t == NULL || code == NULL) return;
+    switch(t->prodrule) {
+        case OR_TEST:
+            code->codestr = concat(code->codestr, "(");
+            gen_testlist(t->kids[0], code);
+            gen_or_code(t->kids[1], code);
+            code->codestr = concat(code->codestr, ")");
+            break;
+        case OR_AND_TEST_REP:
+            gen_or_code(t->kids[0], code);
+            code->codestr = concat(code->codestr, " | ");
+            gen_testlist(t->kids[2], code);
+            break;
+    }
+}
+
+void gen_and_code(struct tree *t, struct code *code)
+{
+    if(t == NULL || code == NULL) return;
+    switch(t->prodrule) {
+        case AND_TEST:
+            code->codestr = concat(code->codestr, "(");
+            gen_testlist(t->kids[0], code);
+            gen_and_code(t->kids[1], code);
+            code->codestr = concat(code->codestr, ")");
+            break;
+        case AND_NOT_TEST_REP:
+            gen_and_code(t->kids[0], code);
+            code->codestr = concat(code->codestr, " & ");
+            gen_testlist(t->kids[2], code);
+            break;
+    }
+}
+
 void gen_comp_code(struct tree *t, struct code *code)
 {
     if(t == NULL || code == NULL) return;
     switch(t->prodrule) {
-        case COMPARISON:
+        case COMPARISON: 
+            code->codestr = concat(code->codestr, "(");
             gen_testlist(t->kids[0], code);
             gen_comp_code(t->kids[1], code);
+            code->codestr = concat(code->codestr, ")");
             break;
         case COMP_OP_EXPR_REP:
             gen_comp_code(t->kids[0], code);

@@ -612,8 +612,15 @@ typeptr typecheck_factor(struct tree *t)
     return type;
 }
 
+typeptr typecheck_not(struct tree *t)
+{
+    if(t == NULL) return NULL;
+    typecheck_testlist(t->kids[0]);
+    return bool_typeptr;
+}
+
 /**
- * Everything between a COMPARISON and a TERM has the exact same tree structure,
+ * Everything between a COMPARISON and a TERM (except NOT_TEST) has the exact same tree structure,
  *   so this function is used for all of them
  */
 typeptr typecheck_op(struct tree *t)
@@ -1184,6 +1191,10 @@ typeptr typecheck_testlist(struct tree *t)
     // Note: the TEST nonterminal never presents
     switch(t->prodrule) {
         case TESTLIST:
+            type = typecheck_testlist(t->kids[0]);
+            break;
+        case NOT_TEST:
+            type = typecheck_not(t);
             break;
         case OR_TEST:
         case AND_TEST:

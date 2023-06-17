@@ -1,3 +1,11 @@
+* conditional expressions: still trying to make sense of these
+    * a := 1
+      b := 2
+      if not (a === b) then {
+        write("asdf")
+      }
+      # It is required to wrap the failing expression in parentheses
+
 * bitwise operators:
     * ixor, iand, ior, icomp
     * | -> ior
