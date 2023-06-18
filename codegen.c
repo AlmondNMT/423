@@ -130,10 +130,10 @@ struct code * gen_stmts(struct tree *t, struct code *code, unsigned int tablevel
             code = gen_if_stmt(t, code, tablevel);
             break;
         case WHILE_STMT:
-            // TODO
+            code = gen_while_stmt(t, code, tablevel);
             break;
         case FOR_STMT:
-            // TODO
+            code = gen_for_stmt(t, code, tablevel);
             break;
         case RETURN_STMT:
             code = gen_return_stmt(t, code);
@@ -145,6 +145,34 @@ struct code * gen_stmts(struct tree *t, struct code *code, unsigned int tablevel
                 code = gen_stmts(t->kids[i], code, tablevel);
             }
     }
+    return code;
+}
+
+
+struct code *gen_for_stmt(struct tree *t, struct code *code, unsigned int tablevel)
+{
+    if(t == NULL || code == NULL) return NULL;
+    struct code *tmp = create_code("%s %s %s", "every ", mangle_suffix(t->kids[0]->leaf), " := ");
+    tmp->codestr = concat(tab(tablevel), tmp->codestr);
+    gen_testlist(t->kids[1], tmp);
+    append_code(code, tmp);
+    return code;
+}
+
+struct code *gen_while_stmt(struct tree *t, struct code *code, unsigned int tablevel)
+{
+    if(t == NULL || code == NULL) return NULL;
+    struct code *tmp = create_code("%s", "while ");
+    tmp->codestr = concat(tab(tablevel), tmp->codestr);
+    gen_testlist(t->kids[0], tmp);
+    tmp->codestr = concat(tmp->codestr, " do {");
+
+    gen_stmts(t->kids[1], tmp, tablevel + 1);
+
+    tmp = gen_close_bracket(tmp, tablevel);
+
+    // We ignore the else suite
+    code = append_code(code, tmp);
     return code;
 }
 
@@ -168,23 +196,33 @@ struct code *gen_if_stmt(struct tree *t, struct code *code, unsigned int tableve
             
             // Generate else if
             tmp = gen_if_stmt(t->kids[2], tmp, tablevel);
-            code = append_code(code, tmp);
 
             // Generate else
+            tmp = gen_if_stmt(t->kids[3], tmp, tablevel);
 
+            code = append_code(code, tmp);
             break;
         case ELIF_TEST_COLON_SUITE_REP:
             // else if
             code = gen_if_stmt(t->kids[0], code, tablevel);
             tmp = create_code("%s", "else if ");
 
-            // Ident
+            // Indent
             tmp->codestr = concat(tab(tablevel), tmp->codestr);
             gen_testlist(t->kids[1], tmp);
             tmp->codestr = concat(tmp->codestr, " then {");
             tmp = gen_stmts(t->kids[2], tmp, tablevel + 1);
             tmp = gen_close_bracket(tmp, tablevel);
 
+            code = append_code(code, tmp);
+            break;
+
+        case ELSE_COLON_SUITE_OPT:
+            tmp = create_code("%s", "else {");
+            // Indent
+            tmp->codestr = concat(tab(tablevel), tmp->codestr);
+            tmp = gen_stmts(t->kids[0], tmp, tablevel + 1);
+            tmp = gen_close_bracket(tmp, tablevel);
             code = append_code(code, tmp);
             break;
     }
@@ -239,6 +277,9 @@ void gen_power(struct tree *t, struct code *code)
         // If the RHS is a name
         if(leaf->category == NAME) {
             SymbolTableEntry entry = lookup(leaf->text, t->stab);
+            if(entry->isbuiltin) {
+                printf("builtin_found: %s\n", entry->ident);
+            }
             if(t->kids[1]->prodrule == TRAILER_REP) {
                 seq = build_trailer_sequence(t->kids[1]);
                 // TODO hard part
@@ -798,7 +839,9 @@ void gen_term_code_aux(struct tree *t, struct code *code)
     switch(t->prodrule) {
         case FACTOPS_FACTOR_REP:
             gen_term_code_aux(t->kids[0], code);
-            code->codestr = concat(code->codestr, " * ");
+            code->codestr = concat(code->codestr, " ");
+            code->codestr = concat(code->codestr, t->kids[1]->leaf->text);
+            code->codestr = concat(code->codestr, " ");
             gen_testlist(t->kids[2], code);
             break;
     }
@@ -855,77 +898,6 @@ struct token *get_term_str(struct tree *t)
     return rhs;
 }
 
-void gen_op_code(struct tree *t, struct code *code)
-{
-    if(t == NULL || code == NULL) return;
-    struct token *op = t->kids[1]->kids[1]->leaf;
-    typeptr lhs_type = NULL, rhs_type = NULL;
-    lhs_type = t->kids[0]->type;
-    
-}
-
-struct tree *gen_op_code_aux(struct tree *t, struct code *code, struct tree *testlist)
-{
-    if(t == NULL || t->prodrule == NULLTREE || code == NULL || testlist == NULL) return NULL;
-    struct tree *rhs = NULL;
-    rhs = gen_op_code_aux(t->kids[0], code, testlist);
-    if(rhs == NULL) {
-        // If we've reached the bottom of recursive sequence, we generate the 
-        //   code for the LHS and the RHS
-        rhs = t->kids[2];
-        //gen_for_bin_op(testlist, rhs, 
-    } else {
-        // Just the operator and the RHS
-
-    }
-    return rhs;
-}
-
-void gen_for_bin_op(struct tree *t, struct code *code, struct token *op)
-{
-    switch(op->category) {
-        case PLUS:
-            gen_plus_code(t, code);
-            break;
-        case MINUS:
-            gen_minus_code(t, code);
-            break;
-        case STAR:
-            gen_mult_code(t, code);
-            break;
-        case DOUBLESLASH:
-        case PERCENT:
-        case SLASH:
-            // TODO
-            break;
-        case DOUBLESTAR:
-            // TODO
-            break;
-        case CIRCUMFLEX:
-        case VBAR:
-        case AMPER:
-        case LEFTSHIFT:
-        case RIGHTSHIFT:
-            // TODO
-            break;
-        case LESS:
-        case GREATER:
-        case LESSEQUAL:
-        case GREATEREQUAL:
-            // TODO
-            break;
-        case NOTEQUAL:
-        case EQEQUAL:
-            // TODO
-            break;
-        case AND:
-        case OR:
-            // TODO
-            break;
-    }
-}
-
-
 void gen_minus_code(struct tree *t, struct code *code)
 {
     // TODO
@@ -951,34 +923,6 @@ void gen_plus_code(struct tree *t, struct code *code)
             break;
     }
     gen_testlist(t->kids[1]->kids[2], code);
-}
-
-void gen_mult_code(struct tree *t, struct code *code)
-{
-    if(t == NULL || code == NULL) return;
-    typeptr lhs_type = t->kids[0]->type, rhs_type = t->kids[1]->kids[2]->type;
-    switch(lhs_type->basetype) {
-        case STRING_TYPE:
-            code->codestr = concat(code->codestr, "repl(");
-            gen_testlist(t->kids[0], code);
-            code->codestr = concat(code->codestr, ", ");
-            gen_testlist(t->kids[1]->kids[2], code);
-            code->codestr = concat(code->codestr, ")");
-            break;
-        case INT_TYPE:
-            if(rhs_type->basetype == STRING_TYPE) {
-                code->codestr = concat(code->codestr, "repl(");
-                gen_testlist(t->kids[1]->kids[2], code);
-                code->codestr = concat(code->codestr, ", ");
-                gen_testlist(t->kids[0], code);
-                code->codestr = concat(code->codestr, ")");
-                break;
-            }
-        default:
-            gen_testlist(t->kids[0], code);
-            code->codestr = concat(code->codestr, " * ");
-            gen_testlist(t->kids[1]->kids[2], code);
-    }
 }
 
 char *tab(unsigned int level)

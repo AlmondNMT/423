@@ -218,10 +218,10 @@ stmt_rep: stmt
     | stmt_rep stmt {$$=make_tree("stmt_rep", 2, $1, $2);} 
     ;
 
-while_stmt: WHILE test COLON suite else_colon_suite_opt {$$=make_tree("while_stmt", 3, $2, $4, $5);} 
+while_stmt: WHILE test COLON suite {$$=make_tree("while_stmt", 2, $2, $4);} 
     ;
 
-for_stmt: FOR NAME IN testlist COLON suite else_colon_suite_opt {$$=make_tree("for_stmt", 4, $2, $4, $6, $7);} 
+for_stmt: FOR NAME IN testlist COLON suite {$$=make_tree("for_stmt", 3, $2, $4, $6);} 
     ;
 
 // Expressions

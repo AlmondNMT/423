@@ -33,4 +33,8 @@ else:
     print(5)
 
 while True:
-    d: int = 23
+    d: str = "asdf"
+    2 * 3 * d
+
+for i in range(1, 2, 3):
+    print(i)
