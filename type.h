@@ -140,6 +140,7 @@ typeptr type_for_bin_op_mod(typeptr lhs, typeptr rhs);
 void typecheck_expr_stmt(struct tree *t);
 void typecheck(struct tree *t);
 void typecheck_decl_stmt(struct tree *t);
+void typecheck_if_stmt(struct tree *t);
 void typecheck_func_ret_type(struct tree *t);
 bool typecheck_func_ret_type_aux(struct tree *t, typeptr returntype, struct token *ftok);
 void typecheck_listmaker_contents(struct tree *t);

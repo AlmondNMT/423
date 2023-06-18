@@ -122,13 +122,12 @@ struct code * gen_stmts(struct tree *t, struct code *code, unsigned int tablevel
             tmp->codestr = concat(tab(tablevel), tmp->codestr);
             break;
         case EXPR_STMT:
-            // TODO
             code = gen_expr_stmt(t, code);
             tmp = get_tail(code);
             tmp->codestr = concat(tab(tablevel), tmp->codestr);
             break;
         case IF_STMT:
-            // TODO
+            code = gen_if_stmt(t, code, tablevel);
             break;
         case WHILE_STMT:
             // TODO
@@ -149,6 +148,57 @@ struct code * gen_stmts(struct tree *t, struct code *code, unsigned int tablevel
     return code;
 }
 
+struct code *gen_if_stmt(struct tree *t, struct code *code, unsigned int tablevel)
+{
+    if(t == NULL || code == NULL) return NULL;
+    struct code *tmp = NULL;
+    switch(t->prodrule) {
+        case IF_STMT:
+            tmp = create_code("%s", "if ");
+            gen_testlist(t->kids[0], tmp);
+            tmp->codestr = concat(tmp->codestr, " then {");
+            // Indent
+            tmp->codestr = concat(tab(tablevel), tmp->codestr);
+
+            // Generate suite
+            gen_stmts(t->kids[1], tmp, tablevel + 1);
+
+            // Closing brackets
+            tmp = gen_close_bracket(tmp, tablevel);
+            
+            // Generate else if
+            tmp = gen_if_stmt(t->kids[2], tmp, tablevel);
+            code = append_code(code, tmp);
+
+            // Generate else
+
+            break;
+        case ELIF_TEST_COLON_SUITE_REP:
+            // else if
+            code = gen_if_stmt(t->kids[0], code, tablevel);
+            tmp = create_code("%s", "else if ");
+
+            // Ident
+            tmp->codestr = concat(tab(tablevel), tmp->codestr);
+            gen_testlist(t->kids[1], tmp);
+            tmp->codestr = concat(tmp->codestr, " then {");
+            tmp = gen_stmts(t->kids[2], tmp, tablevel + 1);
+            tmp = gen_close_bracket(tmp, tablevel);
+
+            code = append_code(code, tmp);
+            break;
+    }
+    return code;
+}
+
+
+struct code *gen_close_bracket(struct code *code, unsigned int tablevel)
+{
+    struct code *tmp = create_code("%s", "}");
+    tmp->codestr = concat(tab(tablevel), tmp->codestr);
+    code = append_code(code, tmp);
+    return code;
+}
 
 struct code *gen_expr_stmt(struct tree *t, struct code *code) {
     if(t == NULL || code == NULL) return NULL;
@@ -188,6 +238,7 @@ void gen_power(struct tree *t, struct code *code)
     if(t->kids[0]->leaf != NULL) {
         // If the RHS is a name
         if(leaf->category == NAME) {
+            SymbolTableEntry entry = lookup(leaf->text, t->stab);
             if(t->kids[1]->prodrule == TRAILER_REP) {
                 seq = build_trailer_sequence(t->kids[1]);
                 // TODO hard part
@@ -199,7 +250,13 @@ void gen_power(struct tree *t, struct code *code)
         } 
         else {
             // Add the literal leaf to the codestr
-            code->codestr = concat(code->codestr, leaf->text);
+            // Boolean literals inside of arithmetic expressions, convert to integers. 
+            //   If they're in an IF TEST, convert to the expression 0 === 1 for False and 1
+            //   for True
+            if(t->type->basetype == BOOL_TYPE) 
+                convert_power_bool(t, code);
+            else 
+                code->codestr = concat(code->codestr, leaf->text);
         }
     }
 
@@ -207,6 +264,35 @@ void gen_power(struct tree *t, struct code *code)
     if(t->kids[2]->prodrule) {
         code->codestr = concat(code->codestr, " ^ ");
         gen_testlist(t->kids[2]->kids[1], code);
+    }
+}
+
+void convert_power_bool(struct tree *t, struct code *code)
+{
+    if(t == NULL || code == NULL) return;
+    struct token *leaf = t->kids[0]->leaf;
+    switch(leaf->category) {
+        case PYTRUE:
+            code->codestr = concat(code->codestr, "1");
+            break;
+        case PYFALSE:
+            // If we encounter a False, we have to determine whether to make it
+            //   0 if it's in an arithmetic expression, or 0 === 1 if it's in a 
+            //   logical one.
+            switch(t->parent->prodrule) {
+                case WHILE_STMT:
+                case IF_STMT:
+                case OR_TEST:
+                case OR_AND_TEST_REP:
+                case AND_TEST:
+                case AND_NOT_TEST_REP:
+                case NOT_TEST:
+                    code->codestr = concat(code->codestr, "0 === 1");
+                    break;
+                default:
+                    code->codestr = concat(code->codestr, "0");
+            }
+            break;
     }
 }
 
@@ -478,9 +564,9 @@ void gen_testlist(struct tree *t, struct code *code)
 void gen_not_code(struct tree *t, struct code *code)
 {
     if(t == NULL || t->prodrule == NULLTREE || code == NULL) return;
-    code->codestr = concat(code->codestr, " (not (");
+    code->codestr = concat(code->codestr, "not (");
     gen_testlist(t->kids[0], code);
-    code->codestr = concat(code->codestr, "))");
+    code->codestr = concat(code->codestr, ")");
 }
 
 

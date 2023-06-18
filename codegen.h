@@ -22,6 +22,8 @@ struct code * gen_globals(struct tree *t, struct code *code);
 struct code * gen_decl_stmt(struct tree *t, struct code *code);
 struct code * gen_return_stmt(struct tree *t, struct code *code);
 struct code * gen_expr_stmt(struct tree *t, struct code *code);
+struct code * gen_if_stmt(struct tree *t, struct code *code, unsigned int tablevel);
+struct code * gen_close_bracket(struct code *code, unsigned int tablevel);
 void gen_table(struct tree *t, struct code *code);
 void gen_testlist(struct tree *t, struct code *code);
 void gen_listmaker(struct tree *t, struct code *code);
@@ -53,6 +55,9 @@ void gen_comp_code(struct tree *t, struct code *code);
 void gen_not_code(struct tree *t, struct code *code);
 void gen_and_code(struct tree *t, struct code *code);
 void gen_or_code(struct tree *t, struct code *code);
+
+// Convert booleans into the appropriate type
+void convert_power_bool(struct tree *t, struct code *code);
 
 // Getting the string in a term product sequence resulting in a repl procedure call
 struct token *get_term_str(struct tree *t);

@@ -253,7 +253,9 @@ void prune_tree(struct tree *t, int childnumber)
             if(child_count == 1) {
                 // Attach the parent to its only grandchild
                 t->parent->kids[childnumber] = t->kids[child_index];
+                t->kids[child_index]->parent = t->parent;
                 t->kids[child_index] = NULL;
+                
                 //free_tree(t);
             }
         }

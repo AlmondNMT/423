@@ -481,8 +481,9 @@ paramlist alcparam(char *name, typeptr type)
  * TODO:
  *  ☑ Finish adding function type information
  *  ☑ Add class type information (NOT SUPPORTED)
- *  ☐ Propagate type information through assignments 
- *  ☐ Get type information for declarations
+ *  ☑ Propagate type information through assignments 
+ *  ☑ Get type information for declarations
+ *  ☐ Get type information for the if_stmt TEST
 */
 void typecheck(struct tree *t)
 {
@@ -500,6 +501,12 @@ void typecheck(struct tree *t)
         case FOR_STMT:
             typecheck_testlist(t->kids[1]);
             break;
+        case IF_STMT:
+            typecheck_if_stmt(t);
+            break;
+        case WHILE_STMT:
+            typecheck_testlist(t->kids[0]);
+            break;
     }
     for(int i = 0; i < t->nkids; i++) {
         typecheck(t->kids[i]);
@@ -507,6 +514,30 @@ void typecheck(struct tree *t)
 
 }
 
+
+/**
+ * Propagate type information into if_stmt
+ */
+void typecheck_if_stmt(struct tree *t)
+{
+    if(t == NULL) return;
+    switch(t->prodrule) {
+        case IF_STMT:
+            // The test 
+            typecheck_testlist(t->kids[0]);
+
+            // The suite is automatically checked
+
+            // Elif sequence
+            typecheck_if_stmt(t->kids[2]);
+
+            break;
+        case ELIF_TEST_COLON_SUITE_REP:
+            typecheck_if_stmt(t->kids[0]);
+            typecheck_testlist(t->kids[1]);
+            break;
+    }
+}
 
 /**
  * Ensure that listmaker contains only valid types
