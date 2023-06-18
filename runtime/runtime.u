@@ -1,5 +1,5 @@
 version	U12.1.00
-uid	runtime.u1-1687046031-0
+uid	runtime.u1-1687049468-0
 impl	local
 global	13
 	0,000005,sum_1,1
@@ -778,6 +778,7 @@ proc write_dict
 	con	2,010000,1,173
 	con	3,010000,2,072,040
 	con	4,010000,2,054,040
+	con	5,010000,1,175
 	declend
 	line	95
 	colm	12
@@ -817,6 +818,7 @@ lab L2
 	invoke	1
 	unmark
 lab L4
+	mark	L5
 	line	101
 	colm	9
 	synt	every
@@ -851,12 +853,20 @@ lab L4
 	synt	any
 	invoke	4
 	unmark
-lab L5
-	efail
 lab L6
+	efail
+lab L7
 	line	101
 	colm	9
 	synt	endevery
+	unmark
+lab L5
+	var	1
+	str	5
+	line	104
+	colm	15
+	synt	any
+	invoke	1
 lab L3
 	line	96
 	colm	5
@@ -864,7 +874,7 @@ lab L3
 	unmark
 lab L1
 	pnull
-	line	105
+	line	106
 	colm	1
 	synt	any
 	pfail

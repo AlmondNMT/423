@@ -222,13 +222,37 @@ void gen_atom(struct tree *t, struct code *code)
             break;
         case LISTMAKER_OPT:
             code->codestr = concat(code->codestr, "[");
-            gen_testlist(t->kids[0]->kids[0], code);
+            gen_listmaker(t->kids[0]->kids[0], code);
             code->codestr = concat(code->codestr, "]");
             break;
         case DICTORSETMAKER_OPT:
             code->codestr = concat(code->codestr, "table(");
-            gen_table(t->kids[0], code);
+            gen_table(t->kids[0]->kids[0], code);
             code->codestr = concat(code->codestr, ")");
+            break;
+    }
+}
+
+/**
+ * Contents of a list
+ */
+void gen_listmaker(struct tree *t, struct code *code)
+{
+    if(t == NULL || code == NULL) return;
+    switch(t->prodrule) {
+        case NULLTREE: 
+            return;
+        case LISTMAKER:
+            gen_testlist(t->kids[0], code);
+            gen_listmaker(t->kids[1], code);
+            break;
+        case LISTMAKER_OPTIONS:
+            gen_listmaker(t->kids[0], code);
+            break;
+        case COMMA_TEST_REP:
+            gen_listmaker(t->kids[0], code);
+            code->codestr = concat(code->codestr, ", ");
+            gen_testlist(t->kids[1], code);
             break;
     }
 }

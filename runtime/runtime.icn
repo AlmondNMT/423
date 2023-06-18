@@ -101,5 +101,6 @@ procedure write_dict(x)
         every k := key(x) do {
             writes(k, ": ", x[k], ", ")
         }
+        writes("}")
     }
 end

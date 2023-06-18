@@ -761,6 +761,13 @@ typeptr typecheck_atom_trailer(struct trailer *seq, typeptr atom_type, struct to
     const char *type_name = print_type(current_type);
     // We must ensure that NAME belongs to the class symbol table of the current type
     if(seq->prodrule == NAME) {
+        // Disallow append and remove from LISTS and DICTS on the line they're defined
+        switch(current_type->basetype) {
+            case LIST_TYPE:
+            case DICT_TYPE:
+                semantic_error(desc, "variable expected for field access instead of literal '%s'\n", print_type(current_type));
+                break;
+        }
         // We pass this along to get_trailer_rep_type once we have a symbol table entry
         rhs = lookup_current(seq->name, atom_type->u.cls.st);
         if(rhs == NULL) semantic_error(desc, "'%s' object has no attribute '%s'\n", type_name, seq->name);

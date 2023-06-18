@@ -24,6 +24,7 @@ struct code * gen_return_stmt(struct tree *t, struct code *code);
 struct code * gen_expr_stmt(struct tree *t, struct code *code);
 void gen_table(struct tree *t, struct code *code);
 void gen_testlist(struct tree *t, struct code *code);
+void gen_listmaker(struct tree *t, struct code *code);
 void gen_power(struct tree *t, struct code *code);
 void gen_func_params(struct tree *t, struct code *func);
 void gen_atom(struct tree *t, struct code *code);

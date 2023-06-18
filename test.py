@@ -14,3 +14,6 @@ print(2 ^ 3 | 3 ^ 4 & 5)
 
 if 1 > 2 or 3 >= 4 < 1 <= 23 == "asdf" == 43 and 3 + 4 < 23 and 4 + 5 or not 12 < 3:
     print(2)
+
+{"asdf": 1, "fdsa": 2}
+{"asdf": 1, "fdsa": 2}.append(1)
