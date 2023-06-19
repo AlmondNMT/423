@@ -84,3 +84,7 @@ term: str indicates multiplication of a string with some sequence of integers.
     Search for the string in the chain, then add the other parts, then gather 
     the rest of the integers and multiply them in the second argument of repl.
 """
+
+"""
+In code generation, the trailers have to be handled extremely carefully. 
+"""

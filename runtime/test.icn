@@ -17,4 +17,18 @@ end
 procedure main()
     print(1, 2, 3)
     print([1, 2, 3], 4, 5)
+    print(int("1345"))
+    print(ord("a"))
+    print(pow(3, 2))
+    print(1 / 10)
+    print(round(&pi, 3))
+    print(round(1.2, 1))
+    print(1.2 - (1.2 % .1))
+    print(4.2 % .1)
+    print(string(123))
+    print(choice([1, 2, 3]))
+    print(randint(-10, 10))
+    a := [1, 2, 3]
+    put(a, 4)
+    print(a)
 end

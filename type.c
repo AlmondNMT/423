@@ -1007,6 +1007,13 @@ struct typeinfo *get_trailer_rep_type(struct trailer *seq, SymbolTableEntry entr
                     semantic_error(tok, "'%s' object has no attribute '%s'\n", type_name, curr->name);
                 }
                 current_type = rhs->typ;
+                // Check that CLASS_TYPE or FUNC_TYPE has parentheses following it
+                switch(current_type->basetype) {
+                    case FUNC_TYPE:
+                    case CLASS_TYPE:
+                        if(curr->next == NULL) semantic_error(tok, "function/class use with no parentheses\n");
+                        break;
+                }
                 nested = current_type->u.cls.st;
                 break;
             case ARGLIST_OPT:

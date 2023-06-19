@@ -29,7 +29,7 @@ elif False:
 elif 1 < 2:
     print(4)
 else:
-    print(5)
+    print(5, 6, 7, 8)
 
 while True:
     d: str = "asdf"
@@ -37,5 +37,6 @@ while True:
 
 for i in range(1, 2, 3):
     e: list = [1, 2, 3]
-    e.append
-    print(i)
+    e.append(1)
+    print(max(e))
+    print(i, i, i, i)

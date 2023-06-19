@@ -287,9 +287,18 @@ void gen_power(struct tree *t, struct code *code)
             if(t->kids[1]->prodrule == TRAILER_REP) {
                 seq = build_trailer_sequence(t->kids[1]);
                 // TODO hard part
-                if(entry->isbuiltin) {
-                    printf("builtin_found: %s, %d\n", entry->ident, leaf->lineno);
-
+                // Is it a class or a function
+                switch(entry->typ->basetype) {
+                    case CLASS_TYPE:
+                    case FUNC_TYPE:
+                        if(entry->isbuiltin)
+                            code->codestr = concat(code->codestr, entry->codestr);
+                        else 
+                            code->codestr = concat(code->codestr, mangle_suffix(leaf));
+                        code->codestr = concat(code->codestr, "(");
+                        gen_arglist(t->kids[1], code);
+                        code->codestr = concat(code->codestr, ")");
+                        break;
                 }
                 
                 free_trailer_sequence(seq);
@@ -315,6 +324,15 @@ void gen_power(struct tree *t, struct code *code)
         code->codestr = concat(code->codestr, " ^ ");
         gen_testlist(t->kids[2]->kids[1], code);
     }
+}
+
+/**
+ * Arglists for functions. We try to reach an arglist
+ */
+void gen_arglist(struct tree *t, struct code *code)
+{
+    if(t == NULL || code == NULL) return;
+    
 }
 
 void convert_power_bool(struct tree *t, struct code *code)

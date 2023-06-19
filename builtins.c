@@ -70,6 +70,7 @@ SymbolTableEntry insertbuiltin(SymbolTable st, char *name, int basetype, char *c
             break;
     }
     entry->isbuiltin = true;
+    entry->codestr = codename;
     free_token(tok);
     return entry;
 }
@@ -151,7 +152,7 @@ void add_puny_builtins(SymbolTable st) {
     add_builtin_func_info(entry, 1, 1, alctype(ANY_TYPE), "%s: %d", "n", ANY_TYPE);
 
     entry = insertbuiltin(st, "bool", CLASS_TYPE, "bool");  
-    add_builtin_func_info(entry, 0, 1, bool_typeptr, "%s: %d", "x", ANY_TYPE);
+    add_builtin_func_info(entry, 0, 1, &bool_type, "%s: %d", "x", ANY_TYPE);
 
     entry = insertbuiltin(st, "chr", FUNC_TYPE, "chr");
     add_builtin_func_info(entry, 1, 1, string_typeptr, "%s: %d ", "n", INT_TYPE);
@@ -159,54 +160,54 @@ void add_puny_builtins(SymbolTable st) {
     entry = insertbuiltin(st, "float", CLASS_TYPE, "float");
     add_builtin_func_info(entry, 0, 1, &float_type, "%s: %d", "n", ANY_TYPE);
 
-    entry = insertbuiltin(st, "input", FUNC_TYPE);
+    entry = insertbuiltin(st, "input", FUNC_TYPE, "input_puny");
     add_builtin_func_info(entry, 0, 1, &string_type, "%s: %d", "s", ANY_TYPE);
 
-    entry = insertbuiltin(st, "int", CLASS_TYPE);    
+    entry = insertbuiltin(st, "int", CLASS_TYPE, "int");
     add_builtin_func_info(entry, 0, 1, &int_type, "%s: %d", "a", INT_TYPE);
 
-    entry = insertbuiltin(st, "len", FUNC_TYPE);
+    entry = insertbuiltin(st, "len", FUNC_TYPE, "length");
     add_builtin_func_info(entry, 1, 1, &int_type, "%s: %d", "l", LIST_TYPE);
 
-    entry = insertbuiltin(st, "max", FUNC_TYPE);
+    entry = insertbuiltin(st, "max", FUNC_TYPE, "max");
+    add_builtin_func_info(entry, 1, -1, &int_type, "%s: %d", "l", ANY_TYPE);
+
+    entry = insertbuiltin(st, "min", FUNC_TYPE, "min");
     add_builtin_func_info(entry, 1, -1, &int_type, "%s: %d", "l", LIST_TYPE);
 
-    entry = insertbuiltin(st, "min", FUNC_TYPE);
-    add_builtin_func_info(entry, 1, -1, &int_type, "%s: %d", "l", LIST_TYPE);
-
-    entry = insertbuiltin(st, "open", FUNC_TYPE);
+    entry = insertbuiltin(st, "open", FUNC_TYPE, "open");
     add_builtin_func_info(entry, 2, 2, &file_type, "%s: %d, %s: %d", "pathname", STRING_TYPE, "mode", STRING_TYPE);
 
-    entry = insertbuiltin(st, "ord", FUNC_TYPE);
+    entry = insertbuiltin(st, "ord", FUNC_TYPE, "ord");
     add_builtin_func_info(entry, 1, 1, &int_type, "%s: %d", "s", STRING_TYPE);
 
-    entry = insertbuiltin(st, "pow", FUNC_TYPE);
+    entry = insertbuiltin(st, "pow", FUNC_TYPE, "pow");
     add_builtin_func_info(entry, 2, 2, alctype(ANY_TYPE), "%s: %d, %s: %d", "b", ANY_TYPE, "e", ANY_TYPE);
 
-    entry = insertbuiltin(st, "range", FUNC_TYPE);
+    entry = insertbuiltin(st, "range", FUNC_TYPE, "range");
     add_builtin_func_info(entry, 1, 3, &list_type, "%s: %d, %s: %d, %s: %d", "beg", INT_TYPE, "end", INT_TYPE, "step", INT_TYPE);
 
-    entry = insertbuiltin(st, "round", FUNC_TYPE);
+    entry = insertbuiltin(st, "round", FUNC_TYPE, "round");
     add_builtin_func_info(entry, 1, 2, alctype(ANY_TYPE), "%s: %d, %s: %d", "n", ANY_TYPE, "r", INT_TYPE);
 
-    entry = insertbuiltin(st, "type", FUNC_TYPE);
+    entry = insertbuiltin(st, "type", FUNC_TYPE, "type");
     add_builtin_func_info(entry, 1, 1, &string_type, "%s: %d", "x", ANY_TYPE);
 
 
     // Add string methods to string
-    entry = insertbuiltin(st, "str", CLASS_TYPE);
+    entry = insertbuiltin(st, "str", CLASS_TYPE, "string");
     add_builtin_func_info(entry, 0, 1, &string_type, "%s: %d", "a", ANY_TYPE);
     
     // Add list methods to list
-    entry = insertbuiltin(st, "list", CLASS_TYPE);
+    entry = insertbuiltin(st, "list", CLASS_TYPE, "list");
     add_builtin_func_info(entry, 0, 1, &list_type, "%s: %d", "a", ANY_TYPE);
 
     // Add file methods to file
-    entry = insertbuiltin(st, "file", CLASS_TYPE);
-    add_builtin_func_info(entry, 0, 1, &file_type, "%s: %d", "f", STRING_TYPE);
+    entry = insertbuiltin(st, "file", CLASS_TYPE, "open");
+    add_builtin_func_info(entry, 2, 2, &file_type, "%s: %d, %s: %d", "f", STRING_TYPE, "mode", STRING_TYPE);
 
     // Add dict methods to dict
-    entry = insertbuiltin(st, "dict", CLASS_TYPE);
+    entry = insertbuiltin(st, "dict", CLASS_TYPE, "table");
     add_builtin_func_info(entry, 0, 1, &dict_type, "%s: %d", "a", ANY_TYPE);
 }
 
@@ -216,9 +217,9 @@ void add_random_library(SymbolTable st)
     SymbolTableEntry entry = NULL;
 
     // 'choice' and 'randint'
-    entry = insertbuiltin(st, "choice", FUNC_TYPE);
+    entry = insertbuiltin(st, "choice", FUNC_TYPE, "choice");
     add_builtin_func_info(entry, 1, 1, &list_type, "%s: %d", "l", LIST_TYPE);
 
-    entry = insertbuiltin(st, "randint", FUNC_TYPE);
+    entry = insertbuiltin(st, "randint", FUNC_TYPE, "randint");
     add_builtin_func_info(entry, 2, 2, &int_type, "%s: %d, %s: %d", "a", INT_TYPE, "b", INT_TYPE);
 }
