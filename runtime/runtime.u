@@ -1,21 +1,311 @@
 version	U12.1.00
-uid	runtime.u1-1687062803-0
+uid	runtime.u1-1687191294-0
+record	List__state,3
+	0,__s
+	1,__m
+	2,m_a
+record	List__methods,3
+	0,append
+	1,remove
+	2,initially
 impl	local
-global	13
-	0,000005,sum_1,1
-	1,000005,sum_2,2
-	2,000005,float_0,0
-	3,000005,float_1,1
-	4,000005,bool_0,0
-	5,000005,bool_1,1
-	6,000005,str,0
-	7,000005,str_1,1
-	8,000005,range,-1
-	9,000005,split,1
-	10,000005,print,-1
-	11,000005,write_list,1
-	12,000005,write_dict,1
+global	28
+	0,000005,List_append,2
+	1,000005,List_remove,2
+	2,000005,List_initially,-2
+	3,000011,List__state,3
+	4,000011,List__methods,3
+	5,000001,List__oprec,0
+	6,000005,List,-1
+	7,000005,Listinitialize,0
+	8,000005,sum_1,1
+	9,000005,Any,-1
+	10,000005,None,-1
+	11,000005,bool,-1
+	12,000005,chr,1
+	13,000005,float,-1
+	14,000005,input,-1
+	15,000005,sum_2,2
+	16,000005,float_0,0
+	17,000005,float_1,1
+	18,000005,bool_0,0
+	19,000005,bool_1,1
+	20,000005,str,0
+	21,000005,str_1,1
+	22,000005,range,-1
+	23,000005,split,1
+	24,000005,print,-1
+	25,000005,prints,-1
+	26,000005,write_list,1
+	27,000005,write_dict,1
 
+proc List_append
+	local	0,001000,self
+	local	1,001000,a
+	declend
+	filen	runtime.icn
+	line	4
+	colm	11
+	synt	any
+	mark	L1
+	pnull
+	pnull
+	var	0
+	line	5
+	colm	13
+	synt	any
+	field	m_a
+	dup
+	pnull
+	var	1
+	line	5
+	colm	22
+	synt	any
+	llist	1
+	line	5
+	colm	17
+	synt	any
+	lconcat
+	asgn
+	unmark
+lab L1
+	pnull
+	line	6
+	colm	1
+	synt	any
+	pfail
+	end
+proc List_remove
+	local	0,001000,self
+	local	1,001000,a
+	declend
+	line	8
+	colm	11
+	synt	any
+	line	10
+	colm	1
+	synt	any
+	pfail
+	end
+proc List_initially
+	local	0,001000,self
+	local	1,001000,x
+	local	2,000000,list
+	declend
+	line	12
+	colm	11
+	synt	any
+	mark	L1
+	pnull
+	pnull
+	var	0
+	line	13
+	colm	9
+	synt	any
+	field	m_a
+	var	2
+	var	1
+	line	13
+	colm	19
+	synt	any
+	invoke	1
+	line	13
+	colm	13
+	synt	any
+	asgn
+	unmark
+lab L1
+	mark	L2
+	mark	L3
+	pnull
+	line	14
+	colm	5
+	synt	any
+	pret
+lab L3
+	synt	any
+	pfail
+	unmark
+lab L2
+	mark	L4
+	mark	L5
+	pnull
+	line	15
+	colm	7
+	synt	any
+	pret
+lab L5
+	synt	any
+	pfail
+	unmark
+lab L4
+	pnull
+	line	16
+	colm	1
+	synt	any
+	pfail
+	end
+proc List
+	local	0,001000,x
+	local	1,000020,self
+	local	2,000020,clone
+	local	3,000000,List__oprec
+	local	4,000000,Listinitialize
+	local	5,000000,List__state
+	local	6,000000,push
+	declend
+	filen	__faux.icn
+	line	5
+	colm	11
+	synt	any
+lab L1
+	init	L3
+	mark	L2
+	line	8
+	colm	3
+	synt	if
+	mark0
+	pnull
+	var	3
+	line	8
+	colm	6
+	synt	any
+	null
+	unmark
+	var	4
+	line	8
+	colm	38
+	synt	any
+	invoke	0
+	line	8
+	colm	3
+	synt	endif
+	unmark
+lab L2
+	einit	L1
+lab L3
+	mark	L4
+	pnull
+	var	1
+	var	5
+	line	10
+	colm	23
+	synt	any
+	keywd	null
+	var	3
+	line	10
+	colm	22
+	synt	any
+	invoke	2
+	line	10
+	colm	8
+	synt	any
+	asgn
+	unmark
+lab L4
+	mark	L5
+	pnull
+	pnull
+	var	1
+	line	11
+	colm	7
+	synt	any
+	field	__s
+	var	1
+	line	11
+	colm	12
+	synt	any
+	asgn
+	unmark
+lab L5
+	mark	L6
+	mark	L7
+	pnull
+	pnull
+	var	1
+	line	12
+	colm	7
+	synt	any
+	field	__m
+	line	12
+	colm	11
+	synt	any
+	field	initially
+	var	6
+	var	0
+	var	1
+	line	12
+	colm	27
+	synt	any
+	invoke	2
+	invoke	-1
+	line	12
+	colm	37
+	synt	any
+	esusp
+	goto	L8
+lab L7
+	line	12
+	colm	39
+	synt	any
+	pfail
+lab L8
+	unmark
+lab L6
+	mark	L9
+	mark	L10
+	var	1
+	line	13
+	colm	3
+	synt	any
+	pret
+lab L10
+	synt	any
+	pfail
+	unmark
+lab L9
+	pnull
+	line	14
+	colm	1
+	synt	any
+	pfail
+	end
+proc Listinitialize
+	local	0,000000,List__oprec
+	local	1,000000,List__methods
+	local	2,000000,List_append
+	local	3,000000,List_remove
+	local	4,000000,List_initially
+	declend
+	line	16
+	colm	11
+	synt	any
+lab L1
+	init	L3
+	mark	L2
+	pnull
+	var	0
+	var	1
+	var	2
+	var	3
+	var	4
+	line	17
+	colm	39
+	synt	any
+	invoke	3
+	line	17
+	colm	23
+	synt	any
+	asgn
+	unmark
+lab L2
+	einit	L1
+lab L3
+	line	18
+	colm	1
+	synt	any
+	pfail
+	end
 proc sum_1
 	local	0,001000,iterable
 	local	1,000000,total
@@ -23,21 +313,21 @@ proc sum_1
 	con	0,002000,1,0
 	declend
 	filen	runtime.icn
-	line	2
-	colm	11
+	line	18
+	colm	12
 	synt	any
 	mark	L1
 	pnull
 	var	1
 	int	0
-	line	3
+	line	19
 	colm	11
 	synt	any
 	asgn
 	unmark
 lab L1
 	mark	L2
-	line	4
+	line	20
 	colm	5
 	synt	every
 	mark0
@@ -45,11 +335,11 @@ lab L1
 	var	2
 	pnull
 	var	0
-	line	4
+	line	20
 	colm	16
 	synt	any
 	bang
-	line	4
+	line	20
 	colm	13
 	synt	any
 	asgn
@@ -59,7 +349,7 @@ lab L1
 	var	1
 	dup
 	var	2
-	line	5
+	line	21
 	colm	15
 	synt	any
 	plus
@@ -68,7 +358,7 @@ lab L1
 lab L3
 	efail
 lab L4
-	line	4
+	line	20
 	colm	5
 	synt	endevery
 	unmark
@@ -76,7 +366,7 @@ lab L2
 	mark	L5
 	mark	L6
 	var	1
-	line	7
+	line	23
 	colm	5
 	synt	any
 	pret
@@ -86,8 +376,355 @@ lab L6
 	unmark
 lab L5
 	pnull
-	line	8
+	line	24
 	colm	2
+	synt	any
+	pfail
+	end
+proc Any
+	local	0,001000,x
+	con	0,002000,1,1
+	con	1,002000,1,0
+	declend
+	line	26
+	colm	12
+	synt	any
+	mark	L1
+	line	27
+	colm	5
+	synt	if
+	mark0
+	pnull
+	pnull
+	var	0
+	line	27
+	colm	8
+	synt	any
+	size
+	int	0
+	line	27
+	colm	11
+	synt	any
+	lexeq
+	unmark
+	mark	L2
+	pnull
+	var	0
+	int	0
+	line	28
+	colm	17
+	synt	any
+	subsc
+	line	28
+	colm	9
+	synt	any
+	pret
+lab L2
+	synt	any
+	pfail
+	line	27
+	colm	5
+	synt	endif
+	unmark
+lab L1
+	mark	L3
+	mark	L4
+	int	1
+	line	29
+	colm	5
+	synt	any
+	pret
+lab L4
+	synt	any
+	pfail
+	unmark
+lab L3
+	pnull
+	line	30
+	colm	2
+	synt	any
+	pfail
+	end
+proc None
+	local	0,001000,x
+	declend
+	line	32
+	colm	12
+	synt	any
+	mark	L1
+	mark	L2
+	line	33
+	colm	12
+	synt	any
+	keywd	null
+	line	33
+	colm	5
+	synt	any
+	pret
+lab L2
+	synt	any
+	pfail
+	unmark
+lab L1
+	pnull
+	line	34
+	colm	2
+	synt	any
+	pfail
+	end
+proc bool
+	local	0,001000,x
+	con	0,002000,1,1
+	con	1,010000,4,116,157,156,145
+	con	2,002000,1,0
+	con	3,010000,5,106,141,154,163,145
+	declend
+	line	36
+	colm	12
+	synt	any
+	mark	L1
+	line	37
+	colm	5
+	synt	if
+	mark0
+	pnull
+	pnull
+	var	0
+	line	37
+	colm	8
+	synt	any
+	size
+	int	0
+	line	37
+	colm	11
+	synt	any
+	lexeq
+	unmark
+	mark	L2
+	line	38
+	colm	9
+	synt	if
+	mark0
+	mark	L3
+	pnull
+	pnull
+	var	0
+	int	0
+	line	38
+	colm	13
+	synt	any
+	subsc
+	str	1
+	line	38
+	colm	17
+	synt	any
+	lexeq
+	line	38
+	colm	27
+	synt	any
+	esusp
+	goto	L4
+lab L3
+	mark	L5
+	int	2
+	line	38
+	colm	31
+	synt	any
+	esusp
+	goto	L6
+lab L5
+	str	3
+lab L6
+lab L4
+	unmark
+	mark	L7
+	int	2
+	line	38
+	colm	47
+	synt	any
+	pret
+lab L7
+	synt	any
+	pfail
+	line	38
+	colm	9
+	synt	endif
+	unmark
+lab L2
+	mark	L8
+	int	0
+	line	39
+	colm	9
+	synt	any
+	pret
+lab L8
+	synt	any
+	pfail
+	line	37
+	colm	5
+	synt	endif
+	unmark
+lab L1
+	mark	L9
+	mark	L10
+	int	2
+	line	41
+	colm	5
+	synt	any
+	pret
+lab L10
+	synt	any
+	pfail
+	unmark
+lab L9
+	pnull
+	line	42
+	colm	2
+	synt	any
+	pfail
+	end
+proc chr
+	local	0,001000,x
+	declend
+	line	44
+	colm	12
+	synt	any
+	line	46
+	colm	1
+	synt	any
+	pfail
+	end
+proc float
+	local	0,001000,x
+	con	0,002000,1,0
+	con	1,004000,0.0
+	con	2,004000,1.0
+	con	3,002000,1,1
+	declend
+	line	48
+	colm	12
+	synt	any
+	mark	L1
+	line	49
+	colm	5
+	synt	if
+	mark0
+	pnull
+	pnull
+	var	0
+	line	49
+	colm	8
+	synt	any
+	size
+	int	0
+	line	49
+	colm	11
+	synt	any
+	lexeq
+	unmark
+	mark	L2
+	real	1
+	line	49
+	colm	21
+	synt	any
+	pret
+lab L2
+	synt	any
+	pfail
+	line	49
+	colm	5
+	synt	endif
+	unmark
+lab L1
+	mark	L3
+	mark	L4
+	pnull
+	real	2
+	pnull
+	var	0
+	int	3
+	line	50
+	colm	19
+	synt	any
+	subsc
+	line	50
+	colm	16
+	synt	any
+	mult
+	line	50
+	colm	5
+	synt	any
+	pret
+lab L4
+	synt	any
+	pfail
+	unmark
+lab L3
+	pnull
+	line	51
+	colm	1
+	synt	any
+	pfail
+	end
+proc input
+	local	0,001000,x
+	local	1,000000,prints
+	local	2,000000,read
+	con	0,002000,1,1
+	declend
+	line	53
+	colm	12
+	synt	any
+	mark	L1
+	line	54
+	colm	5
+	synt	if
+	mark0
+	pnull
+	pnull
+	var	0
+	line	54
+	colm	8
+	synt	any
+	size
+	int	0
+	line	54
+	colm	11
+	synt	any
+	lexeq
+	unmark
+	var	1
+	pnull
+	var	0
+	int	0
+	line	54
+	colm	29
+	synt	any
+	subsc
+	line	54
+	colm	27
+	synt	any
+	invoke	1
+	line	54
+	colm	5
+	synt	endif
+	unmark
+lab L1
+	mark	L2
+	var	2
+	line	55
+	colm	10
+	synt	any
+	keywd	input
+	line	55
+	colm	9
+	synt	any
+	invoke	1
+	unmark
+lab L2
+	pnull
+	line	56
+	colm	1
 	synt	any
 	pfail
 	end
@@ -96,7 +733,7 @@ proc sum_2
 	local	1,001000,start
 	local	2,000000,sum_1
 	declend
-	line	11
+	line	59
 	colm	12
 	synt	any
 	mark	L1
@@ -105,15 +742,15 @@ proc sum_2
 	var	1
 	var	2
 	var	0
-	line	12
+	line	60
 	colm	25
 	synt	any
 	invoke	1
-	line	12
+	line	60
 	colm	18
 	synt	any
 	plus
-	line	12
+	line	60
 	colm	5
 	synt	any
 	pret
@@ -123,7 +760,7 @@ lab L2
 	unmark
 lab L1
 	pnull
-	line	13
+	line	61
 	colm	1
 	synt	any
 	pfail
@@ -131,13 +768,13 @@ lab L1
 proc float_0
 	con	0,004000,0.0
 	declend
-	line	16
+	line	64
 	colm	12
 	synt	any
 	mark	L1
 	mark	L2
 	real	0
-	line	17
+	line	65
 	colm	5
 	synt	any
 	pret
@@ -147,7 +784,7 @@ lab L2
 	unmark
 lab L1
 	pnull
-	line	18
+	line	66
 	colm	2
 	synt	any
 	pfail
@@ -156,7 +793,7 @@ proc float_1
 	local	0,001000,arg
 	con	0,004000,1.0
 	declend
-	line	23
+	line	71
 	colm	12
 	synt	any
 	mark	L1
@@ -164,11 +801,11 @@ proc float_1
 	pnull
 	var	0
 	real	0
-	line	24
+	line	72
 	colm	16
 	synt	any
 	mult
-	line	24
+	line	72
 	colm	5
 	synt	any
 	pret
@@ -178,17 +815,17 @@ lab L2
 	unmark
 lab L1
 	pnull
-	line	25
+	line	73
 	colm	2
 	synt	any
 	pfail
 	end
 proc bool_0
 	declend
-	line	28
+	line	76
 	colm	12
 	synt	any
-	line	29
+	line	77
 	colm	1
 	synt	any
 	pfail
@@ -202,11 +839,11 @@ proc bool_1
 	con	4,010000,5,106,141,154,163,145
 	con	5,010000,4,124,162,165,145
 	declend
-	line	32
+	line	80
 	colm	12
 	synt	any
 	mark	L1
-	line	33
+	line	81
 	colm	5
 	synt	if
 	mark0
@@ -214,7 +851,7 @@ proc bool_1
 	var	0
 	mark	L2
 	str	0
-	line	33
+	line	81
 	colm	20
 	synt	any
 	esusp
@@ -222,7 +859,7 @@ proc bool_1
 lab L2
 	mark	L4
 	str	1
-	line	33
+	line	81
 	colm	25
 	synt	any
 	esusp
@@ -230,7 +867,7 @@ lab L2
 lab L4
 	mark	L6
 	str	2
-	line	33
+	line	81
 	colm	34
 	synt	any
 	esusp
@@ -238,7 +875,7 @@ lab L4
 lab L6
 	mark	L8
 	int	3
-	line	33
+	line	81
 	colm	38
 	synt	any
 	esusp
@@ -249,21 +886,21 @@ lab L9
 lab L7
 lab L5
 lab L3
-	line	33
+	line	81
 	colm	12
 	synt	any
 	lexeq
 	unmark
 	mark	L10
 	str	4
-	line	34
+	line	82
 	colm	9
 	synt	any
 	pret
 lab L10
 	synt	any
 	pfail
-	line	33
+	line	81
 	colm	5
 	synt	endif
 	unmark
@@ -271,7 +908,7 @@ lab L1
 	mark	L11
 	mark	L12
 	str	5
-	line	36
+	line	84
 	colm	5
 	synt	any
 	pret
@@ -281,7 +918,7 @@ lab L12
 	unmark
 lab L11
 	pnull
-	line	37
+	line	85
 	colm	1
 	synt	any
 	pfail
@@ -289,13 +926,13 @@ lab L11
 proc str
 	con	0,010000,0
 	declend
-	line	39
+	line	87
 	colm	12
 	synt	any
 	mark	L1
 	mark	L2
 	str	0
-	line	40
+	line	88
 	colm	5
 	synt	any
 	pret
@@ -305,7 +942,7 @@ lab L2
 	unmark
 lab L1
 	pnull
-	line	41
+	line	89
 	colm	1
 	synt	any
 	pfail
@@ -314,18 +951,18 @@ proc str_1
 	local	0,001000,arg
 	local	1,000000,string
 	declend
-	line	43
+	line	91
 	colm	12
 	synt	any
 	mark	L1
 	mark	L2
 	var	1
 	var	0
-	line	44
+	line	92
 	colm	18
 	synt	any
 	invoke	1
-	line	44
+	line	92
 	colm	5
 	synt	any
 	pret
@@ -335,7 +972,7 @@ lab L2
 	unmark
 lab L1
 	pnull
-	line	45
+	line	93
 	colm	1
 	synt	any
 	pfail
@@ -347,17 +984,17 @@ proc range
 	local	3,000000,print
 	local	4,000000,a
 	con	0,010000,7,151,156,164,145,147,145,162
-	con	1,010000,16,167,150,141,164,040,164,150,145,040,163,150,151,164,077,077,077
+	con	1,010000,32,162,141,156,147,145,040,141,162,147,165,155,145,156,164,163,040,155,165,163,164,040,142,145,040,151,156,164,145,147,145,162,163
 	con	2,002000,1,1
 	con	3,002000,1,0
 	con	4,002000,1,2
 	con	5,002000,1,3
 	declend
-	line	47
+	line	95
 	colm	12
 	synt	any
 	mark	L1
-	line	48
+	line	96
 	colm	5
 	synt	every
 	mark0
@@ -365,17 +1002,17 @@ proc range
 	var	1
 	pnull
 	var	0
-	line	48
+	line	96
 	colm	16
 	synt	any
 	bang
-	line	48
+	line	96
 	colm	13
 	synt	any
 	asgn
 	pop
 	mark0
-	line	49
+	line	97
 	colm	9
 	synt	if
 	mark0
@@ -383,7 +1020,7 @@ proc range
 	mark	L4
 	var	2
 	var	0
-	line	49
+	line	97
 	colm	20
 	synt	any
 	invoke	1
@@ -392,7 +1029,7 @@ proc range
 lab L4
 	pnull
 	str	0
-	line	49
+	line	97
 	colm	24
 	synt	any
 	eqv
@@ -400,24 +1037,24 @@ lab L4
 	mark	L5
 	var	3
 	str	1
-	line	50
+	line	98
 	colm	18
 	synt	any
 	invoke	1
 	unmark
 lab L5
-	line	51
+	line	99
 	colm	13
 	synt	any
 	keywd	fail
-	line	49
+	line	97
 	colm	9
 	synt	endif
 	unmark
 lab L2
 	efail
 lab L3
-	line	48
+	line	96
 	colm	5
 	synt	endevery
 	unmark
@@ -426,35 +1063,35 @@ lab L1
 	pnull
 	var	4
 	pnull
-	line	54
+	line	102
 	colm	10
 	synt	any
 	llist	0
-	line	54
+	line	102
 	colm	7
 	synt	any
 	asgn
 	unmark
 lab L6
 	mark	L7
-	line	55
+	line	103
 	colm	5
 	synt	ifelse
 	mark	L8
 	pnull
 	pnull
 	var	0
-	line	55
+	line	103
 	colm	8
 	synt	any
 	size
 	int	2
-	line	55
+	line	103
 	colm	11
 	synt	any
 	lexeq
 	unmark
-	line	56
+	line	104
 	colm	9
 	synt	every
 	mark0
@@ -466,21 +1103,21 @@ lab L6
 	pnull
 	var	0
 	int	2
-	line	56
+	line	104
 	colm	26
 	synt	any
 	subsc
 	int	2
-	line	56
+	line	104
 	colm	30
 	synt	any
 	minus
 	push1
-	line	56
+	line	104
 	colm	22
 	synt	any
 	toby
-	line	56
+	line	104
 	colm	17
 	synt	any
 	asgn
@@ -491,11 +1128,11 @@ lab L6
 	dup
 	pnull
 	var	1
-	line	57
+	line	105
 	colm	21
 	synt	any
 	llist	1
-	line	57
+	line	105
 	colm	15
 	synt	any
 	lconcat
@@ -504,29 +1141,29 @@ lab L6
 lab L10
 	efail
 lab L11
-	line	56
+	line	104
 	colm	9
 	synt	endevery
 	goto	L9
 lab L8
-	line	59
+	line	107
 	colm	10
 	synt	ifelse
 	mark	L12
 	pnull
 	pnull
 	var	0
-	line	59
+	line	107
 	colm	13
 	synt	any
 	size
 	int	4
-	line	59
+	line	107
 	colm	16
 	synt	any
 	lexeq
 	unmark
-	line	60
+	line	108
 	colm	9
 	synt	every
 	mark0
@@ -536,7 +1173,7 @@ lab L8
 	pnull
 	var	0
 	int	2
-	line	60
+	line	108
 	colm	21
 	synt	any
 	subsc
@@ -544,21 +1181,21 @@ lab L8
 	pnull
 	var	0
 	int	4
-	line	60
+	line	108
 	colm	29
 	synt	any
 	subsc
 	int	2
-	line	60
+	line	108
 	colm	33
 	synt	any
 	minus
 	push1
-	line	60
+	line	108
 	colm	25
 	synt	any
 	toby
-	line	60
+	line	108
 	colm	17
 	synt	any
 	asgn
@@ -569,11 +1206,11 @@ lab L8
 	dup
 	pnull
 	var	1
-	line	61
+	line	109
 	colm	21
 	synt	any
 	llist	1
-	line	61
+	line	109
 	colm	15
 	synt	any
 	lconcat
@@ -582,12 +1219,12 @@ lab L8
 lab L14
 	efail
 lab L15
-	line	60
+	line	108
 	colm	9
 	synt	endevery
 	goto	L13
 lab L12
-	line	64
+	line	112
 	colm	9
 	synt	every
 	mark0
@@ -597,7 +1234,7 @@ lab L12
 	pnull
 	var	0
 	int	2
-	line	64
+	line	112
 	colm	21
 	synt	any
 	subsc
@@ -605,27 +1242,27 @@ lab L12
 	pnull
 	var	0
 	int	4
-	line	64
+	line	112
 	colm	29
 	synt	any
 	subsc
 	int	2
-	line	64
+	line	112
 	colm	33
 	synt	any
 	minus
 	pnull
 	var	0
 	int	5
-	line	64
+	line	112
 	colm	41
 	synt	any
 	subsc
-	line	64
+	line	112
 	colm	25
 	synt	any
 	toby
-	line	64
+	line	112
 	colm	17
 	synt	any
 	asgn
@@ -636,11 +1273,11 @@ lab L12
 	dup
 	pnull
 	var	1
-	line	65
+	line	113
 	colm	21
 	synt	any
 	llist	1
-	line	65
+	line	113
 	colm	15
 	synt	any
 	lconcat
@@ -649,15 +1286,15 @@ lab L12
 lab L16
 	efail
 lab L17
-	line	64
+	line	112
 	colm	9
 	synt	endevery
 lab L13
-	line	59
+	line	107
 	colm	10
 	synt	endifelse
 lab L9
-	line	55
+	line	103
 	colm	5
 	synt	endifelse
 	unmark
@@ -665,7 +1302,7 @@ lab L7
 	mark	L18
 	mark	L19
 	var	4
-	line	67
+	line	115
 	colm	5
 	synt	any
 	pret
@@ -675,7 +1312,7 @@ lab L19
 	unmark
 lab L18
 	pnull
-	line	68
+	line	116
 	colm	2
 	synt	any
 	pfail
@@ -683,150 +1320,217 @@ lab L18
 proc split
 	local	0,001000,x
 	declend
-	line	71
+	line	119
 	colm	12
 	synt	any
-	line	73
+	line	121
 	colm	1
 	synt	any
 	pfail
 	end
 proc print
 	local	0,001000,x
-	local	1,000000,k
-	local	2,000000,type
-	local	3,000000,write_list
-	local	4,000000,writes
-	local	5,000000,write_dict
-	local	6,000000,write
-	con	0,010000,4,154,151,163,164
-	con	1,010000,1,040
-	con	2,010000,5,164,141,142,154,145
+	local	1,000000,prints
+	local	2,000000,write
 	declend
-	line	76
+	line	124
 	colm	12
 	synt	any
 	mark	L1
-	line	77
+	var	1
+	var	0
+	invoke	-1
+	unmark
+lab L1
+	mark	L2
+	var	2
+	line	126
+	colm	10
+	synt	any
+	invoke	0
+	unmark
+lab L2
+	pnull
+	line	127
+	colm	1
+	synt	any
+	pfail
+	end
+proc prints
+	local	0,001000,x
+	local	1,000000,k
+	local	2,000000,type
+	local	3,000000,write_list
+	local	4,000000,write_dict
+	local	5,000000,writes
+	con	0,002000,1,1
+	con	1,010000,4,154,151,163,164
+	con	2,010000,5,164,141,142,154,145
+	con	3,010000,1,040
+	declend
+	line	129
+	colm	12
+	synt	any
+	mark	L1
+	line	130
 	colm	5
 	synt	every
 	mark0
 	pnull
 	var	1
 	pnull
+	int	0
+	pnull
 	var	0
-	line	77
-	colm	16
+	line	130
+	colm	21
 	synt	any
-	bang
-	line	77
+	size
+	push1
+	line	130
+	colm	18
+	synt	any
+	toby
+	line	130
 	colm	13
 	synt	any
 	asgn
 	pop
 	mark0
-	line	78
+	mark	L4
+	line	131
 	colm	9
 	synt	ifelse
-	mark	L4
+	mark	L5
 	pnull
 	var	2
+	pnull
+	var	0
 	var	1
-	line	78
+	line	131
+	colm	18
+	synt	any
+	subsc
+	line	131
 	colm	16
 	synt	any
 	invoke	1
-	str	0
-	line	78
-	colm	20
+	str	1
+	line	131
+	colm	23
 	synt	any
 	eqv
 	unmark
-	mark	L6
 	var	3
+	pnull
+	var	0
 	var	1
-	line	79
+	line	132
+	colm	25
+	synt	any
+	subsc
+	line	132
 	colm	23
 	synt	any
 	invoke	1
-	unmark
-lab L6
-	var	4
-	str	1
-	line	80
-	colm	19
-	synt	any
-	invoke	1
-	goto	L5
-lab L4
-	line	81
+	goto	L6
+lab L5
+	line	133
 	colm	16
 	synt	ifelse
 	mark	L7
 	pnull
 	var	2
+	pnull
+	var	0
 	var	1
-	line	81
+	line	133
+	colm	25
+	synt	any
+	subsc
+	line	133
 	colm	23
 	synt	any
 	invoke	1
 	str	2
-	line	81
-	colm	27
+	line	133
+	colm	30
 	synt	any
 	eqv
 	unmark
-	mark	L9
-	var	5
-	var	1
-	line	82
-	colm	23
-	synt	any
-	invoke	1
-	unmark
-lab L9
 	var	4
-	str	1
-	line	83
-	colm	19
+	pnull
+	var	0
+	var	1
+	line	134
+	colm	25
+	synt	any
+	subsc
+	line	134
+	colm	23
 	synt	any
 	invoke	1
 	goto	L8
 lab L7
-	var	4
+	var	5
+	pnull
+	var	0
 	var	1
-	str	1
-	line	85
+	line	136
+	colm	21
+	synt	any
+	subsc
+	line	136
 	colm	19
 	synt	any
-	invoke	2
+	invoke	1
 lab L8
-	line	81
+	line	133
 	colm	16
 	synt	endifelse
-lab L5
-	line	78
+lab L6
+	line	131
 	colm	9
 	synt	endifelse
+	unmark
+lab L4
+	line	138
+	colm	9
+	synt	if
+	mark0
+	pnull
+	var	1
+	pnull
+	var	0
+	line	138
+	colm	17
+	synt	any
+	size
+	line	138
+	colm	15
+	synt	any
+	numlt
+	unmark
+	var	5
+	str	3
+	line	138
+	colm	33
+	synt	any
+	invoke	1
+	line	138
+	colm	9
+	synt	endif
 	unmark
 lab L2
 	efail
 lab L3
-	line	77
+	line	130
 	colm	5
 	synt	endevery
 	unmark
 lab L1
-	mark	L10
-	var	6
-	line	88
-	colm	10
-	synt	any
-	invoke	0
-	unmark
-lab L10
 	pnull
-	line	89
+	line	140
 	colm	1
 	synt	any
 	pfail
@@ -835,37 +1539,43 @@ proc write_list
 	local	0,001000,x
 	local	1,000000,writes
 	local	2,000000,k
+	local	3,000000,type
+	local	4,000000,write_list
+	local	5,000000,write_dict
+	local	6,000000,prints
 	con	0,002000,1,0
 	con	1,010000,2,133,135
 	con	2,010000,1,133
 	con	3,002000,1,1
-	con	4,010000,2,054,040
-	con	5,010000,1,135
+	con	4,010000,4,154,151,163,164
+	con	5,010000,5,164,141,142,154,145
+	con	6,010000,2,054,040
+	con	7,010000,1,135
 	declend
-	line	91
+	line	142
 	colm	12
 	synt	any
 	mark	L1
-	line	92
+	line	143
 	colm	5
 	synt	ifelse
 	mark	L2
 	pnull
 	pnull
 	var	0
-	line	92
+	line	143
 	colm	8
 	synt	any
 	size
 	int	0
-	line	92
+	line	143
 	colm	11
 	synt	any
 	lexeq
 	unmark
 	var	1
 	str	1
-	line	93
+	line	144
 	colm	15
 	synt	any
 	invoke	1
@@ -874,14 +1584,14 @@ lab L2
 	mark	L4
 	var	1
 	str	2
-	line	96
+	line	147
 	colm	15
 	synt	any
 	invoke	1
 	unmark
 lab L4
 	mark	L5
-	line	97
+	line	148
 	colm	9
 	synt	every
 	mark0
@@ -892,74 +1602,164 @@ lab L4
 	pnull
 	pnull
 	var	0
-	line	97
+	line	148
 	colm	25
 	synt	any
 	size
 	int	3
-	line	97
+	line	148
 	colm	28
 	synt	any
 	minus
 	push1
-	line	97
+	line	148
 	colm	22
 	synt	any
 	toby
-	line	97
+	line	148
 	colm	17
 	synt	any
 	asgn
 	pop
 	mark0
+	line	149
+	colm	13
+	synt	ifelse
+	mark	L8
+	pnull
+	var	3
+	pnull
+	var	0
+	var	2
+	line	149
+	colm	22
+	synt	any
+	subsc
+	line	149
+	colm	20
+	synt	any
+	invoke	1
+	str	4
+	line	149
+	colm	27
+	synt	any
+	eqv
+	unmark
+	var	4
+	pnull
+	var	0
+	var	2
+	line	150
+	colm	29
+	synt	any
+	subsc
+	line	150
+	colm	27
+	synt	any
+	invoke	1
+	goto	L9
+lab L8
+	line	151
+	colm	20
+	synt	ifelse
+	mark	L10
+	pnull
+	var	3
+	pnull
+	var	0
+	var	2
+	line	151
+	colm	29
+	synt	any
+	subsc
+	line	151
+	colm	27
+	synt	any
+	invoke	1
+	str	5
+	line	151
+	colm	34
+	synt	any
+	eqv
+	unmark
+	var	5
+	pnull
+	var	0
+	var	2
+	line	152
+	colm	29
+	synt	any
+	subsc
+	line	152
+	colm	27
+	synt	any
+	invoke	1
+	goto	L11
+lab L10
 	var	1
 	pnull
 	var	0
 	var	2
-	line	98
-	colm	21
+	line	154
+	colm	25
 	synt	any
 	subsc
-	str	4
-	line	98
-	colm	19
+	str	6
+	line	154
+	colm	23
 	synt	any
 	invoke	2
+lab L11
+	line	151
+	colm	20
+	synt	endifelse
+lab L9
+	line	149
+	colm	13
+	synt	endifelse
 	unmark
 lab L6
 	efail
 lab L7
-	line	97
+	line	148
 	colm	9
 	synt	endevery
 	unmark
 lab L5
-	var	1
+	mark	L12
+	var	6
 	pnull
 	var	0
 	pnull
 	var	0
-	line	100
+	line	157
 	colm	18
 	synt	any
 	size
-	line	100
+	line	157
 	colm	17
 	synt	any
 	subsc
-	str	5
-	line	100
+	line	157
 	colm	15
 	synt	any
-	invoke	2
+	invoke	1
+	unmark
+lab L12
+	var	6
+	str	7
+	line	158
+	colm	15
+	synt	any
+	invoke	1
 lab L3
-	line	92
+	line	143
 	colm	5
 	synt	endifelse
 	unmark
 lab L1
 	pnull
-	line	102
+	line	160
 	colm	1
 	synt	any
 	pfail
@@ -976,30 +1776,30 @@ proc write_dict
 	con	4,010000,2,054,040
 	con	5,010000,1,175
 	declend
-	line	104
+	line	162
 	colm	12
 	synt	any
 	mark	L1
-	line	105
+	line	163
 	colm	5
 	synt	ifelse
 	mark	L2
 	pnull
 	pnull
 	var	0
-	line	105
+	line	163
 	colm	8
 	synt	any
 	size
 	int	0
-	line	105
+	line	163
 	colm	11
 	synt	any
 	lexeq
 	unmark
 	var	1
 	str	1
-	line	106
+	line	164
 	colm	15
 	synt	any
 	invoke	1
@@ -1008,14 +1808,14 @@ lab L2
 	mark	L4
 	var	1
 	str	2
-	line	109
+	line	167
 	colm	15
 	synt	any
 	invoke	1
 	unmark
 lab L4
 	mark	L5
-	line	110
+	line	168
 	colm	9
 	synt	every
 	mark0
@@ -1023,11 +1823,11 @@ lab L4
 	var	2
 	var	3
 	var	0
-	line	110
+	line	168
 	colm	23
 	synt	any
 	invoke	1
-	line	110
+	line	168
 	colm	17
 	synt	any
 	asgn
@@ -1039,12 +1839,12 @@ lab L4
 	pnull
 	var	0
 	var	2
-	line	111
+	line	169
 	colm	30
 	synt	any
 	subsc
 	str	4
-	line	111
+	line	169
 	colm	19
 	synt	any
 	invoke	4
@@ -1052,25 +1852,25 @@ lab L4
 lab L6
 	efail
 lab L7
-	line	110
+	line	168
 	colm	9
 	synt	endevery
 	unmark
 lab L5
 	var	1
 	str	5
-	line	113
+	line	171
 	colm	15
 	synt	any
 	invoke	1
 lab L3
-	line	105
+	line	163
 	colm	5
 	synt	endifelse
 	unmark
 lab L1
 	pnull
-	line	115
+	line	173
 	colm	1
 	synt	any
 	pfail

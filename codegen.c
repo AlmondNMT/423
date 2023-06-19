@@ -152,10 +152,17 @@ struct code * gen_stmts(struct tree *t, struct code *code, unsigned int tablevel
 struct code *gen_for_stmt(struct tree *t, struct code *code, unsigned int tablevel)
 {
     if(t == NULL || code == NULL) return NULL;
-    struct code *tmp = create_code("%s %s %s", "every ", mangle_suffix(t->kids[0]->leaf), " := ");
+    struct code *tmp = create_code("%s %s %s", "every ", mangle_suffix(t->kids[0]->leaf), " := !");
     tmp->codestr = concat(tab(tablevel), tmp->codestr);
     gen_testlist(t->kids[1], tmp);
-    append_code(code, tmp);
+
+    // Open brackets
+    tmp->codestr = concat(tmp->codestr, " do {");
+    tmp = gen_stmts(t->kids[2], tmp, tablevel + 1);
+
+    // Close brackets
+    tmp = gen_close_bracket(tmp, tablevel);
+    code = append_code(code, tmp);
     return code;
 }
 
@@ -277,12 +284,14 @@ void gen_power(struct tree *t, struct code *code)
         // If the RHS is a name
         if(leaf->category == NAME) {
             SymbolTableEntry entry = lookup(leaf->text, t->stab);
-            if(entry->isbuiltin) {
-                printf("builtin_found: %s\n", entry->ident);
-            }
             if(t->kids[1]->prodrule == TRAILER_REP) {
                 seq = build_trailer_sequence(t->kids[1]);
                 // TODO hard part
+                if(entry->isbuiltin) {
+                    printf("builtin_found: %s, %d\n", entry->ident, leaf->lineno);
+
+                }
+                
                 free_trailer_sequence(seq);
             }
             else {
@@ -348,9 +357,9 @@ void gen_atom(struct tree *t, struct code *code)
             code->codestr = concat(code->codestr, ")");
             break;
         case LISTMAKER_OPT:
-            code->codestr = concat(code->codestr, "[");
+            code->codestr = concat(code->codestr, "List(");
             gen_listmaker(t->kids[0]->kids[0], code);
-            code->codestr = concat(code->codestr, "]");
+            code->codestr = concat(code->codestr, ")");
             break;
         case DICTORSETMAKER_OPT:
             code->codestr = concat(code->codestr, "table(");

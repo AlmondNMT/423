@@ -76,6 +76,7 @@ struct trailer {
     int prodrule;
     char *name;
     struct trailer *next;
+    struct trailer *prev;
     struct arg *arg;        // Can be used for the arguments to lists or functions
 };
 

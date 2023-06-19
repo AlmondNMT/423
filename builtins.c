@@ -46,7 +46,7 @@ struct sym_entry *insertbuiltin_meth(struct sym_table *btable, char *name, typep
 /** 
  * Wrapper function for insertsymbol that adds builtins
  */
-SymbolTableEntry insertbuiltin(SymbolTable st, char *name, int basetype)
+SymbolTableEntry insertbuiltin(SymbolTable st, char *name, int basetype, char *codename)
 {
     if(st == NULL) return NULL;
     struct token *tok = create_builtin_token(name);
@@ -137,26 +137,26 @@ void add_puny_builtins(SymbolTable st) {
     init_types();
     SymbolTableEntry entry = NULL;
 
-    entry = insertbuiltin(st, "any", CLASS_TYPE);
+    entry = insertbuiltin(st, "any", CLASS_TYPE, "Any");
     add_builtin_func_info(entry, 0, 1, alctype(ANY_TYPE), "%s: %d", "s", ANY_TYPE);
 
-    entry = insertbuiltin(st, "print", FUNC_TYPE);
+    entry = insertbuiltin(st, "print", FUNC_TYPE, "print");
     add_builtin_func_info(entry, 0, -1, &none_type, "%s: %d", "s", ANY_TYPE);
 
-    entry = insertbuiltin(st, "None", CLASS_TYPE);
+    entry = insertbuiltin(st, "None", CLASS_TYPE, "None");
     add_builtin_func_info(entry, 0, 1, &none_type, "%s: %d", "s", ANY_TYPE);
 
     // Abs value function takes int/float and outputs int/float (any and any)
-    entry = insertbuiltin(st, "abs", FUNC_TYPE);
+    entry = insertbuiltin(st, "abs", FUNC_TYPE, "abs");
     add_builtin_func_info(entry, 1, 1, alctype(ANY_TYPE), "%s: %d", "n", ANY_TYPE);
 
-    entry = insertbuiltin(st, "bool", CLASS_TYPE);  
-    entry->typ->u.cls.returntype = &bool_type; 
+    entry = insertbuiltin(st, "bool", CLASS_TYPE, "bool");  
+    add_builtin_func_info(entry, 0, 1, bool_typeptr, "%s: %d", "x", ANY_TYPE);
 
-    entry = insertbuiltin(st, "chr", FUNC_TYPE);
+    entry = insertbuiltin(st, "chr", FUNC_TYPE, "chr");
     add_builtin_func_info(entry, 1, 1, string_typeptr, "%s: %d ", "n", INT_TYPE);
 
-    entry = insertbuiltin(st, "float", CLASS_TYPE);
+    entry = insertbuiltin(st, "float", CLASS_TYPE, "float");
     add_builtin_func_info(entry, 0, 1, &float_type, "%s: %d", "n", ANY_TYPE);
 
     entry = insertbuiltin(st, "input", FUNC_TYPE);

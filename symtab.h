@@ -23,6 +23,7 @@ typedef struct sym_entry {
     int column;                 /* On what column was this entry declared/ first assigned */
     bool declared;              /* is this symbol declared in this scope? */
     bool isbuiltin;             /* Indicates whether the symbol is a builtin */
+    char *codestr;              /* The string used in code generation */
     struct sym_table *nested;   /* nested symbol table (if any) */
     struct typeinfo *typ;
     /* more symbol attributes go here for code generation */

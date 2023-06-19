@@ -11,7 +11,6 @@ b = 2 * 3 * 4
 2 & 3 & 3 & 6
 
 print(2 ^ 3 | 3 ^ 4 & 5)
-
 if 1 > 2 or 3 >= 4 < 1 <= 23 == "asdf" == 43 and 3 + 4 < 23 and 4 + 5 or not 12 < 3:
     print(2)
 
@@ -37,4 +36,6 @@ while True:
     2 * 3 * d
 
 for i in range(1, 2, 3):
+    e: list = [1, 2, 3]
+    e.append
     print(i)

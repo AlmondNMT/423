@@ -15,28 +15,6 @@ end
 
 
 procedure main()
-    a := table("asdf", 2, "fdsa", 3)
-    every write(!(a))
-    every write(key(a))
-    write(repl("asdf", 4))
-    write("asdf" || "fdsa")
-    write("integers" ?? Break('e') -> found)
-    write("asdf", 1, 2.3, "fdsa")
-    print("asdf", 1, 2.3, [1, 2, 3], a)
-    print(-1)
-    print([ishift(1, -2)])
-    print(ior(ixor(2, 3), ixor(3, iand(4, 5))))
-    if 3 > 2  & 2 > 1 then {
-        print("asdf")
-    }
-    a := [1, 2, 3]
-    a := 1
-    b := 2
-    c := 0
-    if ((1 > 2) | ((3 >= 4 < 1 <= 23 === "asdf" === 43) & (3 + 4 < 23) & 4 + 5) |  (not ((12 < 3)))) then {
-        print(2)
-    }
-    [1, 2, 3][2]
-    print(table(1, 2, 3, 4))
-    print(range(-1, -2, 3))
+    print(1, 2, 3)
+    print([1, 2, 3], 4, 5)
 end

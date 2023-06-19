@@ -1,3 +1,19 @@
+# Any class
+# List class
+class List(m_a)
+    method append(a)
+        m_a |||:= [a]
+    end
+
+    method remove(a)
+        # TODO
+    end
+
+initially(x[])
+    m_a := list(x)
+    return;
+
+end
 # Sum over a list
 procedure sum_1(iterable)
     total := 0
@@ -5,6 +21,38 @@ procedure sum_1(iterable)
         total +:= i
     }
     return total
+end
+
+procedure Any(x[])
+    if *x == 1 then
+        return x[1]
+    return 0
+end
+
+procedure None(x[])
+    return &null
+end
+
+procedure bool(x[])
+    if *x == 1 then {
+        if(x[1] == "None" | 0 | "False") then return 0
+        return 1
+    }
+    return 0 # this isn't really false, so idk
+end
+
+procedure chr(x)
+    # TODO Return character from ascii 
+end
+
+procedure float(x[])
+    if *x == 0 then return 0.0
+    return 1.0 * x[1]
+end
+
+procedure input(x[])
+    if *x == 1 then prints(x[1])
+    read(&input)
 end
 
 # Sum over list with a starting total
@@ -47,7 +95,7 @@ end
 procedure range(x[])
     every i := !x do {
         if not type(x) === "integer" then {
-            print("what the shit???")
+            print("range arguments must be integers")
             &fail
         }
     }
@@ -74,18 +122,21 @@ end
 
 # print method (with space separation)
 procedure print(x[])
-    every k := !x do {
-        if type(k) === "list" then {
-            write_list(k)
-            writes(" ")
-        } else if type(k) === "table" then {
-            write_dict(k)
-            writes(" ")
-        } else {
-            writes(k, " ")
-        }
-    }
+    prints !x # Idk why this syntax, but it works
     write()
+end
+
+procedure prints(x[])
+    every k := 1 to *x do {
+        if type(x[k]) === "list" then {
+            write_list(x[k])
+        } else if type(x[k]) === "table" then {
+            write_dict(x[k])
+        } else {
+            writes(x[k])
+        }
+        if (k < *x ) then writes(" ")
+    }
 end
 
 procedure write_list(x)
@@ -95,9 +146,16 @@ procedure write_list(x)
     else {
         writes("[")
         every k := 1 to *x - 1 do {
-            writes(x[k], ", ")
+            if type(x[k]) === "list" then {
+                write_list(x[k])
+            } else if type(x[k]) === "table" then {
+                write_dict(x[k])
+            } else {
+                writes(x[k], ", ")
+            }
         }
-        writes(x[*x], "]")
+        prints(x[*x])
+        prints("]")
     }
 end
 
