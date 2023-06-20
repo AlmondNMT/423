@@ -1,5 +1,11 @@
+import random
 ## Empty file
-2 * "asdf" * 2 * 2 * 2 * 3
+
+def f(x: str, y: int) -> str:
+    print("x and y: ", x, y)
+    return x * y * 1
+
+2 * "asdf" * 2 * (3 + 4)
 (1 + 8 - 9 + 10 + 23) * "str"
 3 * 2 * "asdf" * 4
 (1 + 3 + 2) * "fifa" * 2 # repl("fifa", (1 + 3 + 2) * 2)
@@ -31,12 +37,20 @@ elif 1 < 2:
 else:
     print(5, 6, 7, 8)
 
-while True:
+while False:
     d: str = "asdf"
     2 * 3 * d
+    [1, 2, 3 ,4]
 
 for i in range(1, 2, 3):
     e: list = [1, 2, 3]
     e.append(1)
     print(max(e))
     print(i, i, i, i)
+    print(random.randint(-1, 1))
+
+x: int
+
+y: str
+"asdf" * 2
+

@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include "codegen.h"
 #include "nonterminal.h"
 #include "punygram.tab.h"
@@ -13,6 +14,8 @@
 
 // Global information, e.g., filename
 extern char yyfilename[PATHMAX];
+extern struct sym_table builtin_modules;
+extern struct sym_table global_modules;
 
 /**
  * This is the general, high-level codegen function. The goal is to 
@@ -42,6 +45,7 @@ void gencode(struct tree *t, bool do_package_mangle)
     code = append_code(code, create_code("%s", "end\n"));
     
     print_code(code);
+    transpile(code);
     free_code(code);
 }
 
@@ -51,7 +55,7 @@ struct code * gen_globals(struct tree *t, struct code *code)
     struct code *tmp = NULL;
     switch(t->prodrule) {
         case GLOBAL_STMT:
-            tmp = create_code("%s %s ", "global ", mangle_suffix(t->kids[0]->leaf));
+            tmp = create_code("%s %s ", "global ", mangle_suffix(t->kids[0]->leaf->text));
             code = append_code(code, tmp);
             code = gen_globals(t->kids[1], code);
             break;
@@ -61,7 +65,7 @@ struct code * gen_globals(struct tree *t, struct code *code)
             code = gen_globals(t->kids[0], code);
             // Grab the right side of the global
             code->codestr = concat(code->codestr, ", ");
-            code->codestr = concat(code->codestr, mangle_suffix(t->kids[1]->leaf));
+            code->codestr = concat(code->codestr, mangle_suffix(t->kids[1]->leaf->text));
             break;
         default:
             for(int i = 0; i < t->nkids; i++) {
@@ -81,7 +85,7 @@ struct code * gen_func(struct tree *t, struct code *code)
     switch(t->prodrule) {
         case FUNCDEF:
             // Get the function name
-            tmp = create_code("%s %s", "procedure ", mangle_suffix(t->kids[0]->leaf));
+            tmp = create_code("%s %s", "procedure ", mangle_suffix(t->kids[0]->leaf->text));
             code = append_code(code, tmp);
             gen_func_params(t->kids[1], tmp);
             code = gen_stmts(t->kids[3], code, 1);
@@ -152,7 +156,7 @@ struct code * gen_stmts(struct tree *t, struct code *code, unsigned int tablevel
 struct code *gen_for_stmt(struct tree *t, struct code *code, unsigned int tablevel)
 {
     if(t == NULL || code == NULL) return NULL;
-    struct code *tmp = create_code("%s %s %s", "every ", mangle_suffix(t->kids[0]->leaf), " := !");
+    struct code *tmp = create_code("%s %s %s", "every ", mangle_suffix(t->kids[0]->leaf->text), " := !");
     tmp->codestr = concat(tab(tablevel), tmp->codestr);
     gen_testlist(t->kids[1], tmp);
 
@@ -286,8 +290,13 @@ void gen_power(struct tree *t, struct code *code)
             SymbolTableEntry entry = lookup(leaf->text, t->stab);
             if(t->kids[1]->prodrule == TRAILER_REP) {
                 seq = build_trailer_sequence(t->kids[1]);
+                struct trailer *top = create_trailer_link(entry->ident, NAME);
+                top->next = seq;
+                seq->prev = top;
+                gen_trailer_sequence(entry, code, top);
                 // TODO hard part
-                // Is it a class or a function
+                // Is it a class or a function 
+                /*
                 switch(entry->typ->basetype) {
                     case CLASS_TYPE:
                     case FUNC_TYPE:
@@ -299,12 +308,12 @@ void gen_power(struct tree *t, struct code *code)
                         gen_arglist(t->kids[1], code);
                         code->codestr = concat(code->codestr, ")");
                         break;
-                }
+                }*/
                 
-                free_trailer_sequence(seq);
+                free_trailer_sequence(top);
             }
             else {
-                code->codestr = concat(code->codestr, mangle_suffix(leaf));
+                code->codestr = concat(code->codestr, mangle_suffix(leaf->text));
             }
         } 
         else {
@@ -327,12 +336,76 @@ void gen_power(struct tree *t, struct code *code)
 }
 
 /**
- * Arglists for functions. We try to reach an arglist
+ * Generate the arguments for a function call
  */
-void gen_arglist(struct tree *t, struct code *code)
+void gen_arglist(struct arg *args, struct code *code)
 {
-    if(t == NULL || code == NULL) return;
-    
+    if(args == NULL || code == NULL) return;
+    gen_testlist(args->testlist, code);
+    if(args->next != NULL) 
+        code->codestr = concat(code->codestr, ", ");
+    gen_arglist(args->next, code);
+}
+
+/**
+ * Generate the code for trailer sequences
+ */
+void gen_trailer_sequence(struct sym_entry *entry, struct code *code, struct trailer *seq)
+{
+    if(entry == NULL || code == NULL || seq == NULL) return;
+    struct sym_entry *member = NULL;
+    struct trailer *curr = NULL;
+    if(seq->next != NULL) curr = seq->next;
+    else curr = seq;
+    switch(curr->prodrule) {
+        case NAME:
+            // A dotted name can be either a package member access, or a 
+            //   method access
+            //   TODO
+            member = lookup_current(curr->name, entry->nested);
+
+            // I think we're safe to assume that member is not NULL after 
+            //   type-checking
+            // A function from random or math modules
+            switch(entry->typ->basetype) {
+                case PACKAGE_TYPE:
+                    // mangle the name of the package
+                    code->codestr = concat(code->codestr, entry->ident);
+                    code->codestr = concat(code->codestr, "__");
+                    break;
+                case CLASS_TYPE:
+                case FUNC_TYPE:
+                    break;
+            }
+            
+            // Recurse through the trailers
+            gen_trailer_sequence(member, code,curr->next);
+            break;
+        case ARGLIST_OPT:
+            // A function call
+            // TODO
+            if(entry->isbuiltin)
+                code->codestr = concat(code->codestr, entry->ident);
+            else 
+                code->codestr = concat(code->codestr, mangle_suffix(entry->ident));
+            code->codestr = concat(code->codestr, "(");
+
+            // If the prev entry in the doubly-linked list is not null and it 
+            //   is a name, the current is a builtin, we add the previous entry
+            //   as an argument to the function
+            if(curr->prev != NULL && curr->prev->prev != NULL && entry->isbuiltin_meth) {
+                code->codestr = concat(code->codestr, mangle_suffix(curr->prev->prev->name));
+                code->codestr = concat(code->codestr, ", ");
+            }
+
+            // Add the function arguments
+            gen_arglist(curr->arg, code);
+            code->codestr = concat(code->codestr, ")");
+            break;
+        case SUBSCRIPTLIST:
+            // TODO
+            break;
+    }
 }
 
 void convert_power_bool(struct tree *t, struct code *code)
@@ -375,9 +448,9 @@ void gen_atom(struct tree *t, struct code *code)
             code->codestr = concat(code->codestr, ")");
             break;
         case LISTMAKER_OPT:
-            code->codestr = concat(code->codestr, "List(");
+            code->codestr = concat(code->codestr, "[");
             gen_listmaker(t->kids[0]->kids[0], code);
-            code->codestr = concat(code->codestr, ")");
+            code->codestr = concat(code->codestr, "]");
             break;
         case DICTORSETMAKER_OPT:
             code->codestr = concat(code->codestr, "table(");
@@ -458,7 +531,7 @@ struct code *gen_decl_stmt(struct tree *t, struct code *code)
 
     // If there is an equal_test_opt present, ignore the type-hint
     if(t->kids[2]->prodrule == EQUAL_TEST_OPT) {
-        tmp = create_code("%s %s", mangle_suffix(t->kids[0]->leaf), " := ");
+        tmp = create_code("%s %s", mangle_suffix(t->kids[0]->leaf->text), " := ");
         gen_testlist(t->kids[2]->kids[1], tmp);
     }
 
@@ -466,26 +539,26 @@ struct code *gen_decl_stmt(struct tree *t, struct code *code)
     else {
         switch(t->type->basetype) {
             case LIST_TYPE:
-                tmp = create_code("%s %s", mangle_suffix(t->kids[0]->leaf), " := []");
+                tmp = create_code("%s %s", mangle_suffix(t->kids[0]->leaf->text), " := []");
                 break;
             case BOOL_TYPE:
             case INT_TYPE:
-                tmp = create_code("%s %s", mangle_suffix(t->kids[0]->leaf), " := 0");
+                tmp = create_code("%s %s", mangle_suffix(t->kids[0]->leaf->text), " := 0");
                 break;
             case FLOAT_TYPE:
-                tmp = create_code("%s %s", mangle_suffix(t->kids[0]->leaf), " := 0.0");
+                tmp = create_code("%s %s", mangle_suffix(t->kids[0]->leaf->text), " := 0.0");
                 break;
             case DICT_TYPE:
-                tmp = create_code("%s %s", mangle_suffix(t->kids[0]->leaf), " := table()");
+                tmp = create_code("%s %s", mangle_suffix(t->kids[0]->leaf->text), " := table()");
                 break;
             case NONE_TYPE:
-                tmp = create_code("%s %s", mangle_suffix(t->kids[0]->leaf), " := &null");
+                tmp = create_code("%s %s", mangle_suffix(t->kids[0]->leaf->text), " := &null");
                 break;
             case STRING_TYPE:
             default:
                 // Default the variable to a string if we can't identify it's 
                 //   type. I believe we have enumerated all of the types here
-                tmp = create_code("%s %s", mangle_suffix(t->kids[0]->leaf), " := \"\"");
+                tmp = create_code("%s %s", mangle_suffix(t->kids[0]->leaf->text), " := \"\"");
         }
     }
     code = append_code(code, tmp);
@@ -510,11 +583,11 @@ void gen_func_params(struct tree *t, struct code *func)
         case VARARGSLIST:
             gen_func_params(t->kids[0], func);
             // Get the parameter to the right
-            func->codestr = concat(func->codestr, mangle_suffix(t->kids[1]->kids[0]->kids[0]->leaf));
+            func->codestr = concat(func->codestr, mangle_suffix(t->kids[1]->kids[0]->kids[0]->leaf->text));
             break;
         case FPDEF_EQUAL_TEST_COMMA_REP:
             gen_func_params(t->kids[0], func);
-            func->codestr = concat(func->codestr, mangle_suffix(t->kids[1]->kids[0]->leaf));
+            func->codestr = concat(func->codestr, mangle_suffix(t->kids[1]->kids[0]->leaf->text));
             func->codestr = concat(func->codestr, ", ");
             break;
     }
@@ -566,11 +639,11 @@ struct code *create_code(char *fmt, ...)
 }
 
 // Add a __pyname suffix to the name
-char *mangle_suffix(struct token *tok)
+char *mangle_suffix(char *name)
 {
-    if(tok == NULL) return NULL;
-    char *name = strdup(tok->text);
-    return concat(name, "__pyname");
+    if(name == NULL) return NULL;
+    char *mangled = strdup(name);
+    return concat(mangled, "__pyname");
 
 }
 
@@ -850,7 +923,7 @@ void gen_term_code(struct tree *t, struct code *code)
             code->codestr = concat(code->codestr, "repl(");
             code->codestr = concat(code->codestr, string_token->text);
             code->codestr = concat(code->codestr, ", ");
-            code->codestr = concat(code->codestr, "1 * ");
+            code->codestr = concat(code->codestr, "1");
             gen_term_code_str_aux(t, code);
             code->codestr = concat(code->codestr, ")");
             break;
@@ -883,8 +956,10 @@ void gen_term_code_str_aux(struct tree *t, struct code *code)
     if(t == NULL || code == NULL) return;
     switch(t->prodrule) {
         case TERM:
-            if(t->kids[0]->type->basetype != STRING_TYPE)
+            if(t->kids[0]->type->basetype != STRING_TYPE) {
+                code->codestr = concat(code->codestr, " * ");
                 gen_testlist(t->kids[0], code);
+            }
             gen_term_code_str_aux(t->kids[1], code);
             break;
         case FACTOPS_FACTOR_REP:
@@ -962,3 +1037,55 @@ char *tab(unsigned int level)
     return ret;
 }
 
+/**
+ * Transpile the code
+ */
+void transpile(struct code *code)
+{
+    if(code == NULL) return;
+    char *icn_name = write_code(code);
+    
+    // Compile the runtime environment without linking
+    system("unicon -c runtime/runtime.icn");
+
+    char *builtin_fname = NULL;
+    char *command_str = strdup("unicon -c ");
+    command_str = concat(command_str, icn_name);
+    command_str = concat(command_str, " ");
+    // Compile any imported builtin modules
+    struct sym_table *builtins = &builtin_modules;
+    for(int i = 0; i < builtins->nBuckets; i++) {
+        for(struct sym_entry *curr = builtins->tbl[i]; curr != NULL; curr = curr->next) {
+            builtin_fname = ckalloc(strlen(curr->ident) + 5, sizeof(char));
+            command_str = concat(command_str, curr->ident);
+            command_str = concat(command_str, ".icn ");
+            free(builtin_fname);
+        }
+    }
+    printf("command: %s\n", command_str);
+
+    free(icn_name);
+    free(command_str);
+}
+
+
+/**
+ * Write the code to the .icn file
+ */
+char *write_code(struct code *code)
+{
+    if(code == NULL) return "";
+    
+    // Append .icn to the python filename
+    char *icn_filename = ckalloc(strlen(yyfilename) + 4 + 1, sizeof(char));
+    strcat(icn_filename, yyfilename);
+    replace_substring(icn_filename, ".py", ".icn");
+    FILE *icn = fopen(icn_filename, "w");
+    printf("icn_filename: %s\n", icn_filename);
+    for(struct code *cur = code; cur != NULL; cur = cur->next) {
+        fwrite(cur->codestr, (size_t) strlen(cur->codestr), 1, icn);
+        fwrite("\n", 1, 1, icn);
+    }
+    fclose(icn);
+    return icn_filename;
+}

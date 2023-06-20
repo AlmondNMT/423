@@ -29,7 +29,7 @@ struct token *create_builtin_token(char *name)
 /**
  * Add methods to a builtin class
  */
-struct sym_entry *insertbuiltin_meth(struct sym_table *btable, char *name, typeptr returntype)
+struct sym_entry *insertbuiltin_meth(struct sym_table *btable, char *name, typeptr returntype, char *codestr)
 {
     struct sym_entry *entry = NULL;
     struct token *tok = create_builtin_token(name);
@@ -38,7 +38,11 @@ struct sym_entry *insertbuiltin_meth(struct sym_table *btable, char *name, typep
     entry->typ->basetype = FUNC_TYPE;
     entry->typ->u.f.returntype = returntype;
     entry->typ->u.f.name = name;
+
+    // The Unicon string
+    entry->codestr = codestr;
     entry->isbuiltin = true;
+    entry->isbuiltin_meth = true;
     return entry;
 }
 
@@ -217,9 +221,31 @@ void add_random_library(SymbolTable st)
     SymbolTableEntry entry = NULL;
 
     // 'choice' and 'randint'
-    entry = insertbuiltin(st, "choice", FUNC_TYPE, "choice");
+    entry = insertbuiltin(st, "choice", FUNC_TYPE, "math__choice");
     add_builtin_func_info(entry, 1, 1, &list_type, "%s: %d", "l", LIST_TYPE);
 
-    entry = insertbuiltin(st, "randint", FUNC_TYPE, "randint");
+    entry = insertbuiltin(st, "randint", FUNC_TYPE, "math__randint");
     add_builtin_func_info(entry, 2, 2, &int_type, "%s: %d, %s: %d", "a", INT_TYPE, "b", INT_TYPE);
+}
+
+void add_math_library(SymbolTable st)
+{
+    if(st == NULL) return;
+    SymbolTableEntry entry = NULL;
+    
+    // sqrt, gcd, asin, acos, atan
+    entry = insertbuiltin(st, "sqrt", FUNC_TYPE, "math__sqrt");
+    add_builtin_func_info(entry, 1, 1, &float_type, "%s: %d", "x", FLOAT_TYPE);
+
+    entry = insertbuiltin(st, "gcd", FUNC_TYPE, "math__gcd");
+    add_builtin_func_info(entry, 2, 2, &int_type, "%s: %d, %s: %d", "a", INT_TYPE, "b", INT_TYPE);
+
+    entry = insertbuiltin(st, "asin", FUNC_TYPE, "math__asin");
+    add_builtin_func_info(entry, 1, 1, &float_type, "%s: %d", "x", FLOAT_TYPE);
+
+    entry = insertbuiltin(st, "acos", FUNC_TYPE, "math__acos");
+    add_builtin_func_info(entry, 1, 1, &float_type, "%s: %d", "x", FLOAT_TYPE);
+
+    entry = insertbuiltin(st, "atan", FUNC_TYPE, "math__atan");
+    add_builtin_func_info(entry, 1, 1, &float_type, "%s: %d", "x", FLOAT_TYPE);
 }

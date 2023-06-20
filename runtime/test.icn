@@ -28,7 +28,18 @@ procedure main()
     print(string(123))
     print(choice([1, 2, 3]))
     print(randint(-10, 10))
-    a := [1, 2, 3]
-    put(a, 4)
+    a := [4, 3, 2, 1]
+    put(a, 5)
     print(a)
+    remove_element(a, 4)
+    print(a)
+    print(max(1, 2, 3, 5.5))
+    print(min(12, 3, 9, 19), 23)
+    a := table("asdf", 1, 2, 3)
+    print(keys(a))
+    print(values(a))
+    s := "Test :string: bing : chilling"
+    print(s)
+    print(replace(s, ":", ","))
+    print(gcd(0, 0))
 end

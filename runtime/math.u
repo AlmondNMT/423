@@ -1,5 +1,5 @@
 version	U12.1.00
-uid	math.u1-1687200588-0
+uid	math.u1-1687219865-0
 impl	local
 global	1
 	0,000005,gcd,2
@@ -8,6 +8,7 @@ proc gcd
 	local	0,001000,a
 	local	1,001000,b
 	local	2,000000,temp
+	local	3,000000,abs
 	con	0,002000,1,0
 	declend
 	filen	math.icn
@@ -73,7 +74,12 @@ lab L4
 lab L1
 	mark	L7
 	mark	L8
+	var	3
 	var	0
+	line	7
+	colm	15
+	synt	any
+	invoke	1
 	line	7
 	colm	5
 	synt	any
@@ -85,7 +91,7 @@ lab L8
 lab L7
 	pnull
 	line	8
-	colm	2
+	colm	1
 	synt	any
 	pfail
 	end

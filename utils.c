@@ -351,3 +351,19 @@ void *ckalloc(int n, size_t size) // "checked" allocation
     }
     return p;
 }
+
+void replace_substring(char *str, const char *old, const char *new) {
+    char *position = strstr(str, old);
+    if (position != NULL) {
+        size_t oldLen = strlen(old);
+        size_t newLen = strlen(new);
+        size_t tailLen = strlen(position + oldLen);
+
+        if (newLen != oldLen) {
+            memmove(position + newLen, position + oldLen, tailLen + 1);
+        }
+
+        memcpy(position, new, newLen);
+        replace_substring(position + newLen, old, new);
+    }
+}

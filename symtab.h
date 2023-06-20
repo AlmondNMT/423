@@ -23,6 +23,7 @@ typedef struct sym_entry {
     int column;                 /* On what column was this entry declared/ first assigned */
     bool declared;              /* is this symbol declared in this scope? */
     bool isbuiltin;             /* Indicates whether the symbol is a builtin */
+    bool isbuiltin_meth;        /* Builtin method */
     char *codestr;              /* The string used in code generation */
     struct sym_table *nested;   /* nested symbol table (if any) */
     struct typeinfo *typ;
@@ -38,6 +39,7 @@ void check_undeclared_variables(SymbolTable st);
 void check_decls(struct tree *t, SymbolTable st);
 void free_symtab(SymbolTable st);
 void init_global_modules(SymbolTable global_modules);
+void init_builtin_modules(SymbolTable builtin_modules);
 bool module_exists(char *filename);
 
 // Specialized tree traversals for populating symbol table 
@@ -87,7 +89,7 @@ SymbolTable mknested(struct token *tok, int nbuckets, SymbolTable parent, char *
 void populate_symboltables(struct tree *t, SymbolTable st);
 void populate_functions(struct tree *t, SymbolTable st);
 void printsymbols(SymbolTable st, int level);
-void semantics(struct tree *t, SymbolTable st, int add_builtins);
+void semantics(struct tree *t, SymbolTable st, bool add_builtins);
 
 // Get Symbol information from the table
 int symbol_exists(char *name, SymbolTable st);

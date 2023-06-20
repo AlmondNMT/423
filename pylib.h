@@ -2,4 +2,4 @@
 //if the name of the built-in is given in the list.
 //no indices required anywhere, just add any name anywhere BEFORE list_end
 
-char *builtin_list[] = {"os", "random", "math", "date", NULL};
+char *builtin_list[] = {"random", "math", NULL};

@@ -3,8 +3,11 @@
 
 #include <stdbool.h>
 
+struct arg;
+struct sym_entry;
 struct sym_table;
 struct token;
+struct trailer;
 struct tree;
 struct typeinfo;
 
@@ -30,7 +33,8 @@ void gen_table(struct tree *t, struct code *code);
 void gen_testlist(struct tree *t, struct code *code);
 void gen_listmaker(struct tree *t, struct code *code);
 void gen_power(struct tree *t, struct code *code);
-void gen_arglist(struct tree *t, struct code *code);
+void gen_arglist(struct arg *args, struct code *code);
+void gen_trailer_sequence(struct sym_entry *entry, struct code *code, struct trailer *seq);
 void gen_func_params(struct tree *t, struct code *func);
 void gen_atom(struct tree *t, struct code *code);
 void gen_tct_code(struct tree *t, struct code *code);
@@ -72,11 +76,13 @@ struct code *create_code(char *fmt, ...);
 struct code * get_tail(struct code *code);
 void free_code(struct code *code);
 void print_code(struct code *code);
+char *write_code(struct code *code);
+void transpile(struct code *code);
 
 struct code * append_code(struct code *head, struct code *node);
 
 // Name mangling and string manipulation stuff
-char *mangle_suffix(struct token *tok);
+char *mangle_suffix(char *name);
 char *concat(char *str1, char *str2);
 char *tab(unsigned int level);
 char *gen_atom_str(struct tree *t);

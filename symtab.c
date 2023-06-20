@@ -22,11 +22,12 @@ extern bool tree_opt, symtab_opt;
 
 // Global hash table for import names. Used to prevent circular imports
 extern struct sym_table global_modules;
+extern struct sym_table builtin_modules;
 
 /**
  * Do semantic analysis here 
  */
-void semantics(struct tree *tree, SymbolTable st, int add_builtins)
+void semantics(struct tree *tree, SymbolTable st, bool add_builtins)
 {
     if(tree == NULL || st == NULL) 
         return;
@@ -224,9 +225,21 @@ void init_global_modules(SymbolTable global_modules)
     global_modules->tbl = ckalloc(HASH_TABLE_SIZE, sizeof(SymbolTableEntry));
     global_modules->parent = NULL;
     global_modules->level = 0;
-    global_modules->scope = ckalloc(strlen(scope) + 2, sizeof(char));
-    strcpy(global_modules->scope, scope);
+    global_modules->scope = strdup(scope);
     insertmodule(global_modules, yyfilename);
+}
+
+/**
+ * For builtin imports like "random" and "math"
+ */
+void init_builtin_modules(SymbolTable builtin_modules)
+{
+    char *scope = "module";
+    builtin_modules->nBuckets = HASH_TABLE_SIZE;
+    builtin_modules->tbl = ckalloc(HASH_TABLE_SIZE, sizeof(SymbolTableEntry));
+    builtin_modules->parent = NULL;
+    builtin_modules->level = 0;
+    builtin_modules->scope = strdup(scope);
 }
 
 /**
@@ -439,7 +452,8 @@ void handle_token(struct tree *t, SymbolTable st)
             entry = get_chained_dot_entry(t->kids[1], st, entry);
             
         }
-        // TODO: If you want chained assignments to work, uncomment this line below
+        // I had a comment about chained assignments here, but we're not doing
+        //   those anymore
         entry = insertsymbol(st, left);
         
     }
@@ -956,14 +970,21 @@ void get_import_symbols(struct tree *t, SymbolTable st)
 void add_imported_builtin(char *import_name, SymbolTable st)
 {
     if(import_name == NULL) return; // avoiding segfault
+
+    // Add the module name to the global modules linked list. 
+    //   We've already checked that it's a valid module
+    insertmodule(&builtin_modules, import_name);
     if(strcmp(import_name, "random") == 0) {
         add_random_library(st);
+    } 
+    else if(strcmp(import_name, "math") == 0) {
+        add_math_library(st);
     }
+    // TODO: Idk if we're supporting more than these two
 }
 
 void get_imported_tree(char *filename)
 {
-
     // Initialize yyin for imported file
     check_access(filename);
 

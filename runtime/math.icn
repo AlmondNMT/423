@@ -1,8 +1,8 @@
-procedure gcd(a, b)
+procedure math__gcd(a, b)
     while b ~= 0 do {
         temp := b
         b := a % b
         a := temp
     }
-    return a
+    return abs(a)
 end

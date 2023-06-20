@@ -1,20 +1,3 @@
-# Any class
-# List class
-class List(m_a)
-    method append(a)
-        m_a |||:= [a]
-    end
-
-    method remove(a)
-        # TODO
-    end
-
-initially(x[])
-    m_a := list(x)
-    return;
-
-end
-
 procedure Any(x[])
     if *x == 1 then
         return x[1]
@@ -56,15 +39,63 @@ procedure length(x)
     return *x
 end
 
+procedure remove_element(a, x)
+    if type(a) === "list" then {
+        index := 1
+        every k := !a do {
+            if x === k then {
+                delete(a, index)
+            }
+            index +:= 1
+        }
+    }
+end
+
 procedure max(x[])
-    # TODO
-    highest = x[1]
+
+    # Just return the maximum in the list
+    if *x == 1 & type(x[1]) === "list" then return max !x[1]
+    highest := x[1]
     every i := 2 to *x do {
-        if x[i] > highest then highest = x[i]
+        if x[i] > highest then highest := x[i]
     }
     return highest
 end
 
+
+
+procedure min(x[])
+    if *x == 1 & type(x[1]) === "list" then return min !x[1]
+    smallest := x[1]
+    every i := 2 to *x do {
+        if x[i] < smallest then smallest := x[i]
+    }
+    return smallest
+end
+
+### Dictionary/Tables
+procedure keys(x) 
+    if type(x) === "table" then {
+        a := []
+        every k := key(x) do {
+            put(a, k)
+        }
+    }
+    return a
+end
+
+procedure values(x)
+    if type(x) === "table" then {
+        a := []
+        every k := !x do {
+            put(a, k)
+        }
+    }
+    return a
+end
+
+
+## Math stuff
 procedure pow(a, b)
     return a ^ b
 end
@@ -81,18 +112,6 @@ procedure round(x[])
         return integer(a * 10 ^ b) / 10.0 ^ b
     }
 end
-
-procedure min(x[])
-    # TODO
-end
-
-
-
-# Sum over list with a starting total
-procedure sum_2(iterable, start)
-    return start + sum_1(iterable)
-end
-
 
 procedure range(x[])
     every i := !x do {
@@ -115,11 +134,6 @@ procedure range(x[])
             a |||:= [i]
     }
     return a
-end
-
-# String split method TODO
-procedure split(x)
-
 end
 
 # print method (with space separation)
@@ -173,3 +187,27 @@ procedure write_dict(x)
         writes("}")
     }
 end
+
+# String replace
+procedure replace(s, x, y)
+    occ := []
+    len := *x
+    new := ""
+    if type(s) === "string" then {
+        every i := 1 to *s do {
+            if s[i:(len+1)] === x then {
+                new ||:= y
+                i +:= len
+            } else {
+                new ||:= s[i]
+            }
+        }
+    }
+    return new
+end
+
+# String split method TODO
+procedure split(s, x)
+
+end
+

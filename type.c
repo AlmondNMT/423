@@ -47,9 +47,9 @@ void init_types()
     list_typeptr->u.cls.max_params = 1;
     list_typeptr->u.cls.parameters = alcparam("a", alcbuiltin(ANY_TYPE));
     st = list_typeptr->u.cls.st;
-    entry = insertbuiltin_meth(st, "append", none_typeptr);
+    entry = insertbuiltin_meth(st, "append", none_typeptr, "put");
     add_builtin_func_info(entry, 1, 1, none_typeptr, "%s: %d", "a", ANY_TYPE);
-    entry = insertbuiltin_meth(st, "remove", none_typeptr);
+    entry = insertbuiltin_meth(st, "remove", none_typeptr,"remove_element");
     add_builtin_func_info(entry, 1, 1, none_typeptr, "%s: %d", "a", ANY_TYPE);
 
     dict_typeptr->u.cls.st = mksymtab(HASH_TABLE_SIZE, "class");
@@ -57,18 +57,18 @@ void init_types()
     dict_typeptr->u.cls.min_params = 1;
     dict_typeptr->u.cls.parameters = alcparam("a", alcbuiltin(ANY_TYPE));
     st = dict_typeptr->u.cls.st;
-    entry = insertbuiltin_meth(st, "keys", list_typeptr);
+    entry = insertbuiltin_meth(st, "keys", list_typeptr, "keys");
     add_builtin_func_info(entry, 0, 0, list_typeptr, NULL);
-    entry = insertbuiltin_meth(st, "values", list_typeptr);
+    entry = insertbuiltin_meth(st, "values", list_typeptr, "values");
 
     string_typeptr->u.cls.st = mksymtab(HASH_TABLE_SIZE, "class");
     string_typeptr->u.cls.min_params = 0;
     string_typeptr->u.cls.max_params = 1;
     string_typeptr->u.cls.parameters = alcparam("a", alcbuiltin(ANY_TYPE));
     st = string_typeptr->u.cls.st;
-    entry = insertbuiltin_meth(st, "replace", string_typeptr);
+    entry = insertbuiltin_meth(st, "replace", string_typeptr, "replace");
     add_builtin_func_info(entry, 2, 2, string_typeptr, "%s: %d, %s: %d", "o", STRING_TYPE, "n", STRING_TYPE);
-    entry = insertbuiltin_meth(st, "split", list_typeptr);
+    entry = insertbuiltin_meth(st, "split", list_typeptr, "split");
     add_builtin_func_info(entry, 1, 1, list_typeptr, "%s: %d", "c", STRING_TYPE);
 
     file_typeptr->u.cls.st = mksymtab(HASH_TABLE_SIZE, "class");
@@ -76,11 +76,11 @@ void init_types()
     file_typeptr->u.cls.max_params = 1;
     file_typeptr->u.cls.parameters = alcparam("a", alcbuiltin(ANY_TYPE));
     st = file_typeptr->u.cls.st;
-    entry = insertbuiltin_meth(st, "read", string_typeptr);
+    entry = insertbuiltin_meth(st, "read", string_typeptr, "read");
     add_builtin_func_info(entry, 0, 1, string_typeptr, "%s: %d", "n", INT_TYPE);
-    entry = insertbuiltin_meth(st, "write", int_typeptr);
+    entry = insertbuiltin_meth(st, "write", int_typeptr, "write");
     add_builtin_func_info(entry, 1, 1, int_typeptr, "%s: %d", "s", STRING_TYPE);
-    entry = insertbuiltin_meth(st, "close", none_typeptr);
+    entry = insertbuiltin_meth(st, "close", none_typeptr, "close");
     add_builtin_func_info(entry, 0, 0, none_typeptr, NULL);
 }
 
@@ -305,6 +305,7 @@ typeptr type_for_bin_op_times(typeptr lhs, typeptr rhs)
                 case INT_TYPE:
                     return string_typeptr;
             }
+        break;
     }
     return NULL;
 }
@@ -657,15 +658,16 @@ typeptr typecheck_not(struct tree *t)
 typeptr typecheck_op(struct tree *t)
 {
     if(t == NULL) return NULL;
-    typeptr lhs_type = NULL, rhs_type = NULL, type = NULL;
+    typeptr lhs_type = NULL, type = NULL;
     lhs_type = typecheck_testlist(t->kids[0]);
-    rhs_type = typecheck_op_aux(t->kids[1], lhs_type);
+    type = typecheck_op_aux(t->kids[1], lhs_type);
     struct token *op = t->kids[1]->kids[1]->leaf;
-    type = type_for_bin_op(lhs_type, rhs_type, op);
+    // Potentially redundant call below
+    //type = type_for_bin_op(lhs_type, rhs_type, op);
 
     // Type annotation
     t->kids[0]->type = lhs_type;
-    t->kids[1]->type = rhs_type;
+    t->kids[1]->type = type;
     t->type = type;
     return type;
 }
@@ -884,6 +886,7 @@ struct trailer *build_trailer_sequence(struct tree *t)
         struct trailer *curr = prev;
         while(curr->next != NULL) curr = curr->next;
         curr->next = next;
+        next->prev = curr;
         return prev;
     }
     return next;
@@ -904,16 +907,19 @@ struct arg *build_arglist(struct tree *t)
             // ARGLIST_OPT -> ARGLIST/NULLTREE ->
             prev = build_arglist(t->kids[0]);
             break;
+
+        // All 4 have the same tree structure
         case ARGLIST:
-            // ARGLIST -> ARG_COMMA_REP
         case SUBSCRIPTLIST: 
         case SUBSCRIPT_COMMA_REP:
         case ARG_COMMA_REP:
             // SUBSCRIPTLIST -> SUBSCRIPT_COMMA_REP
             prev = build_arglist(t->kids[0]);
             type = typecheck_testlist(t->kids[1]->kids[0]);
+            
             //printf("%s\n", print_type(type));
             next = create_arg_link(type);
+            next->testlist = t->kids[1]->kids[0];
             break;
     }
 

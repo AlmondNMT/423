@@ -24,8 +24,11 @@ bool dot_opt = false;
 bool tree_opt = false;   // Should we print the tree?
 
 
-// Global module names
+// Global module names (for user-defined module imports)
 struct sym_table global_modules;
+
+// Builtin imports
+struct sym_table builtin_modules;
 
 int main(int argc, char *argv[]) {
 
@@ -51,8 +54,9 @@ int main(int argc, char *argv[]) {
         printf("File: %s\n", yyfilename);
         yyparse();
         
-        // Initialize the global modules hash table
+        // Initialize the global modules and import modules hash tables
         init_global_modules(&global_modules);
+        init_builtin_modules(&builtin_modules);
 
         // Initialize SymbolTable Stack with HASH_TABLE_SIZE buckets 
         SymbolTable global = mksymtab(HASH_TABLE_SIZE, "global"); 
@@ -79,7 +83,7 @@ int main(int argc, char *argv[]) {
             free(graphname);
         }
         // Populate symbol tables - obtain type information - validate operand types
-        int add_builtins_pls = 1;
+        bool add_builtins_pls = true;
         semantics(tree, global, add_builtins_pls);
 
         // Print syntax tree option

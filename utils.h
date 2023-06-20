@@ -25,3 +25,4 @@ void *ckalloc(int n, size_t size);
 void *crealloc(int n, size_t size);
 void reset_globals();
 int check_access(char *filename);
+void replace_substring(char *str, const char *old, const char *new);

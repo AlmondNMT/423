@@ -81,8 +81,9 @@ struct trailer {
 };
 
 struct arg {
-    struct arg *next; // Next argument in sequence of arguments
-    typeptr type;     // The type of the argument
+    struct arg *next;      // Next argument in sequence of arguments
+    struct tree *testlist; // The testlist of the function argument
+    typeptr type;          // The type of the argument
 };
 
 
