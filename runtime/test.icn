@@ -41,5 +41,5 @@ procedure main()
     s := "Test :string: bing : chilling"
     print(s)
     print(replace(s, ":", ","))
-    print(gcd(0, 0))
+    print(gcd(-1.3, 5))
 end

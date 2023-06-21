@@ -1,4 +1,4 @@
-procedure math__gcd(a, b)
+procedure gcd(a, b)
     while b ~= 0 do {
         temp := b
         b := a % b

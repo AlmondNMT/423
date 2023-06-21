@@ -72,6 +72,9 @@ struct token *get_term_str(struct tree *t);
 // Factory function for struct code linked list generation
 struct code *create_code(char *fmt, ...);
 
+// Build the command to compile/link source with builtin imports
+char *build_import_command(char *cmd_str, char *ext, bool use_dir);
+
 // Get the tail of the linked list
 struct code * get_tail(struct code *code);
 void free_code(struct code *code);
@@ -83,6 +86,7 @@ struct code * append_code(struct code *head, struct code *node);
 
 // Name mangling and string manipulation stuff
 char *mangle_suffix(char *name);
+char *mangle_name(char *name);
 char *concat(char *str1, char *str2);
 char *tab(unsigned int level);
 char *gen_atom_str(struct tree *t);

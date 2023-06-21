@@ -221,10 +221,10 @@ void add_random_library(SymbolTable st)
     SymbolTableEntry entry = NULL;
 
     // 'choice' and 'randint'
-    entry = insertbuiltin(st, "choice", FUNC_TYPE, "math__choice");
+    entry = insertbuiltin(st, "choice", FUNC_TYPE, "choice");
     add_builtin_func_info(entry, 1, 1, &list_type, "%s: %d", "l", LIST_TYPE);
 
-    entry = insertbuiltin(st, "randint", FUNC_TYPE, "math__randint");
+    entry = insertbuiltin(st, "randint", FUNC_TYPE, "randint");
     add_builtin_func_info(entry, 2, 2, &int_type, "%s: %d, %s: %d", "a", INT_TYPE, "b", INT_TYPE);
 }
 
@@ -234,18 +234,18 @@ void add_math_library(SymbolTable st)
     SymbolTableEntry entry = NULL;
     
     // sqrt, gcd, asin, acos, atan
-    entry = insertbuiltin(st, "sqrt", FUNC_TYPE, "math__sqrt");
+    entry = insertbuiltin(st, "sqrt", FUNC_TYPE, "sqrt");
     add_builtin_func_info(entry, 1, 1, &float_type, "%s: %d", "x", FLOAT_TYPE);
 
-    entry = insertbuiltin(st, "gcd", FUNC_TYPE, "math__gcd");
+    entry = insertbuiltin(st, "gcd", FUNC_TYPE, "gcd");
     add_builtin_func_info(entry, 2, 2, &int_type, "%s: %d, %s: %d", "a", INT_TYPE, "b", INT_TYPE);
 
-    entry = insertbuiltin(st, "asin", FUNC_TYPE, "math__asin");
+    entry = insertbuiltin(st, "asin", FUNC_TYPE, "asin");
     add_builtin_func_info(entry, 1, 1, &float_type, "%s: %d", "x", FLOAT_TYPE);
 
-    entry = insertbuiltin(st, "acos", FUNC_TYPE, "math__acos");
+    entry = insertbuiltin(st, "acos", FUNC_TYPE, "acos");
     add_builtin_func_info(entry, 1, 1, &float_type, "%s: %d", "x", FLOAT_TYPE);
 
-    entry = insertbuiltin(st, "atan", FUNC_TYPE, "math__atan");
+    entry = insertbuiltin(st, "atan", FUNC_TYPE, "atan");
     add_builtin_func_info(entry, 1, 1, &float_type, "%s: %d", "x", FLOAT_TYPE);
 }

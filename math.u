@@ -1,5 +1,5 @@
 version	U12.1.00
-uid	math.u1-1687382727-0
+uid	math.u1-1687387480-0
 impl	local
 global	1
 	0,000005,gcd,2
@@ -11,7 +11,7 @@ proc gcd
 	local	3,000000,abs
 	con	0,002000,1,0
 	declend
-	filen	math.icn
+	filen	runtime/math.icn
 	line	1
 	colm	12
 	synt	any

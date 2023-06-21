@@ -1,3 +1,5 @@
+import test1
+import math
 import random
 ## Empty file
 
@@ -50,7 +52,8 @@ for i in range(1, 2, 3):
     print(random.randint(-1, 1))
 
 x: int
-
 y: str
+z: list = [1, 2, []]
 "asdf" * 2
-
+math.gcd(2, 3)
+z[2].append(2)

@@ -223,7 +223,6 @@ typeptr type_for_bin_op_plus(typeptr lhs, typeptr rhs)
             }
             break;
 
-        // TODO: Verify that these are possible to do in Unicon
         case STRING_TYPE:
             if(rhs->basetype == STRING_TYPE)
                 return string_typeptr;
@@ -484,7 +483,7 @@ paramlist alcparam(char *name, typeptr type)
  *  ☑ Add class type information (NOT SUPPORTED)
  *  ☑ Propagate type information through assignments 
  *  ☑ Get type information for declarations
- *  ☐ Get type information for the if_stmt TEST
+ *  ☑ Get type information for the if_stmt TEST
 */
 void typecheck(struct tree *t)
 {
@@ -990,6 +989,7 @@ struct typeinfo *get_trailer_rep_type(struct trailer *seq, SymbolTableEntry entr
     // Bunch of initialization. Might be a more efficient way to do all of this, but I don't care
     struct trailer *curr = NULL, *start = create_trailer_link(entry->ident, NAME);
     start->next = seq;
+    print_trailer_sequence(start);
     SymbolTableEntry rhs = entry; // Initialize rhs with the entry pointer
     SymbolTable nested = entry->nested;
     typeptr current_type = entry->typ;
@@ -1008,6 +1008,9 @@ struct typeinfo *get_trailer_rep_type(struct trailer *seq, SymbolTableEntry entr
                     case BOOL_TYPE:
                         semantic_error(tok, "invalid field access for type '%s'\n", type_name);
                 }
+
+                if(curr->prev != NULL && curr->prev->prodrule == ARGLIST_OPT)
+                    semantic_error(tok, "cannot access field of subscripted name\n");
                 rhs = lookup_current(curr->name, nested);
                 if(rhs == NULL) {
                     semantic_error(tok, "'%s' object has no attribute '%s'\n", type_name, curr->name);
@@ -1499,7 +1502,6 @@ int get_token_type_code(struct token *tok)
  *
  * We've arrived at a funcdef and need to get the symtable entry for the 
  *   function 
- * TODO: What if there's no return statment?
  * 
 */
 void typecheck_func_ret_type(struct tree *t)

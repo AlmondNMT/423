@@ -77,7 +77,7 @@ Typechecking (Essentially the same as B-minor, but with ANY_TYPE
   ANY and ANY
 
 '''
-a.b = 1 # Disallowed
+# a.b = 1 # Disallowed
 
 """
 term: str indicates multiplication of a string with some sequence of integers. 
@@ -86,5 +86,63 @@ term: str indicates multiplication of a string with some sequence of integers.
 """
 
 """
-In code generation, the trailers have to be handled extremely carefully. 
+In code generation, the trailers have to be handled extremely carefully. XXDD
+"""
+
+"""
+Imports are nasty. There are two main kinds: builtin imports and user-defined 
+imported pyfiles. In the former case, we simply have to compile the runtime libs
+and link them with our main source file, ensuring that the names are mangled 
+correctly. For example, 
+
+`import random`
+
+should make the following names visible in the Unicon space across all user-def
+source files:
+    `random__choice`
+    `random__randint`
+In the actual source for runtime/random.icn, the functions are all named in this
+manner. The same is true for `math`. When an imported user-def imports the same 
+builtin as our source pyfile, it should be accessible for both. That is, we 
+should be able to do the following:
+`
+import name
+
+a = name.random.randint(-1, 1)
+`
+This should translate into 
+`
+a := random__randint(-1, 1)
+`
+
+However in another case, we may have three files: test1.py, main.py, which 
+imports name.py, which contains a list called `asdf`
+name.py looks like this:
+`
+import test1
+
+def f(x):
+    return x ** 2
+
+asdf = [1, 2, 3]
+asdf.append(4)
+`
+
+and main.py:
+`
+import name
+name.asdf.append(5)
+`
+
+and test1.py
+`
+
+`
+
+When we reach `import name` during semantic analysis, name.py should then 
+be processed, except we won't generate a main procedure. Rather, we will 
+mangle the names of all functions inside it, add them to our code list, then 
+return a struct containing all of the statements that would have gone into 
+a main procedure if we had compiled name.py directly. This struct will be 
+appended 
 """

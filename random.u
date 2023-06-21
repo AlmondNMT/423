@@ -1,5 +1,5 @@
 version	U12.1.00
-uid	random.u1-1687382727-0
+uid	random.u1-1687387480-0
 impl	local
 global	2
 	0,000005,randint,2
@@ -14,7 +14,7 @@ proc randint
 	con	1,010000,7,040,141,156,144,040,142,075
 	con	2,002000,1,1
 	declend
-	filen	random.icn
+	filen	runtime/random.icn
 	line	2
 	colm	12
 	synt	any

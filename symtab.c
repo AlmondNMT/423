@@ -5,6 +5,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "builtins.h"
+#include "codegen.h"
 #include "punygram.tab.h"
 #include "symtab.h"
 #include "nonterminal.h"
@@ -1142,6 +1143,7 @@ SymbolTableEntry insertsymbol(SymbolTable st, struct token *tok) {
     //entry->typ->basetype = basetype; // All entries default to type ANY on the first pass
     entry->table = st;
     entry->ident = strdup(name);
+    entry->codestr = mangle_name(name);
     entry->lineno = lineno;
     entry->column = column;
     entry->filename = strdup(tok->filename);

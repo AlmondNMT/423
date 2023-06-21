@@ -1,6 +1,6 @@
-procedure f__pyname(x__pyname, y__pyname)
-    print("x and y: ", x__pyname, y__pyname)
-    return repl(x, 1 * y__pyname * 1)
+procedure test__f__pyname(test__x__pyname, test__y__pyname)
+    print("x and y: ", test__x__pyname, test__y__pyname)
+    return repl(x, 1 * test__y__pyname * 1)
 end
 
 procedure main()
@@ -8,8 +8,8 @@ procedure main()
     repl("str", 1 * (1 + 8 - 9 + 10 + 23))
     repl("asdf", 1 * 3 * 2 * 4)
     repl("fifa", 1 * (1 + 3 + 2) * 2)
-    a__pyname := "asdf" || "fdsa" || repl("fifa", 1 * (2 * 3 * 4))
-    b__pyname := 2 * 3 * 4
+    test__a__pyname := "asdf" || "fdsa" || repl("fifa", 1 * (2 * 3 * 4))
+    test__b__pyname := 2 * 3 * 4
     [] ||| []
     +-+--1 + 23 + -23
     ishift(ishift(ishift(ishift(2, 3), -1), -1), 4)
@@ -21,10 +21,10 @@ procedure main()
     table("asdf", 1, "fdsa", 2)
     1 + 1
     if 1 then {
-        c__pyname := "asdf" || " fdsa " || " qwer "
+        test__c__pyname := "asdf" || " fdsa " || " qwer "
         print(1)
         if (0 === 1 & 1) then {
-            effa__pyname := 12
+            test__effa__pyname := 12
         }
     }
     else if (1 | 0 === 1) then {
@@ -40,19 +40,22 @@ procedure main()
         print(5, 6, 7, 8)
     }
     while 0 === 1 do {
-        d__pyname := "asdf"
+        test__d__pyname := "asdf"
         repl(d, 1 * 2 * 3)
         [1, 2, 3, 4]
     }
-    every i__pyname := !range(1, 2, 3) do {
-        e__pyname := [1, 2, 3]
-        append(e__pyname, 1)
-        print(max(e__pyname))
-        print(i__pyname, i__pyname, i__pyname, i__pyname)
-        print(random__randint(-1, 1))
+    every test__i__pyname := !range(1, 2, 3) do {
+        test__e__pyname := [1, 2, 3]
+        put(test__e__pyname, 1)
+        print(max(test__e__pyname))
+        print(test__i__pyname, test__i__pyname, test__i__pyname, test__i__pyname)
+        print(randint(-1, 1))
     }
-    x__pyname := 0
-    y__pyname := ""
+    test__x__pyname := 0
+    test__y__pyname := ""
+    test__z__pyname := [1, 2, []]
     repl("asdf", 1 * 2)
+    gcd(2, 3)
+    
 end
 
