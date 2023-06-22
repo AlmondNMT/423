@@ -20,7 +20,7 @@ def moria(mordor, angmar, flags, score, wins, losses):
         b = 0
         rivendell = []
         while b < 7:
-            s = str(mordor[b, a])
+            s:str = str(mordor[b, a])
             s.replace("'", " ")
             rivendell.append(s)
             b =  b + 1

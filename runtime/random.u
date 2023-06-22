@@ -1,5 +1,5 @@
 version	U12.1.00
-uid	random.u1-1687382727-0
+uid	random.u1-1687400770-0
 impl	local
 global	2
 	0,000005,randint,2
@@ -108,7 +108,7 @@ lab L3
 proc choice
 	local	0,001000,a
 	local	1,000000,size
-	local	2,000000,len
+	local	2,000000,length
 	local	3,000000,write
 	local	4,000000,exit
 	local	5,000000,randint
@@ -125,7 +125,7 @@ proc choice
 	var	2
 	var	0
 	line	11
-	colm	16
+	colm	19
 	synt	any
 	invoke	1
 	line	11

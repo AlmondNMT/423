@@ -7,7 +7,6 @@ Date: 4. 27
 
 Assignment: Final project: Arcade
 """
-import os
 import random
 import hangman as h
 import minesweeper as m

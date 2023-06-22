@@ -8,7 +8,7 @@ procedure randint(a, b)
 end
 
 procedure choice(a)
-    size := len(a)
+    size := length(a)
     if size = 0 then {
         write(&errout, "Cannot choose from an empty sequence")
         exit(1)

@@ -48,7 +48,7 @@ while False:
     2 * 3 * d
     [1, 2, 3 ,4]
 
-for i in range(1, 2, 3):
+for i in range(1, 10, 3):
     e: list = [1, 2, 3]
     e.append(1)
     print(max(e))
@@ -59,7 +59,7 @@ x: int
 y: str
 z: list = [1, 2, []]
 "asdf" * 2
-math.gcd(2, 3)
+print(math.gcd(2, 3))
 j: any = z[3]
 j.append(2)
 print(j)

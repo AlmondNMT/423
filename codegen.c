@@ -323,8 +323,12 @@ void gen_power(struct tree *t, struct code *code)
             //   for True
             if(t->type->basetype == BOOL_TYPE) 
                 convert_power_bool(t, code);
-            else 
-                code->codestr = concat(code->codestr, leaf->text);
+            else {
+                // If we see a multiline comment/str, just remove it 
+                // We'll just check that there isn't a newline character in the text
+                if(strchr(leaf->text, '\n') == NULL) 
+                    code->codestr = concat(code->codestr, leaf->text);
+            }
         }
     }
 
@@ -637,7 +641,6 @@ char *mangle_name(char *name)
     replace_substring(new_name, ".py", "");
     new_name = concat(new_name, "__");
     new_name = concat(new_name, name);
-    new_name = concat(new_name, "__pyname");
     return new_name;
 }
 
@@ -861,17 +864,19 @@ void gen_arith_code(struct tree *t, struct code *code)
             break;
         case PM_TERM_REP:
             gen_arith_code(t->kids[0], code);
-            switch(t->type->basetype) {
-                case STRING_TYPE:
-                    code->codestr = concat(code->codestr, " || ");
-                    break;
-                case LIST_TYPE:
-                    code->codestr = concat(code->codestr, " ||| ");
-                    break;
-                default:
-                    code->codestr = concat(code->codestr, " ");
-                    code->codestr = concat(code->codestr, t->kids[1]->leaf->text);
-                    code->codestr = concat(code->codestr, " ");
+            // If we see a string on either side or a list on either side
+            //   (whichever appears first), then use the special Unicon 
+            //   operators
+            typeptr lhs_type = t->type;
+            typeptr rhs_type = typecheck_testlist(t->kids[2]);
+            if(lhs_type->basetype == STRING_TYPE || rhs_type->basetype == STRING_TYPE)
+                code->codestr = concat(code->codestr, " || ");
+            else if(lhs_type->basetype == LIST_TYPE || rhs_type->basetype == LIST_TYPE)
+                code->codestr = concat(code->codestr, " ||| ");
+            else {
+                code->codestr = concat(code->codestr, " ");
+                code->codestr = concat(code->codestr, t->kids[1]->leaf->text);
+                code->codestr = concat(code->codestr, " ");
             }
             gen_testlist(t->kids[2], code);
             break;
@@ -1009,17 +1014,12 @@ void gen_div_code(struct tree *t, struct code *code)
 void gen_plus_code(struct tree *t, struct code *code)
 {
     if(t == NULL || code == NULL) return;
-    typeptr lhs_type = t->kids[0]->type, rhs_type = t->kids[1]->kids[2]->type;
+    typeptr lhs_type = typecheck_testlist(t->kids[0]), rhs_type = typecheck_testlist(t->kids[1]->kids[2]);
     gen_testlist(t->kids[0], code);
-    switch(lhs_type->basetype) {
-        // This will probably cause issues for variables defined as strings with ANY_TYPE
-        case STRING_TYPE:
-            code->codestr = concat(code->codestr, " || ");
-            break;
-        default:
-            code->codestr = concat(code->codestr, " + ");
-            break;
-    }
+    if(lhs_type->basetype == STRING_TYPE || rhs_type->basetype == STRING_TYPE)
+        code->codestr = concat(code->codestr, " || ");
+    else
+        code->codestr = concat(code->codestr, " + ");
     gen_testlist(t->kids[1]->kids[2], code);
 }
 
@@ -1058,7 +1058,7 @@ void transpile(struct code *code)
     // Perform linking
     command_str = strdup("unicon -s ");
     command_str = concat(command_str, icn_name);
-    command_str = concat(command_str, " runtime.u ");
+    command_str = concat(command_str, " runtime.u");
     command_str = build_import_command(command_str, ".u", false);
 
     printf("command link: %s\n", command_str);

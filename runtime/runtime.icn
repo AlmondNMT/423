@@ -1,3 +1,15 @@
+procedure List(x)
+    if type(x) === "string" then {
+        a := list()
+        every put(a, !x)
+        return a
+    } 
+    else if type(x) === "table" then {
+        return keys(x)
+    }
+    else
+        return list(x)
+end
 procedure Any(x[])
     if *x == 1 then
         return x[1]
@@ -27,7 +39,8 @@ end
 
 procedure input_puny(x[])
     if *x == 1 then prints(x[1])
-    read(&input)
+    out := read(&input)
+    return out
 end
 
 procedure int(x[])
@@ -36,6 +49,7 @@ procedure int(x[])
 end
 
 procedure length(x)
+    if type(x) === "null" then return 0
     return *x
 end
 

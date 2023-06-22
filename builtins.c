@@ -203,7 +203,7 @@ void add_puny_builtins(SymbolTable st) {
     add_builtin_func_info(entry, 0, 1, &string_type, "%s: %d", "a", ANY_TYPE);
     
     // Add list methods to list
-    entry = insertbuiltin(st, "list", CLASS_TYPE, "list");
+    entry = insertbuiltin(st, "list", CLASS_TYPE, "List");
     add_builtin_func_info(entry, 0, 1, &list_type, "%s: %d", "a", ANY_TYPE);
 
     // Add file methods to file

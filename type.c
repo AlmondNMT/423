@@ -756,7 +756,7 @@ typeptr typecheck_power(struct tree *t)
             
             // If there is a TRAILER_REP present and the basetype is not 
             //   ANY_TYPE, do the difficult thing
-            if(t->kids[1]->prodrule == TRAILER_REP && type->basetype != ANY_TYPE) {
+            if(t->kids[1]->prodrule == TRAILER_REP) {
                 // Build a linked list sequence of trailers
                 seq = build_trailer_sequence(t->kids[1]);
 
@@ -1048,8 +1048,20 @@ struct typeinfo *get_trailer_rep_type(struct trailer *seq, SymbolTableEntry entr
                 nested = current_type->u.cls.st;
                 break;
             case ARGLIST_OPT:
+                // Need to disallow trailers from following function calls
+                if(curr->next != NULL) {
+                    switch(curr->next->prodrule) {
+                        case NAME:
+                            semantic_error(tok, "Cannot access a member of a function call in PunY\n");
+                        case SUBSCRIPTLIST:
+                            semantic_error(tok, "Cannot subscript the return of a function call in PunY\n");
+                        case ARGLIST_OPT:
+                            semantic_error(tok, "Cannot call the return of a function call in PunY\n");
+                    }
+                }
                 switch(current_type->basetype) {
                     // Functions or classes
+                    case ANY_TYPE:
                     case FUNC_TYPE:
                     case CLASS_TYPE:
                         current_type = rhs->typ->u.f.returntype;

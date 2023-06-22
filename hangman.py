@@ -16,6 +16,7 @@ def tombofhorrors(hickman, tharizdun):
     score, a win counter and a loss counter to zero. It runs the mystery word, the blank word,
     and the counters through ravenloft. It returns the game result back to main."""
     strahd = list(hickman[0])
+    print(strahd)
     lolth = ""
     z = 0
     while z < len(strahd):
@@ -129,5 +130,4 @@ def main():
         main()
     u = tombofhorrors(gygax, 6)
     return u
-if "__name__" == "__main__":
-    main()
+main()

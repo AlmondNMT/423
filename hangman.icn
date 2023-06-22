@@ -1,0 +1,131 @@
+procedure hangman__tombofhorrors(hangman__hickman, hangman__tharizdun)
+    
+    hangman__strahd := List(hangman__hickman[0])
+    print(hangman__strahd)
+    hangman__lolth := ""
+    hangman__z := 0
+    while (hangman__z < length(hangman__strahd)) do {
+        hangman__lolth := hangman__lolth || "*"
+        hangman__z := hangman__z + 1
+    }
+    hangman__score := 0
+    hangman__win := 0
+    hangman__loss := 0
+    hangman__e := hangman__ravenloft(hangman__hickman, hangman__tharizdun, hangman__lolth, hangman__score, hangman__win, hangman__loss)
+    return hangman__e
+end
+
+procedure hangman__ravenloft(hangman__hickman, hangman__tharizdun, hangman__lolth, hangman__score, hangman__win, hangman__loss)
+    
+    hangman__strahd := List(hangman__hickman[0])
+    if (hangman__tharizdun === 0) then {
+        print("Game over! The Final answer was:", hangman__hickman[0])
+        hangman__loss := hangman__loss + 1
+        hangman__balrog := []
+        put(hangman__balrog, hangman__win)
+        put(hangman__balrog, hangman__loss)
+        put(hangman__balrog, hangman__score)
+        return hangman__balrog
+    }
+    else if (hangman__lolth === hangman__hickman[0]) then {
+        print("You win!!", hangman__hickman[0], "You win!!")
+        hangman__win := hangman__win + 1
+        hangman__balrog := []
+        put(hangman__balrog, hangman__win)
+        put(hangman__balrog, hangman__loss)
+        put(hangman__balrog, hangman__score)
+        print(hangman__balrog)
+        return hangman__balrog
+        
+    }
+    else {
+        print(hangman__lolth, "lives left:", hangman__tharizdun)
+        print("score", hangman__score)
+        hangman__beholder := input_puny("guess a letter")
+        hangman__y := 0
+        hangman__demagorgon := 0
+        while (hangman__y < length(hangman__strahd)) do {
+            if (hangman__strahd[hangman__y] === hangman__beholder) then {
+                hangman__demagorgon := 1
+                hangman__x := 0
+                hangman__lich := ""
+                while (hangman__x < length(hangman__strahd)) do {
+                    if (hangman__x === hangman__y) then {
+                        hangman__lich := hangman__lich + hangman__strahd[hangman__y]
+                        hangman__x := hangman__x + 1
+                    }
+                    else {
+                        hangman__lich := hangman__lich || "*"
+                        hangman__x := hangman__x + 1
+                    }
+                }
+                hangman__w := 0
+                hangman__dungeon := List(hangman__lolth)
+                hangman__dragon := List(hangman__lich)
+                hangman__acerak := ""
+                while (hangman__w < length(hangman__strahd)) do {
+                    if (hangman__dungeon[hangman__w] === hangman__dragon[hangman__w]) then {
+                        hangman__acerak := hangman__acerak + hangman__dungeon[hangman__w]
+                        hangman__w := hangman__w + 1
+                    }
+                    else {
+                        if (hangman__dungeon[hangman__w] === "*") then {
+                            hangman__acerak := hangman__acerak + hangman__dragon[hangman__w]
+                        }
+                        else {
+                            hangman__acerak := hangman__acerak + hangman__dungeon[hangman__w]
+                        }
+                        hangman__w := hangman__w + 1
+                    }
+                    hangman__lolth := hangman__acerak
+                }
+                hangman__score := hangman__score + 2
+                hangman__y := hangman__y + 1
+            }
+            else {
+                hangman__y := hangman__y + 1
+            }
+        }
+        if (hangman__demagorgon === 0) then {
+            hangman__score := hangman__score - 2
+            hangman__tharizdun := hangman__tharizdun - 1
+            print("One life lost!")
+        }
+        hangman__l := hangman__ravenloft(hangman__hickman, hangman__tharizdun, hangman__lolth, hangman__score, hangman__win, hangman__loss)
+        return hangman__l
+    }
+end
+
+procedure hangman__main()
+    
+    hangman__difficulty := input_puny("Choose your difficulty: easy, medium, hard, or MEGA-DETH")
+    hangman__gygax := []
+    hangman__hommlet := ["pleasing", "reasons", "frankenstein", "legionaire", "prestidigitation", "honolulu"]
+    hangman__zuggtomy := ["astronomer", "albuquerque", "indubitably", "werewolf", "euphonium", "exceptional"]
+    hangman__giants := ["metaphysics", "dracula", "dallas", "bean", "bass", "barracuda"]
+    hangman__drow := ["jazz", "vortex", "mozambique", "igor", "pheonix", "odd", "fall"]
+    if (hangman__difficulty === "easy") then {
+        put(hangman__gygax, choice(hangman__hommlet))
+    }
+    else if (hangman__difficulty === "medium") then {
+        put(hangman__gygax, choice(hangman__zuggtomy))
+    }
+    else if (hangman__difficulty === "hard") then {
+        put(hangman__gygax, choice(hangman__giants))
+    }
+    else if (hangman__difficulty === "MEGA-DETH") then {
+        put(hangman__gygax, choice(hangman__drow))
+    }
+    else {
+        print("Error. Please pick a difficulty between easy, medium, hard, or MEGA-DETH.")
+        hangman__main()
+    }
+    hangman__u := hangman__tombofhorrors(hangman__gygax, 6)
+    return hangman__u
+end
+
+procedure main()
+    
+    hangman__main()
+end
+
