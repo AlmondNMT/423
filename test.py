@@ -6,25 +6,29 @@ import random
 def f(x: str, y: int) -> str:
     print("x and y: ", x, y)
     return x * y * 1
+chinga: list = [1, 2]
+chinga.append(12)
 
-2 * "asdf" * 2 * (3 + 4)
-(1 + 8 - 9 + 10 + 23) * "str"
-3 * 2 * "asdf" * 4
-(1 + 3 + 2) * "fifa" * 2 # repl("fifa", (1 + 3 + 2) * 2)
+print(2 * "asdf" * 2 * (3 + 4))
+print((1 + 8 - 9 + 10 + 23) * "str")
+print(3 * 2 * "asdf" * 4)
+print((1 + 3 + 2) * "fifa" * 2) # repl("fifa", (1 + 3 + 2) * 2)
 a:str = "asdf" + "fdsa" + (2 * 3 * 4) * "fifa"
+print(a)
 b = 2 * 3 * 4
-[] + []
-+-+--1 + 23 + -23
-2 << 3 >> 1 >> 1 << 4
-2 & 3 & 3 & 6
+print(b)
+print([] + [])
+print(+-+--1 + 23 + -23)
+print(2 << 3 >> 1 >> 1 << 4)
+print(2 & 3 & 3 & 6)
 
 print(2 ^ 3 | 3 ^ 4 & 5)
 if 1 > 2 or 3 >= 4 < 1 <= 23 == "asdf" == 43 and 3 + 4 < 23 and 4 + 5 or not 12 < 3:
     print(2)
 
-{"asdf": 1, "fdsa": 2}
+print({"asdf": 1, "fdsa": 2})
 
-1 + True
+print(1 + True)
 if True:
     c: str = "asdf" + " fdsa " + " qwer "
     print(1)
@@ -56,4 +60,6 @@ y: str
 z: list = [1, 2, []]
 "asdf" * 2
 math.gcd(2, 3)
-z[2].append(2)
+j: any = z[3]
+j.append(2)
+print(j)

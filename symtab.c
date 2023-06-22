@@ -251,7 +251,7 @@ SymbolTableEntry insertmodule(SymbolTable st, char *modname)
     SymbolTableEntry entry = NULL;
     struct token *tok = create_token(modname, modname, 0, 1);
     entry = insertsymbol(st, tok);
-    entry->typ->basetype = PACKAGE_TYPE;
+    entry->typ = alcbuiltin(PACKAGE_TYPE);
     return entry;
 }
 
@@ -273,7 +273,7 @@ SymbolTableEntry insertfunction(struct tree *t, SymbolTable st)
     // If the symboltable already contains the name in either the 
     struct token *leaf = t->kids[0]->leaf;
     SymbolTableEntry entry = insertsymbol(st, leaf);
-    entry->typ->basetype = FUNC_TYPE;
+    entry->typ = alcbuiltin(FUNC_TYPE);
     
     // In case a function was already defined, free its symbol table and 
     // make a new one
@@ -1044,7 +1044,6 @@ void insertclass(struct tree *t, SymbolTable st)
     if(st == NULL || t == NULL)
         return;
     struct token *leaf = t->kids[0]->leaf;
-    char *name = t->kids[0]->leaf->text;
     SymbolTableEntry entry = insertsymbol(st, leaf);
 
     free_symtab(entry->nested);
@@ -1053,7 +1052,7 @@ void insertclass(struct tree *t, SymbolTable st)
     free(entry->typ);
 
     // Create a new class with the given name (0 constructor params by default)
-    entry->typ = alcclass(name);
+    entry->typ = alcbuiltin(CLASS_TYPE);
     
 
     // Point the typeinfo symbol table to the class entry symbol table 

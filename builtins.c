@@ -35,7 +35,7 @@ struct sym_entry *insertbuiltin_meth(struct sym_table *btable, char *name, typep
     struct token *tok = create_builtin_token(name);
     entry = insertsymbol(btable, tok);
     free_token(tok);
-    entry->typ->basetype = FUNC_TYPE;
+    entry->typ = alcbuiltin(FUNC_TYPE);
     entry->typ->u.f.returntype = returntype;
     entry->typ->u.f.name = name;
 
@@ -55,7 +55,7 @@ SymbolTableEntry insertbuiltin(SymbolTable st, char *name, int basetype, char *c
     if(st == NULL) return NULL;
     struct token *tok = create_builtin_token(name);
     SymbolTableEntry entry = insertsymbol(st, tok);
-    entry->typ->basetype = basetype;
+    entry->typ = alcbuiltin(basetype);
 
     entry->typ->u.f.name = name;
 

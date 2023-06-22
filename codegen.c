@@ -364,7 +364,7 @@ void gen_trailer_sequence(struct sym_entry *entry, struct code *code, struct tra
             member = lookup_current(curr->name, entry->nested);
 
             // Recurse through the trailers
-            gen_trailer_sequence(member, code,curr->next);
+            gen_trailer_sequence(member, code, curr->next);
             break;
         case ARGLIST_OPT:
             // A function call
@@ -379,13 +379,18 @@ void gen_trailer_sequence(struct sym_entry *entry, struct code *code, struct tra
                 code->codestr = concat(code->codestr, mangle_name(curr->prev->prev->name));
                 code->codestr = concat(code->codestr, ", ");
             }
-
+            
             // Add the function arguments
             gen_arglist(curr->arg, code);
             code->codestr = concat(code->codestr, ")");
             break;
         case SUBSCRIPTLIST:
-            // TODO
+            if(curr->prev != NULL && curr->prev->prodrule == NAME)
+                code->codestr = concat(code->codestr, entry->codestr);
+            code->codestr = concat(code->codestr, "[");
+            gen_arglist(curr->arg, code);
+            code->codestr = concat(code->codestr, "]");
+            gen_trailer_sequence(entry, code, curr->next);
             break;
     }
 }
@@ -1053,11 +1058,12 @@ void transpile(struct code *code)
     // Perform linking
     command_str = strdup("unicon -s ");
     command_str = concat(command_str, icn_name);
+    command_str = concat(command_str, " runtime.u ");
     command_str = build_import_command(command_str, ".u", false);
-    command_str = concat(command_str, " runtime.u");
 
     printf("command link: %s\n", command_str);
     system(command_str);
+    //system("rm -f *.u");
 
     free(icn_name);
     free(command_str);

@@ -4,6 +4,8 @@ procedure test__f__pyname(test__x__pyname, test__y__pyname)
 end
 
 procedure main()
+    test__chinga__pyname := [1, 2]
+    put(test__chinga__pyname, 12)
     repl("asdf", 1 * 2 * 2 * (3 + 4))
     repl("str", 1 * (1 + 8 - 9 + 10 + 23))
     repl("asdf", 1 * 3 * 2 * 4)
@@ -56,6 +58,8 @@ procedure main()
     test__z__pyname := [1, 2, []]
     repl("asdf", 1 * 2)
     gcd(2, 3)
-    
+    test__j__pyname := test__z__pyname[2]
+    put(test__j__pyname, 2)
+    print(test__j__pyname)
 end
 

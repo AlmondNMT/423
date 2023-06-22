@@ -18,8 +18,11 @@ struct typeinfo list_type = { .basetype = LIST_TYPE, .u.cls.name = "list", .u.cl
 struct typeinfo dict_type = { .basetype = DICT_TYPE, .u.cls.name = "dict", .u.cls.returntype = &dict_type };
 struct typeinfo string_type = { .basetype = STRING_TYPE, .u.cls.name = "str", .u.cls.returntype = &string_type};
 struct typeinfo file_type = { .basetype = FILE_TYPE, .u.cls.name = "file", .u.cls.returntype = &file_type };
+struct typeinfo any_type = { .basetype = ANY_TYPE, .u.cls.name = "any", .u.cls.returntype = &any_type };
 
-// We don't want a global any_type cuz the attached symbol tables are not fixed across variables
+// For the global any_type, we give it all the methods of the four builtin 
+//   classes with methods. That way we can easily generate the code for ANY_TYPE
+typeptr any_typeptr = &any_type;
 typeptr none_typeptr = &none_type;
 typeptr int_typeptr = &int_type;
 typeptr float_typeptr = &float_type;
@@ -45,7 +48,7 @@ void init_types()
     list_typeptr->u.cls.st = mksymtab(HASH_TABLE_SIZE, "class");
     list_typeptr->u.cls.min_params = 0;
     list_typeptr->u.cls.max_params = 1;
-    list_typeptr->u.cls.parameters = alcparam("a", alcbuiltin(ANY_TYPE));
+    list_typeptr->u.cls.parameters = alcparam("a", any_typeptr);
     st = list_typeptr->u.cls.st;
     entry = insertbuiltin_meth(st, "append", none_typeptr, "put");
     add_builtin_func_info(entry, 1, 1, none_typeptr, "%s: %d", "a", ANY_TYPE);
@@ -55,7 +58,7 @@ void init_types()
     dict_typeptr->u.cls.st = mksymtab(HASH_TABLE_SIZE, "class");
     dict_typeptr->u.cls.min_params = 0;
     dict_typeptr->u.cls.min_params = 1;
-    dict_typeptr->u.cls.parameters = alcparam("a", alcbuiltin(ANY_TYPE));
+    dict_typeptr->u.cls.parameters = alcparam("a", any_typeptr);
     st = dict_typeptr->u.cls.st;
     entry = insertbuiltin_meth(st, "keys", list_typeptr, "keys");
     add_builtin_func_info(entry, 0, 0, list_typeptr, NULL);
@@ -64,7 +67,7 @@ void init_types()
     string_typeptr->u.cls.st = mksymtab(HASH_TABLE_SIZE, "class");
     string_typeptr->u.cls.min_params = 0;
     string_typeptr->u.cls.max_params = 1;
-    string_typeptr->u.cls.parameters = alcparam("a", alcbuiltin(ANY_TYPE));
+    string_typeptr->u.cls.parameters = alcparam("a", any_typeptr);
     st = string_typeptr->u.cls.st;
     entry = insertbuiltin_meth(st, "replace", string_typeptr, "replace");
     add_builtin_func_info(entry, 2, 2, string_typeptr, "%s: %d, %s: %d", "o", STRING_TYPE, "n", STRING_TYPE);
@@ -74,7 +77,7 @@ void init_types()
     file_typeptr->u.cls.st = mksymtab(HASH_TABLE_SIZE, "class");
     file_typeptr->u.cls.min_params = 0;
     file_typeptr->u.cls.max_params = 1;
-    file_typeptr->u.cls.parameters = alcparam("a", alcbuiltin(ANY_TYPE));
+    file_typeptr->u.cls.parameters = alcparam("a", any_typeptr);
     st = file_typeptr->u.cls.st;
     entry = insertbuiltin_meth(st, "read", string_typeptr, "read");
     add_builtin_func_info(entry, 0, 1, string_typeptr, "%s: %d", "n", INT_TYPE);
@@ -82,6 +85,32 @@ void init_types()
     add_builtin_func_info(entry, 1, 1, int_typeptr, "%s: %d", "s", STRING_TYPE);
     entry = insertbuiltin_meth(st, "close", none_typeptr, "close");
     add_builtin_func_info(entry, 0, 0, none_typeptr, NULL);
+
+    // Any type has all the methods lol
+    any_typeptr->u.cls.st = mksymtab(HASH_TABLE_SIZE, "class");
+    any_typeptr->u.cls.min_params = 0;
+    any_typeptr->u.cls.max_params = 1;
+    any_typeptr->u.cls.parameters = alcparam("a", any_typeptr);
+    st = any_typeptr->u.cls.st;
+    entry = insertbuiltin_meth(st, "append", none_typeptr, "put");
+    add_builtin_func_info(entry, 1, 1, none_typeptr, "%s: %d", "a", ANY_TYPE);
+    entry = insertbuiltin_meth(st, "remove", none_typeptr,"remove_element");
+    add_builtin_func_info(entry, 1, 1, none_typeptr, "%s: %d", "a", ANY_TYPE);
+    entry = insertbuiltin_meth(st, "keys", list_typeptr, "keys");
+    add_builtin_func_info(entry, 0, 0, list_typeptr, NULL);
+    entry = insertbuiltin_meth(st, "values", list_typeptr, "values");
+    entry = insertbuiltin_meth(st, "replace", string_typeptr, "replace");
+    add_builtin_func_info(entry, 2, 2, string_typeptr, "%s: %d, %s: %d", "o", STRING_TYPE, "n", STRING_TYPE);
+    entry = insertbuiltin_meth(st, "split", list_typeptr, "split");
+    add_builtin_func_info(entry, 1, 1, list_typeptr, "%s: %d", "c", STRING_TYPE);
+    entry = insertbuiltin_meth(st, "read", string_typeptr, "read");
+    add_builtin_func_info(entry, 0, 1, string_typeptr, "%s: %d", "n", INT_TYPE);
+    entry = insertbuiltin_meth(st, "write", int_typeptr, "write");
+    add_builtin_func_info(entry, 1, 1, int_typeptr, "%s: %d", "s", STRING_TYPE);
+    entry = insertbuiltin_meth(st, "close", none_typeptr, "close");
+    add_builtin_func_info(entry, 0, 0, none_typeptr, NULL);
+    any_typeptr->basetype = ANY_TYPE;
+    
 }
 
 
@@ -134,7 +163,7 @@ typeptr type_for_bin_op(typeptr lhs, typeptr rhs, struct token *tok)
     if(lhs == NULL || rhs == NULL || tok == NULL) semantic_error(tok, "Why are these types NULL???\n"); // This shouldn't happen
 
     typeptr ret = NULL;
-    if(lhs->basetype == ANY_TYPE || rhs->basetype == ANY_TYPE) return alcbuiltin(ANY_TYPE);
+    if(lhs->basetype == ANY_TYPE || rhs->basetype == ANY_TYPE) return any_typeptr;
 
     // We're expecting to see some kind of operator token here. We can default to 'invalid operator'
     switch(tok->category) {
@@ -407,7 +436,7 @@ typeptr type_for_bin_op_logical(typeptr lhs, typeptr rhs)
     if(lhs == NULL || rhs == NULL) return NULL;
     if(rhs->basetype == BOOL_TYPE && lhs->basetype == BOOL_TYPE)
         return bool_typeptr;
-    return alcbuiltin(ANY_TYPE);
+    return any_typeptr;
 }
 
 // builtin type allocations
@@ -418,15 +447,6 @@ typeptr alctype(int basetype)
     }
     typeptr ptr = ckalloc(1, sizeof(struct typeinfo));
     ptr->basetype = basetype;
-    return ptr;
-}
-
-typeptr alcclass(char *name)
-{
-    typeptr ptr = alctype(CLASS_TYPE);
-    ptr->u.cls.name = strdup(name);
-
-    // The caller can determine whether it is an instance
     return ptr;
 }
 
@@ -451,9 +471,11 @@ typeptr alcbuiltin(int basetype)
             return file_typeptr;
         case PACKAGE_TYPE:
             return alctype(PACKAGE_TYPE);
+        case FUNC_TYPE:
+            return alctype(FUNC_TYPE);
         case ANY_TYPE:
         default:
-            return alctype(ANY_TYPE);
+            return any_typeptr;
     }
 }
 
@@ -620,7 +642,7 @@ void check_forbidden_list_and_dict_types(struct tree *t, typeptr type, struct to
  */
 typeptr typecheck_factor(struct tree *t)
 {
-    if(t == NULL) return alcbuiltin(ANY_TYPE);  // This shouldn't happen
+    if(t == NULL) return any_typeptr;  // This shouldn't happen
     typeptr type = NULL;
     switch(t->prodrule) {
         case POWER:
@@ -812,9 +834,9 @@ typeptr typecheck_atom_trailer(struct trailer *seq, typeptr atom_type, struct to
     } else {
         // In the case of a SUBSCRIPTLIST
         validate_subscript_usage(current_type, seq, desc);
-        current_type = alcbuiltin(ANY_TYPE);
+        current_type = any_typeptr;
     }
-    if(current_type == NULL) return alcbuiltin(ANY_TYPE);
+    if(current_type == NULL) return any_typeptr;
     return current_type;
 }
 
@@ -1042,14 +1064,25 @@ struct typeinfo *get_trailer_rep_type(struct trailer *seq, SymbolTableEntry entr
             // Verify list/dict accesses. Return any_type. The rest of type-checking here should be done at runtime.
             case SUBSCRIPTLIST:
                 validate_subscript_usage(current_type, curr, tok);
-                return alcbuiltin(ANY_TYPE);
+                current_type = any_typeptr;
+                if(curr->next != NULL) {
+                    // Don't allow function calls or NAMEs following a SUBSCRIPTLIST
+                    switch(curr->next->prodrule) {
+                        case NAME:
+                            semantic_error(tok, "Cannot access member following subscript in PunY\n");
+                            break;
+                        case ARGLIST_OPT:
+                            semantic_error(tok, "Cannot call list element in Puny (no functions in lists)\n");
+                            break;
+                    }
+                }
                 break;
         }
     }
     start->next = NULL;
     free_trailer_sequence(start);
     if(current_type == NULL) 
-        return alcbuiltin(ANY_TYPE);
+        return any_typeptr;
     return current_type;
 }
 
@@ -1282,7 +1315,7 @@ void typecheck_decl_stmt(struct tree *t)
     SymbolTableEntry lhs = lookup(t->kids[0]->leaf->text, t->stab);
 
     // Free the default ANY_TYPE 
-    free_typeptr(lhs->typ);
+    //free_typeptr(lhs->typ);
 
     // Assign type to LHS
     lhs->typ = get_ident_type(t->kids[1]->leaf->text, t->stab);
@@ -1317,7 +1350,7 @@ struct typeinfo *get_fpdef_type(struct tree *t, SymbolTableEntry entry)
 {
     struct typeinfo *ret = NULL;
     if(t == NULL || entry == NULL) // This probably should never happen
-        return alcbuiltin(ANY_TYPE);
+        return any_typeptr;
     ret = get_ident_type(t->kids[0]->leaf->text, entry->nested);
     t->kids[0]->type = ret;
     t->type = ret;
@@ -1346,7 +1379,7 @@ void get_function_params(struct tree *t, SymbolTableEntry fentry)
             type = get_fpdef_type(t->kids[1], fentry);
         }
         else {
-            type = alcbuiltin(ANY_TYPE);
+            type = any_typeptr;
         }
         struct token *leaf = t->kids[0]->leaf;
 
@@ -1410,7 +1443,7 @@ struct typeinfo *get_ident_type(char *ident, SymbolTable st)
     else if(strcmp(ident, "None") == 0)
         return none_typeptr;
     else if(strcmp(ident, "any") == 0)
-        return alcbuiltin(ANY_TYPE);
+        return any_typeptr;
     else if(strcmp(ident, "file") == 0)
         return file_typeptr;
     else {
@@ -1427,7 +1460,7 @@ struct typeinfo *get_ident_type(char *ident, SymbolTable st)
             exit(SEM_ERR);
         }
         printf("%d\n", ANY_TYPE);
-        return alcbuiltin(ANY_TYPE);
+        return any_typeptr;
     }
 }
 
@@ -1484,7 +1517,7 @@ struct typeinfo *get_token_type(struct token *tok)
         case PYFALSE:
             return alcbuiltin(BOOL_TYPE);
         default:
-            return alcbuiltin(ANY_TYPE);
+            return any_typeptr;
     }
 }
 
@@ -1687,7 +1720,7 @@ void print_paramlist(paramlist params)
  */
 struct typeinfo *get_rhs_type(struct tree *t)
 {
-    if(t == NULL) return alcbuiltin(ANY_TYPE);
+    if(t == NULL) return any_typeptr;
     struct typeinfo *type = NULL;
 
     // Recurse until the "power" nonterminal is found
@@ -1725,7 +1758,7 @@ struct typeinfo *get_rhs_type(struct tree *t)
         }
     }
     if(type == NULL)
-        type = alcbuiltin(ANY_TYPE);
+        type = any_typeptr;
     t->type = type;
     return type;
 }

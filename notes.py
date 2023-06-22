@@ -146,3 +146,8 @@ return a struct containing all of the statements that would have gone into
 a main procedure if we had compiled name.py directly. This struct will be 
 appended 
 """
+
+"""
+a[1][2][3][4].append(2).append(4) # this will not occur in the 107 test files.
+However, a[1][2] might occur. So this is only case to handle
+"""
