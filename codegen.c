@@ -259,13 +259,85 @@ struct code *gen_expr_stmt(struct tree *t, struct code *code) {
             gen_testlist(t->kids[1]->kids[1], tmp);
             break;
         case EXPR_CONJUNCT:
-
+            gen_augassign(t->kids[1], tmp);
             break;
     }
     code = append_code(code, tmp);
     return code;
 }
 
+
+void gen_augassign(struct tree *t, struct code *code)
+{
+    if(t == NULL || code == NULL) return;
+    // We need to compare lhs and rhs types for each operator
+    typeptr lhs = t->parent->kids[0]->type;
+    typeptr rhs = t->kids[1]->type;
+    struct token *op = t->kids[0]->leaf;
+    switch(op->category) {
+        case PLUSEQUAL:
+            // Strings, lists, or other
+            if(lhs->basetype == STRING_TYPE || rhs->basetype == STRING_TYPE)
+                code->codestr = concat(code->codestr, " ||:= ");
+            else if(lhs->basetype == LIST_TYPE || rhs->basetype == LIST_TYPE)
+                code->codestr = concat(code->codestr, " |||:= ");
+            else
+                code->codestr = concat(code->codestr, " +:= ");
+            break;
+        case MINEQUAL:
+            // Only numeric types allowed here
+            code->codestr = concat(code->codestr, " -:= ");
+            break;
+        case STAREQUAL:
+            // Only valid for numeric types (can't *= a list or a string)
+            code->codestr = concat(code->codestr, " *:= ");
+            break;
+        case SLASHEQUAL:
+            // Numeric
+            code->codestr = concat(code->codestr, " /:= ");
+            break;
+        case PERCENTEQUAL:
+            code->codestr = concat(code->codestr, " %:= ");
+            break;
+        case CIRCUMFLEXEQUAL:
+            gen_augbitwise(t, code, "ixor", true);
+            return;
+        case AMPEREQUAL:
+            gen_augbitwise(t, code, "iand", true);
+            return;
+        case VBAREQUAL:
+            gen_augbitwise(t, code, "ior", true);
+            return;
+        case LEFTSHIFTEQUAL:
+            gen_augbitwise(t, code, "ishift", true);
+            return;
+        case RIGHTSHIFTEQUAL:
+            gen_augbitwise(t, code, "ishift", false);
+            return;
+        case DOUBLESTAREQUAL:
+            code->codestr = concat(code->codestr, " ^:= ");
+            break;
+        case DOUBLESLASHEQUAL:
+            code->codestr = concat(code->codestr, " /:= "); // Not solving this one unforch
+            break;
+    }
+    gen_testlist(t->kids[1], code);
+}
+
+void gen_augbitwise(struct tree *t, struct code *code, char *fname, bool plus)
+{
+    if(t == NULL || code == NULL || fname == NULL) return;
+    code->codestr = concat(code->codestr, " := ");
+    code->codestr = concat(code->codestr, fname);
+    code->codestr = concat(code->codestr, "(");
+    gen_testlist(t->parent->kids[0], code);
+    code->codestr = concat(code->codestr, ", ");
+    // For shift operators
+    if(!plus)
+        code->codestr = concat(code->codestr, "-");
+    gen_testlist(t->kids[1], code);
+    code->codestr = concat(code->codestr, ")");
+}
 
 /**
  * This should have a similar structure to the typecheck_power function in 
@@ -294,21 +366,6 @@ void gen_power(struct tree *t, struct code *code)
                 top->next = seq;
                 seq->prev = top;
                 gen_trailer_sequence(entry, code, top);
-                // TODO hard part
-                // Is it a class or a function 
-                /*
-                switch(entry->typ->basetype) {
-                    case CLASS_TYPE:
-                    case FUNC_TYPE:
-                        if(entry->isbuiltin)
-                            code->codestr = concat(code->codestr, entry->codestr);
-                        else 
-                            code->codestr = concat(code->codestr, mangle_name(leaf));
-                        code->codestr = concat(code->codestr, "(");
-                        gen_arglist(t->kids[1], code);
-                        code->codestr = concat(code->codestr, ")");
-                        break;
-                }*/
                 
                 free_trailer_sequence(top);
             }
@@ -372,7 +429,6 @@ void gen_trailer_sequence(struct sym_entry *entry, struct code *code, struct tra
             break;
         case ARGLIST_OPT:
             // A function call
-            // TODO
             code->codestr = concat(code->codestr, entry->codestr);
             code->codestr = concat(code->codestr, "(");
 
@@ -869,9 +925,10 @@ void gen_arith_code(struct tree *t, struct code *code)
             //   operators
             typeptr lhs_type = t->type;
             typeptr rhs_type = typecheck_testlist(t->kids[2]);
-            if(lhs_type->basetype == STRING_TYPE || rhs_type->basetype == STRING_TYPE)
+            struct token *op = t->kids[1]->leaf;
+            if(op->category == PLUS && (lhs_type->basetype == STRING_TYPE || rhs_type->basetype == STRING_TYPE))
                 code->codestr = concat(code->codestr, " || ");
-            else if(lhs_type->basetype == LIST_TYPE || rhs_type->basetype == LIST_TYPE)
+            else if(op->category == PLUS && (lhs_type->basetype == LIST_TYPE || rhs_type->basetype == LIST_TYPE))
                 code->codestr = concat(code->codestr, " ||| ");
             else {
                 code->codestr = concat(code->codestr, " ");
@@ -941,7 +998,14 @@ void gen_term_code_aux(struct tree *t, struct code *code)
         case FACTOPS_FACTOR_REP:
             gen_term_code_aux(t->kids[0], code);
             code->codestr = concat(code->codestr, " ");
-            code->codestr = concat(code->codestr, t->kids[1]->leaf->text);
+            struct token *op = t->kids[1]->leaf;
+
+            // DOUBLESLASH special case. Ideally, we would convert both operands into integers, but 
+            //  that just sounds like the big difficult rn
+            if(op->category == DOUBLESLASH) 
+                code->codestr = concat(code->codestr, "/");
+            else
+                code->codestr = concat(code->codestr, op->text);
             code->codestr = concat(code->codestr, " ");
             gen_testlist(t->kids[2], code);
             break;
@@ -1001,28 +1065,6 @@ struct token *get_term_str(struct tree *t)
     return rhs;
 }
 
-void gen_minus_code(struct tree *t, struct code *code)
-{
-    // TODO
-}
-
-void gen_div_code(struct tree *t, struct code *code)
-{
-    // TODO
-}
-
-void gen_plus_code(struct tree *t, struct code *code)
-{
-    if(t == NULL || code == NULL) return;
-    typeptr lhs_type = typecheck_testlist(t->kids[0]), rhs_type = typecheck_testlist(t->kids[1]->kids[2]);
-    gen_testlist(t->kids[0], code);
-    if(lhs_type->basetype == STRING_TYPE || rhs_type->basetype == STRING_TYPE)
-        code->codestr = concat(code->codestr, " || ");
-    else
-        code->codestr = concat(code->codestr, " + ");
-    gen_testlist(t->kids[1]->kids[2], code);
-}
-
 char *tab(unsigned int level)
 {
     if(level == 0) return "";
@@ -1044,7 +1086,7 @@ void transpile(struct code *code)
     // Compile the runtime environment without linking
     //system("unicon -s -c runtime/runtime.icn");
 
-    char *command_str = strdup("unicon -c runtime/runtime.icn");
+    char *command_str = strdup("unicon -s -c runtime/runtime.icn");
 
     // Compile any imported builtin modules
     command_str = build_import_command(command_str, ".icn", true);

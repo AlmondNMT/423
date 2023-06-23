@@ -62,6 +62,8 @@ void gen_comp_code(struct tree *t, struct code *code);
 void gen_not_code(struct tree *t, struct code *code);
 void gen_and_code(struct tree *t, struct code *code);
 void gen_or_code(struct tree *t, struct code *code);
+void gen_augassign(struct tree *t, struct code *code);
+void gen_augbitwise(struct tree *t, struct code *code, char *bitwise_func_name, bool plus);
 
 // Convert booleans into the appropriate type
 void convert_power_bool(struct tree *t, struct code *code);

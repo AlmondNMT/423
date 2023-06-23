@@ -682,7 +682,7 @@ typeptr typecheck_op(struct tree *t)
     typeptr lhs_type = NULL, type = NULL;
     lhs_type = typecheck_testlist(t->kids[0]);
     type = typecheck_op_aux(t->kids[1], lhs_type);
-    struct token *op = t->kids[1]->kids[1]->leaf;
+
     // Potentially redundant call below
     //type = type_for_bin_op(lhs_type, rhs_type, op);
 

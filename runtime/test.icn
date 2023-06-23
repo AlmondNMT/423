@@ -45,4 +45,5 @@ procedure main()
     print(list(list([1, 2, 3])))
     print(List("sadf"))
     print(List(list([1, 2, 3])))
+    print(22 / 7)
 end

@@ -35,4 +35,4 @@ clean:
 	rm -f lex.yy.c puny pytests *.o a.out punygram.tab.* *.zip *.u
 
 zip: punylex.l punygram.y main.c utils.c back.c tree.c tree.h utils.h Makefile printsyms.c symtab.h symtab.c pylib.h nonterminal.h testrunner.sh builtins.c nonterminal.c tests/
-	zip -r hw5.zip punygram.y punylex.l main.c utils.c back.c tree.c tree.h utils.h builtins.h Makefile symtab.h symtab.c printsyms.c errdef.h type.c type.h pylib.h builtins.c nonterminal.h testrunner.sh nonterminal.c tests/ *.*/ runtime/ arcade.py hangman.py minesweeper.py codegen.h codegen.c
+	zip -r hw5.zip punygram.y punylex.l main.c utils.c back.c tree.c tree.h utils.h builtins.h Makefile symtab.h symtab.c printsyms.c errdef.h type.c type.h pylib.h builtins.c nonterminal.h testrunner.sh nonterminal.c tests/ runtime/ arcade.py hangman.py minesweeper.py codegen.h codegen.c

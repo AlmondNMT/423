@@ -111,7 +111,7 @@ def main():
     """main asks the user for a difficulty, and chooses from 4 different word sets depending on the 
     user's choice. It then selects a random words and runs that word and a life counter through 
     tombofhorrors(). It returns the result of tombofhorrors."""
-    difficulty = input("Choose your difficulty: easy, medium, hard, or MEGA-DETH")
+    difficulty = input("Choose your difficulty: easy, medium, hard, or MEGA-DETH: ")
     gygax = []
     hommlet = ["pleasing", "reasons", "frankenstein", "legionaire", "prestidigitation", "honolulu"]
     zuggtomy = ["astronomer", "albuquerque", "indubitably", "werewolf", "euphonium", "exceptional"]

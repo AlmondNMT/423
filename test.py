@@ -1,11 +1,16 @@
 import test1
-import math
+import math as ma
 import random
 ## Empty file
 
 def f(x: str, y: int) -> str:
     print("x and y: ", x, y)
     return x * y * 1
+
+def g(x: int) -> float:
+    return x ** x * 2
+
+
 chinga: list = [1, 2]
 chinga.append(12)
 
@@ -59,7 +64,17 @@ x: int
 y: str
 z: list = [1, 2, []]
 "asdf" * 2
-print(math.gcd(2, 3))
+print(ma.gcd(2, 3))
 j: any = z[3]
 j.append(2)
 print(j)
+print(z[3])
+2 // 4 / 3 * 5
+j += [1]
+x -= 3
+x *= 23
+x /= 3
+x %= 12
+x |= 2
+x **= x
+print(x)

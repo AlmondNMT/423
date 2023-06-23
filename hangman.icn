@@ -98,7 +98,7 @@ end
 
 procedure hangman__main()
     
-    hangman__difficulty := input_puny("Choose your difficulty: easy, medium, hard, or MEGA-DETH")
+    hangman__difficulty := input_puny("Choose your difficulty: easy, medium, hard, or MEGA-DETH: ")
     hangman__gygax := []
     hangman__hommlet := ["pleasing", "reasons", "frankenstein", "legionaire", "prestidigitation", "honolulu"]
     hangman__zuggtomy := ["astronomer", "albuquerque", "indubitably", "werewolf", "euphonium", "exceptional"]

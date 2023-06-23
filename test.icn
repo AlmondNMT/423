@@ -3,6 +3,10 @@ procedure test__f(test__x, test__y)
     return repl(x, 1 * test__y * 1)
 end
 
+procedure test__g(test__x)
+    return test__x ^ test__x * 2
+end
+
 procedure main()
     test__chinga := [1, 2]
     put(test__chinga, 12)
@@ -63,5 +67,15 @@ procedure main()
     test__j := test__z[3]
     put(test__j, 2)
     print(test__j)
+    print(test__z[3])
+    2 / 4 / 3 * 5
+    test__j |||:= [1]
+    test__x -:= 3
+    test__x *:= 23
+    test__x /:= 3
+    test__x %:= 12
+    test__x := ior(test__x, 2)2
+    test__x ^:= test__x
+    print(test__x)
 end
 
