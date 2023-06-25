@@ -129,7 +129,7 @@ forbidden_identifiers       [0-9]+[a-zA-Z0-9_]+|{float}+[a-zA-Z0-9_]+
 "if"  	               { column += strlen(yytext);words++; return alctoken(IF); }
 "raise"                { yylexerror(puny_support_err); }
 "None"                 { column += strlen(yytext);words++; return alctoken(NONE); }
-"del"                  { column += strlen(yytext);words++; return alctoken(DEL); }
+"del"                  { yylexerror(puny_support_err); }
 "import"               { column += strlen(yytext);words++; return alctoken(IMPORT); }
 "return"               { column += strlen(yytext);words++; return alctoken(RETURN); }
 "True"                 { column += strlen(yytext);words++; return alctoken(PYTRUE); }

@@ -44,6 +44,7 @@ void semantics(struct tree *tree, SymbolTable st, bool add_builtins)
         add_puny_builtins(st);          
 
     // Populate symbol tables
+    populate_globals(tree, st);
     populate_functions(tree, st);
     populate_symboltables(tree, st);   
 
@@ -79,11 +80,6 @@ void populate_symboltables(struct tree *t, SymbolTable st) {
             insertclass(t, st);
             return;
             
-        // Global statements
-        case GLOBAL_STMT:
-            add_global_names(t, st);
-            return;
-            
         // Assignments
         case EXPR_STMT:
             handle_expr_stmt(t, st);
@@ -106,6 +102,19 @@ void populate_symboltables(struct tree *t, SymbolTable st) {
         populate_symboltables(t->kids[i], st);
     }
 
+}
+
+
+void populate_globals(struct tree *t, SymbolTable st)
+{
+    if(t == NULL || st == NULL) return;
+    switch(t->prodrule) {
+        case GLOBAL_STMT:
+            add_global_names(t, st);
+            return;
+    }
+    for(int i = 0; i < t->nkids; i++)
+        populate_globals(t->kids[i], st);
 }
 
 void populate_functions(struct tree *t, SymbolTable st)

@@ -835,6 +835,8 @@ typeptr typecheck_atom_trailer(struct trailer *seq, typeptr atom_type, struct to
         // In the case of a SUBSCRIPTLIST
         validate_subscript_usage(current_type, seq, desc);
         current_type = any_typeptr;
+        if(seq->next != NULL) 
+            current_type = typecheck_atom_trailer(seq->next, current_type, desc);
     }
     if(current_type == NULL) return any_typeptr;
     return current_type;

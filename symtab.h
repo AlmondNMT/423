@@ -88,6 +88,7 @@ SymbolTable mksymtab(int nbuckets, char *table_name);
 SymbolTable mknested(struct token *tok, int nbuckets, SymbolTable parent, char *scope);
 void populate_symboltables(struct tree *t, SymbolTable st);
 void populate_functions(struct tree *t, SymbolTable st);
+void populate_globals(struct tree *t, SymbolTable st);
 void printsymbols(SymbolTable st, int level);
 void semantics(struct tree *t, SymbolTable st, bool add_builtins);
 

@@ -20,9 +20,9 @@ extern struct sym_table global_modules;
 /**
  * This is the general, high-level codegen function. The goal is to 
  * first generate global and procedure declarations in a linked list of strings
- * if we're not in a package, as indicated by the do_package_mangle bool.
+ * if we're not in a package, as indicated by the in_package bool.
  */
-void gencode(struct tree *t, bool do_package_mangle)
+void gencode(struct tree *t, bool in_package)
 {
     if(t == NULL) return;
 
@@ -293,6 +293,7 @@ void gen_augassign(struct tree *t, struct code *code)
             code->codestr = concat(code->codestr, " *:= ");
             break;
         case SLASHEQUAL:
+        case DOUBLESLASHEQUAL: // Not solving this one unforch
             // Numeric
             code->codestr = concat(code->codestr, " /:= ");
             break;
@@ -300,6 +301,7 @@ void gen_augassign(struct tree *t, struct code *code)
             code->codestr = concat(code->codestr, " %:= ");
             break;
         case CIRCUMFLEXEQUAL:
+            // Bitwise op functions get treated specially
             gen_augbitwise(t, code, "ixor", true);
             return;
         case AMPEREQUAL:
@@ -316,9 +318,6 @@ void gen_augassign(struct tree *t, struct code *code)
             return;
         case DOUBLESTAREQUAL:
             code->codestr = concat(code->codestr, " ^:= ");
-            break;
-        case DOUBLESLASHEQUAL:
-            code->codestr = concat(code->codestr, " /:= "); // Not solving this one unforch
             break;
     }
     gen_testlist(t->kids[1], code);
@@ -340,6 +339,21 @@ void gen_augbitwise(struct tree *t, struct code *code, char *fname, bool plus)
 }
 
 /**
+ * Generate subscriptlist sequences
+ */
+void gen_subscriptlist_sequence(struct sym_entry *entry, struct code *code, struct trailer *seq)
+{
+    if(seq == NULL || code == NULL) return;
+    code->codestr = concat(code->codestr, "[");
+    gen_arglist(seq->arg, code);
+    code->codestr = concat(code->codestr, "]");
+    if(seq->next != NULL && seq->next->prodrule == SUBSCRIPTLIST)
+        gen_subscriptlist_sequence(entry, code, seq->next);
+    else if(seq->next != NULL) 
+        gen_trailer_sequence(entry, code, seq);
+}
+
+/**
  * This should have a similar structure to the typecheck_power function in 
  *   type.c
  */
@@ -351,7 +365,9 @@ void gen_power(struct tree *t, struct code *code)
         gen_atom(t->kids[0], code);
         if(t->kids[1]->prodrule == TRAILER_REP) {
             seq = build_trailer_sequence(t->kids[1]);
-            print_trailer_sequence(seq);
+            // The only trailer allowed is a subscriptlist at this point
+            //   so we generate that
+            gen_subscriptlist_sequence(NULL, code, seq);
         }
     }
 
@@ -445,12 +461,13 @@ void gen_trailer_sequence(struct sym_entry *entry, struct code *code, struct tra
             code->codestr = concat(code->codestr, ")");
             break;
         case SUBSCRIPTLIST:
+            // I can't remember what this if statement is for
             if(curr->prev != NULL && curr->prev->prodrule == NAME)
                 code->codestr = concat(code->codestr, entry->codestr);
             code->codestr = concat(code->codestr, "[");
             gen_arglist(curr->arg, code);
             code->codestr = concat(code->codestr, "]");
-            gen_trailer_sequence(entry, code, curr->next);
+            gen_subscriptlist_sequence(entry, code, curr->next);
             break;
     }
 }
