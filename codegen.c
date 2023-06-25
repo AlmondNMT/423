@@ -439,6 +439,9 @@ void gen_trailer_sequence(struct sym_entry *entry, struct code *code, struct tra
             // A dotted name can be either a package member access, or a 
             //   method access
             member = lookup_current(curr->name, entry->nested);
+            if(curr->next == NULL) {
+                code->codestr = concat(code->codestr, member->codestr); // Hacky af. 
+            }
 
             // Recurse through the trailers
             gen_trailer_sequence(member, code, curr->next);
