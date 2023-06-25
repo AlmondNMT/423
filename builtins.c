@@ -158,7 +158,7 @@ void add_puny_builtins(SymbolTable st) {
     entry = insertbuiltin(st, "bool", CLASS_TYPE, "bool");  
     add_builtin_func_info(entry, 0, 1, &bool_type, "%s: %d", "x", ANY_TYPE);
 
-    entry = insertbuiltin(st, "chr", FUNC_TYPE, "chr");
+    entry = insertbuiltin(st, "chr", FUNC_TYPE, "char");
     add_builtin_func_info(entry, 1, 1, string_typeptr, "%s: %d ", "n", INT_TYPE);
 
     entry = insertbuiltin(st, "float", CLASS_TYPE, "float");

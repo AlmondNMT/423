@@ -28,10 +28,6 @@ procedure bool(x[])
     return 0 # this isn't really false, so idk
 end
 
-procedure chr(x)
-    # TODO Return character from ascii 
-end
-
 procedure float(x[])
     if *x == 0 then return 0.0
     return 1.0 * x[1]
@@ -180,11 +176,19 @@ procedure write_list(x)
                 write_list(x[k])
             } else if type(x[k]) === "table" then {
                 write_dict(x[k])
-            } else {
+            } else if type(x[k]) === "string" then {
+                writes("'", x[k], "'", ", ")
+            } else 
                 writes(x[k], ", ")
-            }
         }
-        prints(x[*x])
+        if type(x[*x]) === "list" then {
+            write_list(x[*x])
+        } else if type(x[*x]) === "table" then {
+            write_dict(x[*x])
+        } else if type(x[*x]) === "string" then {
+            writes("'", x[*x], "'")
+        } else 
+            writes(x[*x])
         prints("]")
     }
 end
@@ -202,26 +206,17 @@ procedure write_dict(x)
     }
 end
 
-# String replace
-procedure replace(s, x, y)
-    occ := []
-    len := *x
-    new := ""
-    if type(s) === "string" then {
-        every i := 1 to *s do {
-            if s[i:(len+1)] === x then {
-                new ||:= y
-                i +:= len
-            } else {
-                new ||:= s[i]
-            }
-        }
-    }
-    return new
-end
-
 # String split method TODO
 procedure split(s, x)
+    loc := []
+    str := []
+    index := 1
+    len := length(x)
+    every i := find(x, s, 1, 0) do {
+        put(str, s[index:i])
+        index := i + len
+    }
+    put(str, s[index:*s+1])
 
+    return str
 end
-

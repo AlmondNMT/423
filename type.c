@@ -69,7 +69,7 @@ void init_types()
     string_typeptr->u.cls.max_params = 1;
     string_typeptr->u.cls.parameters = alcparam("a", any_typeptr);
     st = string_typeptr->u.cls.st;
-    entry = insertbuiltin_meth(st, "replace", string_typeptr, "replace");
+    entry = insertbuiltin_meth(st, "replace", string_typeptr, "map");
     add_builtin_func_info(entry, 2, 2, string_typeptr, "%s: %d, %s: %d", "o", STRING_TYPE, "n", STRING_TYPE);
     entry = insertbuiltin_meth(st, "split", list_typeptr, "split");
     add_builtin_func_info(entry, 1, 1, list_typeptr, "%s: %d", "c", STRING_TYPE);
