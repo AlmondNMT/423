@@ -1,0 +1,296 @@
+procedure minesweeper__moria(minesweeper__mordor, minesweeper__angmar, minesweeper__flags, minesweeper__score, minesweeper__wins, minesweeper__losses)
+    
+    minesweeper__a := 0
+    while (minesweeper__a < 7) do {
+        minesweeper__b := 0
+        minesweeper__rivendell := []
+        while (minesweeper__b < 7) do {
+            minesweeper__s := string(minesweeper__mordor[minesweeper__b, minesweeper__a])
+            map(minesweeper__s, "'", " ")
+            put(minesweeper__rivendell, minesweeper__s)
+            minesweeper__b := minesweeper__b + 1
+        }
+        print(minesweeper__rivendell)
+        minesweeper__a := minesweeper__a + 1
+    }
+    print("score:", minesweeper__score)
+    print("Number of flags:", minesweeper__flags)
+    minesweeper__lothlorien := input_puny("Do you wish to FLAG, UNFLAG or MOVE?")
+    if ((minesweeper__lothlorien === 'flag') | (minesweeper__lothlorien === 'FLAG')) then {
+        if (minesweeper__flags === 0) then {
+            print("Error. You are all out of flags!")
+            minesweeper__o := minesweeper__moria(minesweeper__mordor, minesweeper__angmar, minesweeper__flags, minesweeper__score, minesweeper__wins, minesweeper__losses)
+            return minesweeper__o
+        }
+        else {
+            minesweeper__gondor := input_puny("Enter in a coordinate from 1, 1 to 5, 5")
+            minesweeper__gondor := split(minesweeper__gondor, ",")
+            if (minesweeper__gondor[1][0] === " ") then {
+                minesweeper__gondor[1] := minesweeper__gondor[1][1]
+            }
+            minesweeper__mordor[int(minesweeper__gondor[0]), int(minesweeper__gondor[1])] := "F"
+            minesweeper__flags := minesweeper__flags - 1
+            minesweeper__h := minesweeper__moria(minesweeper__mordor, minesweeper__angmar, minesweeper__flags, minesweeper__score, minesweeper__wins, minesweeper__losses)
+            return minesweeper__h
+        }
+    }
+    else if ((minesweeper__lothlorien === 'unflag') | (minesweeper__lothlorien === 'UNFLAG')) then {
+        minesweeper__arnor := input_puny("Enter in a coordinate from 1, 1 to 5, 5")
+        minesweeper__arnor := split(minesweeper__arnor, ",")
+        if (minesweeper__arnor[1][0] === " ") then {
+            minesweeper__arnor[1] := minesweeper__arnor[1][1]
+        }
+        if (minesweeper__mordor[int(minesweeper__arnor[0]), int(minesweeper__arnor[1])] === "F") then {
+            minesweeper__mordor[int(minesweeper__arnor[0]), int(minesweeper__arnor[1])] := "0"
+            minesweeper__flags := minesweeper__flags + 1
+        }
+        else {
+            print("Error, not a flagged square")
+        }
+        minesweeper__g := minesweeper__moria(minesweeper__mordor, minesweeper__angmar, minesweeper__flags, minesweeper__score, minesweeper__wins, minesweeper__losses)
+        return minesweeper__g
+    }
+    else if ((minesweeper__lothlorien === 'move') | (minesweeper__lothlorien === 'MOVE')) then {
+        minesweeper__rohan := input_puny("Enter in a coordinate from 1, 1 to 5, 5")
+        minesweeper__rohan := split(minesweeper__rohan, ",")
+        if (minesweeper__rohan[1][0] === " ") then {
+            minesweeper__rohan[1] := minesweeper__rohan[1][1]
+        }
+        if (minesweeper__mordor[int(minesweeper__rohan[0]), int(minesweeper__rohan[1])] === "F") then {
+            print("Don't move to a flagged tile!!")
+            minesweeper__c := minesweeper__moria(minesweeper__mordor, minesweeper__angmar, minesweeper__flags, minesweeper__score, minesweeper__wins, minesweeper__losses)
+            return minesweeper__c
+        }
+        if (minesweeper__angmar[int(minesweeper__rohan[0]), int(minesweeper__rohan[1])] === "B") then {
+            minesweeper__losses := minesweeper__losses + 1
+            minesweeper__weathertop := [minesweeper__wins, minesweeper__losses, minesweeper__score]
+            print("You stepped on a bomb! You lose!!")
+            return minesweeper__weathertop
+        }
+        else {
+            if (minesweeper__mordor[int(minesweeper__rohan[0]), int(minesweeper__rohan[1])] === "0") then {
+                minesweeper__score := minesweeper__score + 2
+            }
+            minesweeper__mordor[int(minesweeper__rohan[0]), int(minesweeper__rohan[1])] := minesweeper__angmar[int(minesweeper__rohan[0]), int(minesweeper__rohan[1])]
+            if (minesweeper__score === 44) then {
+                print("Victory Achieved!!")
+                minesweeper__wins := minesweeper__wins + 1
+                minesweeper__fangorn := []
+                put(minesweeper__fangorn, minesweeper__wins)
+                put(minesweeper__fangorn, minesweeper__losses)
+                put(minesweeper__fangorn, minesweeper__score)
+                return (minesweeper__fangorn)
+            }
+            else {
+                minesweeper__f := minesweeper__moria(minesweeper__mordor, minesweeper__angmar, minesweeper__flags, minesweeper__score, minesweeper__wins, minesweeper__losses)
+                return minesweeper__f
+            }
+        }
+    }
+    else {
+        print("error, not a valid command")
+        minesweeper__i := minesweeper__moria(minesweeper__mordor, minesweeper__angmar, minesweeper__flags, minesweeper__score, minesweeper__wins, minesweeper__losses)
+        return minesweeper__i
+    }
+end
+
+procedure minesweeper__main()
+    
+    minesweeper__dagorlad := ["B", "_", "_", "_", "_", "_", "_", "_", "_", "_", "B", "_", "_", "_", "_", "B", "_", "_", "_", "_", "_", "_", "_", "_", "_"]
+    minesweeper__mordor := table()
+    minesweeper__mordor[0, 0] := "*"
+    minesweeper__mordor[1, 0] := "*"
+    minesweeper__mordor[2, 0] := "*"
+    minesweeper__mordor[3, 0] := "*"
+    minesweeper__mordor[4, 0] := "*"
+    minesweeper__mordor[5, 0] := "*"
+    minesweeper__mordor[6, 0] := "*"
+    minesweeper__mordor[0, 1] := "|"
+    minesweeper__mordor[1, 1] := "0"
+    minesweeper__mordor[2, 1] := "0"
+    minesweeper__mordor[3, 1] := "0"
+    minesweeper__mordor[4, 1] := "0"
+    minesweeper__mordor[5, 1] := "0"
+    minesweeper__mordor[6, 1] := "|"
+    minesweeper__mordor[0, 2] := "|"
+    minesweeper__mordor[1, 2] := "0"
+    minesweeper__mordor[2, 2] := "0"
+    minesweeper__mordor[3, 2] := "0"
+    minesweeper__mordor[4, 2] := "0"
+    minesweeper__mordor[5, 2] := "0"
+    minesweeper__mordor[6, 2] := "|"
+    minesweeper__mordor[0, 3] := "|"
+    minesweeper__mordor[1, 3] := "0"
+    minesweeper__mordor[2, 3] := "0"
+    minesweeper__mordor[3, 3] := "0"
+    minesweeper__mordor[4, 3] := "0"
+    minesweeper__mordor[5, 3] := "0"
+    minesweeper__mordor[6, 3] := "|"
+    minesweeper__mordor[0, 4] := "|"
+    minesweeper__mordor[1, 4] := "0"
+    minesweeper__mordor[2, 4] := "0"
+    minesweeper__mordor[3, 4] := "0"
+    minesweeper__mordor[4, 4] := "0"
+    minesweeper__mordor[5, 4] := "0"
+    minesweeper__mordor[6, 4] := "|"
+    minesweeper__mordor[0, 5] := "|"
+    minesweeper__mordor[1, 5] := "0"
+    minesweeper__mordor[2, 5] := "0"
+    minesweeper__mordor[3, 5] := "0"
+    minesweeper__mordor[4, 5] := "0"
+    minesweeper__mordor[5, 5] := "0"
+    minesweeper__mordor[6, 5] := "|"
+    minesweeper__mordor[0, 6] := "*"
+    minesweeper__mordor[1, 6] := "*"
+    minesweeper__mordor[2, 6] := "*"
+    minesweeper__mordor[3, 6] := "*"
+    minesweeper__mordor[4, 6] := "*"
+    minesweeper__mordor[5, 6] := "*"
+    minesweeper__mordor[6, 6] := "*"
+    minesweeper__hobbiton := [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
+    minesweeper__osgiliath := 0
+    minesweeper__bree := table()
+    while (minesweeper__osgiliath < 25) do {
+        minesweeper__buckland := choice(minesweeper__hobbiton)
+        minesweeper__bree[minesweeper__osgiliath] := minesweeper__dagorlad[minesweeper__buckland - 1]
+        remove_element(minesweeper__hobbiton, minesweeper__buckland)
+        minesweeper__osgiliath := minesweeper__osgiliath + 1
+    }
+    minesweeper__angmar := table()
+    minesweeper__angmar[0, 0] := "-"
+    minesweeper__angmar[1, 0] := "-"
+    minesweeper__angmar[2, 0] := "-"
+    minesweeper__angmar[3, 0] := "-"
+    minesweeper__angmar[4, 0] := "-"
+    minesweeper__angmar[5, 0] := "-"
+    minesweeper__angmar[6, 0] := "-"
+    minesweeper__angmar[0, 1] := "|"
+    minesweeper__angmar[1, 1] := minesweeper__bree[0]
+    minesweeper__angmar[2, 1] := minesweeper__bree[1]
+    minesweeper__angmar[3, 1] := minesweeper__bree[2]
+    minesweeper__angmar[4, 1] := minesweeper__bree[3]
+    minesweeper__angmar[5, 1] := minesweeper__bree[4]
+    minesweeper__angmar[6, 1] := "|"
+    minesweeper__angmar[0, 2] := "|"
+    minesweeper__angmar[1, 2] := minesweeper__bree[5]
+    minesweeper__angmar[2, 2] := minesweeper__bree[6]
+    minesweeper__angmar[3, 2] := minesweeper__bree[7]
+    minesweeper__angmar[4, 2] := minesweeper__bree[8]
+    minesweeper__angmar[5, 2] := minesweeper__bree[9]
+    minesweeper__angmar[6, 2] := "|"
+    minesweeper__angmar[0, 3] := "|"
+    minesweeper__angmar[1, 3] := minesweeper__bree[10]
+    minesweeper__angmar[2, 3] := minesweeper__bree[11]
+    minesweeper__angmar[3, 3] := minesweeper__bree[12]
+    minesweeper__angmar[4, 3] := minesweeper__bree[13]
+    minesweeper__angmar[5, 3] := minesweeper__bree[14]
+    minesweeper__angmar[6, 3] := "|"
+    minesweeper__angmar[0, 4] := "|"
+    minesweeper__angmar[1, 4] := minesweeper__bree[15]
+    minesweeper__angmar[2, 4] := minesweeper__bree[16]
+    minesweeper__angmar[3, 4] := minesweeper__bree[17]
+    minesweeper__angmar[4, 4] := minesweeper__bree[18]
+    minesweeper__angmar[5, 4] := minesweeper__bree[19]
+    minesweeper__angmar[6, 4] := "|"
+    minesweeper__angmar[0, 5] := "|"
+    minesweeper__angmar[1, 5] := minesweeper__bree[20]
+    minesweeper__angmar[2, 5] := minesweeper__bree[21]
+    minesweeper__angmar[3, 5] := minesweeper__bree[22]
+    minesweeper__angmar[4, 5] := minesweeper__bree[23]
+    minesweeper__angmar[5, 5] := minesweeper__bree[24]
+    minesweeper__angmar[6, 5] := "|"
+    minesweeper__angmar[0, 6] := "-"
+    minesweeper__angmar[1, 6] := "-"
+    minesweeper__angmar[2, 6] := "-"
+    minesweeper__angmar[3, 6] := "-"
+    minesweeper__angmar[4, 6] := "-"
+    minesweeper__angmar[5, 6] := "-"
+    minesweeper__angmar[6, 6] := "-"
+    minesweeper__x := 1
+    while (minesweeper__x < 6) do {
+        minesweeper__y := 1
+        while (minesweeper__y < 6) do {
+            if (minesweeper__angmar[minesweeper__x, minesweeper__y] === "B") then {
+                minesweeper__y := minesweeper__y + 1
+            }
+            else {
+                if (minesweeper__angmar[minesweeper__x, minesweeper__y + 1] === "B") then {
+                    if (minesweeper__angmar[minesweeper__x, minesweeper__y] === "_") then {
+                        minesweeper__angmar[minesweeper__x, minesweeper__y] := 1
+                    }
+                    else {
+                        minesweeper__angmar[minesweeper__x, minesweeper__y] := minesweeper__angmar[minesweeper__x, minesweeper__y] + 1
+                    }
+                }
+                if (minesweeper__angmar[minesweeper__x, minesweeper__y - 1] === "B") then {
+                    if (minesweeper__angmar[minesweeper__x, minesweeper__y] === "_") then {
+                        minesweeper__angmar[minesweeper__x, minesweeper__y] := 1
+                    }
+                    else {
+                        minesweeper__angmar[minesweeper__x, minesweeper__y] := minesweeper__angmar[minesweeper__x, minesweeper__y] + 1
+                    }
+                }
+                if (minesweeper__angmar[minesweeper__x + 1, minesweeper__y] === "B") then {
+                    if (minesweeper__angmar[minesweeper__x, minesweeper__y] === "_") then {
+                        minesweeper__angmar[minesweeper__x, minesweeper__y] := 1
+                    }
+                    else {
+                        minesweeper__angmar[minesweeper__x, minesweeper__y] := minesweeper__angmar[minesweeper__x, minesweeper__y] + 1
+                    }
+                }
+                if (minesweeper__angmar[minesweeper__x - 1, minesweeper__y] === "B") then {
+                    if (minesweeper__angmar[minesweeper__x, minesweeper__y] === "_") then {
+                        minesweeper__angmar[minesweeper__x, minesweeper__y] := 1
+                    }
+                    else {
+                        minesweeper__angmar[minesweeper__x, minesweeper__y] := minesweeper__angmar[minesweeper__x, minesweeper__y] + 1
+                    }
+                }
+                if (minesweeper__angmar[minesweeper__x + 1, minesweeper__y + 1] === "B") then {
+                    if (minesweeper__angmar[minesweeper__x, minesweeper__y] === "_") then {
+                        minesweeper__angmar[minesweeper__x, minesweeper__y] := 1
+                    }
+                    else {
+                        minesweeper__angmar[minesweeper__x, minesweeper__y] := minesweeper__angmar[minesweeper__x, minesweeper__y] + 1
+                    }
+                }
+                if (minesweeper__angmar[minesweeper__x + 1, minesweeper__y - 1] === "B") then {
+                    if (minesweeper__angmar[minesweeper__x, minesweeper__y] === "_") then {
+                        minesweeper__angmar[minesweeper__x, minesweeper__y] := 1
+                    }
+                    else {
+                        minesweeper__angmar[minesweeper__x, minesweeper__y] := minesweeper__angmar[minesweeper__x, minesweeper__y] + 1
+                    }
+                }
+                if (minesweeper__angmar[minesweeper__x - 1, minesweeper__y + 1] === "B") then {
+                    if (minesweeper__angmar[minesweeper__x, minesweeper__y] === "_") then {
+                        minesweeper__angmar[minesweeper__x, minesweeper__y] := 1
+                    }
+                    else {
+                        minesweeper__angmar[minesweeper__x, minesweeper__y] := minesweeper__angmar[minesweeper__x, minesweeper__y] + 1
+                    }
+                }
+                if (minesweeper__angmar[minesweeper__x - 1, minesweeper__y - 1] === "B") then {
+                    if (minesweeper__angmar[minesweeper__x, minesweeper__y] === "_") then {
+                        minesweeper__angmar[minesweeper__x, minesweeper__y] := 1
+                    }
+                    else {
+                        minesweeper__angmar[minesweeper__x, minesweeper__y] := minesweeper__angmar[minesweeper__x, minesweeper__y] + 1
+                    }
+                }
+                minesweeper__y := minesweeper__y + 1
+            }
+        }
+        minesweeper__x := minesweeper__x + 1
+    }
+    minesweeper__k := minesweeper__moria(minesweeper__mordor, minesweeper__angmar, 3, 0, 0, 0)
+    return minesweeper__k
+end
+
+procedure main()
+    
+    if ("__name__" === "__main__") then {
+        minesweeper__main()
+    }
+end
+

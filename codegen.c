@@ -77,6 +77,9 @@ void gen_imported_func(struct tree *t)
 
 void gen_imported_main(struct tree *t)
 {
+    if(main_stmts == NULL) {
+
+    }
     main_stmts = gen_stmts(t, main_stmts, 1);
 }
 
@@ -186,7 +189,7 @@ struct code * gen_stmts(struct tree *t, struct code *code, unsigned int tablevel
 
 struct code *gen_for_stmt(struct tree *t, struct code *code, unsigned int tablevel)
 {
-    if(t == NULL || code == NULL) return NULL;
+    if(t == NULL) return NULL;
     struct code *tmp = create_code("%s %s %s", "every ", mangle_name(t->kids[0]->leaf->text), " := !");
     tmp->codestr = concat(tab(tablevel), tmp->codestr);
     gen_testlist(t->kids[1], tmp);
@@ -203,7 +206,7 @@ struct code *gen_for_stmt(struct tree *t, struct code *code, unsigned int tablev
 
 struct code *gen_while_stmt(struct tree *t, struct code *code, unsigned int tablevel)
 {
-    if(t == NULL || code == NULL) return NULL;
+    if(t == NULL) return NULL;
     struct code *tmp = create_code("%s", "while ");
     tmp->codestr = concat(tab(tablevel), tmp->codestr);
     gen_testlist(t->kids[0], tmp);
@@ -220,7 +223,7 @@ struct code *gen_while_stmt(struct tree *t, struct code *code, unsigned int tabl
 
 struct code *gen_if_stmt(struct tree *t, struct code *code, unsigned int tablevel)
 {
-    if(t == NULL || code == NULL) return NULL;
+    if(t == NULL) return NULL;
     struct code *tmp = NULL;
     switch(t->prodrule) {
         case IF_STMT:
@@ -281,7 +284,7 @@ struct code *gen_close_bracket(struct code *code, unsigned int tablevel)
 }
 
 struct code *gen_expr_stmt(struct tree *t, struct code *code) {
-    if(t == NULL || code == NULL) return NULL;
+    if(t == NULL) return NULL;
     struct code *tmp = create_code("%s", "");
     gen_testlist(t->kids[0], tmp);
     switch(t->kids[1]->prodrule) {
@@ -616,7 +619,7 @@ void gen_table(struct tree *t, struct code *code)
 
 struct code *gen_return_stmt(struct tree *t, struct code *code)
 {
-    if(t == NULL || code == NULL) return NULL;
+    if(t == NULL) return NULL;
     struct code *tmp = create_code("%s", "return ");
     gen_testlist(t->kids[1], tmp);
     code = append_code(code, tmp);

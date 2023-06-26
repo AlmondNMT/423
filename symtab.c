@@ -789,7 +789,7 @@ void get_decl_stmt(struct tree *t, SymbolTable st)
     // The 'var' token has the NAME of the identifier
     // The 'type' token has the NAME of the type
     struct token *var = t->kids[0]->leaf;
-    struct token *type = t->kids[1]->leaf;
+    struct token *type_tok = t->kids[1]->leaf;
     char *name = var->text;
     if(symbol_exists_current(name, st)) {
         // Redeclaration error
@@ -797,9 +797,9 @@ void get_decl_stmt(struct tree *t, SymbolTable st)
     }
 
     // rhs_type is used for the case where an assignment is performed with a declaration
-    struct typeinfo *rhs_type = get_ident_type(type->text, st);
+    struct typeinfo *lhs_type = get_ident_type(type_tok->text, st), *rhs_type = NULL;
     if(t->kids[2]->prodrule == EQUAL_TEST_OPT) {
-        rhs_type = get_rhs_type(t->kids[2]->kids[1]);
+        rhs_type = typecheck_testlist(t->kids[2]->kids[1]);
     }
     SymbolTableEntry e = insertsymbol(st, var);
     e->declared = true;

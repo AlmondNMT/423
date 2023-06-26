@@ -91,11 +91,13 @@ void add_builtin_func_info(struct sym_entry *entry, int min, int max, struct typ
     if(entry->typ == NULL)
         return;
     if(entry->typ->basetype == CLASS_TYPE) {
+        entry->typ = alcbuiltin(CLASS_TYPE);
         entry->typ->u.cls.returntype = returntype;
         entry->typ->u.cls.min_params = min;
         entry->typ->u.cls.max_params = max;
     }
     else {
+        entry->typ = alcbuiltin(FUNC_TYPE);
         entry->typ->u.f.returntype = returntype;
         entry->typ->u.f.min_params = min;
         entry->typ->u.f.max_params = max;

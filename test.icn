@@ -21,8 +21,7 @@ procedure main()
     print(put(test3__a, 8))
     print(repl("asdf", 1 * 1))
     print(test3__a)
-    print(test3__a[0][1][2])
+    print(test3__a[1])
     print(test3__f(1, 2))
-    print([1, 2, 3][1][1][2][3])
 end
 

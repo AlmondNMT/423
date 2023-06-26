@@ -110,7 +110,6 @@ void init_types()
     entry = insertbuiltin_meth(st, "close", none_typeptr, "close");
     add_builtin_func_info(entry, 0, 0, none_typeptr, NULL);
     any_typeptr->basetype = ANY_TYPE;
-    
 }
 
 
@@ -1055,7 +1054,7 @@ struct typeinfo *get_trailer_rep_type(struct trailer *seq, SymbolTableEntry entr
                 nested = current_type->u.cls.st;
                 break;
             case ARGLIST_OPT:
-                // Need to disallow trailers from following function calls
+                // Disallow trailers from following function calls
                 if(curr->next != NULL) {
                     switch(curr->next->prodrule) {
                         case NAME:
