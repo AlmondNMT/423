@@ -1,4 +1,8 @@
 procedure main()
-    print(test2__test3)
+    print(put(test3__a, 8))
+    print(test3__a)
+    print(test3__a[0][1][2])
+    print(test3__f(1, 2))
+    print([1, 2, 3][1][1][2][3])
 end
 

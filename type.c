@@ -904,7 +904,7 @@ struct trailer *build_trailer_sequence(struct tree *t)
     next = create_trailer_link(name, code);
 
     // Get the arglist of the function call or list access to verify correctness
-    next->arg = build_arglist(t->kids[1]->kids[0]); // We are passing in either a 
+    next->arg = build_arglist(t->kids[1]->kids[0]); // NULL, subscriptlist, or arglist_opt
     if(prev != NULL) {
         struct trailer *curr = prev;
         while(curr->next != NULL) curr = curr->next;
@@ -961,8 +961,9 @@ struct arg *build_arglist(struct tree *t)
 struct trailer *create_trailer_link(char *name, int prodrule)
 {
     struct trailer *node = ckalloc(1, sizeof(struct trailer));
-    if(name != NULL) 
+    if(name != NULL) {
         node->name = strdup(name);
+    }
     node->prodrule = prodrule;
     return node;
 }

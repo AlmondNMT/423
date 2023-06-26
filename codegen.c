@@ -341,16 +341,13 @@ void gen_augbitwise(struct tree *t, struct code *code, char *fname, bool plus)
 /**
  * Generate subscriptlist sequences
  */
-void gen_subscriptlist_sequence(struct sym_entry *entry, struct code *code, struct trailer *seq)
+void gen_subscriptlist_sequence(struct trailer *seq, struct code *code)
 {
     if(seq == NULL || code == NULL) return;
     code->codestr = concat(code->codestr, "[");
     gen_arglist(seq->arg, code);
     code->codestr = concat(code->codestr, "]");
-    if(seq->next != NULL && seq->next->prodrule == SUBSCRIPTLIST)
-        gen_subscriptlist_sequence(entry, code, seq->next);
-    else if(seq->next != NULL) 
-        gen_trailer_sequence(entry, code, seq);
+    gen_subscriptlist_sequence(seq->next, code);
 }
 
 /**
@@ -367,7 +364,7 @@ void gen_power(struct tree *t, struct code *code)
             seq = build_trailer_sequence(t->kids[1]);
             // The only trailer allowed is a subscriptlist at this point
             //   so we generate that
-            gen_subscriptlist_sequence(NULL, code, seq);
+            gen_subscriptlist_sequence(seq, code);
         }
     }
 
@@ -378,12 +375,8 @@ void gen_power(struct tree *t, struct code *code)
             SymbolTableEntry entry = lookup(leaf->text, t->stab);
             if(t->kids[1]->prodrule == TRAILER_REP) {
                 seq = build_trailer_sequence(t->kids[1]);
-                struct trailer *top = create_trailer_link(entry->ident, NAME);
-                top->next = seq;
-                seq->prev = top;
-                gen_trailer_sequence(entry, code, top);
-                
-                free_trailer_sequence(top);
+                gen_trailer_sequence(entry, code, seq);
+                free_trailer_sequence(seq);
             }
             else {
                 code->codestr = concat(code->codestr, mangle_name(leaf->text));
@@ -426,51 +419,67 @@ void gen_arglist(struct arg *args, struct code *code)
 
 /**
  * Generate the code for trailer sequences
+ * We allow three kinds of trailers
+ * 1. Sequence of names followed by sequence of subscriptlists
+ * 2. Sequence of names terminated by function call
+ * 3. Sequence of names
+ * The reason this is difficult is that function calls must be generated out of
+ *   order for methods. 
  */
 void gen_trailer_sequence(struct sym_entry *entry, struct code *code, struct trailer *seq)
 {
     if(entry == NULL || code == NULL || seq == NULL) return;
     struct sym_entry *member = NULL;
     struct trailer *curr = NULL;
-    if(seq->next != NULL) curr = seq->next;
-    else curr = seq;
+    curr = seq;
     switch(curr->prodrule) {
         case NAME:
             // A dotted name can be either a package member access, or a 
             //   method access
             member = lookup_current(curr->name, entry->nested);
-            if(curr->next == NULL) {
-                code->codestr = concat(code->codestr, member->codestr); // Hacky af. 
-            }
 
-            // Recurse through the trailers
-            gen_trailer_sequence(member, code, curr->next);
+            if(curr->next != NULL) {
+                // Check for subscriptlist and arglist_opt
+                switch(curr->next->prodrule) {
+                    case ARGLIST_OPT:
+                        // If it's a builtin method, generate that first 
+                        //   followed by the name of the variable, then arglist_opt
+                        if(member->isbuiltin_meth) {
+                            code->codestr = concat(code->codestr, member->codestr);
+                            code->codestr = concat(code->codestr, "(");
+                            code->codestr = concat(code->codestr, entry->codestr);
+                            code->codestr = concat(code->codestr, ", ");
+                            gen_arglist(curr->next->arg, code);
+                            code->codestr = concat(code->codestr, ")");
+                        }
+                        else {
+                            // Just generate the trailer like normally
+                            gen_trailer_sequence(member, code, curr->next);
+                        }
+                        break;
+                    // Arglist_opt really do be the special case here
+                    case SUBSCRIPTLIST:
+                    default:
+                        gen_trailer_sequence(member, code, curr->next);
+                }
+            }
+            // If it's NULL, just generate the mangled name from the entry
+            else {
+                code->codestr = concat(code->codestr, member->codestr);
+            }
             break;
         case ARGLIST_OPT:
             // A function call
             code->codestr = concat(code->codestr, entry->codestr);
             code->codestr = concat(code->codestr, "(");
 
-            // If the prev entry in the doubly-linked list is not null and it 
-            //   is a name, the current is a builtin, we add the previous entry
-            //   as an argument to the function
-            if(curr->prev != NULL && curr->prev->prev != NULL && entry->isbuiltin_meth) {
-                code->codestr = concat(code->codestr, mangle_name(curr->prev->prev->name));
-                code->codestr = concat(code->codestr, ", ");
-            }
-            
             // Add the function arguments
             gen_arglist(curr->arg, code);
             code->codestr = concat(code->codestr, ")");
             break;
         case SUBSCRIPTLIST:
-            // I can't remember what this if statement is for
-            if(curr->prev != NULL && curr->prev->prodrule == NAME)
-                code->codestr = concat(code->codestr, entry->codestr);
-            code->codestr = concat(code->codestr, "[");
-            gen_arglist(curr->arg, code);
-            code->codestr = concat(code->codestr, "]");
-            gen_subscriptlist_sequence(entry, code, curr->next);
+            code->codestr = concat(code->codestr, entry->codestr);
+            gen_subscriptlist_sequence(curr, code);
             break;
     }
 }
