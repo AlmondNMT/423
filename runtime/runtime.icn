@@ -206,7 +206,7 @@ procedure write_dict(x)
     }
 end
 
-# String split method TODO
+# String split method 
 procedure split(s, x)
     loc := []
     str := []

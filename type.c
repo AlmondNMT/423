@@ -1044,8 +1044,12 @@ struct typeinfo *get_trailer_rep_type(struct trailer *seq, SymbolTableEntry entr
                 switch(current_type->basetype) {
                     case FUNC_TYPE:
                     case CLASS_TYPE:
+                        // Function/Constructor call with no parentheses
                         if(curr->next == NULL) semantic_error(tok, "function/class use with no parentheses\n");
                         break;
+                    case PACKAGE_TYPE:
+                        // Package use with no member access
+                        if(curr->next == NULL) semantic_error(tok, "package use with no member access\n");
                 }
                 nested = current_type->u.cls.st;
                 break;
