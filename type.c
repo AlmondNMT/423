@@ -50,7 +50,7 @@ void init_types()
     list_typeptr->u.cls.max_params = 1;
     list_typeptr->u.cls.parameters = alcparam("a", any_typeptr);
     st = list_typeptr->u.cls.st;
-    entry = insertbuiltin_meth(st, "append", none_typeptr, "put");
+    entry = insertbuiltin_meth(st, "append", list_typeptr, "put");
     add_builtin_func_info(entry, 1, 1, none_typeptr, "%s: %d", "a", ANY_TYPE);
     entry = insertbuiltin_meth(st, "remove", none_typeptr,"remove_element");
     add_builtin_func_info(entry, 1, 1, none_typeptr, "%s: %d", "a", ANY_TYPE);
@@ -1408,6 +1408,7 @@ void get_function_params(struct tree *t, SymbolTableEntry fentry)
         SymbolTableEntry param_entry = insertsymbol(fentry->nested, leaf);
         //free_typeptr(entry->typ);
         param_entry->typ = type;
+        add_nested_table(param_entry, type);
         add_param_to_function_entry(leaf, type, fentry);
     } 
     else {

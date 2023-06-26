@@ -19,6 +19,7 @@ extern void add_puny_builtins(SymbolTable st);
 extern char yyfilename[PATHMAX];
 extern FILE *yyin;
 extern bool tree_opt, symtab_opt;
+extern typeptr any_typeptr;
 
 
 // Global hash table for import names. Used to prevent circular imports
@@ -789,7 +790,6 @@ void get_decl_stmt(struct tree *t, SymbolTable st)
     // The 'var' token has the NAME of the identifier
     // The 'type' token has the NAME of the type
     struct token *var = t->kids[0]->leaf;
-    struct token *type_tok = t->kids[1]->leaf;
     char *name = var->text;
     if(symbol_exists_current(name, st)) {
         // Redeclaration error
@@ -797,7 +797,7 @@ void get_decl_stmt(struct tree *t, SymbolTable st)
     }
 
     // rhs_type is used for the case where an assignment is performed with a declaration
-    struct typeinfo *lhs_type = get_ident_type(type_tok->text, st), *rhs_type = NULL;
+    struct typeinfo *rhs_type = NULL;
     if(t->kids[2]->prodrule == EQUAL_TEST_OPT) {
         rhs_type = typecheck_testlist(t->kids[2]->kids[1]);
     }
@@ -1154,7 +1154,7 @@ SymbolTableEntry insertsymbol(SymbolTable st, struct token *tok) {
     // If we reach this point, we didn't find the symbol in the current scope.
     // Create a symbol table entry and add its members
     SymbolTableEntry entry = ckalloc(1, sizeof(struct sym_entry));
-    entry->typ = alcbuiltin(ANY_TYPE);
+    entry->typ = any_typeptr;
     //entry->typ->basetype = basetype; // All entries default to type ANY on the first pass
     entry->table = st;
     entry->ident = strdup(name);

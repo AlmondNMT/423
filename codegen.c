@@ -426,7 +426,7 @@ void gen_power(struct tree *t, struct code *code)
             else {
                 // If we see a multiline comment/str, just remove it 
                 // We'll just check that there isn't a newline character in the text
-                if(strchr(leaf->text, '\n') == NULL) 
+                if(strstr(leaf->text, "\"\"\"") == NULL) 
                     code->codestr = concat(code->codestr, leaf->text);
             }
         }
