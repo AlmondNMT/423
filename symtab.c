@@ -154,6 +154,9 @@ void locate_undeclared(struct tree *t, SymbolTable st)
             }
             return;
         }
+        case GLOBAL_STMT:
+            // Don't search global statements
+            return;
         case NAME: {
             check_decls(t, st);
             break;
@@ -961,11 +964,15 @@ void get_import_symbols(struct tree *t, SymbolTable st)
         // Do semantic analysis on the imported file
         semantics(tree, package_symtab, dont_add_builtins);
 
+        // Generate transpiled code for globals, procedures, and main stmts
+        gen_imported_globals(tree);
+        gen_imported_func(tree);
+        gen_imported_main(tree);
+
         // Revert the global tree
         //tmp = tree;
         tree = current;
         
-        // TODO: Generate transpiled code for packages with name mangling
 
         // Revert the global name back to the main source file.
         strcpy(yyfilename,  current_filename);

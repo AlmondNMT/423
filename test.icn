@@ -1,5 +1,25 @@
+global test3__fifa
+global test2__fifa
+
+procedure test3__f(test3__x, test3__y)
+    return test3__x + test3__y * 2
+end
+
+procedure test2__f(test2__x, test2__y)
+    return [test2__x, test2__y]
+end
+
+procedure test1__f(test1__x)
+    return test1__x
+end
+
 procedure main()
+    test3__a := [3, 4]
+    put(test3__a, 1)
+    test2__h := [1, 2, 3]
+    test3__f(1, 2)
     print(put(test3__a, 8))
+    print(repl("asdf", 1 * 1))
     print(test3__a)
     print(test3__a[0][1][2])
     print(test3__f(1, 2))

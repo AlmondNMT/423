@@ -17,18 +17,24 @@ extern char yyfilename[PATHMAX];
 extern struct sym_table builtin_modules;
 extern struct sym_table global_modules;
 
+// Global code structs for imported globals, procedures, and main stmts
+struct code *imp_globals;
+struct code *imp_funcs;
+struct code *main_stmts;
+
 /**
  * This is the general, high-level codegen function. The goal is to 
  * first generate global and procedure declarations in a linked list of strings
- * if we're not in a package, as indicated by the in_package bool.
  */
-void gencode(struct tree *t, bool in_package)
+void gencode(struct tree *t)
 {
     if(t == NULL) return;
 
     // Linked list of generated code
     struct code *code = NULL, *tmp = NULL;
     // Find all global declarations and place them at the top of the code
+    // Include imported globals
+    code = append_code(code, imp_globals);
     code = gen_globals(t, code);
 
     tmp = get_tail(code);
@@ -36,17 +42,42 @@ void gencode(struct tree *t, bool in_package)
         tmp->codestr = concat(tmp->codestr, "\n");
     }
 
+    // Add imported functions
+    code = append_code(code, imp_funcs);
+
     // Translate python functions into unicon procedures
     code = gen_func(t, code);
 
     // Generate main procedure and stmts within
     code = append_code(code, create_code("%s", "procedure main()"));
+    code = append_code(code, main_stmts);
     code = gen_stmts(t, code, 1);
     code = append_code(code, create_code("%s", "end\n"));
     
     print_code(code);
     transpile(code);
     free_code(code);
+}
+
+/**
+ * The below three functions traverse the trees of imported packages and 
+ *   generate the code for each kind of statement with locational requirements,
+ *   such as globals, procedures, and statements that need to appear within the
+ *   main procedure
+ */
+void gen_imported_globals(struct tree *t)
+{ 
+    imp_globals = gen_globals(t, imp_globals);
+}
+
+void gen_imported_func(struct tree *t)
+{
+    imp_funcs = gen_func(t, imp_funcs);
+}
+
+void gen_imported_main(struct tree *t)
+{
+    main_stmts = gen_stmts(t, main_stmts, 1);
 }
 
 struct code * gen_globals(struct tree *t, struct code *code)

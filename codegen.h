@@ -18,7 +18,14 @@ struct code {
 };
 
 // Code generation prototypes
-void gencode(struct tree *t, bool do_mangle);
+void gencode(struct tree *t);
+
+// Import stuff
+void gen_imported_globals(struct tree *);
+void gen_imported_func(struct tree *);
+void gen_imported_main(struct tree *);
+
+void gen_package(struct tree *t);
 struct code * gen_func(struct tree *t, struct code *code);
 struct code * gen_stmts(struct tree *t, struct code *code, unsigned int tablevel);
 struct code * gen_globals(struct tree *t, struct code *code);

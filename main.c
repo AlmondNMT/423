@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
         }
 
         // Generate Unicon from tree and symboltable
-        gencode(tree, true);
+        gencode(tree);
 
         if(symtab_opt) {
             printsymbols(global, 0);
