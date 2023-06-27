@@ -37,7 +37,20 @@ procedure main()
             }
             next
         }
+        if (test__i === 9) then {
+            print("fifa")
+            break
+        }
         print(test__i)
     }
+    print(put(test3__a, 11))
+    print(remove_element(test3__a, 11))
+    print(test1__f(23))
+    print(test2__f(test__f(3, 4), test__f(4, 3)))
+    print(test3__f(12, 21))
+    test__f(3, 4)
+    test__a := "fdsadmdld"
+    print(split(test__a, "fdsa"))
+    print(replace(test__a, "ds", "wee"))
 end
 

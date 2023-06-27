@@ -69,7 +69,7 @@ void init_types()
     string_typeptr->u.cls.max_params = 1;
     string_typeptr->u.cls.parameters = alcparam("a", any_typeptr);
     st = string_typeptr->u.cls.st;
-    entry = insertbuiltin_meth(st, "replace", string_typeptr, "map");
+    entry = insertbuiltin_meth(st, "replace", string_typeptr, "replace");
     add_builtin_func_info(entry, 2, 2, string_typeptr, "%s: %d, %s: %d", "o", STRING_TYPE, "n", STRING_TYPE);
     entry = insertbuiltin_meth(st, "split", list_typeptr, "split");
     add_builtin_func_info(entry, 1, 1, list_typeptr, "%s: %d", "c", STRING_TYPE);
@@ -1013,7 +1013,6 @@ struct typeinfo *get_trailer_rep_type(struct trailer *seq, SymbolTableEntry entr
     // Bunch of initialization. Might be a more efficient way to do all of this, but I don't care
     struct trailer *curr = NULL, *start = create_trailer_link(entry->ident, NAME);
     start->next = seq;
-    print_trailer_sequence(start);
     SymbolTableEntry rhs = entry; // Initialize rhs with the entry pointer
     SymbolTable nested = entry->nested;
     typeptr current_type = entry->typ;

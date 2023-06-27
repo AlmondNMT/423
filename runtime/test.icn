@@ -51,4 +51,6 @@ procedure main()
         if 2 > 1 then
             break
     }
+    print()
+    print(replace("The fooka chinga looka", "ooka", "ucka"))
 end

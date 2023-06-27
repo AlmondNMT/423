@@ -59,6 +59,7 @@ procedure remove_element(a, x)
             index +:= 1
         }
     }
+    return a
 end
 
 procedure max(x[])
@@ -208,7 +209,6 @@ end
 
 # String split method 
 procedure split(s, x)
-    loc := []
     str := []
     index := 1
     len := length(x)
@@ -219,4 +219,28 @@ procedure split(s, x)
     put(str, s[index:*s+1])
 
     return str
+end
+
+# String replace method
+procedure replace(s, a, b)
+    newstr := ""
+    indices := []
+    every c := find(a, s, 1, 0) do {
+        put(indices, c)
+    } 
+    if *indices === 0 then {
+        # Just return the original string if no occurrences found
+        return s
+    }
+    index := 1
+    n := length(a)
+    every c := !indices do {
+        every i := index to c - 1 do {
+            newstr ||:= s[i]
+        }
+        newstr ||:= b
+        index := c + n
+    }
+    newstr ||:= s[index+1:*s+1]
+    return newstr
 end
