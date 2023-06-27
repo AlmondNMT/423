@@ -20,6 +20,10 @@ procedure test__f(test__x, test__y)
     return repl("fdsa", 1 * test__x)
 end
 
+procedure test__g(test__x)
+    return test__f(test__x * 2, +---3 + test__x)
+end
+
 procedure main()
     test3__a := [3, 4]
     put(test3__a, 1)

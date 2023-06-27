@@ -6,7 +6,7 @@ procedure minesweeper__moria(minesweeper__mordor, minesweeper__angmar, minesweep
         minesweeper__rivendell := []
         while (minesweeper__b < 7) do {
             minesweeper__s := string(minesweeper__mordor[minesweeper__b, minesweeper__a])
-            map(minesweeper__s, "'", " ")
+            replace(minesweeper__s, "'", " ")
             put(minesweeper__rivendell, minesweeper__s)
             minesweeper__b := minesweeper__b + 1
         }

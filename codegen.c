@@ -54,7 +54,7 @@ void gencode(struct tree *t)
     code = gen_stmts(t, code, 1);
     code = append_code(code, create_code("%s", "end\n"));
     
-    print_code(code);
+    //print_code(code);
     transpile(code);
     free_code(code);
 }
@@ -1176,7 +1176,7 @@ void transpile(struct code *code)
     // Compile any imported builtin modules
     command_str = build_import_command(command_str, ".icn", true);
 
-    printf("command compile: %s\n", command_str);
+    //printf("command compile: %s\n", command_str);
     system(command_str);
 
 
@@ -1188,7 +1188,7 @@ void transpile(struct code *code)
     command_str = concat(command_str, " runtime.u");
     command_str = build_import_command(command_str, ".u", false);
 
-    printf("command link: %s\n", command_str);
+    //printf("command link: %s\n", command_str);
     system(command_str);
     //system("rm -f *.u");
 
@@ -1230,7 +1230,7 @@ char *write_code(struct code *code)
     strcat(icn_filename, yyfilename);
     replace_substring(icn_filename, ".py", ".icn");
     FILE *icn = fopen(icn_filename, "w");
-    printf("icn_filename: %s\n", icn_filename);
+    //printf("icn_filename: %s\n", icn_filename);
     for(struct code *cur = code; cur != NULL; cur = cur->next) {
         fwrite(cur->codestr, (size_t) strlen(cur->codestr), 1, icn);
         fwrite("\n", 1, 1, icn);

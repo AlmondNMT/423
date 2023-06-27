@@ -3,6 +3,9 @@ def f(x: int, y: float) -> str:
     if y > x:
         return 2 * "asdf"
     return x * "fdsa"
+
+def g(x):
+    return f(x * 2, +---3 + x)
 print(test1.test2.test3.a.append(8))
 print(1 * "asdf")
 print(test1.test2.test3.a)
@@ -27,3 +30,4 @@ f(3, 4)
 a = "fdsadmdld"
 print(a.split("fdsa"))
 print(a.replace("ds", "wee"))
+print(1 * (2 < 3))
