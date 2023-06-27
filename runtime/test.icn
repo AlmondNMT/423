@@ -46,4 +46,9 @@ procedure main()
     print(List("sadf"))
     print(List(list([1, 2, 3])))
     print(split(s, " : "))
+    while 1 do {
+        print(1)
+        if 2 > 1 then
+            break
+    }
 end

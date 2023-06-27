@@ -13,6 +13,13 @@ procedure test1__f(test1__x)
     return test1__x
 end
 
+procedure test__f(test__x, test__y)
+    if (test__y > test__x) then {
+        return repl("asdf", 1 * 2)
+    }
+    return repl("fdsa", 1 * test__x)
+end
+
 procedure main()
     test3__a := [3, 4]
     put(test3__a, 1)
@@ -23,5 +30,14 @@ procedure main()
     print(test3__a)
     print(test3__a[1])
     print(test3__f(1, 2))
+    every test__i := !range(10) do {
+        if (test__i === 4) then {
+            every test__j := !range(5) do {
+                print(test__i + test__j)
+            }
+            next
+        }
+        print(test__i)
+    }
 end
 

@@ -36,6 +36,8 @@ struct code * gen_if_stmt(struct tree *t, struct code *code, unsigned int tablev
 struct code * gen_close_bracket(struct code *code, unsigned int tablevel);
 struct code * gen_while_stmt(struct tree *t, struct code *code, unsigned int tablevel);
 struct code * gen_for_stmt(struct tree *t, struct code *code, unsigned int tablevel);
+struct code * gen_break_stmt(struct code *code, unsigned int tablevel);
+struct code * gen_continue_stmt(struct code *code, unsigned int tablevel);
 void gen_table(struct tree *t, struct code *code);
 void gen_testlist(struct tree *t, struct code *code);
 void gen_listmaker(struct tree *t, struct code *code);
@@ -72,6 +74,7 @@ void gen_and_code(struct tree *t, struct code *code);
 void gen_or_code(struct tree *t, struct code *code);
 void gen_augassign(struct tree *t, struct code *code);
 void gen_augbitwise(struct tree *t, struct code *code, char *bitwise_func_name, bool plus);
+
 
 // Convert booleans into the appropriate type
 void convert_power_bool(struct tree *t, struct code *code);

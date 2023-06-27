@@ -1592,6 +1592,7 @@ bool typecheck_func_ret_type_aux(struct tree *t, typeptr returntype, struct toke
 {
     if(t == NULL || returntype == NULL || ftok == NULL) return false;
     bool ret = false;
+    bool tmp_ret = false;
     switch(t->prodrule) {
         case RETURN_STMT:
             ret = true;
@@ -1606,9 +1607,11 @@ bool typecheck_func_ret_type_aux(struct tree *t, typeptr returntype, struct toke
                 semantic_error(ftok, "'%s()' return type '%s' does not match type of value returned: '%s'\n", ftok->text, print_type(returntype), print_type(ret_val));
             break;
         default:
+
             for(int i = 0; i < t->nkids; i++) {
-                ret = typecheck_func_ret_type_aux(t->kids[i], returntype, ftok);
-                if(ret) break;
+                tmp_ret = typecheck_func_ret_type_aux(t->kids[i], returntype, ftok);
+                // Need to keep checking in case of other return statements
+                ret |= tmp_ret;
             }
     }
     return ret;

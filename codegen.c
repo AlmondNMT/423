@@ -178,6 +178,12 @@ struct code * gen_stmts(struct tree *t, struct code *code, unsigned int tablevel
             tmp = get_tail(code);
             tmp->codestr = concat(tab(tablevel), tmp->codestr);
             break;
+        case BREAK_STMT:
+            code = gen_break_stmt(code, tablevel);
+            break;
+        case CONTINUE_STMT:
+            code = gen_continue_stmt(code, tablevel);
+            break;
         default:
             for(int i = 0; i < t->nkids; i++) {
                 code = gen_stmts(t->kids[i], code, tablevel);
@@ -186,6 +192,22 @@ struct code * gen_stmts(struct tree *t, struct code *code, unsigned int tablevel
     return code;
 }
 
+
+struct code *gen_continue_stmt(struct code *code, unsigned int tablevel)
+{
+    struct code *tmp = create_code("%s", "next");
+    tmp->codestr = concat(tab(tablevel), tmp->codestr);
+    code = append_code(code, tmp);
+    return code;
+}
+
+struct code *gen_break_stmt(struct code *code, unsigned int tablevel)
+{
+    struct code *tmp = create_code("%s", "break");
+    tmp->codestr = concat(tab(tablevel), tmp->codestr);
+    code = append_code(code, tmp);
+    return code;
+}
 
 struct code *gen_for_stmt(struct tree *t, struct code *code, unsigned int tablevel)
 {
