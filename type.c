@@ -407,13 +407,6 @@ typeptr type_for_bin_op_great_less(typeptr lhs, typeptr rhs)
                     return bool_typeptr;
             }
             break;
-        case STRING_TYPE:
-            switch(rhs->basetype) {
-                case INT_TYPE:
-                case STRING_TYPE:
-                    return bool_typeptr;
-            }
-            break;
         case BOOL_TYPE:
             switch(rhs->basetype) {
                 case INT_TYPE:

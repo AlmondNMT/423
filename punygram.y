@@ -9,7 +9,7 @@
     extern int yyerror(char *);
     extern int yychar;
     extern char *yytext;
-    char *puny_support_err = "This Python feature is not in puny";
+    char *puny_support_err = "This Python feature is not in PunY";
     
     #include "tree.h"
     tree_t *tree;

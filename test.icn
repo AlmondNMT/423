@@ -52,5 +52,6 @@ procedure main()
     test__a := "fdsadmdld"
     print(split(test__a, "fdsa"))
     print(replace(test__a, "ds", "wee"))
+    print(1 * ((2 < 3)))
 end
 

@@ -52,5 +52,6 @@ procedure main()
             break
     }
     print()
-    print(replace("The fooka chinga looka", "ooka", "ucka"))
+    print(replace("Maximizing local utility", "utility", "qualitative experience"))
+    print("asdf" < "fdsa")
 end
