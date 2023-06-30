@@ -1,0 +1,507 @@
+CSE 423 HW6 test run output for ggsm-hw6
+------------------------------------------------------------
+	.zip Compiles w/no warnings: _1/1
+	Valgrind is clean:           _0/2
+	puny produces executables:   _2/3 coredump on basic, success on others
+	Generates final code/exprs:  _1/5 coredump
+	Generates final code/gotos:  _1/5 coredump
+	Generates final code/funcs:  _0/5 coredump
+	Generates final code/decls:  _0/4 coredump
+	Compiles/runs cse107 tests:  _2/5 various spurious errors
+	----------------------------------
+	Total:                       _7/30
+
+	----------------------------------------------------------------------
+
+	(extracting done rv=0)
+	(make)
+bison --debug punygram.y -v
+punygram.y: warning: 1 shift/reduce conflict [-Wconflicts-sr]
+punygram.y: note: rerun with option '-Wcounterexamples' to generate conflict counterexamples
+bison -d --debug punygram.y
+punygram.y: warning: 1 shift/reduce conflict [-Wconflicts-sr]
+punygram.y: note: rerun with option '-Wcounterexamples' to generate conflict counterexamples
+flex punylex.l
+gcc -g -Wall -c punygram.tab.c lex.yy.c utils.c main.c back.c tree.c symtab.c printsyms.c type.c builtins.c nonterminal.c codegen.c
+gcc -g -Wall lex.yy.o punygram.tab.o utils.o tree.o main.o back.o type.o symtab.o builtins.o nonterminal.o codegen.o -o puny
+#./puny test.py
+	(make done rv=0)
+-------------------------------------------------------------------------------
+make test
+make: *** No rule to make target 'test'.  Stop.
+-------------------------------------------------------------------------------
+Dr. J's tests
+
+------------------------------------------------------------------------
+
+	Test#1 Input:
+filnam: "basic.py"
+x : int
+x = 5
+
+#
+
+	Test Output:[should generate an exe]
+timeout: the monitored command dumped core
+Segmentation fault
+	(testrun done rv=0)
+==109673== Memcheck, a memory error detector
+==109673== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==109673== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
+==109673== Command: ./puny ../basic.py
+==109673== 
+==109673== Invalid read of size 4
+==109673==    at 0x11A422: add_nested_table (symtab.c:400)
+==109673==    by 0x11AF0F: get_decl_stmt (symtab.c:806)
+==109673==    by 0x119A73: populate_symboltables (symtab.c:99)
+==109673==    by 0x119AA0: populate_symboltables (symtab.c:103)
+==109673==    by 0x119AA0: populate_symboltables (symtab.c:103)
+==109673==    by 0x119AA0: populate_symboltables (symtab.c:103)
+==109673==    by 0x119AA0: populate_symboltables (symtab.c:103)
+==109673==    by 0x119AA0: populate_symboltables (symtab.c:103)
+==109673==    by 0x119AA0: populate_symboltables (symtab.c:103)
+==109673==    by 0x11990B: semantics (symtab.c:50)
+==109673==    by 0x1153C2: main (main.c:87)
+==109673==  Address 0x0 is not stack'd, malloc'd or (recently) free'd
+==109673== 
+==109673== 
+==109673== Process terminating with default action of signal 11 (SIGSEGV)
+==109673==  Access not within mapped region at address 0x0
+==109673==    at 0x11A422: add_nested_table (symtab.c:400)
+==109673==    by 0x11AF0F: get_decl_stmt (symtab.c:806)
+==109673==    by 0x119A73: populate_symboltables (symtab.c:99)
+==109673==    by 0x119AA0: populate_symboltables (symtab.c:103)
+==109673==    by 0x119AA0: populate_symboltables (symtab.c:103)
+==109673==    by 0x119AA0: populate_symboltables (symtab.c:103)
+==109673==    by 0x119AA0: populate_symboltables (symtab.c:103)
+==109673==    by 0x119AA0: populate_symboltables (symtab.c:103)
+==109673==    by 0x119AA0: populate_symboltables (symtab.c:103)
+==109673==    by 0x11990B: semantics (symtab.c:50)
+==109673==    by 0x1153C2: main (main.c:87)
+==109673==  If you believe this happened as a result of a stack
+==109673==  overflow in your program's main thread (unlikely but
+==109673==  possible), you can try to increase the size of the
+==109673==  main thread stack using the --main-stacksize= flag.
+==109673==  The main thread stack size used in this run was 8388608.
+==109673== 
+==109673== HEAP SUMMARY:
+==109673==     in use at exit: 404,322 bytes in 968 blocks
+==109673==   total heap usage: 1,089 allocs, 121 frees, 407,223 bytes allocated
+==109673== 
+==109673== LEAK SUMMARY:
+==109673==    definitely lost: 5,906 bytes in 212 blocks
+==109673==    indirectly lost: 18,283 bytes in 287 blocks
+==109673==      possibly lost: 0 bytes in 0 blocks
+==109673==    still reachable: 380,133 bytes in 469 blocks
+==109673==         suppressed: 0 bytes in 0 blocks
+==109673== Rerun with --leak-check=full to see details of leaked memory
+==109673== 
+==109673== For lists of detected and suppressed errors, rerun with: -s
+==109673== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 0 from 0)
+timeout: the monitored command dumped core
+exit status: 124 expected 0
+
+------------------------------------------------------------------------
+
+	Test#2 Input:
+filnam: "exprs.py"
+def main():
+   i : int
+   j : int
+   k : int
+   i = 5
+   j = i + i
+   k = j + j * i
+   i = k / j
+   i = k / (j + 1)
+main()
+
+	Test Output:[should output a 5]
+timeout: the monitored command dumped core
+Segmentation fault
+	(testrun done rv=0)
+
+------------------------------------------------------------------------
+
+	Test#3 Input:
+filnam: "gotos.py"
+def itoa(i : int) -> str :
+   return "not implemented"
+
+def main():
+  i : int
+  j : int
+  k : int
+  i = 5
+  k = 0
+  while i>0:
+    i = i-1
+
+  for i in range(5):
+     for j in range(5):
+        if i<j:
+           k = k + 1
+        if i==j:
+           k = k + 2
+        else:
+           k = k - 1
+  print("k "+ itoa(k))
+main()
+
+	Test Output:[should output some number k N]
+timeout: the monitored command dumped core
+Segmentation fault
+	(testrun done rv=0)
+
+------------------------------------------------------------------------
+
+	Test#4 Input:
+filnam: "funcs.py"
+def fib(n : int) -> int :
+  m : int
+  if (n < 2):
+    return 1
+
+  m = fib(n-1)
+  m = m + fib(n-2)
+  return m
+
+def main():
+  i : int
+  i = 5
+  i = fib(i)
+  print(i)
+main()
+
+	Test Output:[should output fib(5) which is: 8]
+timeout: the monitored command dumped core
+Segmentation fault
+	(testrun done rv=0)
+
+------------------------------------------------------------------------
+
+	Test#5 Input:
+filnam: "decls.py"
+x : int
+y : str
+z : float
+
+def main():
+  i : int
+  y : str
+  k : float
+  i = 5
+  y = "x"
+  z = 3.14
+  print(i)
+main()
+
+	Test Output:[should output 5 : x : z 3.14]
+timeout: the monitored command dumped core
+Segmentation fault
+	(testrun done rv=0)
+
+------------------------------------------------------------------------
+
+	Test#6 Input:
+filnam: "foo.py"
+x = dict( e1 = 1, e2 = 2 )
+print(x)
+y = { 'e1' : 1, 'e2' : 2}
+print(y)
+"hello".upper()
+
+	Test Output:[tests dict, built-in method]
+foo.py:1,11: Name 'e1' not found
+File: foo.py
+	(testrun done rv=0)
+
+------------------------------------------------------------------------
+
+	Test#7 Input:
+filnam: "Age-27.py"
+Age = 80
+
+if Age == 60:
+   print ('Senior Discount')
+elif 18 <= Age < 60:
+   print ('No Discount')
+else:
+   print ('Junior Discount')
+
+	Test Output:[tests elif]
+Age-27.icn:2: # "__Age" missing operator or "do" keyword
+File: Age-27.py
+No errors.
+	(testrun done rv=0)
+
+------------------------------------------------------------------------
+
+	Test#8 Input:
+filnam: "mean.py"
+x = 0
+g= 0
+for k in range (1):
+    g = input("enter data point")
+    x = float(g) + float(x)
+
+
+avg = x/(k+1)
+print ("The average of these numbers is: ", avg)
+
+	Test Output:[tests for]
+File: mean.py
+No errors.
+executable:
+-rwxr-xr-x 1 jeffery domain users 11179 Jun 30 11:50 mean
+testrun output for ./mean
+enter data point	(testrun done rv=0)
+
+------------------------------------------------------------------------
+
+	Test#9 Input:
+filnam: "payment2.py"
+f = input("Enter a dollar amount: ")
+j = float(f)/20 
+twen = int(float(f/20)) # error unsupported operand types 'str' / 'int'
+print ("%20 bills:", twen) # remind me what %20 does
+
+	Test Output:[expect type error]
+payment2.py:3,8: 'int' requires 'int' for arg 1, but 'float' was given
+File: payment2.py
+	(testrun done rv=0)
+
+------------------------------------------------------------------------
+
+	Test#10 Input:
+filnam: "elements.py"
+elements = [3, 2, 4, 5, 12]
+ 
+for i in range (len(elements)):
+        j = (len(elements)) - i
+    rev_elements = elements[j, len(elements)] # IndentationError, list bug
+
+print rev_elements # illegal print
+
+	Test Output:[expect indentation error]
+Python indent error line 5
+elements.py:5,6: SyntaxError: syntax error - near '
+    ' token
+File: elements.py
+	(testrun done rv=0)
+
+------------------------------------------------------------------------
+
+	Test#11 Input:
+filnam: "importmath.py"
+import math
+a = int(input("Please enter a positive integer: "))
+def func1(x):
+    if (x%2) == 0:
+        x=1
+    else:
+        x=0
+print (a)
+while (1 <= a):
+    if (func1(a) == 1):
+        print(func1(a))
+        a = a - 1
+    else:
+         a = a - 1
+        
+
+	Test Output:[expect 42]
+importmath.py:2,5: 'int' requires 'int' for arg 1, but 'str' was given
+File: importmath.py
+	(testrun done rv=0)
+
+------------------------------------------------------------------------
+
+	Test#12 Input:
+filnam: "square.py"
+import math
+a = int(input("Please enter a positive integer: "))
+
+
+def func1(x):
+    if (math.sqrt(x) % 2 == 0):
+        g = 'true'
+    
+    else:
+        g = 'false'
+
+
+while (1 <= a):
+    func1(a)
+    if (g = 'true'): # syntax error
+        print(a)
+        a = a-1
+    else:
+        a = a-1
+
+       
+
+	Test Output:[expect syntax error line 15]
+square.py:15,13: SyntaxError: syntax error - near '=' token
+File: square.py
+	(testrun done rv=0)
+
+------------------------------------------------------------------------
+
+	Test#13 Input:
+filnam: "payment.py"
+f = input("Enter a dollar amount: ")
+j = int(f)/20 
+print (int(j))
+rem = int(f) % 20
+print (rem/20)
+twen = j - (rem/20)
+print ("$20 bills:", round(twen))
+h = rem/10
+rem2 = rem % 10
+ten = h - (rem2/10)
+print ("$10 bills:", round(ten))
+l = rem2/5
+rem3 = rem2 % 5
+five = l - (rem3/10)
+print ("$5 bills:", int(five))
+one = rem3
+print ("$1 bills:", one)
+	Test Output:[expect 2 $20's and 2 $1's]
+File: payment.py
+No errors.
+executable:
+-rwxr-xr-x 1 jeffery domain users 12039 Jun 30 11:50 payment
+testrun output for ./payment
+Enter a dollar amount: 	(testrun done rv=0)
+
+------------------------------------------------------------------------
+
+	Test#14 Input:
+filnam: "collatz.py"
+"""
+A program to demonstrate import
+
+file: collatz:py
+
+author: anonymous
+
+date: Feb 16
+
+assignment: Lab 3
+"""
+
+def collatz_len(n):
+    global q
+    x = 0
+    q = 0
+    while x <= 0:
+        if n == 1:
+            q = q + 1
+            x = x + 1  
+        elif n%2 == 0:
+            q = q + 1
+            n = n / 2
+        else:
+            q= q + 1
+            n =(3 * n) + 1
+def main():
+    n = input("Enter a starting number:")
+    n = int(n)
+    collatz_len(n)
+    print ("Length of Collatz sequence: {}".format(q))
+
+if __name__ == '__main__':
+    main()
+
+	Test Output:[expect a miracle]
+collatz.py:33,4: Name '__name__' not found
+File: collatz.py
+	(testrun done rv=0)
+
+------------------------------------------------------------------------
+
+	Test#15 Input:
+filnam: "fizzbuzz.py"
+"""
+A program to demonstrate while loop
+
+file: fizzbuzz.py
+
+author: anonymous
+
+date: Feb 16
+
+assignment: Lab3
+"""
+
+import math 
+def main():
+    x = input("Please enter a positive integer: ")
+    x = int(x)
+    if x < 0:
+        print("Not a positive number!")
+        quit()
+    y= 0
+    while y <= x:
+        if y % 3 == 0 and y % 5 == 0:
+            print("{} FizzBuzz".format(y))
+            y = y + 1
+        elif y % 3 == 0:
+            print("{} Fizz".format(y))
+            y = y + 1
+        elif y % 5 == 0:
+            print("{} Buzz".format(y))
+            y = y + 1
+        else:
+            print("{}".format(y))
+            y = y + 1
+
+if __name__ == '__main__':
+    main()
+
+	Test Output:[expect fizzing]
+fizzbuzz.py:19,10: Name 'quit' not found
+File: fizzbuzz.py
+	(testrun done rv=0)
+
+------------------------------------------------------------------------
+
+	Test#16 Input:
+filnam: "cipher.py"
+""" 
+A program to demonstrate methods of string/list conversions to overcome challenges in unmutable data types.
+This program reverses values of any input string. It uses string concatonation to better combine elements 
+of string values. 
+File: cipher.py
+
+Author: anonymous
+
+Date: March, 9. 
+
+Assignment: Lab 5.
+"""
+
+def main():
+    """ This function reverses any phrase by generating a new string and adding all the values of the 
+    original user input in reverse order. """
+    stringcheese = input("Enter a phrase.... any phrase:")
+    stringi = list(stringcheese)
+    s = ""
+    y = 1
+    while y <= len(stringi):
+        z = stringi[(-y)+(len(stringi))]
+        s = s + z
+        y = y + 1
+    print(s)
+main()
+
+
+	Test Output:[expect 24]
+File: cipher.py
+No errors.
+executable:
+-rwxr-xr-x 1 jeffery domain users 11307 Jun 30 11:50 cipher
+testrun output for ./cipher
+Enter a phrase.... any phrase:	(testrun done rv=0)
+

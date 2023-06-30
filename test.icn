@@ -1,61 +1,15 @@
-global test3__fifa
-global test2__fifa
-
-procedure test3__f(test3__x, test3__y)
-    return test3__x + test3__y * 2
-end
-
-procedure test2__f(test2__x, test2__y)
-    return [test2__x, test2__y]
-end
-
-procedure test1__f(test1__x)
-    return test1__x
-end
-
-procedure test__f(test__x, test__y)
-    if (test__y > test__x) then {
-        return repl("asdf", 1 * 2)
-    }
-    return repl("fdsa", 1 * test__x)
-end
-
-procedure test__g(test__x)
-    return test__f(test__x * 2, +---3 + test__x)
+procedure test__main()
+    test__i := 0
+    test__j := 0
+    test__k := 0
+    test__i := 5
+    test__j := test__i + test__i
+    test__k := test__j + test__j * test__i
+    test__i := test__k / test__j
+    test__i := test__k / (test__j + 1)
 end
 
 procedure main()
-    test3__a := [3, 4]
-    put(test3__a, 1)
-    test2__h := [1, 2, 3]
-    test3__f(1, 2)
-    print(put(test3__a, 8))
-    print(repl("asdf", 1 * 1))
-    print(test3__a)
-    print(test3__a[1])
-    print(test3__f(1, 2))
-    every test__i := !range(10) do {
-        if (test__i === 4) then {
-            every test__j := !range(5) do {
-                print(test__i + test__j)
-            }
-            next
-        }
-        if (test__i === 9) then {
-            print("fifa")
-            break
-        }
-        print(test__i)
-    }
-    print(put(test3__a, 11))
-    print(remove_element(test3__a, 11))
-    print(test1__f(23))
-    print(test2__f(test__f(3, 4), test__f(4, 3)))
-    print(test3__f(12, 21))
-    test__f(3, 4)
-    test__a := "fdsadmdld"
-    print(split(test__a, "fdsa"))
-    print(replace(test__a, "ds", "wee"))
-    print(1 * ((2 < 3)))
+    test__main()
 end
 

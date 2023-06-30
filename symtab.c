@@ -803,7 +803,10 @@ void get_decl_stmt(struct tree *t, SymbolTable st)
     }
     SymbolTableEntry e = insertsymbol(st, var);
     e->declared = true;
-    add_nested_table(e, rhs_type);
+    if(rhs_type != NULL) 
+        add_nested_table(e, rhs_type);
+    else
+        add_nested_table(e, any_typeptr);
 }
 
 /** 

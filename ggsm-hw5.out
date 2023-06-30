@@ -1,0 +1,238 @@
+CSE 423 HW5 test run output for taylor-etal
+------------------------------------------------------------
+	.zip Compiles w/no warnings:         _1/1
+	Exe named puny Runs on Basic Stuff:  _2/2
+	Valgrind OK:                         _2/2
+	Typecheck Operators:                 _4/4
+	Typecheck Functions+parameters:      _4/4
+	Typecheck built-ins:                 _4/4
+	Typecheck puny stuff:                _2/3 misleading error message
+	-----------------------------------------
+	Total:                               19/20
+	Reduced Late Fee -5		     14/20
+
+	----------------------------------------------------
+
+	(extracting done rv=0)
+	(make)
+bison --debug punygram.y -v
+punygram.y: warning: 1 shift/reduce conflict [-Wconflicts-sr]
+punygram.y: note: rerun with option '-Wcounterexamples' to generate conflict counterexamples
+bison -d --debug punygram.y
+punygram.y: warning: 1 shift/reduce conflict [-Wconflicts-sr]
+punygram.y: note: rerun with option '-Wcounterexamples' to generate conflict counterexamples
+flex punylex.l
+gcc -g -Wall -c punygram.tab.c lex.yy.c utils.c main.c back.c tree.c symtab.c printsyms.c type.c builtins.c nonterminal.c
+gcc -g -Wall lex.yy.o punygram.tab.o utils.o tree.o main.o back.o type.o symtab.o builtins.o nonterminal.o -o puny
+./puny arcade.py
+File: arcade.py
+No errors.
+	(make done rv=0)
+
+------------------------------------------------------------------------
+
+Executing from: /fserv/home/jeffery/submit/423/hw5/taylor-etal
+	Test#1 Input:
+x : int
+x = 5
+x = x * x
+
+#
+
+	Test Output:[expect no error]
+File: ../basic.py
+No errors.
+	(testrun done rv=0)
+==25045== Memcheck, a memory error detector
+==25045== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==25045== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
+==25045== Command: ./puny ../basic.py
+==25045== 
+File: ../basic.py
+No errors.
+==25045== 
+==25045== HEAP SUMMARY:
+==25045==     in use at exit: 307,491 bytes in 576 blocks
+==25045==   total heap usage: 679 allocs, 103 frees, 326,867 bytes allocated
+==25045== 
+==25045== LEAK SUMMARY:
+==25045==    definitely lost: 1,000 bytes in 9 blocks
+==25045==    indirectly lost: 485 bytes in 26 blocks
+==25045==      possibly lost: 0 bytes in 0 blocks
+==25045==    still reachable: 306,006 bytes in 541 blocks
+==25045==         suppressed: 0 bytes in 0 blocks
+==25045== Rerun with --leak-check=full to see details of leaked memory
+==25045== 
+==25045== For lists of detected and suppressed errors, rerun with: -s
+==25045== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+exit status: 0 expected 0
+
+------------------------------------------------------------------------
+
+Executing from: /fserv/home/jeffery/submit/423/hw5/taylor-etal
+	Test#2 Input:
+def fib(i : int)-> int :
+   return 11
+
+def main():
+   i : int
+   i = 0 + "fib"
+#
+
+	Test Output:[expect type error to + on line 6]
+../typeck.py:6,11: unsupported operand type(s) for +: 'int' and 'str'
+File: ../typeck.py
+	(testrun done rv=0)
+
+------------------------------------------------------------------------
+
+Executing from: /fserv/home/jeffery/submit/423/hw5/taylor-etal
+	Test#3 Input:
+def fib( i : int) -> int:
+   return 11
+
+def main():
+   i: int
+   i = 0 + fib(1,2)
+
+main()
+#
+
+	Test Output:[expect wrong # of params on line 6]
+../typeck_fn.py:6,13: 'fib' takes at exactly 1 parameter(s), but 2 was/were given
+File: ../typeck_fn.py
+	(testrun done rv=0)
+
+------------------------------------------------------------------------
+
+Executing from: /fserv/home/jeffery/submit/423/hw5/taylor-etal
+	Test#4 Input:
+dd : float
+
+def fib(s : str, i : int) -> float:
+   x : float
+   x = 3.14 * 2.0;
+   return x;
+
+def main():
+   f : str
+   i : float
+   j : int
+   i = 0.0 + fib(f, 3)
+   i = 5.0
+   i = fib(f, "hello")
+   j = 5
+   print(j);
+#
+
+	Test Output:[expect type error to param on line 14]
+../typeck_parm.py:14,9: 'fib' requires 'int' for arg 2, but 'str' was given
+File: ../typeck_parm.py
+	(testrun done rv=0)
+
+------------------------------------------------------------------------
+
+Executing from: /fserv/home/jeffery/submit/423/hw5/taylor-etal
+	Test#5 Input:
+def main():
+   j : int
+   s : string
+   s = "hello"
+   j = len(s)
+   j = dict()
+   print(j);
+#
+
+	Test Output:[expect type name error on line 3]
+'string' not found
+File: ../typeck_typenames.py
+	(testrun done rv=0)
+
+------------------------------------------------------------------------
+
+Executing from: /fserv/home/jeffery/submit/423/hw5/taylor-etal
+	Test#6 Input:
+def main():
+   j : int
+   s : str
+   s = "hello"
+   j = len(s)
+   j = dict()
+   print(j);
+#
+
+	Test Output:[expect type error on line 6]
+../typeck_builtin.py:5,9: 'len' requires 'list' for arg 1, but 'str' was given
+File: ../typeck_builtin.py
+	(testrun done rv=0)
+
+------------------------------------------------------------------------
+
+Executing from: /fserv/home/jeffery/submit/423/hw5/taylor-etal
+	Test#7 Input:
+'''
+ multi line 
+ comment     
+'''
+
+
+def assignments():
+ a = 1
+ b = 2
+ c = c- 3
+
+def Operators():
+   w : int = 0
+   x : int
+   y : int = 0
+   z : int =0
+   q : int =0
+   x = -1
+   if (x < y and y <= z or z < q and q != x):
+    x = y
+    y = z
+   else:
+    w = x + y * z / q - 4
+
+   logicalValue = w > 20
+
+
+def WhileStuff():
+   x : int
+   x = 0
+   while x < 20:
+      x = d6
+      return
+
+def RollTheDice():
+   d6Var = 6
+   y45 = d6Var
+
+def main():
+ RollTheDice()
+ print("stuff and things\n")
+ p0var = 2
+
+
+def MakeAPet():
+   
+   p= pet()
+   p.play()
+   print("%d\n" + p.happy)
+
+def stringOps():
+ S1 = "One"
+ S2 = S1 + "Two"  
+ return S2
+
+def listOps():
+ L = [ 0, 0, 0]
+ L[0] = 1; L[1] = 2; L[2] = 3
+ return L 
+#
+
+	Test Output:[not sure what we expect]
+../pstuff.py:10,7: Name 'c' not found
+File: ../pstuff.py
+	(testrun done rv=0)
+
