@@ -1,15 +1,20 @@
-procedure test__main()
-    test__i := 0
-    test__j := 0
-    test__k := 0
-    test__i := 5
-    test__j := test__i + test__i
-    test__k := test__j + test__j * test__i
-    test__i := test__k / test__j
-    test__i := test__k / (test__j + 1)
-end
-
 procedure main()
-    test__main()
+    test__f := input_puny("Enter a dollar amount: ")
+    test__j := int(test__f) / 20
+    print(int(test__j))
+    test__rem := int(test__f) % 20
+    print(test__rem / 20)
+    test__twen := test__j - (test__rem / 20)
+    print("$20 bills:", round(test__twen))
+    test__h := test__rem / 10
+    test__rem2 := test__rem % 10
+    test__ten := test__h - (test__rem2 / 10)
+    print("$10 bills:", round(test__ten))
+    test__l := test__rem2 / 5
+    test__rem3 := test__rem2 % 5
+    test__five := test__l - (test__rem3 / 10)
+    print("$5 bills:", int(test__five))
+    test__one := test__rem3
+    print("$1 bills:", test__one)
 end
 
